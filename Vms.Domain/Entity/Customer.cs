@@ -1,0 +1,53 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
+
+namespace Vms.Domain.Entity
+{
+    public partial class Customer
+    {
+        public string CompanyCode { get; set; } = null!;
+
+        public string Code { get; set; } = null!;
+
+        public int Id { get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public virtual Company CompanyCodeNavigation { get; set; } = null!;
+
+        public virtual ICollection<CustomerNetwork> CustomerNetworks { get; set; } = new List<CustomerNetwork>();
+
+        public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+    }
+}
+
+namespace Vms.Domain.Entity.Configuration
+{
+    public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer>
+    {
+        public void Configure(EntityTypeBuilder<Customer> builder)
+        {
+            builder.ToTable("Customer");
+
+            builder.HasIndex(e => new { e.CompanyCode, e.Code }, "IX_Customer").IsUnique();
+
+            builder.Property(e => e.Code)
+                .HasMaxLength(10)
+                .IsFixedLength();
+            builder.Property(e => e.CompanyCode)
+                .HasMaxLength(10)
+                .IsFixedLength();
+            builder.Property(e => e.Name)
+                .HasMaxLength(32)
+                .IsUnicode(false);
+
+            builder.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Customers)
+                .HasPrincipalKey(p => p.Code)
+                .HasForeignKey(d => d.CompanyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Customer_Company");
+        }
+    }
+}

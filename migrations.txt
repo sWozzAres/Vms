@@ -1,0 +1,3 @@
+dotnet ef migrations add Initial3 -o Infrastructure\Migrations\CatalogDb -c CatalogContext
+
+add-migration -Name Initial -o Infrastructure\VmsDb -Context VmsDbContext
