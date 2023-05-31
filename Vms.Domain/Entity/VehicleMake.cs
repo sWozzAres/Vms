@@ -11,6 +11,12 @@ namespace Vms.Domain.Entity
         public string Make { get; set; } = null!;
         public virtual ICollection<VehicleModel> VehicleModels { get; set; } = null!;
         public virtual ICollection<Supplier> SupplierCodes { get; set; } = null!;
+        private VehicleMake() { }
+        public VehicleMake(string make)
+        {
+            Make = make;
+            VehicleModels = new List<VehicleModel>();
+        }
     }
 }
 

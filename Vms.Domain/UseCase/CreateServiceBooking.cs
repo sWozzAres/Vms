@@ -49,7 +49,7 @@ public class CreateServiceBooking
                 request.PreferredDate2,
                 request.PreferredDate3,
                 request.IncludeMot ? self.NextMot.Due : null);
-            
+
             await context.DbContext.ServiceBookings.AddAsync(booking, context.CancellationToken);
 
             return booking;

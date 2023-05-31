@@ -11,6 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Blazor.Server", "Vms.Bl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Blazor.Shared", "Vms.Blazor\Shared\Vms.Blazor.Shared.csproj", "{40319812-05C0-4F77-8293-CFB4B31000F4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{42B0C510-22A0-4FBD-9C2E-0DEDF7FF95BF}"
+	ProjectSection(SolutionItems) = preProject
+		migrations.txt = migrations.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Tests", "Vms.Tests\Vms.Tests.csproj", "{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +40,10 @@ Global
 		{40319812-05C0-4F77-8293-CFB4B31000F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40319812-05C0-4F77-8293-CFB4B31000F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40319812-05C0-4F77-8293-CFB4B31000F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

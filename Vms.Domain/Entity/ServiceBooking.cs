@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Vms.Domain.Entity
 {
-    public enum ServiceBookingStatus { None, Draft, Allocating };
+    public enum ServiceBookingStatus { None, Allocating };
 
     public class ServiceBooking
     {
@@ -20,7 +20,7 @@ namespace Vms.Domain.Entity
         public DateOnly? MotDue { get; set; }
         public int? SupplierId { get; set; }
 
-        public ServiceBookingStatus Status => ServiceBookingStatus.None;
+        public ServiceBookingStatus Status { get; private set; } = ServiceBookingStatus.None;
         public virtual Vehicle Vehicle { get; set; } = null!;
         private ServiceBooking() { }
         public ServiceBooking(int vehicleId, DateOnly preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
@@ -30,7 +30,9 @@ namespace Vms.Domain.Entity
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
             MotDue = motDue;
+            Status = ServiceBookingStatus.Allocating;
         }
+        public void ChangeStatus(ServiceBookingStatus status) => Status = status;
     }
 }
 

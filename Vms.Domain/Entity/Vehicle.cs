@@ -23,6 +23,23 @@ namespace Vms.Domain.Entity
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
+        private Vehicle() { }
+        public Vehicle(string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, IEnumerable<Driver> drivers)
+        {
+            Make = make;
+            Model = model;
+            DateFirstRegistered = dateFirstRegistered;
+
+            NextMot = new NextMot() { Due =  motDue };
+
+            DriverVehicles = new List<DriverVehicle>();
+            foreach(var driver in drivers)
+            {
+                DriverVehicles.Add(new DriverVehicle() { EmailAddress = driver.EmailAddress });
+            }
+
+            VehicleVrm = new VehicleVrm() { Vrm = vrm };
+        }
     }
 
     public partial class NextMot

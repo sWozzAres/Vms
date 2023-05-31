@@ -13,6 +13,9 @@ namespace Vms.Domain.Entity
 
         public virtual VehicleMake MakeNavigation { get; set; } = null!;
         public virtual ICollection<Vehicle> Vehicles { get; set; } = null!;
+        private VehicleModel() { }
+        public VehicleModel(string make, string model)
+            => (Make, Model) = (make, model);
     }
 }
 

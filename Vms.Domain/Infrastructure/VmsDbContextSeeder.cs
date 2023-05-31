@@ -94,7 +94,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         if (!_context.VehicleMakes.Any())
         {
-            await _context.VehicleMakes.AddRangeAsync(makes.Select(x => new VehicleMake() { Make = x.Make }));
+            await _context.VehicleMakes.AddRangeAsync(makes.Select(x => new VehicleMake(x.Make)));
         }
 
         IEnumerable<(string Make, string Model)> flattenedMakeModel = from make in makes
@@ -107,7 +107,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         if (!_context.VehicleModels.Any())
         {
-            await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel() { Make = x.Make, Model = x.Model }));
+            await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
         }
 
         if (!_context.Vehicles.Any())
