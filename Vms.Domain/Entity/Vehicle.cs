@@ -25,8 +25,9 @@ namespace Vms.Domain.Entity
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        public Vehicle(string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue)
+        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue)
         {
+            CompanyCode = companyCode;
             Make = make;
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
@@ -67,6 +68,8 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
             builder.ToTable("Vehicle");
+
+            builder.Property(e => e.Id).UseHiLo("VehicleIds");
 
             builder.Ignore(e => e.Vrm);
 

@@ -13,7 +13,7 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230601125602_Initial")]
+    [Migration("20230601163407_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,6 +25,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.HasSequence<int>("CompanyIds")
+                .IncrementsBy(10);
+
+            modelBuilder.HasSequence<int>("CustomerIds")
+                .IncrementsBy(10);
+
+            modelBuilder.HasSequence<int>("VehicleIds")
+                .IncrementsBy(10);
 
             modelBuilder.Entity("NetworkSupplier", b =>
                 {
@@ -66,7 +75,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "CompanyIds");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -98,7 +107,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "CustomerIds");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -380,7 +389,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "VehicleIds");
 
                     b.Property<string>("ChassisNumber")
                         .HasMaxLength(18)
@@ -698,7 +707,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Navigation("Vehicle");
                         });
 
-                    b.OwnsOne("Vms.Domain.Entity.VehicleVrm", "Vrm", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.VehicleVrm", "VehicleVrm", b1 =>
                         {
                             b1.Property<int>("VehicleId")
                                 .HasColumnType("int");
@@ -750,7 +759,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Mot")
                         .IsRequired();
 
-                    b.Navigation("Vrm")
+                    b.Navigation("VehicleVrm")
                         .IsRequired();
                 });
 

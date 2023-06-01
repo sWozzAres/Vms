@@ -49,6 +49,12 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     public async Task<int> Seed()
     {
+        if (_context.Companies.Any())
+            return 0;
+
+        var company = new Company("DEMO001", "Demonstration Company");
+        await _context.AddAsync(company);
+
         if (!_context.Drivers.Any())
         {
             var fullNames = (string[] firstNames) => from surName in SurNames
@@ -127,7 +133,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 }
 
                 var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
-                var vehicle = new Vehicle(RandomVrm(dateFirstRegistered), Make, Model,
+                var vehicle = new Vehicle(company.Code, RandomVrm(dateFirstRegistered), Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))));
                 

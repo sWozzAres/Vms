@@ -23,8 +23,9 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact]
-    public void Test1()
+    public async Task Test1()
     {
+        await TestDatabaseFixture.Initialize();
         using var context = TestDatabaseFixture.CreateContext();
 
         var vehicles = context.Vehicles.ToList();
@@ -51,10 +52,12 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
 
         var vehicle = context.Vehicles.First();
 
-        ChangeVrmRequest request1 = new ChangeVrmRequest(vehicle.Id, "123");
+        var request1 = new ChangeVrmRequest(vehicle.Id, "123");
         var response1 = await new ChangeVrm(context).ChangeTo(request1);
 
-        ChangeVrmRequest request2 = new ChangeVrmRequest(vehicle.Id, "12345");
+        var request2 = new ChangeVrmRequest(vehicle.Id, "12345");
         var response2 = await new ChangeVrm(context).ChangeTo(request2);
+
+        Assert.Equal("12345", vehicle.Vrm);
     }
 }

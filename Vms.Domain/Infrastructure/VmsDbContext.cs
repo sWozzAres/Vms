@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 using Vms.Domain.Entity;
 using Vms.Domain.Entity.Configuration;
 using Vms.Domain.Services;
@@ -33,7 +34,12 @@ public class VmsDbContext : DbContext
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
 
+        modelBuilder.HasSequence<int>("CompanyIds");
+        modelBuilder.HasSequence<int>("CustomerIds");
+        modelBuilder.HasSequence<int>("VehicleIds");
+
         modelBuilder.Entity<Company>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
+        modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
         modelBuilder.Entity<Vehicle>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
     }
 
@@ -64,4 +70,77 @@ public class VmsDbContext : DbContext
 
         return base.AddAsync(entity, cancellationToken);
     }
+    public override void AddRange(IEnumerable<object> entities)
+    {
+        foreach(var entity in entities)
+        {
+            if (entity is IMultiTenantEntity m) m.CompanyCode = UserProvider.TenantId;
+        }
+
+        base.AddRange(entities);
+    }
+    public override Task AddRangeAsync(IEnumerable<object> entities, CancellationToken cancellationToken = default)
+    {
+        foreach (var entity in entities)
+        {
+            if (entity is IMultiTenantEntity m) m.CompanyCode = UserProvider.TenantId;
+        }
+
+        return base.AddRangeAsync(entities, cancellationToken);
+    }
+
+    #region Transaction
+    private IDbContextTransaction? _currentTransaction;
+    public IDbContextTransaction? GetCurrentTransaction() => _currentTransaction;
+    public bool HasActiveTransaction => _currentTransaction is not null;
+    public async Task<IDbContextTransaction?> BeginTransactionAsync()
+    {
+        if (_currentTransaction is not null) return null;
+
+        _currentTransaction = await Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
+
+        return _currentTransaction;
+    }
+
+    public async Task CommitTransactionAsync(IDbContextTransaction transaction)
+    {
+        if (transaction is null) throw new ArgumentNullException(nameof(transaction));
+        if (transaction != _currentTransaction) throw new InvalidOperationException($"Transaction {transaction.TransactionId} is not current");
+
+        try
+        {
+            await SaveChangesAsync();
+            transaction.Commit();
+        }
+        catch
+        {
+            RollbackTransaction();
+            throw;
+        }
+        finally
+        {
+            if (_currentTransaction is not null)
+            {
+                _currentTransaction.Dispose();
+                _currentTransaction = null;
+            }
+        }
+    }
+
+    public void RollbackTransaction()
+    {
+        try
+        {
+            _currentTransaction?.Rollback();
+        }
+        finally
+        {
+            if (_currentTransaction is not null)
+            {
+                _currentTransaction.Dispose();
+                _currentTransaction = null;
+            }
+        }
+    }
+    #endregion
 }

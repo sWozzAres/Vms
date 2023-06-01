@@ -20,6 +20,8 @@ namespace Vms.Domain.Entity
         public virtual ICollection<CustomerNetwork> CustomerNetworks { get; set; } = new List<CustomerNetwork>();
 
         public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+        private Customer() { }
+        public Customer(string companyCode, string code, string name) => (CompanyCode, Code, Name) = (companyCode, code, name);
     }
 }
 
@@ -30,6 +32,8 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
             builder.ToTable("Customer");
+
+            builder.Property(e => e.Id).UseHiLo("CustomerIds");
 
             builder.HasIndex(e => new { e.CompanyCode, e.Code }, "IX_Customer").IsUnique();
 

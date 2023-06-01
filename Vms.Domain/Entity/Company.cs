@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Company : IMultiTenantEntity
+    public partial class Company
     {
         public string Code { get; set; } = null!;
 
@@ -34,6 +34,8 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Company> builder)
         {
             builder.ToTable("Company");
+
+            builder.Property(e => e.Id).UseHiLo("CompanyIds");
 
             builder.HasIndex(e => e.Code, "IX_Company").IsUnique();
 

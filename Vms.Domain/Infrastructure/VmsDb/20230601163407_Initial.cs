@@ -12,12 +12,23 @@ namespace Vms.Domain.Infrastructure.VmsDb
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateSequence<int>(
+                name: "CompanyIds",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence<int>(
+                name: "CustomerIds",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence<int>(
+                name: "VehicleIds",
+                incrementBy: 10);
+
             migrationBuilder.CreateTable(
                 name: "Company",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false),
                     CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -78,8 +89,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Customer",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
@@ -249,8 +259,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Vehicle",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Make = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
                     Model = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
@@ -586,6 +595,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             migrationBuilder.DropTable(
                 name: "VehicleMake");
+
+            migrationBuilder.DropSequence(
+                name: "CompanyIds");
+
+            migrationBuilder.DropSequence(
+                name: "CustomerIds");
+
+            migrationBuilder.DropSequence(
+                name: "VehicleIds");
         }
     }
 }
