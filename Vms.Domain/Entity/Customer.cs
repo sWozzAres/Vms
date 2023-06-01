@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Customer
+    public partial class Customer : IMultiTenantEntity
     {
         public string CompanyCode { get; set; } = null!;
 
@@ -32,10 +32,11 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
             builder.ToTable("Customer");
-
+            
+            builder.HasAlternateKey(e => e.Id);
             builder.Property(e => e.Id).UseHiLo("CustomerIds");
 
-            builder.HasIndex(e => new { e.CompanyCode, e.Code }, "IX_Customer").IsUnique();
+            builder.HasKey(e => new { e.CompanyCode, e.Code });
 
             builder.Property(e => e.Code)
                 .HasMaxLength(10)
@@ -48,7 +49,7 @@ namespace Vms.Domain.Entity.Configuration
                 .IsUnicode(false);
 
             builder.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Customers)
-                .HasPrincipalKey(p => p.Code)
+                //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Customer_Company");

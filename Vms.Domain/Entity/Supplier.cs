@@ -25,8 +25,9 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Supplier> builder)
         {
-            builder.HasKey(e => e.Id);
-            builder.HasAlternateKey(e => e.Code);
+            builder.HasAlternateKey(e => e.Id);
+            builder.Property(e => e.Id).UseHiLo("SupplierIds");
+            builder.HasKey(e => e.Code);
 
             builder.ToTable("Supplier");
 
@@ -49,7 +50,7 @@ namespace Vms.Domain.Entity.Configuration
                 .UsingEntity<Dictionary<string, object>>(
                     "SupplierFranchise",
                     l => l.HasOne<VehicleMake>().WithMany().HasForeignKey("Franchise").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_SupplierFranchise_VehicleMake"),
-                    r => r.HasOne<Supplier>().WithMany().HasPrincipalKey(k=>k.Code).HasForeignKey("SupplierCode").HasConstraintName("FK_SupplierFranchise_Supplier"),
+                    r => r.HasOne<Supplier>().WithMany().HasForeignKey("SupplierCode").HasConstraintName("FK_SupplierFranchise_Supplier"),
                     j =>
                     {
                         j.HasKey("SupplierCode", "Franchise");

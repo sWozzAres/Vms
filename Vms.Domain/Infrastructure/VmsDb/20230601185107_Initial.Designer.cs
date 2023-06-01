@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230601185107_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -594,6 +597,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Property<string>("SupplierCode")
                                 .IsRequired()
                                 .HasColumnType("varchar(8)");
+
+                            b1.Property<int>("SupplierId")
+                                .HasColumnType("int");
 
                             b1.Property<DateTime>("ValidFrom")
                                 .ValueGeneratedOnAddOrUpdate()

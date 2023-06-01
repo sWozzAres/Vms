@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230601185735_Initial2")]
+    partial class Initial2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -591,7 +594,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Property<int>("ServiceBookingId")
                                 .HasColumnType("int");
 
-                            b1.Property<string>("SupplierCode")
+                            b1.Property<int>("SupplierCode")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("SupplierCode1")
                                 .IsRequired()
                                 .HasColumnType("varchar(8)");
 
@@ -607,7 +613,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("ServiceBookingId");
 
-                            b1.HasIndex("SupplierCode");
+                            b1.HasIndex("SupplierCode1");
 
                             b1.ToTable("ServiceBookingSupplier", (string)null);
 
@@ -627,7 +633,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
                                 .WithMany()
-                                .HasForeignKey("SupplierCode")
+                                .HasForeignKey("SupplierCode1")
                                 .OnDelete(DeleteBehavior.Cascade)
                                 .IsRequired();
 

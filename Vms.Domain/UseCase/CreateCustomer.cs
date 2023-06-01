@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vms.Domain.Entity;
+﻿using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 
@@ -18,12 +13,10 @@ public class CreateCustomer
 
     public async Task<Customer> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyId)
+        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        var customer = await Company.CreateCustomerAsync(request.Code, request.Name, cancellationToken);
-        //await DbContext.SaveChangesAsync(cancellationToken);
-        return customer;
+        return await Company.CreateCustomerAsync(request.Code, request.Name, cancellationToken);
     }
 
     public class CompanyRole(Company self, CreateCustomer context)
@@ -37,4 +30,4 @@ public class CreateCustomer
     }
 }
 
-public record CreateCustomerRequest(int CompanyId, string Code, string Name);
+public record CreateCustomerRequest(string CompanyCode, string Code, string Name);

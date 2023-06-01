@@ -35,9 +35,11 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.ToTable("Company");
 
+            builder.HasKey(e => e.Code);
+            builder.HasAlternateKey(e => e.Id);
             builder.Property(e => e.Id).UseHiLo("CompanyIds");
 
-            builder.HasIndex(e => e.Code, "IX_Company").IsUnique();
+            //builder.HasIndex(e => e.Code, "IX_Company").IsUnique();
 
             builder.Property(e => e.Code)
                 .HasMaxLength(10)

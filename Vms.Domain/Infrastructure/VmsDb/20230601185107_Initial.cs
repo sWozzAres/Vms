@@ -21,6 +21,18 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 incrementBy: 10);
 
             migrationBuilder.CreateSequence<int>(
+                name: "FleetIds",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence<int>(
+                name: "NetworkIds",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence<int>(
+                name: "SupplierIds",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence<int>(
                 name: "VehicleIds",
                 incrementBy: 10);
 
@@ -28,15 +40,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Company",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false),
                     CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Company", x => x.Id);
-                    table.UniqueConstraint("AK_Company_Code", x => x.Code);
+                    table.PrimaryKey("PK_Company", x => x.Code);
+                    table.UniqueConstraint("AK_Company_Id", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,9 +72,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Supplier",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     Code = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Postcode = table.Column<string>(type: "varchar(9)", unicode: false, maxLength: 9, nullable: false),
                     Location = table.Column<Geometry>(type: "geography", nullable: false),
@@ -70,8 +81,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Supplier", x => x.Id);
-                    table.UniqueConstraint("AK_Supplier_Code", x => x.Code);
+                    table.PrimaryKey("PK_Supplier", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,15 +99,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Customer",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Customer", x => x.Id);
-                    table.UniqueConstraint("AK_Customer_CompanyCode_Code", x => new { x.CompanyCode, x.Code });
+                    table.PrimaryKey("PK_Customer", x => new { x.CompanyCode, x.Code });
                     table.ForeignKey(
                         name: "FK_Customer_Company",
                         column: x => x.CompanyCode,
@@ -109,16 +118,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Fleet",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Fleet", x => x.Id);
-                    table.UniqueConstraint("AK_Fleet_CompanyCode_Code", x => new { x.CompanyCode, x.Code });
+                    table.PrimaryKey("PK_Fleet", x => new { x.CompanyCode, x.Code });
                     table.ForeignKey(
                         name: "FK_Fleet_Company",
                         column: x => x.CompanyCode,
@@ -130,16 +137,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Network",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Network", x => x.Id);
-                    table.UniqueConstraint("AK_Network_CompanyCode_Code", x => new { x.CompanyCode, x.Code });
+                    table.PrimaryKey("PK_Network", x => new { x.CompanyCode, x.Code });
                     table.ForeignKey(
                         name: "FK_Network_Company",
                         column: x => x.CompanyCode,
@@ -237,22 +242,23 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "NetworkSupplier",
                 columns: table => new
                 {
-                    NetworkId = table.Column<int>(type: "int", nullable: false),
-                    SupplierId = table.Column<int>(type: "int", nullable: false)
+                    CompanyCode = table.Column<string>(type: "nchar(10)", nullable: false),
+                    NetworkCode = table.Column<string>(type: "nchar(10)", nullable: false),
+                    SupplierCode = table.Column<string>(type: "varchar(8)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NetworkSupplier", x => new { x.NetworkId, x.SupplierId });
+                    table.PrimaryKey("PK_NetworkSupplier", x => new { x.CompanyCode, x.NetworkCode, x.SupplierCode });
                     table.ForeignKey(
                         name: "FK_NetworkSupplier_Network",
-                        column: x => x.NetworkId,
+                        columns: x => new { x.CompanyCode, x.NetworkCode },
                         principalTable: "Network",
-                        principalColumn: "Id");
+                        principalColumns: new[] { "CompanyCode", "Code" });
                     table.ForeignKey(
                         name: "FK_NetworkSupplier_Supplier",
-                        column: x => x.SupplierId,
+                        column: x => x.SupplierCode,
                         principalTable: "Supplier",
-                        principalColumn: "Id");
+                        principalColumn: "Code");
                 });
 
             migrationBuilder.CreateTable(
@@ -419,6 +425,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    SupplierCode = table.Column<string>(type: "varchar(8)", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
                     ValidFrom = table.Column<DateTime>(type: "datetime2", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
@@ -442,10 +454,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ServiceBookingSupplier_Supplier_SupplierId",
-                        column: x => x.SupplierId,
+                        name: "FK_ServiceBookingSupplier_Supplier_SupplierCode",
+                        column: x => x.SupplierCode,
                         principalTable: "Supplier",
-                        principalColumn: "Id",
+                        principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("SqlServer:IsTemporal", true)
@@ -453,18 +465,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                 .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                 .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Company",
-                table: "Company",
-                column: "Code",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Customer",
-                table: "Customer",
-                columns: new[] { "CompanyCode", "Code" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerNetwork_CompanyCode_CustomerCode",
@@ -477,26 +477,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Fleet",
-                table: "Fleet",
-                columns: new[] { "CompanyCode", "Code" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_FleetNetwork_CompanyCode_NetworkCode",
                 table: "FleetNetwork",
                 columns: new[] { "CompanyCode", "NetworkCode" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Network",
-                table: "Network",
-                columns: new[] { "CompanyCode", "Code" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_NetworkSupplier_SupplierId",
+                name: "IX_NetworkSupplier_SupplierCode",
                 table: "NetworkSupplier",
-                column: "SupplierId");
+                column: "SupplierCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceBooking_VehicleId",
@@ -504,9 +492,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceBookingSupplier_SupplierId",
+                name: "IX_ServiceBookingSupplier_SupplierCode",
                 table: "ServiceBookingSupplier",
-                column: "SupplierId");
+                column: "SupplierCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupplierFranchise_Franchise",
@@ -601,6 +589,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             migrationBuilder.DropSequence(
                 name: "CustomerIds");
+
+            migrationBuilder.DropSequence(
+                name: "FleetIds");
+
+            migrationBuilder.DropSequence(
+                name: "NetworkIds");
+
+            migrationBuilder.DropSequence(
+                name: "SupplierIds");
 
             migrationBuilder.DropSequence(
                 name: "VehicleIds");

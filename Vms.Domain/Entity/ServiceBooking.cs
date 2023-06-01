@@ -38,7 +38,7 @@ namespace Vms.Domain.Entity
     public class ServiceBookingSupplier
     {
         public int ServiceBookingId { get; set; }
-        public int SupplierId { get; set; }
+        public string SupplierCode { get; set; }
         public virtual ServiceBooking ServiceBooking { get; set; } = null!;
         public virtual Supplier Supplier { get; set; } = null!;
     }
@@ -67,6 +67,8 @@ namespace Vms.Domain.Entity.Configuration
 
                 x.WithOwner(d => d.ServiceBooking)
                     .HasForeignKey(d => d.ServiceBookingId);
+
+                x.HasOne(d => d.Supplier).WithMany().HasForeignKey(d => d.SupplierCode);
             });
         }
     }

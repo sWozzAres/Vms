@@ -20,7 +20,7 @@ public class CreateServiceBooking
 
         Booking = await Vehicle.CreateBookingAsync(request, cancellationToken);
 
-        await DbContext.SaveChangesAsync(cancellationToken);
+        //await DbContext.SaveChangesAsync(cancellationToken);
 
         return new(Booking.Id);
     }

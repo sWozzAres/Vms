@@ -68,7 +68,7 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
             builder.ToTable("Vehicle");
-
+            builder.HasAlternateKey(e => e.Id);
             builder.Property(e => e.Id).UseHiLo("VehicleIds");
 
             builder.Ignore(e => e.Vrm);
@@ -105,18 +105,18 @@ namespace Vms.Domain.Entity.Configuration
                 .HasConstraintName("FK_Vehicle_VehicleModel");
 
             builder.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Vehicles)
-                .HasPrincipalKey(p => p.Code)
+                //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Vehicle_Company");
 
             builder.HasOne(d => d.C).WithMany(p => p.Vehicles)
-                .HasPrincipalKey(p => new { p.CompanyCode, p.Code })
+                //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.CustomerCode })
                 .HasConstraintName("FK_Vehicle_Customer");
 
             builder.HasOne(d => d.Fleet).WithMany(p => p.Vehicles)
-                .HasPrincipalKey(p => new { p.CompanyCode, p.Code })
+                //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.FleetCode })
                 .HasConstraintName("FK_Vehicle_Fleet");
 

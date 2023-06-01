@@ -23,7 +23,7 @@ public class ChangeVrm
 
         Vehicle.ChangeVrm(request.newVrm);
 
-        await DbContext.SaveChangesAsync(cancellationToken);
+        //await DbContext.SaveChangesAsync(cancellationToken);
         
         return new ChangeVrmResponse(true);
     }

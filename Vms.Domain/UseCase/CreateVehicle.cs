@@ -18,11 +18,11 @@ public class CreateVehicle
 
     public async Task<Vehicle> CreateAsync(CreateVehicleRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyId)
+        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode)
             ?? throw new VmsDomainException("Company not found."), this);
 
         var vehicle = await Company.CreateVehicleAsync(request, cancellationToken);
-        //await DbContext.SaveChangesAsync(cancellationToken);
+        
         return vehicle;
     }
 
@@ -33,6 +33,18 @@ public class CreateVehicle
             var vehicle = new Vehicle(self.Code, 
                 request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue);
             
+            if (request.FleetCode is not null)
+            {
+                vehicle.Fleet = await context.DbContext.Fleets.FindAsync(new[] { self.Code, request.FleetCode }, cancellationToken)
+                    ?? throw new VmsDomainException("Fleet not found.");
+            }
+
+            if (request.CustomerCode is not null)
+            {
+                vehicle.C = await context.DbContext.Customers.FindAsync(new[] { self.Code, request.CustomerCode }, cancellationToken)
+                    ?? throw new VmsDomainException("Customer not found.");
+            }
+
             await context.DbContext.AddAsync(vehicle, cancellationToken);
             
             return vehicle;
@@ -40,4 +52,5 @@ public class CreateVehicle
     }
 }
 
-public record CreateVehicleRequest(int CompanyId, string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue);
+public record CreateVehicleRequest(string CompanyCode, string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue,
+    string? CustomerCode = null, string? FleetCode = null);

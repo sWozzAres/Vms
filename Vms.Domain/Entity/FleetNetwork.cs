@@ -40,13 +40,13 @@ namespace Vms.Domain.Entity.Configuration
                 .IsFixedLength();
 
             builder.HasOne(d => d.Fleet).WithMany(p => p.FleetNetworks)
-                .HasPrincipalKey(p => new { p.CompanyCode, p.Code })
+                //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.FleetCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_FleetNetwork_Fleet");
 
             builder.HasOne(d => d.Network).WithMany(p => p.FleetNetworks)
-                .HasPrincipalKey(p => new { p.CompanyCode, p.Code })
+                 //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.NetworkCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_FleetNetwork_Network");

@@ -36,10 +36,15 @@ public class VmsDbContext : DbContext
 
         modelBuilder.HasSequence<int>("CompanyIds");
         modelBuilder.HasSequence<int>("CustomerIds");
+        modelBuilder.HasSequence<int>("FleetIds");
+        modelBuilder.HasSequence<int>("NetworkIds");
         modelBuilder.HasSequence<int>("VehicleIds");
+        modelBuilder.HasSequence<int>("SupplierIds");
 
         modelBuilder.Entity<Company>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
         modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
+        modelBuilder.Entity<Network>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
+        modelBuilder.Entity<Fleet>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
         modelBuilder.Entity<Vehicle>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
     }
 
