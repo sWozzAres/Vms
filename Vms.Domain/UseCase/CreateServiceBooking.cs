@@ -1,47 +1,33 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
-
-namespace Vms.Domain.UseCase;
 
 public class CreateServiceBooking
 {
     readonly VmsDbContext DbContext;
     readonly ILogger<CreateServiceBooking> Logger;
     VehicleRole? Vehicle;
-    CancellationToken CancellationToken = default;
-
+    ServiceBooking? Booking;
 
     public CreateServiceBooking(VmsDbContext context, ILogger<CreateServiceBooking> logger)
         => (DbContext, Logger) = (context, logger);
 
-    public async Task<int> Create(CreateBookingRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
     {
-        CancellationToken = cancellationToken;
-
-        Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken) 
+        Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle with id: {request.VehicleId} not found."), this);
 
-        var booking = await Vehicle.CreateBookingAsync(request);
+        Booking = await Vehicle.CreateBookingAsync(request, cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
-        return booking.Id;
+        return Booking.Id;
     }
 
     class VehicleRole(Vehicle self, CreateServiceBooking context)
     {
-        public async Task<ServiceBooking> CreateBookingAsync(CreateBookingRequest request)
+        public async Task<ServiceBooking> CreateBookingAsync(CreateBookingRequest request, CancellationToken cancellationToken)
         {
             var booking = new ServiceBooking(
                 self.Id,
@@ -50,12 +36,13 @@ public class CreateServiceBooking
                 request.PreferredDate3,
                 request.IncludeMot ? self.NextMot.Due : null);
 
-            await context.DbContext.ServiceBookings.AddAsync(booking, context.CancellationToken);
+            await context.DbContext.AddAsync(booking, cancellationToken);
 
             return booking;
         }
     }
 }
+
 
 public record CreateBookingRequest(
     int VehicleId,

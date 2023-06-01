@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Company
+    public partial class Company : IMultiTenantEntity
     {
         public string Code { get; set; } = null!;
 
@@ -20,6 +20,10 @@ namespace Vms.Domain.Entity
         public virtual ICollection<Network> Networks { get; set; } = new List<Network>();
 
         public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+        public string CompanyCode { get => Code; set => Code = value; }
+
+        private Company() { }
+        public Company(string code, string name) => (Code, Name) = (code, name);
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Vms.Domain.Services;
 
 namespace Vms.Domain.Infrastructure;
 
@@ -15,6 +16,13 @@ public class VmsDbContextFactory : IDesignTimeDbContextFactory<VmsDbContext>
                 x.UseDateOnlyTimeOnly();
             });
 
-        return new VmsDbContext(optionsBuilder.Options);
+        return new VmsDbContext(optionsBuilder.Options, new DesignTimeUserProvider());
     }
+}
+
+public class DesignTimeUserProvider : IUserProvider
+{
+    public Guid UserId => Guid.Empty;
+
+    public string TenantId => "DES001";
 }

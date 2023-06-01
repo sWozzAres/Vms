@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Vms.Domain.Entity;
 using Vms.Domain.Entity.Configuration;
+using Vms.Domain.Services;
 
 namespace Vms.Domain.Infrastructure;
 
@@ -22,12 +24,44 @@ public class VmsDbContext : DbContext
     public DbSet<VehicleMake> VehicleMakes => Set<VehicleMake>();
     public DbSet<VehicleModel> VehicleModels => Set<VehicleModel>();
 
-    public VmsDbContext(DbContextOptions<VmsDbContext> options) : base(options)
-    {
-    }
+    readonly IUserProvider UserProvider;
+    public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider) : base(options)
+        => UserProvider = userProvider;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
+
+        modelBuilder.Entity<Company>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
+        modelBuilder.Entity<Vehicle>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
+    }
+
+    public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
+    {
+        if (entity is IMultiTenantEntity m)
+        {
+            m.CompanyCode = UserProvider.TenantId;
+        }
+
+        return base.Add(entity);
+    }
+    public override ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        if (entity is IMultiTenantEntity m)
+        {
+            m.CompanyCode = UserProvider.TenantId;
+        }
+
+        return base.AddAsync(entity, cancellationToken);
+    }
+    public override ValueTask<EntityEntry> AddAsync(object entity, CancellationToken cancellationToken = default)
+    {
+        if (entity is IMultiTenantEntity m)
+        {
+            m.CompanyCode = UserProvider.TenantId;
+        }
+
+        return base.AddAsync(entity, cancellationToken);
     }
 }

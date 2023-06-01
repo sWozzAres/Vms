@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Vehicle
+    public partial class Vehicle : IMultiTenantEntity
     {
         public string CompanyCode { get; set; } = null!;
         public int Id { get; set; }
@@ -24,19 +24,19 @@ namespace Vms.Domain.Entity
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        public Vehicle(string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, IEnumerable<Driver> drivers)
+        public Vehicle(string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue)
         {
             Make = make;
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
 
-            NextMot = new NextMot() { Due =  motDue };
+            NextMot = new NextMot() { Due = motDue };
 
-            DriverVehicles = new List<DriverVehicle>();
-            foreach(var driver in drivers)
-            {
-                DriverVehicles.Add(new DriverVehicle() { EmailAddress = driver.EmailAddress });
-            }
+            //DriverVehicles = new List<DriverVehicle>();
+            //foreach(var driver in drivers)
+            //{
+            //    DriverVehicles.Add(new DriverVehicle() { EmailAddress = driver.EmailAddress });
+            //}
 
             VehicleVrm = new VehicleVrm() { Vrm = vrm };
         }

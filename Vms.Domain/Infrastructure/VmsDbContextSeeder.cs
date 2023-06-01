@@ -35,6 +35,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     static string[] MakeNames = new string[] { "MERCEDES", "FORD", "SUBARU" };
 
+    static char[] letters = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'V', 'W', 'X', 'Y' };
+
     const double minLatitude = 58.88670472493245;
     const double minLongitude = -9.372902643217499;
     const double maxLatitude = 50.26714546722624;
@@ -124,21 +126,17 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     return new DateOnly(year, month, day);
                 }
 
-                var vehicle = new Vehicle()
-                {
-                    Make = Make,
-                    Model = Model,
-                    DateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1)
-                };
+                var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
+                var vehicle = new Vehicle(RandomVrm(dateFirstRegistered), Make, Model,
+                    dateFirstRegistered,
+                    DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))));
+                
 
                 var driverVehicle = new DriverVehicle()
                 {
                     Vehicle = vehicle,
                     EmailAddress = driver.EmailAddress
                 };
-
-
-                char[] letters = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'V', 'W', 'X', 'Y' };
 
                 char RandomLetter() => letters[rnd.Next(0, letters.Length)];
 
@@ -153,23 +151,23 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     return $"{RandomLetter()}{RandomLetter()}{firstRegistered.Year - 2000 + add:D2}{RandomLetter()}{RandomLetter()}{RandomLetter()}";
                 }
 
-                var vehicleVrm = new VehicleVrm()
-                {
-                    Vehicle = vehicle,
-                    Vrm = RandomVrm(vehicle.DateFirstRegistered)
+                //var vehicleVrm = new VehicleVrm()
+                //{
+                //    Vehicle = vehicle,
+                //    Vrm = RandomVrm(vehicle.DateFirstRegistered)
 
-                };
+                //};
 
-                var vehicleMot = new NextMot()
-                {
-                    Vehicle = vehicle,
-                    Due = DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28)))
-                };
+                //var vehicleMot = new NextMot()
+                //{
+                //    Vehicle = vehicle,
+                //    Due = DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28)))
+                //};
 
-                _context.VehicleVrms.Add(vehicleVrm);
-                _context.Vehicles.Add(vehicle);
-                _context.DriverVehicles.Add(driverVehicle);
-                _context.NextMots.Add(vehicleMot);
+                //_context.VehicleVrms.Add(vehicleVrm);
+                _context.Add(vehicle);
+                _context.Add(driverVehicle);
+                //_context.NextMots.Add(vehicleMot);
             }
         }
 
