@@ -19,7 +19,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false),
+                    CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -307,24 +308,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "NextMot",
-                columns: table => new
-                {
-                    VehicleId = table.Column<int>(type: "int", nullable: false),
-                    Due = table.Column<DateOnly>(type: "date", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_NextMot", x => x.VehicleId);
-                    table.ForeignKey(
-                        name: "FK_Vehicle_NextMot",
-                        column: x => x.VehicleId,
-                        principalTable: "Vehicle",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ServiceBooking",
                 columns: table => new
                 {
@@ -335,7 +318,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate3 = table.Column<DateOnly>(type: "date", nullable: true),
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
-                    SupplierId = table.Column<int>(type: "int", nullable: true)
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -349,46 +332,116 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "VehicleMot",
+                columns: table => new
+                {
+                    VehicleId = table.Column<int>(type: "int", nullable: false),
+                    Due = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VehicleMot", x => x.VehicleId);
+                    table.ForeignKey(
+                        name: "FK_Vehicle_VehicleMot",
+                        column: x => x.VehicleId,
+                        principalTable: "Vehicle",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "VehicleVrm",
                 columns: table => new
                 {
                     VehicleId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
-                        .Annotation("SqlServer:TemporalHistoryTableSchema", "dbo")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
-                    Vrm = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false)
+                    Vrm = table.Column<string>(type: "nvarchar(max)", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
-                        .Annotation("SqlServer:TemporalHistoryTableSchema", "dbo")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
                     ValidFrom = table.Column<DateTime>(type: "datetime2", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
-                        .Annotation("SqlServer:TemporalHistoryTableSchema", "dbo")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
                     ValidTo = table.Column<DateTime>(type: "datetime2", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
-                        .Annotation("SqlServer:TemporalHistoryTableSchema", "dbo")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__VehicleVrm", x => x.VehicleId);
+                    table.PrimaryKey("PK_VehicleVrm", x => x.VehicleId);
                     table.ForeignKey(
-                        name: "FK_VehicleVrm_Vehicle",
+                        name: "FK_Vehicle_VehicleVrm",
                         column: x => x.VehicleId,
                         principalTable: "Vehicle",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("SqlServer:IsTemporal", true)
                 .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
-                .Annotation("SqlServer:TemporalHistoryTableSchema", "dbo")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
+
+            migrationBuilder.CreateTable(
+                name: "ServiceBookingSupplier",
+                columns: table => new
+                {
+                    ServiceBookingId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    SupplierId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    ValidFrom = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    ValidTo = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceBookingSupplier", x => x.ServiceBookingId);
+                    table.ForeignKey(
+                        name: "FK_ServiceBookingSupplier_ServiceBooking_ServiceBookingId",
+                        column: x => x.ServiceBookingId,
+                        principalTable: "ServiceBooking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ServiceBookingSupplier_Supplier_SupplierId",
+                        column: x => x.SupplierId,
+                        principalTable: "Supplier",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                 .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                 .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
 
@@ -442,6 +495,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ServiceBookingSupplier_SupplierId",
+                table: "ServiceBookingSupplier",
+                column: "SupplierId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SupplierFranchise_Franchise",
                 table: "SupplierFranchise",
                 column: "Franchise");
@@ -478,19 +536,24 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "NetworkSupplier");
 
             migrationBuilder.DropTable(
-                name: "NextMot");
-
-            migrationBuilder.DropTable(
-                name: "ServiceBooking");
+                name: "ServiceBookingSupplier")
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
 
             migrationBuilder.DropTable(
                 name: "SupplierFranchise");
 
             migrationBuilder.DropTable(
+                name: "VehicleMot");
+
+            migrationBuilder.DropTable(
                 name: "VehicleVrm")
                 .Annotation("SqlServer:IsTemporal", true)
                 .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
-                .Annotation("SqlServer:TemporalHistoryTableSchema", "dbo")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                 .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                 .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
 
@@ -499,6 +562,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             migrationBuilder.DropTable(
                 name: "Network");
+
+            migrationBuilder.DropTable(
+                name: "ServiceBooking");
 
             migrationBuilder.DropTable(
                 name: "Supplier");

@@ -13,7 +13,7 @@ public class CreateServiceBooking
     public CreateServiceBooking(VmsDbContext context, ILogger<CreateServiceBooking> logger)
         => (DbContext, Logger) = (context, logger);
 
-    public async Task<int> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
+    public async Task<CreateBookingResponse> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle with id: {request.VehicleId} not found."), this);
@@ -22,7 +22,7 @@ public class CreateServiceBooking
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
-        return Booking.Id;
+        return new(Booking.Id);
     }
 
     class VehicleRole(Vehicle self, CreateServiceBooking context)
@@ -34,9 +34,11 @@ public class CreateServiceBooking
                 request.PreferredDate1,
                 request.PreferredDate2,
                 request.PreferredDate3,
-                request.IncludeMot ? self.NextMot.Due : null);
+                request.IncludeMot ? self.Mot.Due : null);
 
             await context.DbContext.AddAsync(booking, cancellationToken);
+
+            context.Logger.LogDebug("Created ServiceBooking");
 
             return booking;
         }

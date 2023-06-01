@@ -10,5 +10,5 @@ public class UserProvider : IUserProvider
         => Context = context;
 
     public Guid UserId => Guid.Empty;
-    public Guid TenantId => Guid.Empty;
+    public string TenantId => "TODO001";
 }

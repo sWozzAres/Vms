@@ -16,7 +16,7 @@ public class VmsDbContext : DbContext
     public DbSet<Fleet> Fleets => Set<Fleet>();
     public DbSet<FleetNetwork> FleetNetworks => Set<FleetNetwork>();
     public DbSet<Network> Networks => Set<Network>();
-    public DbSet<NextMot> NextMots => Set<NextMot>();
+    public DbSet<VehicleMot> NextMots => Set<VehicleMot>();
     public DbSet<ServiceBooking> ServiceBookings => Set<ServiceBooking>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();

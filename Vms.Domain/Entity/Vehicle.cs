@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Vms.Domain.Entity
 {
@@ -19,7 +20,7 @@ namespace Vms.Domain.Entity
         public virtual Customer? C { get; set; }
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
         public virtual Fleet? Fleet { get; set; }
-        public virtual NextMot NextMot { get; set; } = null!;
+        public virtual VehicleMot Mot { get; set; } = null!;
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
@@ -29,24 +30,33 @@ namespace Vms.Domain.Entity
             Make = make;
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
-
-            NextMot = new NextMot() { Due = motDue };
-
-            //DriverVehicles = new List<DriverVehicle>();
-            //foreach(var driver in drivers)
-            //{
-            //    DriverVehicles.Add(new DriverVehicle() { EmailAddress = driver.EmailAddress });
-            //}
-
-            VehicleVrm = new VehicleVrm() { Vrm = vrm };
+            Mot = new VehicleMot(motDue);
+            VehicleVrm = new VehicleVrm(vrm);
+        }
+        
+        public string Vrm
+        {
+            get => VehicleVrm.Vrm;
+            set => VehicleVrm.Vrm = value;
         }
     }
 
-    public partial class NextMot
+    public partial class VehicleMot
     {
         public int VehicleId { get; set; }
         public DateOnly Due { get; set; }
         public virtual Vehicle Vehicle { get; set; } = null!;
+        private VehicleMot() { }
+        public VehicleMot(DateOnly due) => Due = due;
+    }
+
+    public partial class VehicleVrm
+    {
+        public int VehicleId { get; set; }
+        public string Vrm { get; set; } = null!;
+        public virtual Vehicle Vehicle { get; set; } = null!;
+        private VehicleVrm() { }
+        public VehicleVrm(string vrm) => Vrm = vrm;
     }
 }
 
@@ -57,6 +67,8 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
             builder.ToTable("Vehicle");
+
+            builder.Ignore(e => e.Vrm);
 
             builder.Property(e => e.Id).ValueGeneratedOnAdd();
             builder.Property(e => e.CompanyCode)
@@ -95,11 +107,6 @@ namespace Vms.Domain.Entity.Configuration
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Vehicle_Company");
 
-            //builder.HasOne(d => d.NextMot).WithOne(p => p.Vehicle)
-            //    .HasForeignKey<Vehicle>(d => d.Id)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_Vehicle_NextMot");
-
             builder.HasOne(d => d.C).WithMany(p => p.Vehicles)
                 .HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.CustomerCode })
@@ -112,20 +119,30 @@ namespace Vms.Domain.Entity.Configuration
 
             builder.HasMany(d => d.ServiceBookings).WithOne(p => p.Vehicle);
 
-            builder.OwnsOne(d => d.NextMot, x =>
+            builder.OwnsOne(d => d.Mot, x =>
             {
-                x.ToTable("NextMot");
+                x.ToTable("VehicleMot");
                 x.WithOwner(x => x.Vehicle)
                     .HasForeignKey(d => d.VehicleId)
-                    .HasConstraintName("FK_Vehicle_NextMot");
+                    .HasConstraintName("FK_Vehicle_VehicleMot");
+            });
+            builder.OwnsOne(d => d.VehicleVrm, x =>
+            {
+                x.ToTable("VehicleVrm", tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.UseHistoryTable("VehicleVrmHistory");
+                    ttb
+                        .HasPeriodStart("ValidFrom")
+                        .HasColumnName("ValidFrom");
+                    ttb
+                        .HasPeriodEnd("ValidTo")
+                        .HasColumnName("ValidTo");
+                }));
+
+                x.WithOwner(x => x.Vehicle)
+                    .HasForeignKey(d => d.VehicleId)
+                    .HasConstraintName("FK_Vehicle_VehicleVrm");
             });
         }
     }
-    //public class NextMotEntityTypeConfiguration : IEntityTypeConfiguration<NextMot>
-    //{
-    //    public void Configure(EntityTypeBuilder<NextMot> builder)
-    //    {
-    //        builder.ToTable("NextMot");
-    //    }
-    //}
 }

@@ -71,6 +71,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
+                    b.Property<string>("CompanyCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -316,7 +320,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<DateOnly?>("PreferredDate3")
                         .HasColumnType("date");
 
-                    b.Property<int?>("SupplierId")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("VehicleId")
@@ -451,44 +455,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasName("PK_Model");
 
                     b.ToTable("VehicleModel", (string)null);
-                });
-
-            modelBuilder.Entity("Vms.Domain.Entity.VehicleVrm", b =>
-                {
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ValidFrom")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ValidFrom");
-
-                    b.Property<DateTime>("ValidTo")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ValidTo");
-
-                    b.Property<string>("Vrm")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(8)");
-
-                    b.HasKey("VehicleId")
-                        .HasName("PK__VehicleVrm");
-
-                    b.ToTable("VehicleVrm", (string)null);
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.UseHistoryTable("VehicleVrmHistory", "dbo");
-                                ttb
-                                    .HasPeriodStart("ValidFrom")
-                                    .HasColumnName("ValidFrom");
-                                ttb
-                                    .HasPeriodEnd("ValidTo")
-                                    .HasColumnName("ValidTo");
-                            }));
                 });
 
             modelBuilder.Entity("NetworkSupplier", b =>
@@ -629,6 +595,57 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("Vms.Domain.Entity.ServiceBookingSupplier", "Supplier", b1 =>
+                        {
+                            b1.Property<int>("ServiceBookingId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("SupplierId")
+                                .HasColumnType("int");
+
+                            b1.Property<DateTime>("ValidFrom")
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("datetime2")
+                                .HasColumnName("ValidFrom");
+
+                            b1.Property<DateTime>("ValidTo")
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("datetime2")
+                                .HasColumnName("ValidTo");
+
+                            b1.HasKey("ServiceBookingId");
+
+                            b1.HasIndex("SupplierId");
+
+                            b1.ToTable("ServiceBookingSupplier", (string)null);
+
+                            b1.ToTable(tb => tb.IsTemporal(ttb =>
+                                    {
+                                        ttb.UseHistoryTable("ServiceBookingSupplierHistory");
+                                        ttb
+                                            .HasPeriodStart("ValidFrom")
+                                            .HasColumnName("ValidFrom");
+                                        ttb
+                                            .HasPeriodEnd("ValidTo")
+                                            .HasColumnName("ValidTo");
+                                    }));
+
+                            b1.WithOwner("ServiceBooking")
+                                .HasForeignKey("ServiceBookingId");
+
+                            b1.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
+                                .WithMany()
+                                .HasForeignKey("SupplierId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+
+                            b1.Navigation("ServiceBooking");
+
+                            b1.Navigation("Supplier");
+                        });
+
+                    b.Navigation("Supplier");
+
                     b.Navigation("Vehicle");
                 });
 
@@ -659,7 +676,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_Vehicle_VehicleModel");
 
-                    b.OwnsOne("Vms.Domain.Entity.NextMot", "NextMot", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.VehicleMot", "Mot", b1 =>
                         {
                             b1.Property<int>("VehicleId")
                                 .HasColumnType("int");
@@ -669,11 +686,52 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("NextMot", (string)null);
+                            b1.ToTable("VehicleMot", (string)null);
 
                             b1.WithOwner("Vehicle")
                                 .HasForeignKey("VehicleId")
-                                .HasConstraintName("FK_Vehicle_NextMot");
+                                .HasConstraintName("FK_Vehicle_VehicleMot");
+
+                            b1.Navigation("Vehicle");
+                        });
+
+                    b.OwnsOne("Vms.Domain.Entity.VehicleVrm", "Vrm", b1 =>
+                        {
+                            b1.Property<int>("VehicleId")
+                                .HasColumnType("int");
+
+                            b1.Property<DateTime>("ValidFrom")
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("datetime2")
+                                .HasColumnName("ValidFrom");
+
+                            b1.Property<DateTime>("ValidTo")
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("datetime2")
+                                .HasColumnName("ValidTo");
+
+                            b1.Property<string>("Vrm")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("VehicleId");
+
+                            b1.ToTable("VehicleVrm", (string)null);
+
+                            b1.ToTable(tb => tb.IsTemporal(ttb =>
+                                    {
+                                        ttb.UseHistoryTable("VehicleVrmHistory");
+                                        ttb
+                                            .HasPeriodStart("ValidFrom")
+                                            .HasColumnName("ValidFrom");
+                                        ttb
+                                            .HasPeriodEnd("ValidTo")
+                                            .HasColumnName("ValidTo");
+                                    }));
+
+                            b1.WithOwner("Vehicle")
+                                .HasForeignKey("VehicleId")
+                                .HasConstraintName("FK_Vehicle_VehicleVrm");
 
                             b1.Navigation("Vehicle");
                         });
@@ -686,7 +744,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Navigation("M");
 
-                    b.Navigation("NextMot")
+                    b.Navigation("Mot")
+                        .IsRequired();
+
+                    b.Navigation("Vrm")
                         .IsRequired();
                 });
 
@@ -698,17 +759,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired();
 
                     b.Navigation("MakeNavigation");
-                });
-
-            modelBuilder.Entity("Vms.Domain.Entity.VehicleVrm", b =>
-                {
-                    b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
-                        .WithOne("VehicleVrm")
-                        .HasForeignKey("Vms.Domain.Entity.VehicleVrm", "VehicleId")
-                        .IsRequired()
-                        .HasConstraintName("FK_VehicleVrm_Vehicle");
-
-                    b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
@@ -754,9 +804,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("DriverVehicles");
 
                     b.Navigation("ServiceBookings");
-
-                    b.Navigation("VehicleVrm")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.VehicleMake", b =>

@@ -6,7 +6,7 @@ namespace VmsTesting;
 public class TestDatabaseFixture
 {
     private const string ConnectionString = 
-        "Server=SKYLAKE\\SQL2016;Database=Vms_Test;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False";
+        "Server=SKYLAKE\\SQL2019;Database=Vms_Test;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False";
 
     private static readonly object _lock = new();
     private static bool _databaseInitialized;

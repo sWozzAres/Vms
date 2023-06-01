@@ -18,7 +18,7 @@ namespace Vms.Domain.Entity
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
         public DateOnly? MotDue { get; set; }
-        public int? SupplierId { get; set; }
+        public ServiceBookingSupplier? Supplier { get; set; }
 
         public ServiceBookingStatus Status { get; private set; } = ServiceBookingStatus.None;
         public virtual Vehicle Vehicle { get; set; } = null!;
@@ -34,6 +34,14 @@ namespace Vms.Domain.Entity
         }
         public void ChangeStatus(ServiceBookingStatus status) => Status = status;
     }
+
+    public class ServiceBookingSupplier
+    {
+        public int ServiceBookingId { get; set; }
+        public int SupplierId { get; set; }
+        public virtual ServiceBooking ServiceBooking { get; set; } = null!;
+        public virtual Supplier Supplier { get; set; } = null!;
+    }
 }
 
 namespace Vms.Domain.Entity.Configuration
@@ -43,6 +51,23 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<ServiceBooking> builder)
         {
             builder.ToTable("ServiceBooking");
+
+            builder.OwnsOne(d => d.Supplier, x =>
+            {
+                x.ToTable("ServiceBookingSupplier", tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.UseHistoryTable("ServiceBookingSupplierHistory");
+                    ttb
+                        .HasPeriodStart("ValidFrom")
+                        .HasColumnName("ValidFrom");
+                    ttb
+                        .HasPeriodEnd("ValidTo")
+                        .HasColumnName("ValidTo");
+                }));
+
+                x.WithOwner(d => d.ServiceBooking)
+                    .HasForeignKey(d => d.ServiceBookingId);
+            });
         }
     }
 }
