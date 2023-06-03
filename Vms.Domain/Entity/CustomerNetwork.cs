@@ -16,6 +16,13 @@ namespace Vms.Domain.Entity
         public virtual Customer C { get; set; } = null!;
 
         public virtual Network Network { get; set; } = null!;
+        private CustomerNetwork() { }
+        public CustomerNetwork(string companyCode, string customerCode, string networkCode)
+        {
+            CustomerCode = customerCode ?? throw new ArgumentNullException(nameof(customerCode));
+            NetworkCode = networkCode ?? throw new ArgumentNullException(nameof(networkCode));
+            CompanyCode = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
+        }
     }
 }
 

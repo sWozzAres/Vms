@@ -16,11 +16,9 @@ public class CreateServiceBooking
     public async Task<CreateBookingResponse> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
-            ?? throw new VmsDomainException($"Vehicle with id: {request.VehicleId} not found."), this);
+            ?? throw new VmsDomainException($"Vehicle with id '{request.VehicleId}' not found."), this);
 
         Booking = await Vehicle.CreateBookingAsync(request, cancellationToken);
-
-        //await DbContext.SaveChangesAsync(cancellationToken);
 
         return new(Booking.Id);
     }
@@ -47,7 +45,7 @@ public class CreateServiceBooking
 
 
 public record CreateBookingRequest(
-    int VehicleId,
+    Guid VehicleId,
     DateOnly PreferredDate1,
     DateOnly? PreferredDate2,
     DateOnly? PreferredDate3,

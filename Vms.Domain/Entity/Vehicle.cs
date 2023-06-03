@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 using System.Runtime.Serialization;
 
 namespace Vms.Domain.Entity
@@ -9,7 +10,7 @@ namespace Vms.Domain.Entity
     public partial class Vehicle : IMultiTenantEntity
     {
         public string CompanyCode { get; set; } = null!;
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Make { get; set; } = null!;
         public string Model { get; set; } = null!;
         public string? ChassisNumber { get; set; }
@@ -21,18 +22,21 @@ namespace Vms.Domain.Entity
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
         public virtual Fleet? Fleet { get; set; }
         public virtual VehicleMot Mot { get; set; } = null!;
+        public Point HomeLocation { get; set; } = null!;
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue)
+        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Point homeLocation)
         {
             CompanyCode = companyCode;
+            Id = Guid.NewGuid();
             Make = make;
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
             Mot = new VehicleMot(motDue);
             VehicleVrm = new VehicleVrm(vrm);
+            HomeLocation = homeLocation;
         }
         
         public string Vrm
@@ -44,7 +48,7 @@ namespace Vms.Domain.Entity
 
     public partial class VehicleMot
     {
-        public int VehicleId { get; set; }
+        public Guid VehicleId { get; set; }
         public DateOnly Due { get; set; }
         public virtual Vehicle Vehicle { get; set; } = null!;
         private VehicleMot() { }
@@ -53,7 +57,7 @@ namespace Vms.Domain.Entity
 
     public partial class VehicleVrm
     {
-        public int VehicleId { get; set; }
+        public Guid VehicleId { get; set; }
         public string Vrm { get; set; } = null!;
         public virtual Vehicle Vehicle { get; set; } = null!;
         private VehicleVrm() { }
@@ -68,12 +72,11 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
             builder.ToTable("Vehicle");
-            builder.HasAlternateKey(e => e.Id);
-            builder.Property(e => e.Id).UseHiLo("VehicleIds");
+            builder.HasKey(e => e.Id);
+            //builder.Property(e => e.Id).UseHiLo("VehicleIds");
 
             builder.Ignore(e => e.Vrm);
 
-            builder.Property(e => e.Id).ValueGeneratedOnAdd();
             builder.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
                 .IsFixedLength();

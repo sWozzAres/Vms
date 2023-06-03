@@ -38,8 +38,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.HasSequence<int>("SupplierIds")
                 .IncrementsBy(10);
 
-            modelBuilder.HasSequence<int>("VehicleIds")
-                .IncrementsBy(10);
+            modelBuilder.HasSequence<int>("VehicleIds");
 
             modelBuilder.Entity("NetworkSupplier", b =>
                 {
@@ -57,25 +56,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasIndex("SupplierCode");
 
                     b.ToTable("NetworkSupplier", (string)null);
-                });
-
-            modelBuilder.Entity("SupplierFranchise", b =>
-                {
-                    b.Property<string>("SupplierCode")
-                        .HasMaxLength(8)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(8)");
-
-                    b.Property<string>("Franchise")
-                        .HasMaxLength(30)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(30)");
-
-                    b.HasKey("SupplierCode", "Franchise");
-
-                    b.HasIndex("Franchise");
-
-                    b.ToTable("SupplierFranchise", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
@@ -211,14 +191,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsUnicode(false)
                         .HasColumnType("varchar(128)");
 
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("EmailAddress");
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("DriverVehicles");
+                    b.ToTable("DriverVehicles", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Fleet", b =>
@@ -324,8 +304,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Geometry>("VehicleLocation")
+                        .IsRequired()
+                        .HasColumnType("geography");
 
                     b.HasKey("Id");
 
@@ -349,21 +333,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<bool>("IsIndependent")
                         .HasColumnType("bit");
 
-                    b.Property<Geometry>("Location")
-                        .IsRequired()
-                        .HasColumnType("geography");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Postcode")
-                        .IsRequired()
-                        .HasMaxLength(9)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(9)");
 
                     b.HasKey("Code");
 
@@ -372,11 +346,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Vehicle", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "VehicleIds");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ChassisNumber")
                         .HasMaxLength(18)
@@ -401,6 +373,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
+
+                    b.Property<Point>("HomeLocation")
+                        .IsRequired()
+                        .HasColumnType("geography");
 
                     b.Property<string>("Make")
                         .IsRequired()
@@ -469,22 +445,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasForeignKey("CompanyCode", "NetworkCode")
                         .IsRequired()
                         .HasConstraintName("FK_NetworkSupplier_Network");
-                });
-
-            modelBuilder.Entity("SupplierFranchise", b =>
-                {
-                    b.HasOne("Vms.Domain.Entity.VehicleMake", null)
-                        .WithMany()
-                        .HasForeignKey("Franchise")
-                        .IsRequired()
-                        .HasConstraintName("FK_SupplierFranchise_VehicleMake");
-
-                    b.HasOne("Vms.Domain.Entity.Supplier", null)
-                        .WithMany()
-                        .HasForeignKey("SupplierCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_SupplierFranchise_Supplier");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>
@@ -586,7 +546,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("Vms.Domain.Entity.ServiceBookingSupplier", "Supplier", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.ServiceBooking.Supplier#Vms.Domain.Entity.ServiceBookingSupplier", "Supplier", b1 =>
                         {
                             b1.Property<int>("ServiceBookingId")
                                 .HasColumnType("int");
@@ -641,6 +601,77 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.Supplier", b =>
+                {
+                    b.OwnsOne("Vms.Domain.Entity.Supplier.Address#Vms.Domain.Entity.Address", "Address", b1 =>
+                        {
+                            b1.Property<string>("SupplierCode")
+                                .HasColumnType("varchar(8)");
+
+                            b1.Property<string>("Locality")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<Point>("Location")
+                                .IsRequired()
+                                .HasColumnType("geography");
+
+                            b1.Property<string>("Postcode")
+                                .IsRequired()
+                                .HasMaxLength(9)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(9)");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Town")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("SupplierCode");
+
+                            b1.ToTable("Supplier", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("SupplierCode");
+                        });
+
+                    b.OwnsMany("Vms.Domain.Entity.Supplier.Franchises#Vms.Domain.Entity.SupplierFranchise", "Franchises", b1 =>
+                        {
+                            b1.Property<string>("SupplierCode")
+                                .HasColumnType("varchar(8)");
+
+                            b1.Property<string>("Franchise")
+                                .HasColumnType("varchar(30)");
+
+                            b1.HasKey("SupplierCode", "Franchise");
+
+                            b1.HasIndex("Franchise");
+
+                            b1.ToTable("SupplierFranchise", (string)null);
+
+                            b1.HasOne("Vms.Domain.Entity.VehicleMake", "Make")
+                                .WithMany()
+                                .HasForeignKey("Franchise")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+
+                            b1.WithOwner("Supplier")
+                                .HasForeignKey("SupplierCode");
+
+                            b1.Navigation("Make");
+
+                            b1.Navigation("Supplier");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("Franchises");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.Vehicle", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Company", "CompanyCodeNavigation")
@@ -665,10 +696,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_Vehicle_VehicleModel");
 
-                    b.OwnsOne("Vms.Domain.Entity.VehicleMot", "Mot", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.Vehicle.Mot#Vms.Domain.Entity.VehicleMot", "Mot", b1 =>
                         {
-                            b1.Property<int>("VehicleId")
-                                .HasColumnType("int");
+                            b1.Property<Guid>("VehicleId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateOnly>("Due")
                                 .HasColumnType("date");
@@ -684,10 +715,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Navigation("Vehicle");
                         });
 
-                    b.OwnsOne("Vms.Domain.Entity.VehicleVrm", "VehicleVrm", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.Vehicle.VehicleVrm#Vms.Domain.Entity.VehicleVrm", "VehicleVrm", b1 =>
                         {
-                            b1.Property<int>("VehicleId")
-                                .HasColumnType("int");
+                            b1.Property<Guid>("VehicleId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("ValidFrom")
                                 .ValueGeneratedOnAddOrUpdate()

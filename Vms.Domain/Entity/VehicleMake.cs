@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
@@ -10,7 +8,7 @@ namespace Vms.Domain.Entity
         internal const int MAKE_MAXLENGTH = 30;
         public string Make { get; set; } = null!;
         public virtual ICollection<VehicleModel> VehicleModels { get; set; } = null!;
-        public virtual ICollection<Supplier> SupplierCodes { get; set; } = null!;
+        //public virtual ICollection<Supplier> SupplierCodes { get; set; } = null!;
         private VehicleMake() { }
         public VehicleMake(string make)
         {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NetTopologySuite.Geometries;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
@@ -21,9 +17,7 @@ public class CreateVehicle
         Company = new(await DbContext.Companies.FindAsync(request.CompanyCode)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        var vehicle = await Company.CreateVehicleAsync(request, cancellationToken);
-        
-        return vehicle;
+        return await Company.CreateVehicleAsync(request, cancellationToken);
     }
 
     public class CompanyRole(Company self, CreateVehicle context)
@@ -31,7 +25,7 @@ public class CreateVehicle
         public async Task<Vehicle> CreateVehicleAsync(CreateVehicleRequest request, CancellationToken cancellationToken)
         {
             var vehicle = new Vehicle(self.Code, 
-                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue);
+                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.homeLocation);
             
             if (request.FleetCode is not null)
             {
@@ -53,4 +47,5 @@ public class CreateVehicle
 }
 
 public record CreateVehicleRequest(string CompanyCode, string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue,
+    Point homeLocation,
     string? CustomerCode = null, string? FleetCode = null);

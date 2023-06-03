@@ -16,6 +16,13 @@ namespace Vms.Domain.Entity
         public virtual Fleet Fleet { get; set; } = null!;
 
         public virtual Network Network { get; set; } = null!;
+        private FleetNetwork() { }
+        public FleetNetwork(string companyCode, string fleetCode, string networkCode)
+        {
+            FleetCode = fleetCode ?? throw new ArgumentNullException(nameof(fleetCode));
+            NetworkCode = networkCode ?? throw new ArgumentNullException(nameof(networkCode));
+            CompanyCode = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
+        }
     }
 }
 

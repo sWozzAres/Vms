@@ -16,16 +16,12 @@ public class ChangeVrm
 
     public ChangeVrm(VmsDbContext context) => DbContext = context;
 
-    public async Task<ChangeVrmResponse> ChangeTo(ChangeVrmRequest request, CancellationToken cancellationToken = default)
+    public async Task ChangeTo(ChangeVrmRequest request, CancellationToken cancellationToken = default)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(request.vehicleId, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
 
         Vehicle.ChangeVrm(request.newVrm);
-
-        //await DbContext.SaveChangesAsync(cancellationToken);
-        
-        return new ChangeVrmResponse(true);
     }
 
     class VehicleRole(Vehicle self, ChangeVrm context)
@@ -34,5 +30,4 @@ public class ChangeVrm
     }
 }
 
-public record ChangeVrmRequest(int vehicleId, string newVrm);
-public record ChangeVrmResponse(bool success);
+public record ChangeVrmRequest(Guid vehicleId, string newVrm);

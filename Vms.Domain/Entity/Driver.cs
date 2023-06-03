@@ -22,7 +22,7 @@ namespace Vms.Domain.Entity
 
     public partial class DriverVehicle
     {
-        public int VehicleId { get; set; }
+        public Guid VehicleId { get; set; }
         public string EmailAddress { get; set; } = null!;
 
         public virtual Driver EmailAddressNavigation { get; set; } = null!;

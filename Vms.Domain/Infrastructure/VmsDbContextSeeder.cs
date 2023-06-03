@@ -135,7 +135,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
                 var vehicle = new Vehicle(company.Code, RandomVrm(dateFirstRegistered), Make, Model,
                     dateFirstRegistered,
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))));
+                    DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
+                    new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 });
                 
 
                 var driverVehicle = new DriverVehicle()
@@ -186,14 +187,12 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             foreach (var i in Enumerable.Range(1, 100))
             {
 
-                var supplier = new Supplier()
-                {
-                    Code = $"SUP{i:D4}",
-                    Name = $"Supplier #{i}",
-                    Postcode = "",
-                    IsIndependent = true,
-                    Location = RandomPoint()
-                };
+                var supplier = new Supplier(
+                    $"SUP{i:D4}",
+                    $"Supplier #{i}",
+                    new Address("","","","", RandomPoint()),
+                    true
+                );
 
                 await _context.Suppliers.AddAsync(supplier);
             }

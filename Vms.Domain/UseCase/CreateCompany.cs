@@ -13,8 +13,9 @@ public class CreateCompany
     public async Task<Company> CreateAsync(CreateCompanyRequest request, CancellationToken cancellationToken = default)
     {
         var company = new Company(request.Code, request.Name);
+
         await DbContext.AddAsync(company);
-        //await DbContext.SaveChangesAsync(cancellationToken);
+
         return company;
     }
 }

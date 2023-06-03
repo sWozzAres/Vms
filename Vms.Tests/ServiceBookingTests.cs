@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
@@ -25,10 +26,9 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task Test1()
     {
-        await TestDatabaseFixture.Initialize();
         using var context = TestDatabaseFixture.CreateContext();
 
-        var vehicles = context.Vehicles.ToList();
+        var vehicles = await context.Vehicles.ToListAsync();
 
         Assert.NotEmpty(vehicles);
     }
@@ -42,7 +42,7 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
 
         CreateBookingRequest request = new(vehicle.Id, new DateOnly(2023, 1, 1), null, null, true);
         var response = await new CreateServiceBooking(context, LoggerFactory.CreateLogger<CreateServiceBooking>()).CreateAsync(request);
-        
+
     }
 
     [Fact]
@@ -53,10 +53,10 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
         var vehicle = context.Vehicles.First();
 
         var request1 = new ChangeVrmRequest(vehicle.Id, "123");
-        var response1 = await new ChangeVrm(context).ChangeTo(request1);
+        await new ChangeVrm(context).ChangeTo(request1);
 
         var request2 = new ChangeVrmRequest(vehicle.Id, "12345");
-        var response2 = await new ChangeVrm(context).ChangeTo(request2);
+        await new ChangeVrm(context).ChangeTo(request2);
 
         Assert.Equal("12345", vehicle.Vrm);
     }

@@ -17,6 +17,7 @@ public class VmsDbContext : DbContext
     public DbSet<Fleet> Fleets => Set<Fleet>();
     public DbSet<FleetNetwork> FleetNetworks => Set<FleetNetwork>();
     public DbSet<Network> Networks => Set<Network>();
+    public DbSet<NetworkSupplier> NetworkSuppliers => Set<NetworkSupplier>();
     public DbSet<VehicleMot> NextMots => Set<VehicleMot>();
     public DbSet<ServiceBooking> ServiceBookings => Set<ServiceBooking>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
@@ -109,8 +110,8 @@ public class VmsDbContext : DbContext
 
     public async Task CommitTransactionAsync(IDbContextTransaction transaction)
     {
-        if (transaction is null) throw new ArgumentNullException(nameof(transaction));
-        if (transaction != _currentTransaction) throw new InvalidOperationException($"Transaction {transaction.TransactionId} is not current");
+        //if (transaction is null) throw new ArgumentNullException(nameof(transaction));
+        if (transaction != _currentTransaction) throw new InvalidOperationException($"Transaction {transaction.TransactionId} is not current.");
 
         try
         {

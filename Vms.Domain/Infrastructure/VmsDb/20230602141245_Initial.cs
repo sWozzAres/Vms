@@ -33,8 +33,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 incrementBy: 10);
 
             migrationBuilder.CreateSequence<int>(
-                name: "VehicleIds",
-                incrementBy: 10);
+                name: "VehicleIds");
 
             migrationBuilder.CreateTable(
                 name: "Company",
@@ -75,8 +74,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     Code = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Postcode = table.Column<string>(type: "varchar(9)", unicode: false, maxLength: 9, nullable: false),
-                    Location = table.Column<Geometry>(type: "geography", nullable: false),
+                    Address_Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address_Locality = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address_Town = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address_Postcode = table.Column<string>(type: "varchar(9)", unicode: false, maxLength: 9, nullable: false),
+                    Address_Location = table.Column<Point>(type: "geography", nullable: false),
                     IsIndependent = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -156,23 +158,24 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "SupplierFranchise",
                 columns: table => new
                 {
-                    SupplierCode = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
-                    Franchise = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false)
+                    SupplierCode = table.Column<string>(type: "varchar(8)", nullable: false),
+                    Franchise = table.Column<string>(type: "varchar(30)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SupplierFranchise", x => new { x.SupplierCode, x.Franchise });
                     table.ForeignKey(
-                        name: "FK_SupplierFranchise_Supplier",
+                        name: "FK_SupplierFranchise_Supplier_SupplierCode",
                         column: x => x.SupplierCode,
                         principalTable: "Supplier",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SupplierFranchise_VehicleMake",
+                        name: "FK_SupplierFranchise_VehicleMake_Franchise",
                         column: x => x.Franchise,
                         principalTable: "VehicleMake",
-                        principalColumn: "Make");
+                        principalColumn: "Make",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -265,14 +268,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Vehicle",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Make = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
                     Model = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     ChassisNumber = table.Column<string>(type: "varchar(18)", unicode: false, maxLength: 18, nullable: true),
                     DateFirstRegistered = table.Column<DateOnly>(type: "date", nullable: false),
                     CustomerCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true),
-                    FleetCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true)
+                    FleetCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true),
+                    HomeLocation = table.Column<Point>(type: "geography", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -304,7 +308,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
-                    VehicleId = table.Column<int>(type: "int", nullable: false)
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -328,11 +332,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VehicleId = table.Column<int>(type: "int", nullable: false),
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PreferredDate1 = table.Column<DateOnly>(type: "date", nullable: false),
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate3 = table.Column<DateOnly>(type: "date", nullable: true),
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
+                    VehicleLocation = table.Column<Geometry>(type: "geography", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -350,7 +355,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "VehicleMot",
                 columns: table => new
                 {
-                    VehicleId = table.Column<int>(type: "int", nullable: false),
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Due = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
@@ -368,7 +373,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "VehicleVrm",
                 columns: table => new
                 {
-                    VehicleId = table.Column<int>(type: "int", nullable: false)
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
                         .Annotation("SqlServer:TemporalHistoryTableSchema", null)
@@ -414,12 +419,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     ServiceBookingId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:IsTemporal", true)
-                        .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
-                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
-                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
-                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
-                    SupplierId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
                         .Annotation("SqlServer:TemporalHistoryTableSchema", null)
