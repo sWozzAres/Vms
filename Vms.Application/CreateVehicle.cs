@@ -3,7 +3,7 @@ using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 
-namespace Vms.Domain.UseCase;
+namespace Vms.Application.UseCase;
 
 public class CreateVehicle
 {
@@ -14,32 +14,34 @@ public class CreateVehicle
 
     public async Task<Vehicle> CreateAsync(CreateVehicleRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode)
+        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        return await Company.CreateVehicleAsync(request, cancellationToken);
+        return Company.CreateVehicle(request);
     }
 
     public class CompanyRole(Company self, CreateVehicle context)
     {
-        public async Task<Vehicle> CreateVehicleAsync(CreateVehicleRequest request, CancellationToken cancellationToken)
+        public Vehicle CreateVehicle(CreateVehicleRequest request)
         {
             var vehicle = new Vehicle(self.Code, 
-                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.homeLocation);
+                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.HomeLocation);
             
             if (request.FleetCode is not null)
             {
-                vehicle.Fleet = await context.DbContext.Fleets.FindAsync(new[] { self.Code, request.FleetCode }, cancellationToken)
-                    ?? throw new VmsDomainException("Fleet not found.");
+                vehicle.AssignToFleet(request.FleetCode); 
+                //vehicle.Fleet = await context.DbContext.Fleets.FindAsync(new[] { self.Code, request.FleetCode }, cancellationToken)
+                //    ?? throw new VmsDomainException("Fleet not found.");
             }
 
             if (request.CustomerCode is not null)
             {
-                vehicle.C = await context.DbContext.Customers.FindAsync(new[] { self.Code, request.CustomerCode }, cancellationToken)
-                    ?? throw new VmsDomainException("Customer not found.");
+                vehicle.AssignToCustomer(request.CustomerCode);
+                //vehicle.C = await context.DbContext.Customers.FindAsync(new[] { self.Code, request.CustomerCode }, cancellationToken)
+                //    ?? throw new VmsDomainException("Customer not found.");
             }
 
-            await context.DbContext.AddAsync(vehicle, cancellationToken);
+            context.DbContext.Vehicles.Add(vehicle);
             
             return vehicle;
         }
@@ -47,5 +49,5 @@ public class CreateVehicle
 }
 
 public record CreateVehicleRequest(string CompanyCode, string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue,
-    Point homeLocation,
+    Geometry HomeLocation,
     string? CustomerCode = null, string? FleetCode = null);

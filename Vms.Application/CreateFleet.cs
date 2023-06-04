@@ -2,7 +2,7 @@
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 
-namespace Vms.Domain.UseCase;
+namespace Vms.Application.UseCase;
 
 public class CreateFleet
 {
@@ -13,21 +13,21 @@ public class CreateFleet
 
     public async Task<Fleet> CreateAsync(CreateFleetRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode)
+        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        return await Company.CreateFleetAsync(request.Code, request.Name, cancellationToken);
+        return Company.CreateFleet(request.Code, request.Name);
     }
 
     public class CompanyRole(Company self, CreateFleet context)
     {
-        public async Task<Fleet> CreateFleetAsync(string code, string name, CancellationToken cancellationToken)
+        public Fleet CreateFleet(string code, string name)
         {
             var fleet = new Fleet(self.Code, code, name);
-            await context.DbContext.AddAsync(fleet, cancellationToken);
+            context.DbContext.Fleets.Add(fleet);
             return fleet;
         }
     }
 }
 
-public record CreateFleetRequest(string  CompanyCode, string Code, string Name);
+public record CreateFleetRequest(string CompanyCode, string Code, string Name);

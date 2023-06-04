@@ -16,7 +16,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		migrations.txt = migrations.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Tests", "Vms.Tests\Vms.Tests.csproj", "{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Tests", "Vms.Tests\Vms.Tests.csproj", "{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Application", "Vms.Application\Vms.Application.csproj", "{350601FD-763D-4E79-B9A6-1D7010B779D2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{C9B4C5D7-5F9E-46C9-9BA4-9E6E6D3833FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,9 +48,18 @@ Global
 		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{350601FD-763D-4E79-B9A6-1D7010B779D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{350601FD-763D-4E79-B9A6-1D7010B779D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{350601FD-763D-4E79-B9A6-1D7010B779D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{350601FD-763D-4E79-B9A6-1D7010B779D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{859906C0-36F2-42DB-9CB2-28CCFA36847C} = {C9B4C5D7-5F9E-46C9-9BA4-9E6E6D3833FD}
+		{5D56DB07-9512-495C-9A97-B2115CE4E014} = {C9B4C5D7-5F9E-46C9-9BA4-9E6E6D3833FD}
+		{40319812-05C0-4F77-8293-CFB4B31000F4} = {C9B4C5D7-5F9E-46C9-9BA4-9E6E6D3833FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F6094491-6927-46EC-9F8F-146F9532C92E}

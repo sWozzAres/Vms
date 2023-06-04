@@ -13,7 +13,7 @@ namespace Vms.Domain.Entity
 
     public class ServiceBooking
     {
-        public int Id { get; private set; }
+        public Guid Id { get; private set; }
         public Guid VehicleId { get; set; }
         public DateOnly PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
@@ -25,13 +25,15 @@ namespace Vms.Domain.Entity
         public ServiceBookingStatus Status { get; private set; } = ServiceBookingStatus.None;
         public virtual Vehicle Vehicle { get; set; } = null!;
         private ServiceBooking() { }
-        public ServiceBooking(Guid vehicleId, DateOnly preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
+        public ServiceBooking(Guid vehicleId, DateOnly preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue, Geometry vehicleLocation)
         {
+            Id = Guid.NewGuid();
             VehicleId = vehicleId;
             PreferredDate1 = preferredDate1;
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
             MotDue = motDue;
+            VehicleLocation = vehicleLocation;
             Status = ServiceBookingStatus.Allocating;
         }
         public void ChangeStatus(ServiceBookingStatus status) => Status = status;
@@ -39,7 +41,7 @@ namespace Vms.Domain.Entity
 
     public class ServiceBookingSupplier
     {
-        public int ServiceBookingId { get; set; }
+        public Guid ServiceBookingId { get; set; }
         public string SupplierCode { get; set; } = null!;
         public virtual ServiceBooking ServiceBooking { get; set; } = null!;
         public virtual Supplier Supplier { get; set; } = null!;
@@ -53,6 +55,7 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<ServiceBooking> builder)
         {
             builder.ToTable("ServiceBooking");
+            builder.HasKey(e => e.Id);
 
             builder.OwnsOne(d => d.Supplier, x =>
             {

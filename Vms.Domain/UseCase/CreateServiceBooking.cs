@@ -8,33 +8,32 @@ public class CreateServiceBooking
     readonly VmsDbContext DbContext;
     readonly ILogger<CreateServiceBooking> Logger;
     VehicleRole? Vehicle;
-    ServiceBooking? Booking;
+    //ServiceBooking? Booking;
 
     public CreateServiceBooking(VmsDbContext context, ILogger<CreateServiceBooking> logger)
         => (DbContext, Logger) = (context, logger);
 
-    public async Task<CreateBookingResponse> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
+    public async Task<ServiceBooking> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle with id '{request.VehicleId}' not found."), this);
 
-        Booking = await Vehicle.CreateBookingAsync(request, cancellationToken);
-
-        return new(Booking.Id);
+        return Vehicle.CreateBooking(request);
     }
 
     class VehicleRole(Vehicle self, CreateServiceBooking context)
     {
-        public async Task<ServiceBooking> CreateBookingAsync(CreateBookingRequest request, CancellationToken cancellationToken)
+        public ServiceBooking CreateBooking(CreateBookingRequest request)
         {
             var booking = new ServiceBooking(
                 self.Id,
                 request.PreferredDate1,
                 request.PreferredDate2,
                 request.PreferredDate3,
-                request.IncludeMot ? self.Mot.Due : null);
+                request.IncludeMot ? self.Mot.Due : null,
+                self.HomeLocation);
 
-            await context.DbContext.AddAsync(booking, cancellationToken);
+            context.DbContext.ServiceBookings.Add(booking);
 
             context.Logger.LogDebug("Created ServiceBooking");
 
@@ -43,7 +42,6 @@ public class CreateServiceBooking
     }
 }
 
-
 public record CreateBookingRequest(
     Guid VehicleId,
     DateOnly PreferredDate1,
@@ -51,5 +49,3 @@ public record CreateBookingRequest(
     DateOnly? PreferredDate3,
     bool IncludeMot
 );
-
-public record CreateBookingResponse(int ServiceBookingId);

@@ -1,7 +1,7 @@
 ﻿using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
 
-namespace Vms.Domain.UseCase;
+namespace Vms.Application.UseCase;
 
 public class CreateCompany
 {

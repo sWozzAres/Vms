@@ -330,14 +330,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "ServiceBooking",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PreferredDate1 = table.Column<DateOnly>(type: "date", nullable: false),
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate3 = table.Column<DateOnly>(type: "date", nullable: true),
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
-                    VehicleLocation = table.Column<Geometry>(type: "geography", nullable: false),
+                    VehicleLocation = table.Column<Point>(type: "geography", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -418,7 +417,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "ServiceBookingSupplier",
                 columns: table => new
                 {
-                    ServiceBookingId = table.Column<int>(type: "int", nullable: false)
+                    ServiceBookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "ServiceBookingSupplierHistory")
                         .Annotation("SqlServer:TemporalHistoryTableSchema", null)

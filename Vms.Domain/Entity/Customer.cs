@@ -8,17 +8,10 @@ namespace Vms.Domain.Entity
     public partial class Customer : IMultiTenantEntity
     {
         public string CompanyCode { get; set; } = null!;
-
         public string Code { get; set; } = null!;
-
-        public int Id { get; set; }
-
         public string Name { get; set; } = null!;
-
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
-
         public virtual ICollection<CustomerNetwork> CustomerNetworks { get; set; } = new List<CustomerNetwork>();
-
         public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
         private Customer() { }
         public Customer(string companyCode, string code, string name) => (CompanyCode, Code, Name) = (companyCode, code, name);
@@ -33,9 +26,6 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.ToTable("Customer");
             
-            builder.HasAlternateKey(e => e.Id);
-            builder.Property(e => e.Id).UseHiLo("CustomerIds");
-
             builder.HasKey(e => new { e.CompanyCode, e.Code });
 
             builder.Property(e => e.Code)
@@ -48,8 +38,7 @@ namespace Vms.Domain.Entity.Configuration
                 .HasMaxLength(32)
                 .IsUnicode(false);
 
-            builder.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Customers)
-                //.HasPrincipalKey(p => p.Code)
+            builder.HasOne(d => d.CompanyCodeNavigation).WithMany(d=>d.Customers)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Customer_Company");

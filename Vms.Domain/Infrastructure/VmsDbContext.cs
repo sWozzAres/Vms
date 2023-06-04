@@ -43,9 +43,9 @@ public class VmsDbContext : DbContext
         modelBuilder.HasSequence<int>("SupplierIds");
 
         modelBuilder.Entity<Company>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
-        modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
-        modelBuilder.Entity<Network>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
-        modelBuilder.Entity<Fleet>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
+        modelBuilder.Entity<Customer>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
+        modelBuilder.Entity<Network>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
+        modelBuilder.Entity<Fleet>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
         modelBuilder.Entity<Vehicle>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
     }
 

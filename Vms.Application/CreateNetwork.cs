@@ -2,7 +2,7 @@
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 
-namespace Vms.Domain.UseCase;
+namespace Vms.Application.UseCase;
 
 public class CreateNetwork
 {
@@ -13,18 +13,18 @@ public class CreateNetwork
 
     public async Task<Network> CreateAsync(CreateNetworkRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode)
+        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        return await Company.CreateNetworkAsync(request.Code, request.Name, cancellationToken);
+        return Company.CreateNetwork(request.Code, request.Name);
     }
 
     public class CompanyRole(Company self, CreateNetwork context)
     {
-        public async Task<Network> CreateNetworkAsync(string code, string name, CancellationToken cancellationToken)
+        public Network CreateNetwork(string code, string name)
         {
             var network = new Network(self.Code, code, name);
-            await context.DbContext.AddAsync(network, cancellationToken);
+            context.DbContext.Networks.Add(network);
             return network;
         }
     }

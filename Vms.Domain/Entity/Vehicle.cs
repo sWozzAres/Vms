@@ -7,27 +7,28 @@ using System.Runtime.Serialization;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Vehicle : IMultiTenantEntity
+    public partial class Vehicle
     {
-        public string CompanyCode { get; set; } = null!;
-        public Guid Id { get; set; }
-        public string Make { get; set; } = null!;
-        public string Model { get; set; } = null!;
-        public string? ChassisNumber { get; set; }
-        public DateOnly DateFirstRegistered { get; set; }
-        public virtual VehicleVrm VehicleVrm { get; set; } = null!;
-        public string? CustomerCode { get; set; }
-        public string? FleetCode { get; set; }
+        public string CompanyCode { get; private set; } = null!;
+        public Guid Id { get; private set; }
+        public string Make { get; private set; } = null!;
+        public string Model { get; private set; } = null!;
+        public string? ChassisNumber { get; private set; }
+        public DateOnly DateFirstRegistered { get; private set; }
+        public Geometry HomeLocation { get; private set; } = null!;
+        public string? CustomerCode { get; private set; }
+        public string? FleetCode { get; private set; }
+
         public virtual Customer? C { get; set; }
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
         public virtual Fleet? Fleet { get; set; }
         public virtual VehicleMot Mot { get; set; } = null!;
-        public Point HomeLocation { get; set; } = null!;
+        public virtual VehicleVrm VehicleVrm { get; set; } = null!;
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Point homeLocation)
+        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Geometry homeLocation)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
@@ -44,6 +45,8 @@ namespace Vms.Domain.Entity
             get => VehicleVrm.Vrm;
             set => VehicleVrm.Vrm = value;
         }
+        public void AssignToCustomer(string customerCode) => CustomerCode = customerCode;
+        public void AssignToFleet(string fleetCode) => FleetCode = fleetCode;
     }
 
     public partial class VehicleMot

@@ -13,8 +13,8 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230602141245_Initial")]
-    partial class Initial
+    [Migration("20230603192305_Initial2")]
+    partial class Initial2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,11 +26,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.HasSequence<int>("CompanyIds")
-                .IncrementsBy(10);
+            modelBuilder.HasSequence<int>("CompanyIds");
 
-            modelBuilder.HasSequence<int>("CustomerIds")
-                .IncrementsBy(10);
+            modelBuilder.HasSequence<int>("CustomerIds");
 
             modelBuilder.HasSequence<int>("FleetIds")
                 .IncrementsBy(10);
@@ -43,40 +41,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.HasSequence<int>("VehicleIds");
 
-            modelBuilder.Entity("NetworkSupplier", b =>
-                {
-                    b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
-
-                    b.Property<string>("NetworkCode")
-                        .HasColumnType("nchar(10)");
-
-                    b.Property<string>("SupplierCode")
-                        .HasColumnType("varchar(8)");
-
-                    b.HasKey("CompanyCode", "NetworkCode", "SupplierCode");
-
-                    b.HasIndex("SupplierCode");
-
-                    b.ToTable("NetworkSupplier", (string)null);
-                });
-
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
                     b.Property<string>("Code")
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
-
-                    b.Property<string>("CompanyCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "CompanyIds");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -85,8 +55,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("varchar(32)");
 
                     b.HasKey("Code");
-
-                    b.HasAlternateKey("Id");
 
                     b.ToTable("Company", (string)null);
                 });
@@ -102,11 +70,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "CustomerIds");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -284,13 +247,29 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("Network", (string)null);
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.NetworkSupplier", b =>
+                {
+                    b.Property<string>("CompanyCode")
+                        .HasColumnType("nchar(10)");
+
+                    b.Property<string>("NetworkCode")
+                        .HasColumnType("nchar(10)");
+
+                    b.Property<string>("SupplierCode")
+                        .HasColumnType("varchar(8)");
+
+                    b.HasKey("CompanyCode", "NetworkCode", "SupplierCode");
+
+                    b.HasIndex("SupplierCode");
+
+                    b.ToTable("NetworkSupplier", (string)null);
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBooking", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly?>("MotDue")
                         .HasColumnType("date");
@@ -310,7 +289,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Geometry>("VehicleLocation")
+                    b.Property<Point>("VehicleLocation")
                         .IsRequired()
                         .HasColumnType("geography");
 
@@ -435,25 +414,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("VehicleModel", (string)null);
                 });
 
-            modelBuilder.Entity("NetworkSupplier", b =>
-                {
-                    b.HasOne("Vms.Domain.Entity.Supplier", null)
-                        .WithMany()
-                        .HasForeignKey("SupplierCode")
-                        .IsRequired()
-                        .HasConstraintName("FK_NetworkSupplier_Supplier");
-
-                    b.HasOne("Vms.Domain.Entity.Network", null)
-                        .WithMany()
-                        .HasForeignKey("CompanyCode", "NetworkCode")
-                        .IsRequired()
-                        .HasConstraintName("FK_NetworkSupplier_Network");
-                });
-
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Company", "CompanyCodeNavigation")
-                        .WithMany("Customers")
+                        .WithMany("_customers")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Customer_Company");
@@ -541,6 +505,25 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("CompanyCodeNavigation");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.NetworkSupplier", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
+                        .WithMany("NetworkSuppliers")
+                        .HasForeignKey("SupplierCode")
+                        .IsRequired()
+                        .HasConstraintName("FK_NetworkSupplier_Supplier");
+
+                    b.HasOne("Vms.Domain.Entity.Network", "Network")
+                        .WithMany("NetworkSuppliers")
+                        .HasForeignKey("CompanyCode", "NetworkCode")
+                        .IsRequired()
+                        .HasConstraintName("FK_NetworkSupplier_Network");
+
+                    b.Navigation("Network");
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBooking", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
@@ -551,8 +534,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.OwnsOne("Vms.Domain.Entity.ServiceBookingSupplier", "Supplier", b1 =>
                         {
-                            b1.Property<int>("ServiceBookingId")
-                                .HasColumnType("int");
+                            b1.Property<Guid>("ServiceBookingId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("SupplierCode")
                                 .IsRequired()
@@ -786,13 +769,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
-                    b.Navigation("Customers");
-
                     b.Navigation("Fleets");
 
                     b.Navigation("Networks");
 
                     b.Navigation("Vehicles");
+
+                    b.Navigation("_customers");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>
@@ -820,6 +803,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("CustomerNetworks");
 
                     b.Navigation("FleetNetworks");
+
+                    b.Navigation("NetworkSuppliers");
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.Supplier", b =>
+                {
+                    b.Navigation("NetworkSuppliers");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Vehicle", b =>

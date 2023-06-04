@@ -7,23 +7,20 @@ namespace Vms.Domain.Entity
 {
     public partial class Company
     {
-        public string Code { get; set; } = null!;
+        public string Code { get; private set; } = null!;
 
-        public int Id { get; set; }
+        public string Name { get; private set; } = null!;
 
-        public string Name { get; set; } = null!;
+        internal List<Customer> Customers = new();
 
-        public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+        internal List<Fleet> Fleets { get; private set; } = new();
 
-        public virtual ICollection<Fleet> Fleets { get; set; } = new List<Fleet>();
+        internal List<Network> Networks { get; private set; } = new();
 
-        public virtual ICollection<Network> Networks { get; set; } = new List<Network>();
-
-        public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
-        public string CompanyCode { get => Code; set => Code = value; }
+        internal List<Vehicle> Vehicles { get; private set; } = new();
 
         private Company() { }
-        public Company(string code, string name) => (Code, Name) = (code, name);
+        internal Company(string code, string name) => (Code, Name) = (code, name);
     }
 }
 
@@ -36,14 +33,11 @@ namespace Vms.Domain.Entity.Configuration
             builder.ToTable("Company");
 
             builder.HasKey(e => e.Code);
-            builder.HasAlternateKey(e => e.Id);
-            builder.Property(e => e.Id).UseHiLo("CompanyIds");
-
-            //builder.HasIndex(e => e.Code, "IX_Company").IsUnique();
 
             builder.Property(e => e.Code)
                 .HasMaxLength(10)
                 .IsFixedLength();
+            
             builder.Property(e => e.Name)
                 .HasMaxLength(32)
                 .IsUnicode(false);

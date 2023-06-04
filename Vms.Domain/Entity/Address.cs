@@ -16,9 +16,9 @@ public class Address : ValueObject
     public string Town { get; private set; }
     // Full postcode (please print in capitals)
     public string Postcode { get; private set; }
-    public Point Location { get; private set; }
+    public Geometry Location { get; private set; }
 
-    public Address(string street, string locality, string town, string postcode, Point location)
+    public Address(string street, string locality, string town, string postcode, Geometry location)
     {
         Street = street ?? throw new ArgumentNullException(nameof(street));
         Locality = locality ?? throw new ArgumentNullException(nameof(locality));

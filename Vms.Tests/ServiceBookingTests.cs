@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using System;
+using Vms.Application.Services;
+using Vms.Domain.Services;
 using Vms.Domain.UseCase;
 using VmsTesting;
 
@@ -41,8 +43,13 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
         var vehicle = context.Vehicles.First();
 
         CreateBookingRequest request = new(vehicle.Id, new DateOnly(2023, 1, 1), null, null, true);
-        var response = await new CreateServiceBooking(context, LoggerFactory.CreateLogger<CreateServiceBooking>()).CreateAsync(request);
+        var serviceBooking = await new CreateServiceBooking(context, LoggerFactory.CreateLogger<CreateServiceBooking>())
+            .CreateAsync(request);
 
+        NetworkAllocator allocator = new(context);
+        var result = await allocator.GetSuppliers(serviceBooking);
+
+        Assert.NotEmpty(result);
     }
 
     [Fact]
