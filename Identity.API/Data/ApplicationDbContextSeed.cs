@@ -54,11 +54,39 @@ namespace Identity.API.Data
                     {
                         throw new Exception(result.Errors.First().Description);
                     }
-                    //Log.Debug("alice created");
                 }
                 else
                 {
-                    //Log.Debug("alice already exists");
+                }
+                var bob = userMgr.FindByNameAsync("bob").Result;
+                if (bob == null)
+                {
+                    bob = new ApplicationUser
+                    {
+                        UserName = "bob",
+                        Email = "BobSmith@email.com",
+                        EmailConfirmed = true,
+                    };
+                    var result = userMgr.CreateAsync(bob, "Pass123$").Result;
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception(result.Errors.First().Description);
+                    }
+
+                    result = userMgr.AddClaimsAsync(bob, new Claim[]{
+                            new Claim(JwtClaimTypes.Name, "Bob Smith"),
+                            new Claim(JwtClaimTypes.GivenName, "Bob"),
+                            new Claim(JwtClaimTypes.FamilyName, "Smith"),
+                            new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
+                            new Claim("tag", "bobstag")
+                        }).Result;
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception(result.Errors.First().Description);
+                    }
+                }
+                else
+                {
                 }
 
                 //if (!context.Users.Any())

@@ -32,6 +32,7 @@ namespace Identity.API
                         //JwtClaimTypes.WebSite,
                         //JwtClaimTypes.Address,
                         //"myclaim1"
+                        "tag"
                     }),
                 new IdentityResource(IdentityServerConstants.StandardScopes.Email,
                     "Email data",

@@ -25,7 +25,23 @@ namespace Identity.API
             _logger = logger;
         }
 
-        async public Task GetProfileDataAsync(ProfileDataRequestContext context)
+        //async public Task GetProfileDataAsync(ProfileDataRequestContext context)
+        //{
+        //    var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
+
+        //    var subjectId = subject.Claims.Where(x => x.Type == "sub").FirstOrDefault().Value;
+
+        //    var user = await _userManager.FindByIdAsync(subjectId);
+        //    if (user == null)
+        //        throw new ArgumentException("Invalid subject identifier");
+
+        //    var claims = GetClaimsFromUser(user, context);
+        //    context.IssuedClaims = claims.ToList();
+
+        //    _logger.LogInformation("ProfileRequested: Client Name: {0} Requested Claims: {1} Caller: {2} Issued Claims: {3} ",
+        //        context.Client.ClientName, context.RequestedClaimTypes, context.Caller, context.IssuedClaims);
+        //}
+        public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
 
@@ -35,11 +51,19 @@ namespace Identity.API
             if (user == null)
                 throw new ArgumentException("Invalid subject identifier");
 
-            var claims = GetClaimsFromUser(user, context);
-            context.IssuedClaims = claims.ToList();
+            // claims from user.claims
+            var additionalClaims = (await _userManager.GetClaimsAsync(user))
+                .Where(x => context.RequestedClaimTypes.Contains(x.Type));
 
-            _logger.LogInformation("ProfileRequested: Client Name: {0} Requested Claims: {1} Caller: {2} Issued Claims: {3} ",
-                context.Client.ClientName, context.RequestedClaimTypes, context.Caller, context.IssuedClaims);
+            // claims from user
+            var userClaims = GetClaimsFromUser(user, context)
+                .Where(x => !additionalClaims.Select(x => x.Type).Contains(x.Type));
+
+            context.IssuedClaims = additionalClaims
+                .Union(userClaims).ToList();
+
+            _logger.LogInformation("ProfileRequested: Client Name: {0} Requested Claims: {1} User Claims: {2} Additional Claims: {3} Caller: {4} Issued Claims: {5} ",
+                context.Client.ClientName, context.RequestedClaimTypes, userClaims, additionalClaims, context.Caller, context.IssuedClaims);
         }
 
         async public Task IsActiveAsync(IsActiveContext context)
@@ -97,6 +121,9 @@ namespace Identity.API
                         break;
                     case JwtClaimTypes.Name:
                         claims.Add(new Claim(JwtClaimTypes.Name, user.UserName));
+                        break;
+                    case JwtClaimTypes.GivenName:
+                        claims.Add(new Claim(JwtClaimTypes.GivenName, "x"));
                         break;
                     case JwtClaimTypes.PreferredUserName:
                         claims.Add(new Claim(JwtClaimTypes.PreferredUserName, user.UserName));

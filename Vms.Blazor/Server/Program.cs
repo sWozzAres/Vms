@@ -73,7 +73,7 @@ else
 app.UseHttpsRedirection();
 
 //app.UseBlazorFrameworkFiles();
-app.MapWhen(ctx => ctx.Request.Host.Port == 5001 ||
+app.MapWhen(ctx => ctx.Request.Host.Port == 5003 ||
     ctx.Request.Host.Equals("firstapp.com"), adminApp =>
     {
         adminApp.Use((ctx, nxt) =>
