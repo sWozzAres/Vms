@@ -1,15 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using NetTopologySuite.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Vms.Domain.Entity
 {
-    public enum ServiceBookingStatus { None, Allocating };
+    public enum ServiceBookingStatus { None, Assigned };
 
     public class ServiceBooking
     {
@@ -19,13 +13,12 @@ namespace Vms.Domain.Entity
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
         public DateOnly? MotDue { get; set; }
-        public Geometry VehicleLocation { get; set; } = null!;
-        public ServiceBookingSupplier? Supplier { get; set; }
+        public ServiceBookingSupplier? Supplier { get; private set; }
 
-        public ServiceBookingStatus Status { get; private set; } = ServiceBookingStatus.None;
+        public ServiceBookingStatus Status { get; private set; }
         public virtual Vehicle Vehicle { get; set; } = null!;
         private ServiceBooking() { }
-        public ServiceBooking(Guid vehicleId, DateOnly preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue, Geometry vehicleLocation)
+        public ServiceBooking(Guid vehicleId, DateOnly preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
         {
             Id = Guid.NewGuid();
             VehicleId = vehicleId;
@@ -33,18 +26,24 @@ namespace Vms.Domain.Entity
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
             MotDue = motDue;
-            VehicleLocation = vehicleLocation;
-            Status = ServiceBookingStatus.Allocating;
+            Status = ServiceBookingStatus.None;
         }
         public void ChangeStatus(ServiceBookingStatus status) => Status = status;
+        public void AssignSupplier(string supplierCode)
+        {
+            Supplier = new ServiceBookingSupplier(Id, supplierCode);
+        }
     }
 
     public class ServiceBookingSupplier
     {
-        public Guid ServiceBookingId { get; set; }
-        public string SupplierCode { get; set; } = null!;
-        public virtual ServiceBooking ServiceBooking { get; set; } = null!;
-        public virtual Supplier Supplier { get; set; } = null!;
+        public Guid ServiceBookingId { get; private set; }
+        public string SupplierCode { get; private set; } = null!;
+        public virtual ServiceBooking ServiceBooking { get; private set; } = null!;
+        public virtual Supplier Supplier { get; private set; } = null!;
+        private ServiceBookingSupplier() { }
+        public ServiceBookingSupplier(Guid serviceBookingId, string supplierCode) 
+            => (ServiceBookingId, SupplierCode) = (serviceBookingId, supplierCode);
     }
 }
 

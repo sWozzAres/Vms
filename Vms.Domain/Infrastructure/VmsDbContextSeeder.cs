@@ -136,7 +136,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 var vehicle = new Vehicle(company.Code, RandomVrm(dateFirstRegistered), Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
-                    new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 });
+                    new Address("","","","",new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 }));
                 
 
                 var driverVehicle = new DriverVehicle()

@@ -8,6 +8,11 @@ namespace Vms.Domain.Entity;
 /// </summary>
 public class Address : ValueObject
 {
+    public const int Street_MaxLength = 50;
+    public const int Locality_MaxLength = 50;
+    public const int Town_MaxLength = 50;
+    public const int Postcode_MaxLength = 8;
+
     // House number and street name
     public string Street { get; private set; }
     // Locality name (if needed)

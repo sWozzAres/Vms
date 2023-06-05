@@ -8,11 +8,16 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.5" />
+    <PackageReference Include="Serilog" Version="2.12.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Vms.Domain\Vms.Domain.csproj" />
     <ProjectReference Include="..\Client\Vms.Blazor.Client.csproj" />
+	<ProjectReference Include="..\Admin\Vms.Blazor.Admin.csproj" />
     <ProjectReference Include="..\Shared\Vms.Blazor.Shared.csproj" />
   </ItemGroup>
 

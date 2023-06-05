@@ -15,7 +15,7 @@ namespace Vms.Domain.Entity
         public string Model { get; private set; } = null!;
         public string? ChassisNumber { get; private set; }
         public DateOnly DateFirstRegistered { get; private set; }
-        public Geometry HomeLocation { get; private set; } = null!;
+        public Address Address { get; private set; } = null!;
         public string? CustomerCode { get; private set; }
         public string? FleetCode { get; private set; }
 
@@ -28,7 +28,7 @@ namespace Vms.Domain.Entity
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Geometry homeLocation)
+        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
@@ -37,7 +37,7 @@ namespace Vms.Domain.Entity
             DateFirstRegistered = dateFirstRegistered;
             Mot = new VehicleMot(motDue);
             VehicleVrm = new VehicleVrm(vrm);
-            HomeLocation = homeLocation;
+            Address = new(homeLocation.Street, homeLocation.Locality, homeLocation.Town, homeLocation.Postcode, homeLocation.Location.Copy());
         }
         
         public string Vrm
@@ -103,6 +103,22 @@ namespace Vms.Domain.Entity.Configuration
             builder.Property(e => e.Model)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+
+            builder.OwnsOne(e => e.Address, ce =>
+            {
+                ce.Property(x => x.Street)
+                    .HasMaxLength(Address.Street_MaxLength)
+                    .IsUnicode(false);
+                ce.Property(x => x.Locality)
+                    .HasMaxLength(Address.Locality_MaxLength)
+                    .IsUnicode(false);
+                ce.Property(x => x.Town)
+                    .HasMaxLength(Address.Town_MaxLength)
+                    .IsUnicode(false);
+                ce.Property(x => x.Postcode)
+                    .HasMaxLength(Address.Postcode_MaxLength)
+                    .IsUnicode(false);
+            });
 
             builder.HasOne(d => d.M)
                 .WithMany(p => p.Vehicles)

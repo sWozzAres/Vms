@@ -59,7 +59,7 @@ public class TestDatabaseFixture : IAsyncLifetime
 
                     var vehicle1 = await new CreateVehicle(context).CreateAsync(
                         new(company.Code, "HK52YUL", make1.Make, model1_1.Model, new DateOnly(2000, 1, 14), new DateOnly(2000, 1, 14),
-                            new Point(-2.2834790077963936, 51.728985639485806) { SRID = Srid },
+                            new Address("11A Marsh Lane", "Leonard Stanley", "Stonehouse", "GL103NJ", new Point(-2.2834790077963936, 51.728985639485806) { SRID = Srid }),
                             customer1.Code, fleet1.Code));
 
                     // https://www.yell.com/s/garage+services-stroud-gloucestershire.html

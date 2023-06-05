@@ -1,41 +1,44 @@
 ﻿using Microsoft.Extensions.Logging;
+using Vms.Application.Services;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 
+namespace Vms.Application.UseCase;
+
 public class CreateServiceBooking
 {
     readonly VmsDbContext DbContext;
-    readonly ILogger<CreateServiceBooking> Logger;
     VehicleRole? Vehicle;
     //ServiceBooking? Booking;
 
-    public CreateServiceBooking(VmsDbContext context, ILogger<CreateServiceBooking> logger)
-        => (DbContext, Logger) = (context, logger);
+    public CreateServiceBooking(VmsDbContext context)
+        => (DbContext) = (context);
 
     public async Task<ServiceBooking> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle with id '{request.VehicleId}' not found."), this);
 
-        return Vehicle.CreateBooking(request);
+        return await Vehicle.CreateBooking(request, cancellationToken);
     }
 
     class VehicleRole(Vehicle self, CreateServiceBooking context)
     {
-        public ServiceBooking CreateBooking(CreateBookingRequest request)
+        public async Task<ServiceBooking> CreateBooking(CreateBookingRequest request, CancellationToken cancellationToken)
         {
             var booking = new ServiceBooking(
                 self.Id,
                 request.PreferredDate1,
                 request.PreferredDate2,
                 request.PreferredDate3,
-                request.IncludeMot ? self.Mot.Due : null,
-                self.HomeLocation);
+                request.IncludeMot ? self.Mot.Due : null
+            );
 
             context.DbContext.ServiceBookings.Add(booking);
 
-            context.Logger.LogDebug("Created ServiceBooking");
+            var assigned = await new AssignSupplier(context.DbContext, new SupplierLocator(context.DbContext))
+                .Assign(new(booking.Id), cancellationToken);
 
             return booking;
         }

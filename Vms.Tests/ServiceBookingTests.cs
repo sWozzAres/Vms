@@ -3,7 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using System;
+using Vms.Application;
 using Vms.Application.Services;
+using Vms.Application.UseCase;
 using Vms.Domain.Services;
 using Vms.Domain.UseCase;
 using VmsTesting;
@@ -36,20 +38,23 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact]
-    public async Task Create_ServiceBooking()
+    public async Task Assign_ServiceBooking()
     {
         using var context = TestDatabaseFixture.CreateContext();
 
         var vehicle = context.Vehicles.First();
 
         CreateBookingRequest request = new(vehicle.Id, new DateOnly(2023, 1, 1), null, null, true);
-        var serviceBooking = await new CreateServiceBooking(context, LoggerFactory.CreateLogger<CreateServiceBooking>())
+        var serviceBooking = await new CreateServiceBooking(context)
             .CreateAsync(request);
 
-        NetworkAllocator allocator = new(context);
-        var result = await allocator.GetSuppliers(serviceBooking);
+        //AssignSupplierRequest aRequest = new(serviceBooking.Id);
+        //var assign = await new AssignSupplier(context, new SupplierLocator(context)).Assign(aRequest);
 
-        Assert.NotEmpty(result);
+
+        Assert.Equal("SUP002", serviceBooking.Supplier?.SupplierCode);
+
+        //await context.SaveChangesAsync();
     }
 
     [Fact]

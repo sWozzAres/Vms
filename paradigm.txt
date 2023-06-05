@@ -1,0 +1,17 @@
+
+
+
+ADT access modifiers:
+	1. private if required to go through method
+	2. internal if private in module (and friend modules)
+
+
+
+
+
+OOP
+Bob Barton - 1961, "Systems programmers are high priests"
+Byte code VM
+Higher level machine (higher than C)
+The Descriptor
+Paper - "A new approach to functional design of a digital computer"

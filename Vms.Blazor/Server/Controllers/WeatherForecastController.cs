@@ -4,7 +4,8 @@ using Vms.Blazor.Shared;
 namespace Vms.Blazor.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("AdminApp/[controller]")]
+    [Route("ClientApp/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

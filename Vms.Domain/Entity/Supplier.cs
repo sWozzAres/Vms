@@ -22,7 +22,7 @@ namespace Vms.Domain.Entity
         {
             Code = code;
             Name = name;
-            Address = new Address(address.Street, address.Locality, address.Town, address.Postcode, address.Location);
+            Address = new Address(address.Street, address.Locality, address.Town, address.Postcode, address.Location.Copy());
             IsIndependent = isIndependent;
         }
     }
@@ -61,8 +61,17 @@ namespace Vms.Domain.Entity.Configuration
 
             builder.OwnsOne(e => e.Address, ce =>
             {
+                ce.Property(x => x.Street)
+                    .HasMaxLength(Address.Street_MaxLength)
+                    .IsUnicode(false);
+                ce.Property(x => x.Locality)
+                    .HasMaxLength(Address.Locality_MaxLength)
+                    .IsUnicode(false);
+                ce.Property(x => x.Town)
+                    .HasMaxLength(Address.Town_MaxLength)
+                    .IsUnicode(false);
                 ce.Property(x => x.Postcode)
-                    .HasMaxLength(9)
+                    .HasMaxLength(Address.Postcode_MaxLength)
                     .IsUnicode(false);
             });
 
