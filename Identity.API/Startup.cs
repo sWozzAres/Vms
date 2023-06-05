@@ -41,8 +41,8 @@ namespace Identity.API
                                   {
                                       builder
                                       .WithOrigins("https://localhost:5001")
-                                      .WithOrigins("https://localhost:44326")
-                                      .WithOrigins("https://localhost:7294")
+                                      .WithOrigins("https://localhost:5002")
+                                      
                                       //.SetIsOriginAllowed((host) => true)
                                       .AllowAnyHeader()
                                       .AllowAnyMethod()

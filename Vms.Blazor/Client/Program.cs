@@ -18,7 +18,7 @@ builder.Services.AddHttpClient("Vms.ServerAPI", client => client.BaseAddress = n
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(
         authorizedUrls: new[] { "https://localhost:5002" },
-        scopes: new[] { "vms.admin" }));
+        scopes: new[] { "vms.client" }));
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Vms.ServerAPI"));

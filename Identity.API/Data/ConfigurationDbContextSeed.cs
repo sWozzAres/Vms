@@ -15,11 +15,6 @@ namespace Identity.API.Data
             //callbacks urls from config:
             var clientUrls = new Dictionary<string, string>
             {
-                { "Mvc", configuration.GetValue<string>("MvcClient") },
-                { "Blazor", configuration.GetValue<string>("BlazorClient") },
-                { "Utopia", configuration.GetValue<string>("UtopiaClient") },
-                { "Storefront", configuration.GetValue<string>("StorefrontClient") },
-
                 { "Admin", configuration.GetValue<string>("VmsAdmin") },
                 { "Client", configuration.GetValue<string>("VmsClient") }
             };

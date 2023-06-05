@@ -105,113 +105,113 @@ namespace Identity.API
         {
             return new List<Client>
             {
-                new Client
-                {
-                    ClientId = "client",
+                //new Client
+                //{
+                //    ClientId = "client",
 
-                    // no interactive user, use the clientid/secret for authentication
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                //    // no interactive user, use the clientid/secret for authentication
+                //    AllowedGrantTypes = GrantTypes.ClientCredentials,
 
-                    // secret for authentication
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    },
+                //    // secret for authentication
+                //    ClientSecrets =
+                //    {
+                //        new Secret("secret".Sha256())
+                //    },
 
-                    // scopes that client has access to
-                    AllowedScopes = { "catalog.read", "catalog.write", "utopia.read", "utopia.write" }
-                },
-                new Client
-                {
-                    ClientId = "mvc",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
+                //    // scopes that client has access to
+                //    AllowedScopes = { "catalog.read", "catalog.write", "utopia.read", "utopia.write" }
+                //},
+                //new Client
+                //{
+                //    ClientId = "mvc",
+                //    ClientSecrets = { new Secret("secret".Sha256()) },
 
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RequirePkce = true,
+                //    AllowedGrantTypes = GrantTypes.Code,
+                //    RequirePkce = true,
 
-                    // where to redirect to after login
-                    RedirectUris = { $"{clientsUrl["Mvc"]}/signin-oidc" },
+                //    // where to redirect to after login
+                //    RedirectUris = { $"{clientsUrl["Mvc"]}/signin-oidc" },
 
-                    // where to redirect to after logout
-                    PostLogoutRedirectUris = { $"{clientsUrl["Mvc"]}/signout-callback-oidc" },
+                //    // where to redirect to after logout
+                //    PostLogoutRedirectUris = { $"{clientsUrl["Mvc"]}/signout-callback-oidc" },
 
-                    // enable support for refresh tokens
-                    AllowOfflineAccess = true,
-                    //RequireConsent = true,
+                //    // enable support for refresh tokens
+                //    AllowOfflineAccess = true,
+                //    //RequireConsent = true,
 
-                    AllowedScopes = new List<string>
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        IdentityServerConstants.StandardScopes.Phone,
-                        "catalog.read"
-                    },
+                //    AllowedScopes = new List<string>
+                //    {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        IdentityServerConstants.StandardScopes.Email,
+                //        IdentityServerConstants.StandardScopes.Phone,
+                //        "catalog.read"
+                //    },
 
-                    AlwaysIncludeUserClaimsInIdToken = true
+                //    AlwaysIncludeUserClaimsInIdToken = true
 
-                },
-                new Client
-                {
-                    // unique name for the application
-                    ClientId = "blazor",
+                //},
+                //new Client
+                //{
+                //    // unique name for the application
+                //    ClientId = "blazor",
 
-                    // Authorization Code grant type and require PKCE
-                    // http://docs.identityserver.io/en/latest/topics/grant_types.html
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RequirePkce = true,
+                //    // Authorization Code grant type and require PKCE
+                //    // http://docs.identityserver.io/en/latest/topics/grant_types.html
+                //    AllowedGrantTypes = GrantTypes.Code,
+                //    RequirePkce = true,
 
-                    // turn off secret for public client
-                    RequireClientSecret = false,
+                //    // turn off secret for public client
+                //    RequireClientSecret = false,
 
-                    // whitelisted URL in CORS
-                    AllowedCorsOrigins = { $"{clientsUrl["Blazor"]}" },
+                //    // whitelisted URL in CORS
+                //    AllowedCorsOrigins = { $"{clientsUrl["Blazor"]}" },
 
-                    // enabling openid and profile as scopes, in order to allow the execution of the OpenID Connect flow 
-                    // and retrieve the profile of the user in the ID Token
-                    AllowedScopes = {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "catalog.read", "catalog.write",
-                        "utopia.read", "utopia.write"
-                    },
+                //    // enabling openid and profile as scopes, in order to allow the execution of the OpenID Connect flow 
+                //    // and retrieve the profile of the user in the ID Token
+                //    AllowedScopes = {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        IdentityServerConstants.StandardScopes.Email,
+                //        "catalog.read", "catalog.write",
+                //        "utopia.read", "utopia.write"
+                //    },
 
-                    AlwaysIncludeUserClaimsInIdToken = true,
+                //    AlwaysIncludeUserClaimsInIdToken = true,
 
-                    RedirectUris = { $"{clientsUrl["Blazor"]}/authentication/login-callback" },
-                    PostLogoutRedirectUris = { $"{clientsUrl["Blazor"]}/" }
-                },
-                new Client
-                {
-                    // unique name for the application
-                    ClientId = "utopia",
+                //    RedirectUris = { $"{clientsUrl["Blazor"]}/authentication/login-callback" },
+                //    PostLogoutRedirectUris = { $"{clientsUrl["Blazor"]}/" }
+                //},
+                //new Client
+                //{
+                //    // unique name for the application
+                //    ClientId = "utopia",
 
-                    // Authorization Code grant type and require PKCE
-                    // http://docs.identityserver.io/en/latest/topics/grant_types.html
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RequirePkce = true,
+                //    // Authorization Code grant type and require PKCE
+                //    // http://docs.identityserver.io/en/latest/topics/grant_types.html
+                //    AllowedGrantTypes = GrantTypes.Code,
+                //    RequirePkce = true,
 
-                    // turn off secret for public client
-                    RequireClientSecret = false,
+                //    // turn off secret for public client
+                //    RequireClientSecret = false,
 
-                    // whitelisted URL in CORS
-                    AllowedCorsOrigins = { $"{clientsUrl["Utopia"]}" },
+                //    // whitelisted URL in CORS
+                //    AllowedCorsOrigins = { $"{clientsUrl["Utopia"]}" },
 
-                    // enabling openid and profile as scopes, in order to allow the execution of the OpenID Connect flow 
-                    // and retrieve the profile of the user in the ID Token
-                    AllowedScopes = {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "utopia.read", "utopia.write"
-                    },
+                //    // enabling openid and profile as scopes, in order to allow the execution of the OpenID Connect flow 
+                //    // and retrieve the profile of the user in the ID Token
+                //    AllowedScopes = {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        IdentityServerConstants.StandardScopes.Email,
+                //        "utopia.read", "utopia.write"
+                //    },
 
-                    AlwaysIncludeUserClaimsInIdToken = true,
+                //    AlwaysIncludeUserClaimsInIdToken = true,
 
-                    RedirectUris = { $"{clientsUrl["Utopia"]}/authentication/login-callback" },
-                    PostLogoutRedirectUris = { $"{clientsUrl["Utopia"]}/" }
-                },
+                //    RedirectUris = { $"{clientsUrl["Utopia"]}/authentication/login-callback" },
+                //    PostLogoutRedirectUris = { $"{clientsUrl["Utopia"]}/" }
+                //},
                 new Client
                 {
                     // unique name for the application
@@ -272,38 +272,38 @@ namespace Identity.API
                     RedirectUris = { $"{clientsUrl["Client"]}/authentication/login-callback" },
                     PostLogoutRedirectUris = { $"{clientsUrl["Client"]}/" }
                 },
-                new Client
-                {
-                    // unique name for the application
-                    ClientId = "storefront",
+                //new Client
+                //{
+                //    // unique name for the application
+                //    ClientId = "storefront",
 
-                    // turn off secret for public client
-                    RequireClientSecret = false,
+                //    // turn off secret for public client
+                //    RequireClientSecret = false,
 
-                    // Authorization Code grant type and require PKCE
-                    // http://docs.identityserver.io/en/latest/topics/grant_types.html
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RequirePkce = true,
+                //    // Authorization Code grant type and require PKCE
+                //    // http://docs.identityserver.io/en/latest/topics/grant_types.html
+                //    AllowedGrantTypes = GrantTypes.Code,
+                //    RequirePkce = true,
 
-                    RedirectUris = { $"{clientsUrl["Storefront"]}/authentication/login-callback" },
-                    PostLogoutRedirectUris = { $"{clientsUrl["Storefront"]}/" },
+                //    RedirectUris = { $"{clientsUrl["Storefront"]}/authentication/login-callback" },
+                //    PostLogoutRedirectUris = { $"{clientsUrl["Storefront"]}/" },
 
-                    AllowOfflineAccess = true,
+                //    AllowOfflineAccess = true,
 
-                    // whitelisted URL in CORS
-                    AllowedCorsOrigins = { $"{clientsUrl["Storefront"]}" },
+                //    // whitelisted URL in CORS
+                //    AllowedCorsOrigins = { $"{clientsUrl["Storefront"]}" },
 
-                    // enabling openid and profile as scopes, in order to allow the execution of the OpenID Connect flow 
-                    // and retrieve the profile of the user in the ID Token
-                    AllowedScopes = {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        //IdentityServerConstants.StandardScopes.Email,
-                        "catalog.read"
-                    },
+                //    // enabling openid and profile as scopes, in order to allow the execution of the OpenID Connect flow 
+                //    // and retrieve the profile of the user in the ID Token
+                //    AllowedScopes = {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        //IdentityServerConstants.StandardScopes.Email,
+                //        "catalog.read"
+                //    },
 
-                    AlwaysIncludeUserClaimsInIdToken = true,
-                },
+                //    AlwaysIncludeUserClaimsInIdToken = true,
+                //},
             };
         }
     }

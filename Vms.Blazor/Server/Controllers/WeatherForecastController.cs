@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vms.Blazor.Shared;
 
@@ -6,6 +7,7 @@ namespace Vms.Blazor.Server.Controllers
     [ApiController]
     [Route("AdminApp/[controller]")]
     [Route("ClientApp/[controller]")]
+    [Authorize(Policy = "ClientPolicy")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

@@ -1,6 +1,10 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+
+const string AppName = "Vms.Blazor.Server";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +12,7 @@ builder.Host.UseSerilog();
 
 Log.Logger = new LoggerConfiguration()
         //.MinimumLevel.Verbose()
-        .Enrich.WithProperty("ApplicationContext", Program.AppName)
+        .Enrich.WithProperty("ApplicationContext", AppName)
         .Enrich.FromLogContext()
         //.WriteTo.Console()
         //.WriteTo.Seq(string.IsNullOrWhiteSpace(seqServerUrl) ? "http://seq" : seqServerUrl)
@@ -17,7 +21,37 @@ Log.Logger = new LoggerConfiguration()
         .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Code)
         .CreateLogger();
 
-Log.Information("Configuring web host ({ApplicationContext})...", Program.AppName);
+Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "https://localhost:5000";
+        options.Audience = "utopia";
+
+        //options.MapInboundClaims = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            NameClaimType = "name"
+        };
+    });
+builder.Services.AddTransient<IClaimsTransformation, Vms.Blazor.Server.MyClaimsTransformation>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scope", "vms.admin");
+    });
+    options.AddPolicy("ClientPolicy", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scope", "vms.client");
+    });
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -40,20 +74,20 @@ app.UseHttpsRedirection();
 
 //app.UseBlazorFrameworkFiles();
 app.MapWhen(ctx => ctx.Request.Host.Port == 5001 ||
-    ctx.Request.Host.Equals("firstapp.com"), first =>
+    ctx.Request.Host.Equals("firstapp.com"), adminApp =>
     {
-        first.Use((ctx, nxt) =>
+        adminApp.Use((ctx, nxt) =>
         {
             ctx.Request.Path = "/AdminApp" + ctx.Request.Path;
             return nxt();
         });
 
-        first.UseBlazorFrameworkFiles("/AdminApp");
-        first.UseStaticFiles();
-        first.UseStaticFiles("/AdminApp");
-        first.UseRouting();
-
-        first.UseEndpoints(endpoints =>
+        adminApp.UseBlazorFrameworkFiles("/AdminApp");
+        adminApp.UseStaticFiles();
+        adminApp.UseStaticFiles("/AdminApp");
+        adminApp.UseRouting();
+        adminApp.UseAuthorization();
+        adminApp.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapFallbackToFile("/AdminApp/{*path:nonfile}",
@@ -62,20 +96,20 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5001 ||
     });
 
 app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
-    ctx.Request.Host.Equals("secondapp.com"), second =>
+    ctx.Request.Host.Equals("secondapp.com"), clientApp =>
     {
-        second.Use((ctx, nxt) =>
+        clientApp.Use((ctx, nxt) =>
         {
             ctx.Request.Path = "/ClientApp" + ctx.Request.Path;
             return nxt();
         });
 
-        second.UseBlazorFrameworkFiles("/ClientApp");
-        second.UseStaticFiles();
-        second.UseStaticFiles("/ClientApp");
-        second.UseRouting();
-
-        second.UseEndpoints(endpoints =>
+        clientApp.UseBlazorFrameworkFiles("/ClientApp");
+        clientApp.UseStaticFiles();
+        clientApp.UseStaticFiles("/ClientApp");
+        clientApp.UseRouting();
+        clientApp.UseAuthorization();
+        clientApp.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",
@@ -87,15 +121,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 
+
 app.MapRazorPages();
 app.MapControllers();
 //app.MapFallbackToFile("index.html");
 
 app.Run();
-
-
-public partial class Program
-{
-    public static string Namespace = typeof(Program).Namespace ?? string.Empty;
-    public static string AppName = Namespace[(Namespace.LastIndexOf('.', Namespace.LastIndexOf('.') - 1) + 1)..];
-}

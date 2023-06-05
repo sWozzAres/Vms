@@ -1,0 +1,86 @@
+﻿@page "/claims"
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using System.IdentityModel.Tokens.Jwt
+@inject IAccessTokenProvider TokenProvider
+
+<PageTitle>Claims</PageTitle>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <NavLink href="/">Home</NavLink>
+        </li>
+        <li class="breadcrumb-item active">Claims</li>
+    </ol>
+</nav>
+
+<section class="page">
+    <AuthorizeView>
+        <Authorized>
+            <h2>
+                Hello @context.User.Identity!.Name,
+                here's the list of your claims:
+            </h2>
+            <ul>
+                @foreach (var claim in context.User.Claims)
+                {
+                    <li><b>@claim.Type</b>: @claim.Value</li>
+                }
+            </ul>
+
+            @if (!string.IsNullOrEmpty(AccessToken))
+            {
+                <h3>Access Token</h3>
+                <div style="overflow-wrap: break-word;">
+                    @AccessToken
+                </div>
+            }
+            @if (_jwtSecurityToken is not null)
+            {
+                <div>
+                    <h4>Header</h4>
+                    <ul>
+                        @foreach (var x in _jwtSecurityToken.Header)
+                        {
+                            <li><strong>@x.Key: </strong>@x.Value</li>
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <h4>Payload</h4>
+                    <ul>
+                        @foreach (var x in _jwtSecurityToken.Payload)
+                        {
+                            <li><strong>@x.Key: </strong>@x.Value</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <p>I'm sorry, I can't display anything until you log in</p>
+        </NotAuthorized>
+    </AuthorizeView>
+</section>
+
+@code {
+    public string AccessToken { get; set; } = string.Empty;
+
+    private JwtSecurityToken? _jwtSecurityToken;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var accessTokenResult = await TokenProvider.RequestAccessToken();
+        AccessToken = string.Empty;
+
+        if (accessTokenResult.TryGetToken(out var token))
+        {
+            AccessToken = token.Value;
+            var handler = new JwtSecurityTokenHandler();
+            _jwtSecurityToken = handler.ReadJwtToken(AccessToken);
+        }
+    }
+}
