@@ -1,0 +1,42 @@
+﻿@page "/company/list"
+@using Vms.Blazor.Shared
+@using Vms.Blazor.Shared.Admin;
+@inject HttpClient Http
+
+<PageTitle>Companies</PageTitle>
+
+<h1>Company List</h1>
+
+@if (companies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var company in companies)
+            {
+                <tr>
+                    <td>@company.Code</td>
+                    <td>@company.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private CompanyListModel[]? companies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        companies = await Http.GetFromJsonAsync<CompanyListModel[]>("api/admin/company");
+    }
+}

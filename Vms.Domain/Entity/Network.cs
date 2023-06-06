@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Network : IMultiTenantEntity
+    public partial class Network
     {
         public string CompanyCode { get; set; } = null!;
 
         public string Code { get; set; } = null!;
-
-        public int Id { get; set; }
 
         public string Name { get; set; } = null!;
 
@@ -36,9 +34,6 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Network> builder)
         {
             builder.ToTable("Network");
-
-            builder.HasAlternateKey(e => e.Id);
-            builder.Property(e => e.Id).UseHiLo("NetworkIds");
 
             builder.HasKey(e => new { e.CompanyCode, e.Code });
 

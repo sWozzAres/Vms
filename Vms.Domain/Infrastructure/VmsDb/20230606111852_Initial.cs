@@ -12,42 +12,16 @@ namespace Vms.Domain.Infrastructure.VmsDb
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateSequence<int>(
-                name: "CompanyIds",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence<int>(
-                name: "CustomerIds",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence<int>(
-                name: "FleetIds",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence<int>(
-                name: "NetworkIds",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence<int>(
-                name: "SupplierIds",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence<int>(
-                name: "VehicleIds");
-
             migrationBuilder.CreateTable(
                 name: "Company",
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false),
-                    CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Company", x => x.Code);
-                    table.UniqueConstraint("AK_Company_Id", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,13 +46,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address_Locality = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address_Town = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address_Postcode = table.Column<string>(type: "varchar(9)", unicode: false, maxLength: 9, nullable: false),
-                    Address_Location = table.Column<Point>(type: "geography", nullable: false),
+                    Address_Street = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Address_Locality = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Address_Town = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Address_Postcode = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Address_Location = table.Column<Geometry>(type: "geography", nullable: false),
                     IsIndependent = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -103,7 +76,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
@@ -122,7 +94,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
@@ -141,7 +112,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
                 },
                 constraints: table =>
@@ -192,7 +162,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         name: "FK_VehicleModel_VehicleMake_Make",
                         column: x => x.Make,
                         principalTable: "VehicleMake",
-                        principalColumn: "Make");
+                        principalColumn: "Make",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -274,9 +245,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     Model = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     ChassisNumber = table.Column<string>(type: "varchar(18)", unicode: false, maxLength: 18, nullable: true),
                     DateFirstRegistered = table.Column<DateOnly>(type: "date", nullable: false),
+                    Address_Street = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Address_Locality = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Address_Town = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Address_Postcode = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Address_Location = table.Column<Geometry>(type: "geography", nullable: false),
                     CustomerCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true),
-                    FleetCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true),
-                    HomeLocation = table.Column<Point>(type: "geography", nullable: false)
+                    FleetCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -336,7 +311,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate3 = table.Column<DateOnly>(type: "date", nullable: true),
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
-                    VehicleLocation = table.Column<Point>(type: "geography", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -581,24 +555,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             migrationBuilder.DropTable(
                 name: "VehicleMake");
-
-            migrationBuilder.DropSequence(
-                name: "CompanyIds");
-
-            migrationBuilder.DropSequence(
-                name: "CustomerIds");
-
-            migrationBuilder.DropSequence(
-                name: "FleetIds");
-
-            migrationBuilder.DropSequence(
-                name: "NetworkIds");
-
-            migrationBuilder.DropSequence(
-                name: "SupplierIds");
-
-            migrationBuilder.DropSequence(
-                name: "VehicleIds");
         }
     }
 }

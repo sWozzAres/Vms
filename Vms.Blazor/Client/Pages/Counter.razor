@@ -1,4 +1,6 @@
-﻿@page "/counter"
+﻿@page "/counter/{Val:int?}"
+@inject ILogger<Counter> logger
+@inject NavigationManager navigationManager
 
 <PageTitle>Counter</PageTitle>
 
@@ -8,11 +10,42 @@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+<button class="btn btn-primary" @onclick="RandomCount">Random</button>
+
 @code {
     private int currentCount = 0;
+    [Parameter]
+    public int? Val { get; set; }
 
     private void IncrementCount()
     {
         currentCount++;
+    }
+
+    private void RandomCount()
+    {
+        var rand = new Random();
+        navigationManager.NavigateTo($"/counter/{rand.Next(1000)}");
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        logger.LogInformation("OnInitialized()");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Val.HasValue)
+            currentCount = Val.Value;
+
+        base.OnParametersSet();
+        logger.LogInformation("OnParametersSet()");
     }
 }

@@ -1,8 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using Vms.Domain.Infrastructure;
 
 const string AppName = "Vms.Blazor.Server";
 
@@ -22,6 +25,17 @@ Log.Logger = new LoggerConfiguration()
         .CreateLogger();
 
 Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+
+
+
+builder.Services.AddDbContext<VmsDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("VmsDbConnection"),
+                sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                })
+            );
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication("Bearer")

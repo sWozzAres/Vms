@@ -13,8 +13,8 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230603192305_Initial2")]
-    partial class Initial2
+    [Migration("20230606111852_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,21 +25,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.HasSequence<int>("CompanyIds");
-
-            modelBuilder.HasSequence<int>("CustomerIds");
-
-            modelBuilder.HasSequence<int>("FleetIds")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence<int>("NetworkIds")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence<int>("SupplierIds")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence<int>("VehicleIds");
 
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
@@ -179,11 +164,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "FleetIds");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -230,11 +210,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "NetworkIds");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -289,10 +264,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Point>("VehicleLocation")
-                        .IsRequired()
-                        .HasColumnType("geography");
-
                     b.HasKey("Id");
 
                     b.HasIndex("VehicleId");
@@ -306,11 +277,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(8)
                         .IsUnicode(false)
                         .HasColumnType("varchar(8)");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "SupplierIds");
 
                     b.Property<bool>("IsIndependent")
                         .HasColumnType("bit");
@@ -355,10 +321,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
-
-                    b.Property<Point>("HomeLocation")
-                        .IsRequired()
-                        .HasColumnType("geography");
 
                     b.Property<string>("Make")
                         .IsRequired()
@@ -417,7 +379,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Company", "CompanyCodeNavigation")
-                        .WithMany("_customers")
+                        .WithMany("Customers")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Customer_Company");
@@ -596,25 +558,31 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.Property<string>("Locality")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasMaxLength(50)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(50)");
 
-                            b1.Property<Point>("Location")
+                            b1.Property<Geometry>("Location")
                                 .IsRequired()
                                 .HasColumnType("geography");
 
                             b1.Property<string>("Postcode")
                                 .IsRequired()
-                                .HasMaxLength(9)
+                                .HasMaxLength(8)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(9)");
+                                .HasColumnType("varchar(8)");
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasMaxLength(50)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(50)");
 
                             b1.Property<string>("Town")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasMaxLength(50)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(50)");
 
                             b1.HasKey("SupplierCode");
 
@@ -682,6 +650,47 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_Vehicle_VehicleModel");
 
+                    b.OwnsOne("Vms.Domain.Entity.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("VehicleId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Locality")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(50)");
+
+                            b1.Property<Geometry>("Location")
+                                .IsRequired()
+                                .HasColumnType("geography");
+
+                            b1.Property<string>("Postcode")
+                                .IsRequired()
+                                .HasMaxLength(8)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(8)");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(50)");
+
+                            b1.Property<string>("Town")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(50)");
+
+                            b1.HasKey("VehicleId");
+
+                            b1.ToTable("Vehicle");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleId");
+                        });
+
                     b.OwnsOne("Vms.Domain.Entity.VehicleMot", "Mot", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
@@ -742,6 +751,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Navigation("Vehicle");
                         });
 
+                    b.Navigation("Address")
+                        .IsRequired();
+
                     b.Navigation("C");
 
                     b.Navigation("CompanyCodeNavigation");
@@ -762,6 +774,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasOne("Vms.Domain.Entity.VehicleMake", "MakeNavigation")
                         .WithMany("VehicleModels")
                         .HasForeignKey("Make")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("MakeNavigation");
@@ -769,13 +782,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
+                    b.Navigation("Customers");
+
                     b.Navigation("Fleets");
 
                     b.Navigation("Networks");
 
                     b.Navigation("Vehicles");
-
-                    b.Navigation("_customers");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>

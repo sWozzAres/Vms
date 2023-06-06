@@ -7,7 +7,7 @@ namespace Vms.Domain.Entity
 {
     public partial class VehicleModel
     {
-        internal const int MODEL_MAXLENGTH = 50;
+        internal const int Model_MaxLength = 50;
         public string Make { get; set; } = null!;
         public string Model { get; set; } = null!;
 
@@ -31,17 +31,17 @@ namespace Vms.Domain.Entity.Configuration
             builder.ToTable("VehicleModel");
 
             builder.Property(e => e.Make)
-                .HasMaxLength(VehicleMake.MAKE_MAXLENGTH)
+                .HasMaxLength(VehicleMake.Make_Maxlength)
                 .IsUnicode(false);
 
             builder.Property(e => e.Model)
-                .HasMaxLength(VehicleModel.MODEL_MAXLENGTH)
+                .HasMaxLength(VehicleModel.Model_MaxLength)
                 .IsUnicode(false);
 
             builder.HasOne(d => d.MakeNavigation)
                 .WithMany(p => p.VehicleModels)
                 .HasForeignKey(d => d.Make)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

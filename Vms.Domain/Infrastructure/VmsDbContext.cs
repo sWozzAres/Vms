@@ -26,74 +26,77 @@ public class VmsDbContext : DbContext
     public DbSet<VehicleMake> VehicleMakes => Set<VehicleMake>();
     public DbSet<VehicleModel> VehicleModels => Set<VehicleModel>();
 
-    readonly IUserProvider UserProvider;
+    readonly IUserProvider _userProvider;
     public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider) : base(options)
-        => UserProvider = userProvider;
+        => _userProvider = userProvider;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
 
-        modelBuilder.HasSequence<int>("CompanyIds");
-        modelBuilder.HasSequence<int>("CustomerIds");
-        modelBuilder.HasSequence<int>("FleetIds");
-        modelBuilder.HasSequence<int>("NetworkIds");
-        modelBuilder.HasSequence<int>("VehicleIds");
-        modelBuilder.HasSequence<int>("SupplierIds");
+        //modelBuilder.HasSequence<int>("CompanyIds");
+        //modelBuilder.HasSequence<int>("CustomerIds");
+        //modelBuilder.HasSequence<int>("FleetIds");
+        //modelBuilder.HasSequence<int>("NetworkIds");
+        //modelBuilder.HasSequence<int>("VehicleIds");
+        //modelBuilder.HasSequence<int>("SupplierIds");
 
-        modelBuilder.Entity<Company>().HasQueryFilter(x => x.Code == UserProvider.TenantId);
-        modelBuilder.Entity<Customer>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
-        modelBuilder.Entity<Network>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
-        modelBuilder.Entity<Fleet>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
-        modelBuilder.Entity<Vehicle>().HasQueryFilter(x => x.CompanyCode == UserProvider.TenantId);
-    }
-
-    public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
-    {
-        if (entity is IMultiTenantEntity m)
+        if (!string.IsNullOrEmpty(_userProvider.TenantId))
         {
-            m.CompanyCode = UserProvider.TenantId;
+            modelBuilder.Entity<Company>().HasQueryFilter(x => x.Code == _userProvider.TenantId);
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<Network>().HasQueryFilter(x => x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<Fleet>().HasQueryFilter(x => x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<Vehicle>().HasQueryFilter(x => x.CompanyCode == _userProvider.TenantId);
         }
-
-        return base.Add(entity);
     }
-    public override ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
-    {
-        if (entity is IMultiTenantEntity m)
-        {
-            m.CompanyCode = UserProvider.TenantId;
-        }
 
-        return base.AddAsync(entity, cancellationToken);
-    }
-    public override ValueTask<EntityEntry> AddAsync(object entity, CancellationToken cancellationToken = default)
-    {
-        if (entity is IMultiTenantEntity m)
-        {
-            m.CompanyCode = UserProvider.TenantId;
-        }
+    //public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
+    //{
+    //    if (entity is IMultiTenantEntity m)
+    //    {
+    //        m.CompanyCode = _userProvider.TenantId;
+    //    }
 
-        return base.AddAsync(entity, cancellationToken);
-    }
-    public override void AddRange(IEnumerable<object> entities)
-    {
-        foreach(var entity in entities)
-        {
-            if (entity is IMultiTenantEntity m) m.CompanyCode = UserProvider.TenantId;
-        }
+    //    return base.Add(entity);
+    //}
+    //public override ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    //{
+    //    if (entity is IMultiTenantEntity m)
+    //    {
+    //        m.CompanyCode = _userProvider.TenantId;
+    //    }
 
-        base.AddRange(entities);
-    }
-    public override Task AddRangeAsync(IEnumerable<object> entities, CancellationToken cancellationToken = default)
-    {
-        foreach (var entity in entities)
-        {
-            if (entity is IMultiTenantEntity m) m.CompanyCode = UserProvider.TenantId;
-        }
+    //    return base.AddAsync(entity, cancellationToken);
+    //}
+    //public override ValueTask<EntityEntry> AddAsync(object entity, CancellationToken cancellationToken = default)
+    //{
+    //    if (entity is IMultiTenantEntity m)
+    //    {
+    //        m.CompanyCode = _userProvider.TenantId;
+    //    }
 
-        return base.AddRangeAsync(entities, cancellationToken);
-    }
+    //    return base.AddAsync(entity, cancellationToken);
+    //}
+    //public override void AddRange(IEnumerable<object> entities)
+    //{
+    //    foreach(var entity in entities)
+    //    {
+    //        if (entity is IMultiTenantEntity m) m.CompanyCode = _userProvider.TenantId;
+    //    }
+
+    //    base.AddRange(entities);
+    //}
+    //public override Task AddRangeAsync(IEnumerable<object> entities, CancellationToken cancellationToken = default)
+    //{
+    //    foreach (var entity in entities)
+    //    {
+    //        if (entity is IMultiTenantEntity m) m.CompanyCode = _userProvider.TenantId;
+    //    }
+
+    //    return base.AddRangeAsync(entities, cancellationToken);
+    //}
 
     #region Transaction
     private IDbContextTransaction? _currentTransaction;

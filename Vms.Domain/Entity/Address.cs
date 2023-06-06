@@ -28,8 +28,8 @@ public class Address : ValueObject
         Street = street ?? throw new ArgumentNullException(nameof(street));
         Locality = locality ?? throw new ArgumentNullException(nameof(locality));
         Town = town ?? throw new ArgumentNullException(nameof(town));
-        Postcode = postcode ?? throw new ArgumentNullException(nameof(postcode));
-        Location = location;
+        Postcode = postcode?.ToUpper() ?? throw new ArgumentNullException(nameof(postcode));
+        Location = location.Copy();
     }
 
     protected override IEnumerable<object> GetEqualityComponents()

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Entity\IMultiTenantEntity.cs" />
     <Compile Remove="Entity\VehicleVrm.cs" />
   </ItemGroup>
 

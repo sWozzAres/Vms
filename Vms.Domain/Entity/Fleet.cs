@@ -3,13 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Fleet : IMultiTenantEntity
+    public partial class Fleet
     {
         public string CompanyCode { get; set; } = null!;
 
         public string Code { get; set; } = null!;
 
-        public int Id { get; set; }
 
         public string Name { get; set; } = null!;
 
@@ -30,9 +29,6 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Fleet> builder)
         {
             builder.ToTable("Fleet");
-
-            builder.HasAlternateKey(e => e.Id);
-            builder.Property(e => e.Id).UseHiLo("FleetIds");
 
             builder.HasKey(e => new { e.CompanyCode, e.Code });
 

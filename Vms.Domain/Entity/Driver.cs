@@ -37,7 +37,7 @@ namespace Vms.Domain.Entity.Configuration
         public void Configure(EntityTypeBuilder<Driver> entity)
         {
             entity.HasKey(e => e.EmailAddress)
-                    .HasName("PK_Driver_1");
+                    .HasName("PK_Driver");
 
             entity.ToTable("Driver");
 

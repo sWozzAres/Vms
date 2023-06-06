@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.API", "Identity.AP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Blazor.Admin", "Vms.Blazor\Admin\Vms.Blazor.Admin.csproj", "{5EF1A8FB-57AE-4370-A0A9-B4FE04AF4F19}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Data", "Vms.Data\Vms.Data.csproj", "{4FF16AF1-ABEB-461A-9DF2-C7E6E7A405FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{5EF1A8FB-57AE-4370-A0A9-B4FE04AF4F19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EF1A8FB-57AE-4370-A0A9-B4FE04AF4F19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EF1A8FB-57AE-4370-A0A9-B4FE04AF4F19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FF16AF1-ABEB-461A-9DF2-C7E6E7A405FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FF16AF1-ABEB-461A-9DF2-C7E6E7A405FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FF16AF1-ABEB-461A-9DF2-C7E6E7A405FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FF16AF1-ABEB-461A-9DF2-C7E6E7A405FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

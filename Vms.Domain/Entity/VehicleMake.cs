@@ -5,10 +5,10 @@ namespace Vms.Domain.Entity
 {
     public partial class VehicleMake
     {
-        internal const int MAKE_MAXLENGTH = 30;
+        internal const int Make_Maxlength = 30;
         public string Make { get; set; } = null!;
         public virtual ICollection<VehicleModel> VehicleModels { get; set; } = null!;
-        //public virtual ICollection<Supplier> SupplierCodes { get; set; } = null!;
+        
         private VehicleMake() { }
         public VehicleMake(string make)
         {
@@ -30,7 +30,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.ToTable("VehicleMake");
 
             builder.Property(e => e.Make)
-                .HasMaxLength(VehicleMake.MAKE_MAXLENGTH)
+                .HasMaxLength(VehicleMake.Make_Maxlength)
                 .IsUnicode(false);
         }
     }

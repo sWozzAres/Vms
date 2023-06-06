@@ -9,7 +9,6 @@ namespace Vms.Domain.Entity
     public partial class Supplier
     {
         public string Code { get; set; } = null!;
-        public int Id { get; set; }
         public string Name { get; set; } = null!;
         public Address Address { get; set; } = null!;
         public bool IsIndependent { get; set; }
@@ -44,11 +43,9 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Supplier> builder)
         {
-            builder.Property(e => e.Id).UseHiLo("SupplierIds");
-            builder.HasKey(e => e.Code);
-
             builder.ToTable("Supplier");
 
+            builder.HasKey(e => e.Code);
             //builder.HasIndex(e => e.Location, "SPATIAL_Supplier");
 
             builder.Property(e => e.Code)

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vms.Domain.Common;
+﻿namespace Vms.Domain.Common;
 
 /// <summary>
 /// https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/implement-value-objects
@@ -13,21 +7,19 @@ public abstract class ValueObject
 {
     protected static bool EqualOperator(ValueObject left, ValueObject right)
     {
-        if (ReferenceEquals(left, null) ^ ReferenceEquals(right, null))
+        if (left is null ^ right is null)
         {
             return false;
         }
-        return ReferenceEquals(left, right) || left.Equals(right);
+        return ReferenceEquals(left, right) || (left is not null && left.Equals(right));
     }
 
     protected static bool NotEqualOperator(ValueObject left, ValueObject right)
-    {
-        return !(EqualOperator(left, right));
-    }
+        => !(EqualOperator(left, right));
 
     protected abstract IEnumerable<object> GetEqualityComponents();
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj == null || obj.GetType() != GetType())
         {
@@ -40,19 +32,13 @@ public abstract class ValueObject
     }
 
     public override int GetHashCode()
-    {
-        return GetEqualityComponents()
+        => GetEqualityComponents()
             .Select(x => x != null ? x.GetHashCode() : 0)
             .Aggregate((x, y) => x ^ y);
-    }
 
     public static bool operator ==(ValueObject one, ValueObject two)
-    {
-        return EqualOperator(one, two);
-    }
+        => EqualOperator(one, two);
 
     public static bool operator !=(ValueObject one, ValueObject two)
-    {
-        return NotEqualOperator(one, two);
-    }
+       => NotEqualOperator(one, two);
 }

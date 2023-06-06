@@ -23,21 +23,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.HasSequence<int>("CompanyIds");
-
-            modelBuilder.HasSequence<int>("CustomerIds");
-
-            modelBuilder.HasSequence<int>("FleetIds")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence<int>("NetworkIds")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence<int>("SupplierIds")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence<int>("VehicleIds");
-
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
                     b.Property<string>("Code")
@@ -176,11 +161,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "FleetIds");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -227,11 +207,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "NetworkIds");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -299,11 +274,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(8)
                         .IsUnicode(false)
                         .HasColumnType("varchar(8)");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "SupplierIds");
 
                     b.Property<bool>("IsIndependent")
                         .HasColumnType("bit");
@@ -801,6 +771,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasOne("Vms.Domain.Entity.VehicleMake", "MakeNavigation")
                         .WithMany("VehicleModels")
                         .HasForeignKey("Make")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("MakeNavigation");

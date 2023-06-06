@@ -15,7 +15,7 @@ public interface ISupplierLocator
 public class SupplierLocator : ISupplierLocator
 {
     readonly VmsDbContext DbContext;
-
+    
     public SupplierLocator(VmsDbContext dbContext)
         => DbContext = dbContext;
 
@@ -26,9 +26,7 @@ public class SupplierLocator : ISupplierLocator
 
         var result = await GetSupplierDistances(vehicle, cancellationToken);
 
-        const double MetresInMile = 1609.344d;
-
-        return result.Select(x => (x.Code, x.Distance / MetresInMile));
+        return result.Select(x => (x.Code, x.Distance));
     }
 
     async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, CancellationToken cancellationToken)
@@ -41,10 +39,12 @@ public class SupplierLocator : ISupplierLocator
             ? Enumerable.Empty<Supplier>().AsQueryable()
             : SuppliersOnFleetNetwork(vehicle.Address.Location, (vehicle.CompanyCode, vehicle.FleetCode));
 
+        const double MetresInMile = 1609.344d;
+
         var result = await customerList.Union(fleetList)
-            .Select(s => new SupplierDistance(s.Code, s.Address.Location.Distance(vehicle.Address.Location)))
+            .Select(s => new SupplierDistance(s.Code, s.Address.Location.Distance(vehicle.Address.Location) / MetresInMile))
             .Distinct()
-            .OrderBy(s=>s.Distance)
+            .OrderBy(s => s.Distance)
             .ToListAsync(cancellationToken);
 
         return result;

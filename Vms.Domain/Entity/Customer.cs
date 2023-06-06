@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Customer : IMultiTenantEntity
+    public partial class Customer
     {
         public string CompanyCode { get; set; } = null!;
         public string Code { get; set; } = null!;
