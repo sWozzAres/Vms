@@ -8,6 +8,6 @@ namespace Vms.Domain.Services;
 
 public interface IUserProvider
 {
-    Guid UserId { get; }
+    string UserId { get; }
     string TenantId { get; }
 }

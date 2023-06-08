@@ -28,7 +28,7 @@ namespace Vms.Domain.Entity
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        public Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
+        private Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
@@ -39,7 +39,20 @@ namespace Vms.Domain.Entity
             VehicleVrm = new VehicleVrm(vrm);
             Address = new(homeLocation.Street, homeLocation.Locality, homeLocation.Town, homeLocation.Postcode, homeLocation.Location.Copy());
         }
-        
+        public static Vehicle Create(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation,
+            string? customerCode = null, string? fleetCode = null)
+        {
+            var vehicle = new Vehicle(companyCode, vrm, make, model, dateFirstRegistered, motDue, homeLocation);
+
+            if (customerCode is not null)
+                vehicle.AssignToCustomer(customerCode);
+
+            if (fleetCode is not null)
+                vehicle.AssignToFleet(fleetCode);
+
+            return vehicle;
+        }
+
         public string Vrm
         {
             get => VehicleVrm.Vrm;
@@ -51,18 +64,18 @@ namespace Vms.Domain.Entity
 
     public partial class VehicleMot
     {
-        public Guid VehicleId { get; set; }
-        public DateOnly Due { get; set; }
-        public virtual Vehicle Vehicle { get; set; } = null!;
+        public Guid VehicleId { get; private set; }
+        public DateOnly Due { get; private set; }
+        public virtual Vehicle Vehicle { get; private set; } = null!;
         private VehicleMot() { }
         public VehicleMot(DateOnly due) => Due = due;
     }
 
     public partial class VehicleVrm
     {
-        public Guid VehicleId { get; set; }
-        public string Vrm { get; set; } = null!;
-        public virtual Vehicle Vehicle { get; set; } = null!;
+        public Guid VehicleId { get; private set; }
+        public string Vrm { get; internal set; } = null!;
+        public virtual Vehicle Vehicle { get; private set; } = null!;
         private VehicleVrm() { }
         public VehicleVrm(string vrm) => Vrm = vrm;
     }

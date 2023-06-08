@@ -78,7 +78,7 @@ namespace Identity.API.Data
                             new Claim(JwtClaimTypes.GivenName, "Bob"),
                             new Claim(JwtClaimTypes.FamilyName, "Smith"),
                             new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
-                            new Claim("tag", "bobstag")
+                            new Claim("tenantid", "TEST001")
                         }).Result;
                     if (!result.Succeeded)
                     {

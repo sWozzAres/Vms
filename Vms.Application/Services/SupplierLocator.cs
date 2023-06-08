@@ -1,9 +1,4 @@
-﻿using System.ComponentModel;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using Vms.Domain.Entity;
-using Vms.Domain.Exceptions;
-using Vms.Domain.Infrastructure;
+﻿using NetTopologySuite.Geometries;
 
 namespace Vms.Application.Services;
 

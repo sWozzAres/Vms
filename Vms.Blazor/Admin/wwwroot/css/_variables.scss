@@ -1,0 +1,22 @@
+﻿:root {
+    --heading-text-light: #000000;
+    --heading-text-dark: rgb(244,242,242);
+
+    --normal-text: #3b3b3b;
+    --lowlight-text: #9e9e9e;
+    /*--a-normal-text: #034575;*/
+    --a-normal-text: #004eff;
+    --a-normal-underline: #bbb;
+    --a-visited-text: var(--a-normal-text);
+    --a-visited-underline: #707070;
+    --a-hover-bg: rgba(75%, 75%, 75%, .25);
+    --a-active-text: #c00;
+    --a-active-underline: #c00;
+    --border-color: #ded4d4;
+    --border-radius: 5px;
+    --control-border-color: #000000;
+    --control-focus-color: #7aaee4;
+    --box-shadow-size: 3px;
+    --header-background-color: rgb(244,242,242);
+    --tabs-highlight: rgb(17,98,173);
+}

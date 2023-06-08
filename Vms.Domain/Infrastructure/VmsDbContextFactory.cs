@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Logging;
 using Vms.Domain.Services;
 
 namespace Vms.Domain.Infrastructure;
@@ -16,13 +17,15 @@ public class VmsDbContextFactory : IDesignTimeDbContextFactory<VmsDbContext>
                 x.UseDateOnlyTimeOnly();
             });
 
-        return new VmsDbContext(optionsBuilder.Options, new DesignTimeUserProvider());
+        var factory = new LoggerFactory();
+        var logger = factory.CreateLogger<VmsDbContext>();
+        return new VmsDbContext(optionsBuilder.Options, new DesignTimeUserProvider(), logger);
     }
 }
 
 public class DesignTimeUserProvider : IUserProvider
 {
-    public Guid UserId => Guid.Empty;
+    public string UserId => string.Empty;
 
     public string TenantId => "DES001";
 }

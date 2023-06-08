@@ -7,9 +7,10 @@ using Vms.Domain.Infrastructure;
 
 namespace Vms.Blazor.Server.Controllers.Admin;
 
-[Authorize(Policy = "AdminPolicy")]
-[Route("api/admin/[controller]")]
 [ApiController]
+[Route("AdminApp/[controller]")]
+[Route("ClientApp/[controller]")]
+[Authorize(Policy = "AdminPolicy")]
 [Produces("application/json")]
 public class CompanyController : Controller
 {

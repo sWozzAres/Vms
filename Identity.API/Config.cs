@@ -64,10 +64,13 @@ namespace Identity.API
                 new ApiScope("utopia.read", "Read Utopia", new [] { JwtClaimTypes.Name }),
                 new ApiScope("utopia.write", "Write Utopia"),
 
-                new ApiScope("vms.admin", "Vms Admin"),
-                new ApiScope("vms.client", "Vms Client"),
+                new ApiScope("vms.admin", "Vms Admin", new [] { "tenantid" }),
+                new ApiScope("vms.client", "Vms Client", new [] { "tenantid" })
             };
 
+        /// <summary>
+        /// Determines which claims get sent to API
+        /// </summary>
         public static IEnumerable<ApiResource> ApiResources =>
             new List<ApiResource>
             {
@@ -84,12 +87,12 @@ namespace Identity.API
                 new ApiResource("vmsadmin", "Vms Admin Service")
                 {
                     Scopes = { "vms.admin" },
-                    UserClaims = { JwtClaimTypes.Name }
+                    UserClaims = { JwtClaimTypes.Name, "tenantid" }
                 },
                 new ApiResource("vmsclient", "Vms Client Service")
                 {
                     Scopes = { "vms.client" },
-                    UserClaims = { JwtClaimTypes.Name }
+                    UserClaims = { JwtClaimTypes.Name, "tenantid" }
                 }
                 //new ApiResource("invoice", "Invoice API")
                 //{

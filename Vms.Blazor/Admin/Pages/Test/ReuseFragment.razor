@@ -1,0 +1,14 @@
+﻿<h1>Hello, world!</h1>
+
+@RenderWelcomeInfo
+
+<p>Render the welcome info a second time:</p>
+
+@RenderWelcomeInfo
+
+@code {
+    private RenderFragment RenderWelcomeInfo = __builder =>
+    {
+        <p>Welcome to your new app!</p>
+    };
+}

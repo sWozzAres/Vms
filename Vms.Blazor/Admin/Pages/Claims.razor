@@ -20,44 +20,52 @@
 <section class="page">
     <AuthorizeView>
         <Authorized>
-            <h2>
+            <h1>
                 Hello @context.User.Identity!.Name,
                 here's the list of your claims:
-            </h2>
-            <ul>
-                @foreach (var claim in context.User.Claims)
-                {
-                    <li><b>@claim.Type</b>: @claim.Value</li>
-                }
-            </ul>
+            </h1>
+            <section>
+                <h2>Cookie</h2>
+                <ul>
+                    @foreach (var claim in context.User.Claims)
+                    {
+                        <li><b>@claim.Type</b>: @claim.Value</li>
+                    }
+                </ul>
+            </section>
+
+            @if (_jwtSecurityToken is not null)
+            {
+                <section>
+                    <h2>Security Token</h2>
+                    <section>
+                        <h3>Header</h3>
+                        <ul>
+                            @foreach (var x in _jwtSecurityToken.Header)
+                            {
+                                <li><strong>@x.Key: </strong>@x.Value</li>
+                            }
+                        </ul>
+
+                        <h3>Payload</h3>
+                        <ul>
+                            @foreach (var x in _jwtSecurityToken.Payload)
+                            {
+                                <li><strong>@x.Key: </strong>@x.Value</li>
+                            }
+                        </ul>
+                    </section>
+                </section>
+            }
 
             @if (!string.IsNullOrEmpty(AccessToken))
             {
-                <h3>Access Token</h3>
-                <div style="overflow-wrap: break-word;">
-                    @AccessToken
-                </div>
-            }
-            @if (_jwtSecurityToken is not null)
-            {
-                <div>
-                    <h4>Header</h4>
-                    <ul>
-                        @foreach (var x in _jwtSecurityToken.Header)
-                        {
-                            <li><strong>@x.Key: </strong>@x.Value</li>
-                        }
-                    </ul>
-                </div>
-                <div>
-                    <h4>Payload</h4>
-                    <ul>
-                        @foreach (var x in _jwtSecurityToken.Payload)
-                        {
-                            <li><strong>@x.Key: </strong>@x.Value</li>
-                        }
-                    </ul>
-                </div>
+                <section>
+                    <h2>Access Token</h2>
+                    <div style="overflow-wrap: anywhere;">
+                        @AccessToken
+                    </div>
+                </section>
             }
         </Authorized>
         <NotAuthorized>

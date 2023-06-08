@@ -14,15 +14,15 @@ public class Address : ValueObject
     public const int Postcode_MaxLength = 8;
 
     // House number and street name
-    public string Street { get; private set; }
+    public string Street { get; private set; } = null!;
     // Locality name (if needed)
-    public string Locality { get; private set; }
+    public string Locality { get; private set; } = null!;
     // Town (please print in capitals)
-    public string Town { get; private set; }
+    public string Town { get; private set; } = null!;
     // Full postcode (please print in capitals)
-    public string Postcode { get; private set; }
-    public Geometry Location { get; private set; }
-
+    public string Postcode { get; private set; } = null!;
+    public Geometry Location { get; private set; } = null!;
+    private Address() { }
     public Address(string street, string locality, string town, string postcode, Geometry location)
     {
         Street = street ?? throw new ArgumentNullException(nameof(street));

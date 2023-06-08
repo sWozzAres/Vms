@@ -1,8 +1,4 @@
-﻿using Vms.Domain.Entity;
-using Vms.Domain.Exceptions;
-using Vms.Domain.Infrastructure;
-
-namespace Vms.Application.UseCase;
+﻿namespace Vms.Application.UseCase;
 
 public class CreateCustomer
 {

@@ -1,0 +1,25 @@
+:where(.header) {
+    --bg-light: #f6f8fc;
+    --bg-dark: #1f2123;
+    --bg: var(--bg-light);
+}
+
+@media (prefers-color-scheme: dark) {
+    :where(.header) {
+        --bg: var(--bg-dark);
+    }
+}
+
+:where(.header) {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    padding: 1em;
+    background-color: var(--bg);
+}
+
+@media (min-width: 40em) {
+    .header {
+        grid-column: span 2;
+    }
+}

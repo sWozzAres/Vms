@@ -2,6 +2,8 @@
 @using Vms.Blazor.Shared
 @using Vms.Blazor.Shared.Admin;
 @inject HttpClient Http
+@inject ILogger<List> Logger
+@attribute [Authorize]
 
 <PageTitle>Companies</PageTitle>
 
@@ -37,6 +39,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        companies = await Http.GetFromJsonAsync<CompanyListModel[]>("api/admin/company");
+        Logger.LogInformation("Requesting companies...");
+
+        companies = await Http.GetFromJsonAsync<CompanyListModel[]>("Company");
     }
 }

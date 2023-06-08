@@ -7,7 +7,7 @@ namespace Vms.Blazor.Server.Controllers
     [ApiController]
     [Route("AdminApp/[controller]")]
     [Route("ClientApp/[controller]")]
-    [Authorize(Policy = "ClientPolicy")]
+    [Authorize(Policy = "AdminPolicy")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

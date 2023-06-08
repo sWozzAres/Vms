@@ -9,7 +9,7 @@ namespace Vms.Tests;
 
 public class UserProvider : IUserProvider
 {
-    public Guid UserId => Guid.Empty;
+    public string UserId => string.Empty;
 
     public string TenantId => "TEST001";
 }

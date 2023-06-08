@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Application.Services;
-using Vms.Domain.Entity;
-using Vms.Domain.Exceptions;
-using Vms.Domain.Infrastructure;
+﻿using Vms.Application.Services;
 
 namespace Vms.Application.UseCase;
 
@@ -37,7 +33,7 @@ public class CreateServiceBooking
 
             context.DbContext.ServiceBookings.Add(booking);
 
-            var assigned = await new AssignSupplier(context.DbContext, new SupplierLocator(context.DbContext))
+            var assigned = await new AssignSupplierUseCase(context.DbContext, new SupplierLocator(context.DbContext))
                 .Assign(new(booking.Id), cancellationToken);
 
             return booking;

@@ -1,14 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
-using NuGet.Frameworks;
-using System;
-using Vms.Application;
-using Vms.Application.Services;
 using Vms.Application.UseCase;
-using Vms.Domain.Services;
-using Vms.Domain.UseCase;
 using VmsTesting;
 
 namespace Vms.Tests;
@@ -39,6 +32,15 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
         Assert.NotEmpty(vehicles);
     }
 
+    [Fact]
+    public async Task Get_Companies()
+    {
+        using var context = TestDatabaseFixture.CreateContext();
+
+        var companies = context.Companies.ToList();
+
+        Assert.NotEmpty(companies);
+    }
     [Fact]
     public async Task Assign_ServiceBooking()
     {

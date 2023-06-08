@@ -24,23 +24,10 @@ public class CreateVehicle
     {
         public Vehicle CreateVehicle(CreateVehicleRequest request)
         {
-            var vehicle = new Vehicle(self.Code, 
-                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.HomeLocation);
+            var vehicle = Vehicle.Create(self.Code, 
+                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.HomeLocation,
+                request.CustomerCode, request.FleetCode);
             
-            if (request.FleetCode is not null)
-            {
-                vehicle.AssignToFleet(request.FleetCode); 
-                //vehicle.Fleet = await context.DbContext.Fleets.FindAsync(new[] { self.Code, request.FleetCode }, cancellationToken)
-                //    ?? throw new VmsDomainException("Fleet not found.");
-            }
-
-            if (request.CustomerCode is not null)
-            {
-                vehicle.AssignToCustomer(request.CustomerCode);
-                //vehicle.C = await context.DbContext.Customers.FindAsync(new[] { self.Code, request.CustomerCode }, cancellationToken)
-                //    ?? throw new VmsDomainException("Customer not found.");
-            }
-
             context.DbContext.Vehicles.Add(vehicle);
             
             return vehicle;

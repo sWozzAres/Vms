@@ -133,7 +133,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 }
 
                 var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
-                var vehicle = new Vehicle(company.Code, RandomVrm(dateFirstRegistered), Make, Model,
+                var vehicle = Vehicle.Create(company.Code, RandomVrm(dateFirstRegistered), Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
                     new Address("","","","",new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 }));

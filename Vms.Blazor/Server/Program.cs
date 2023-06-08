@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using Vms.Blazor.Server.Configuration;
+using Vms.Blazor.Server.Services;
 using Vms.Domain.Infrastructure;
+using Vms.Domain.Services;
 
 const string AppName = "Vms.Blazor.Server";
 
@@ -26,46 +29,21 @@ Log.Logger = new LoggerConfiguration()
 
 Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserProvider, UserProvider>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("VmsDbConnection"),
                 sqlOptions =>
                 {
+                    sqlOptions.UseNetTopologySuite();
+                    sqlOptions.UseDateOnlyTimeOnly();
                     sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
                     sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                })
+                }), ServiceLifetime.Scoped
             );
 
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.Authority = "https://localhost:5000";
-        options.Audience = "utopia";
-
-        //options.MapInboundClaims = false;
-
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateAudience = false,
-            NameClaimType = "name"
-        };
-    });
-builder.Services.AddTransient<IClaimsTransformation, Vms.Blazor.Server.MyClaimsTransformation>();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminPolicy", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "vms.admin");
-    });
-    options.AddPolicy("ClientPolicy", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "vms.client");
-    });
-});
+builder.Services.AddApplicationSecurity();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

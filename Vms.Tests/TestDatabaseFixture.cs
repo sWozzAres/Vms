@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Vms.Application.UseCase;
-using Vms.Domain.UseCase;
 using Vms.Tests;
 
 namespace VmsTesting;
@@ -156,14 +156,18 @@ public class TestDatabaseFixture : IAsyncLifetime
     //}
 
     public static VmsDbContext CreateContext()
-        => new(new DbContextOptionsBuilder<VmsDbContext>()
+    {
+        var factory = new LoggerFactory();
+        var logger = factory.CreateLogger<VmsDbContext>();
+
+        return new(new DbContextOptionsBuilder<VmsDbContext>()
                 .UseSqlServer(ConnectionString, x =>
                 {
                     x.UseNetTopologySuite();
                     x.UseDateOnlyTimeOnly();
                 })
-                .Options, new UserProvider());
-
+                .Options, new UserProvider(), logger);
+    }
 
 
     public Task DisposeAsync() => Task.CompletedTask;

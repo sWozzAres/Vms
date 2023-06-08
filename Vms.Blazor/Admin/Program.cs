@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -19,6 +20,42 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 builder.Services.AddOidcAuthentication(options =>
 {
     builder.Configuration.Bind("oidc", options.ProviderOptions);
+
 });
 
+builder.Services.AddAuthorizationCore(configure =>
+{
+    configure.AddPolicy("IsAdmin", configurePolicy => 
+        configurePolicy.Requirements.Add(new ClientAppRequirement("*")));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, ClientAppHandler>();
+
 await builder.Build().RunAsync();
+
+public class ClientAppRequirement : IAuthorizationRequirement
+{
+    public string TenantId { get; }
+
+    public ClientAppRequirement(string tenantId) => TenantId = tenantId;
+}
+
+public class ClientAppHandler : AuthorizationHandler<ClientAppRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ClientAppRequirement requirement)
+    {
+        if (!context.User.HasClaim(c => c.Type == "tenantid"))
+        {
+            return Task.CompletedTask;
+        }
+
+        var tenantid = context.User.FindFirst(c => c.Type == "tenantid")?.Value ?? throw new InvalidOperationException("Claim not found.");
+
+        if (tenantid == requirement.TenantId)
+        {
+            context.Succeed(requirement);
+        }
+
+        return Task.CompletedTask;
+    }
+}
