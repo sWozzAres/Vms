@@ -1,17 +1,33 @@
 ﻿:root {
-    --heading-text-light: #000000;
+    --bg-light: #ffffff;
+    --bg-dark: hsl(218.18deg 9.4% 22.94%);
+    --bg: var(--bg-light);
+    --header-bg-light: #2366ec;
+    --header-bg-dark: hsl(218.18deg 9.4% 22.94%);
+    --header-bg: var(--header-bg-light);
+    --section-bg-dark: #2d2f33;
+    --section-bg-light: rgb(237 237 237);
+    --section-bg: var(--section-bg-light);
+    --header-color-light: #000000;
+    --header-color-dark: #ffffff;
+    --header-color: var(--header-color-light);
+    --heading-text-light: #100000;
     --heading-text-dark: rgb(244,242,242);
-
+    --heading-text: var(--heading-text-light);
+    --a-normal-text: #004eff;
+    --a-visited-text: var(--a-normal-text);
+    --a-hover-bg: rgba(75%, 75%, 75%, .25);
+    --a-active-text: #c00;
+    --sidebar-bg-light: #c9c9c9;
+    --sidebar-bg-dark: #1f2123;
+    --sidebar-bg: var(--sidebar-bg-light);
     --normal-text: #3b3b3b;
     --lowlight-text: #9e9e9e;
     /*--a-normal-text: #034575;*/
-    --a-normal-text: #004eff;
-    --a-normal-underline: #bbb;
-    --a-visited-text: var(--a-normal-text);
-    --a-visited-underline: #707070;
-    --a-hover-bg: rgba(75%, 75%, 75%, .25);
-    --a-active-text: #c00;
-    --a-active-underline: #c00;
+
+
+
+
     --border-color: #ded4d4;
     --border-radius: 5px;
     --control-border-color: #000000;
@@ -19,4 +35,15 @@
     --box-shadow-size: 3px;
     --header-background-color: rgb(244,242,242);
     --tabs-highlight: rgb(17,98,173);
+}
+
+@media(prefers-color-scheme: dark) {
+    :root {
+        --bg: var(--bg-dark);
+        --header-bg: var(--header-bg-dark);
+        --header-color: var(--header-color-dark);
+        --heading-text: var(--heading-text-dark);
+        --sidebar-bg: var(--sidebar-bg-dark);
+        --section-bg: var(--section-bg-dark);
+    }
 }

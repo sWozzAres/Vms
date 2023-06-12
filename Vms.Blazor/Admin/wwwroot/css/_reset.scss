@@ -16,11 +16,12 @@ html, body {
     /*color: var(--normal-text);*/
 
     font-family: system-ui, sans-serif;
-    background-color: #ffffff;
+    background-color: var(--bg);
+    /*color: color-contrast(var(--bg));*/
+    
     color: black;
 
     @media (prefers-color-scheme: dark) {
-        background-color: hsl(210deg 11% 15%);
         color: white;
     }
 }
@@ -43,7 +44,7 @@ input, textarea, select {
     font: inherit;
     
 }
-
+/*
 input {
     &[type='number'] {
         width: 100%;
@@ -53,7 +54,7 @@ input {
 
 input[type="number"], input[type="date"], input[type="text"], input:not([type]), textarea, select {
     width: 100%;
-}
+}*/
 
 
 fieldset {

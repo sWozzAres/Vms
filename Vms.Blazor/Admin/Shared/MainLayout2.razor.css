@@ -1,8 +1,0 @@
-body {
-    display: grid;
-    grid-gap: 1em;
-    grid-template-rows: auto auto 1fr auto;
-    min-height: 100vh;
-}
-
-

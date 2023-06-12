@@ -1,0 +1,113 @@
+﻿@using System.Text
+@using System.Text.Json;
+@using Microsoft.AspNetCore.Components.Forms;
+
+@typeparam TModel where TModel : class, ICopyable<TModel>
+@inject HttpClient Http
+@inject ILogger<FormTemplate<TModel>> Logger
+
+<EditForm Model="Model"  OnValidSubmit="@HandleValidSubmit" class="edit-form">
+    
+    @ChildContent
+    <div class="buttons">
+        <button type="button" @onclick="Cancel">Cancel</button>
+        <button type="submit" disabled="@IsDisabled">OK</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public TModel Model { get; set; } = default!;
+
+    //private TModel Model2 { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string ApiUrl { get; set; } = null!;
+
+    //private EditContext editContext = null!;
+
+    private TModel OriginalModel { get; set; } = default!;
+    private bool IsPosting { get; set; }
+
+    protected override void OnInitialized()
+    {
+        //Model2 = Model;
+        // Create a new EditContext and bind it to the model
+        //editContext = new EditContext(Model);
+
+        // Make a copy of the original model
+        OriginalModel = JsonSerializer.Deserialize<TModel>(JsonSerializer.Serialize(Model))
+            ?? throw new InvalidOperationException("Failed to serialize model.");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        //if (editContext.Validate())
+        //{
+        // Set the flag to indicate that the form is being posted
+        IsPosting = true;
+        try
+        {
+            // Serialize the model to JSON
+            var json = JsonSerializer.Serialize(Model);
+
+            // Create a content object with the JSON and the media type
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // Post the content to the API
+            var response = await Http.PostAsync(ApiUrl, content);
+
+            // Check if the response is successful
+            if (response.IsSuccessStatusCode)
+            {
+                // Update the original model with the current values
+                OriginalModel = JsonSerializer.Deserialize<TModel>(json)
+                    ?? throw new InvalidOperationException("Failed to deserialize response.");
+            }
+            else
+            {
+                // Display an error message
+                Logger.LogError("Form submission failed with error '{ReasonPhrase}'.", response.ReasonPhrase);
+            }
+        }
+        finally
+        {
+            // Clear the flag to indicate that the form is done posting
+            IsPosting = false;
+        }
+        // }
+        // else
+        // {
+        //     Logger.LogDebug("Form is invalid.");
+        // }
+    }
+
+    private void Cancel()
+    {
+        Logger.LogInformation("Original Model: {model}", OriginalModel);
+
+        Model.CopyFrom(OriginalModel);
+
+        // Restore the original values of the model
+        // Model2 = JsonSerializer.Deserialize<TModel>(
+        //     JsonSerializer.Serialize(OriginalModel) ?? throw new InvalidOperationException("Failed to serialize original model.")
+        // ) ?? throw new InvalidOperationException("Failed to deserialize original model.");
+
+        Logger.LogInformation("Model: {model}", Model);
+        //StateHasChanged();
+    }
+
+    private bool IsDisabled
+    {
+        get
+        {
+            return Model == OriginalModel || IsPosting;
+            // Return true if the form is invalid, unchanged, or being posted
+            //return !editContext.Validate() || EqualityComparer<TModel>.Default.Equals(Model, OriginalModel) || IsPosting;
+            //return EqualityComparer<TModel>.Default.Equals(Model, OriginalModel) || IsPosting;
+        }
+    }
+}

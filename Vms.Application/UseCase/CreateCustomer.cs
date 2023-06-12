@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.UseCase;
+﻿using System.Runtime.CompilerServices;
+
+namespace Vms.Application.UseCase;
 
 public class CreateCustomer
 {
@@ -19,7 +21,7 @@ public class CreateCustomer
     {
         public Customer CreateCustomer(string code, string name)
         {
-            var customer =  new Customer(self.Code, code, name);
+            var customer = new Customer(self.Code, code, name);
             context.DbContext.Customers.Add(customer);
             return customer;
         }

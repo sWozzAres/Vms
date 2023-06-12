@@ -2,18 +2,31 @@
 @import "_buttons.custom.css";
 @import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
 :root {
-  --heading-text-light: #000000;
+  --bg-light: #ffffff;
+  --bg-dark: hsl(218.18deg 9.4% 22.94%);
+  --bg: var(--bg-light);
+  --header-bg-light: #2366ec;
+  --header-bg-dark: hsl(218.18deg 9.4% 22.94%);
+  --header-bg: var(--header-bg-light);
+  --section-bg-dark: #2d2f33;
+  --section-bg-light: rgb(237 237 237);
+  --section-bg: var(--section-bg-light);
+  --header-color-light: #000000;
+  --header-color-dark: #ffffff;
+  --header-color: var(--header-color-light);
+  --heading-text-light: #100000;
   --heading-text-dark: rgb(244,242,242);
+  --heading-text: var(--heading-text-light);
+  --a-normal-text: #004eff;
+  --a-visited-text: var(--a-normal-text);
+  --a-hover-bg: rgba(75%, 75%, 75%, .25);
+  --a-active-text: #c00;
+  --sidebar-bg-light: #c9c9c9;
+  --sidebar-bg-dark: #1f2123;
+  --sidebar-bg: var(--sidebar-bg-light);
   --normal-text: #3b3b3b;
   --lowlight-text: #9e9e9e;
   /*--a-normal-text: #034575;*/
-  --a-normal-text: #004eff;
-  --a-normal-underline: #bbb;
-  --a-visited-text: var(--a-normal-text);
-  --a-visited-underline: #707070;
-  --a-hover-bg: rgba(75%, 75%, 75%, .25);
-  --a-active-text: #c00;
-  --a-active-underline: #c00;
   --border-color: #ded4d4;
   --border-radius: 5px;
   --control-border-color: #000000;
@@ -23,6 +36,16 @@
   --tabs-highlight: rgb(17,98,173);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--bg-dark);
+    --header-bg: var(--header-bg-dark);
+    --header-color: var(--header-color-dark);
+    --heading-text: var(--heading-text-dark);
+    --sidebar-bg: var(--sidebar-bg-dark);
+    --section-bg: var(--section-bg-dark);
+  }
+}
 *,
 *::before,
 *::after {
@@ -38,12 +61,12 @@ html, body {
   /*font-family: sans-serif;*/
   /*color: var(--normal-text);*/
   font-family: system-ui, sans-serif;
-  background-color: #ffffff;
+  background-color: var(--bg);
+  /*color: color-contrast(var(--bg));*/
   color: black;
 }
 @media (prefers-color-scheme: dark) {
   html, body {
-    background-color: hsl(210deg, 11%, 15%);
     color: white;
   }
 }
@@ -65,14 +88,17 @@ input, textarea, select {
   font: inherit;
 }
 
-input[type=number] {
-  width: 100%;
+/*
+input {
+    &[type='number'] {
+        width: 100%;
+    }
 }
 
-input[type=number], input[type=date], input[type=text], input:not([type]), textarea, select {
-  width: 100%;
-}
 
+input[type="number"], input[type="date"], input[type="text"], input:not([type]), textarea, select {
+    width: 100%;
+}*/
 fieldset {
   margin: 0;
   min-width: 0;
@@ -172,38 +198,99 @@ h5 + h6 {
 }
 
 #app {
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
   min-height: 100vh;
 }
 
-.nav {
+.sidebar {
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-content: start;
-  padding: 1em;
-  background-color: #f6f8fc;
+  background-color: var(--sidebar-bg);
 }
-@media (prefers-color-scheme: dark) {
-  .nav {
-    background-color: #1f2123;
-  }
+.sidebar ol, .sidebar ul {
+  margin: 1em 0 1em 1em;
+  list-style: none;
+  padding-left: 0;
+}
+.sidebar ol li, .sidebar ul li {
+  margin: 0.5em 0 0.5em 0;
+}
+.sidebar ol li a, .sidebar ul li a {
+  display: block;
+  width: 100%;
+  padding: 0.5em 1em 0.5em 0.5em;
+}
+.sidebar ol li a.active, .sidebar ul li a.active {
+  background-color: var(--bg);
 }
 
 .main {
   padding: 1em;
 }
 
-@media (min-width: 40em) {
-  #app {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto 1fr auto;
-  }
-  .nav {
-    grid-row: span 2;
-  }
+form.edit-form {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-gap: 0.5em 1em;
+  font-size: 1rem;
 }
+form.edit-form > label {
+  grid-column: 1;
+  grid-row: auto;
+  align-self: center;
+}
+form.edit-form > input, form.edit-form > select, form.edit-form > textarea {
+  grid-column: 2;
+  grid-row: auto;
+}
+form.edit-form > input, form.edit-form > select, form.edit-form > textarea {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  line-height: 1.5;
+}
+form.edit-form > input:not([type=checkbox]), form.edit-form > select, form.edit-form > textarea {
+  width: 100%;
+}
+form.edit-form > input[type=checkbox] {
+  width: 1em;
+  height: 1em;
+}
+form.edit-form > input[type=radio] {
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+}
+form.edit-form .buttons {
+  grid-row: auto;
+  grid-column: 1/-1;
+  text-align: start;
+}
+form.edit-form .validation-message {
+  grid-column-start: 2;
+  margin-bottom: 0.5em;
+}
+
+.valid.modified:not([type=checkbox]) {
+  border: 1px solid #26b050;
+}
+
+.invalid {
+  border: 1px solid red;
+}
+
+.validation-message {
+  color: red;
+}
+
+a {
+  color: var(--a-normal-text);
+  text-decoration: none;
+}
+a:visited {
+  color: var(--a-visited-text);
+}
+
 h1:focus {
   outline: none;
 }
@@ -225,16 +312,12 @@ h1:focus {
   padding-top: 1.1rem;
 }
 
-.valid.modified:not([type=checkbox]) {
-  outline: 1px solid #26b050;
-}
-
-.invalid {
-  outline: 1px solid red;
-}
-
-.validation-message {
-  color: red;
+:focus {
+  /*color: #212529;
+  background-color: #fff;
+  border-color: #86b7fe;*/
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 #blazor-error-ui {
@@ -299,11 +382,17 @@ h1:focus {
   content: var(--blazor-load-percentage-text, "Loading");
 }
 
-.fluid-flex {
-  display: flex;
-  flex-wrap: wrap;
-  place-content: center;
-  align-items: flex-start;
-  padding: 2ch;
-  gap: 2ch;
+main > section {
+  background-color: var(--section-bg);
+  padding: 1em;
+  margin: 1em;
+  border-radius: 10px;
+}
+
+.mygrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+.mygrid .validation-text {
+  grid-column-start: 2;
 }

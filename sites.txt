@@ -4,3 +4,9 @@ Port	App					User
 5001	Server
 5002	Client				alice
 5003	Admin
+
+
+svgs
+----
+C:\Users\markb\Downloads\fontawesome-free-6.4.0-web\fontawesome-free-6.4.0-web\svgs
+https://fontawesome.com/search?o=r&s=solid&f=classic

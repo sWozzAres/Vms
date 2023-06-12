@@ -1,31 +1,33 @@
-﻿<nav class="nav">
-    <div class="">
-        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-            <span class="oi oi-home" aria-hidden="true"></span> Home
-        </NavLink>
-    </div>
-    <AuthorizeView Policy="IsAdmin">
-        <div class="">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+﻿<nav class="sidebar">
+    <ul>
+        <li>
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
-        </div>
-    </AuthorizeView>
-    <div class="">
-        <NavLink class="nav-link" href="fetchdata">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-        </NavLink>
-    </div>
-    <div class="">
-        <NavLink class="nav-link" href="company/list">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Companies
-        </NavLink>
-    </div>
-    <div class="">
-        <NavLink class="nav-link" href="claims">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Claims
-        </NavLink>
-    </div>
+        </li>
+        <AuthorizeView Policy="IsAdmin">
+            <li>
+                <NavLink class="nav-link" href="counter">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <li>
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </li>
+        <li>
+            <NavLink class="nav-link" href="company/list">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Companies
+            </NavLink>
+        </li>
+        <li>
+            <NavLink class="nav-link" href="claims">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Claims
+            </NavLink>
+        </li>
+    </ul>
 </nav>
 
 @code {

@@ -1,3 +1,131 @@
-﻿<header class="header">
-    <LoginDisplay />
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject ILogger<Header> Logger
+
+<header id="header">
+    <div id="header-logo">
+        <svg class="logo-svg" height="60" viewBox="0 0 640 512">
+            <use xlink:href="icons/solid.svg#car-side" />
+        </svg>
+        VMS
+    </div>
+    <form id="header-search">
+        <div class="wrapper">
+            <input type="search" placeholder="Search"
+                   autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+                   aria-label="Search" role="combobox" aria-haspopup="false" aria-autocomplete="list"
+            @onfocusin="OnFocusIn" @onfocusout="OnFocusOut" />
+            <button>
+                <svg viewBox="0 0 16 16"
+                     class="bi bi-search"
+                     fill="currentColor"
+                     id="search"
+                     height="24"
+                     width="24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M10.442 10.442a1 1 0 011.415 0l3.85 3.85a1 1 0 01-1.414 1.415l-3.85-3.85a1 1 0 010-1.415z" />
+                    <path fill-rule="evenodd"
+                          d="M6.5 12a5.5 5.5 0 100-11 5.5 5.5 0 000 11zM13 6.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+                </svg>
+            </button>
+            @{
+                var c = searchHistoryVisible ? "" : "hidden";
+            }
+        </div>
+        <div id="search-history" class="@c">
+            <ul>
+                <li>Item 1</li>
+                <li>Item 2</li>
+                <li>Item 3</li>
+                <li>Item 4</li>
+            </ul>
+        </div>
+
+    </form>
+    <AuthorizeView>
+        <Authorized>
+            <div id="header-account" @onclick="Toggle">
+                <img src="/icons/user.svg" alt="icon name" height="40">
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div id="header-not-authorized">
+                @* <a href="authentication/register">Register</a> *@
+                <a href="authentication/login">Log in</a>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </header>
+
+@{
+    var className = contentVisible ? "" : "hidden";
+}
+
+<div id="header-account-content" class="@className">
+    <AuthorizeView>
+        <Authorized>
+            <ul>
+                <li><a href="authentication/profile">@context.User.Identity?.Name</a></li>
+                <li><a href="/claims">Claims</a></li>
+                <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
+            </ul>
+            @* <button @onclick="BeginLogOut">Log out</button> *@
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+
+@code {
+    private bool contentVisible = false;
+    private bool searchHistoryVisible = false;
+
+    private IDisposable? registration;
+
+    private void Toggle() => contentVisible = !contentVisible;
+    private void OnFocusIn() => searchHistoryVisible = true;
+    private void OnFocusOut() => searchHistoryVisible = false;
+    private void BeginLogOut()
+    {
+        NavigationManager.NavigateToLogout("authentication/logout");
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation.EndsWith("#"))
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    private void LocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        contentVisible = false;
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += LocationChanged;
+        base.OnInitialized();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            registration =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+        registration?.Dispose();
+        NavigationManager.LocationChanged -= LocationChanged;
+    }
+}
