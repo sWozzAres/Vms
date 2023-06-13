@@ -1,0 +1,26 @@
+﻿@Vms.Blazor.Server_HostAddress = https://localhost:5003
+@Token = eyJhbGciOiJSUzI1NiIsImtpZCI6IkQ2RUFEMUJFNTlBNUJCNTZGRjcyNzBFREI5ODA0QUNBIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2ODY2NzgxNTIsImV4cCI6MTY4NjY4MTc1MiwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6WyJ2bXNhZG1pbiIsImh0dHBzOi8vbG9jYWxob3N0OjUwMDAvcmVzb3VyY2VzIl0sImNsaWVudF9pZCI6InZtc2FkbWluIiwic3ViIjoiNmVjNzgyYmQtMTdkNC00NmUxLWJiZDQtMzJhMDJhN2YwMTJlIiwiYXV0aF90aW1lIjoxNjg2NjY4NTk3LCJpZHAiOiJsb2NhbCIsIm5hbWUiOiJBbGljZSBTbWl0aCIsInRlbmFudGlkIjoiKiIsImp0aSI6IjZBRUM2M0U1OTEyNkIwRDNFQjc0M0E3QkM5MkE0MDU1Iiwic2lkIjoiOTc1OEU2MTdDMEY2NTI3MTkwRTFBM0IzMzA5RTZGMDciLCJpYXQiOjE2ODY2NzgxNTIsInNjb3BlIjpbInZtcy5hZG1pbiJdLCJhbXIiOlsicHdkIl19.meAdU9_BRX1c1JD1Z0Bh7DfqWB8q25fmubcc-73n9HGZ_0D-0QIvSQ_0ZLdD5_tNKACOohVa0jH8mEMfvpeN0PTXsGyhSUxpk6AUSjmkH4ySEdHnHW6ZI7NQVbjbwI4_0TOPjfmDo7p3q4zZIK_wKK7FHy39u0frv8jGSAWEus7S_SxpXemGkiDmjtUPOrHJ40t4_ZTb08_UaBeMMo9EfyVCk8yApzfUab95pBCYPbKiQjqZpb0SAlHLmcRaCxeTsxvt8SO2HiPVWnWipzm_khY_0axWK189nc7-ymhhw3F9c4h7C_8bbyeL2y21ZxAIcYcJjP4cgZ1_iSbNHVnRBw
+
+GET {{Vms.Blazor.Server_HostAddress}}/Person/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{Vms.Blazor.Server_HostAddress}}/api/person/
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{Vms.Blazor.Server_HostAddress}}/Person/1
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{Vms.Blazor.Server_HostAddress}}/ClientApp/person?id=0
+
+###
+
+GET {{Vms.Blazor.Server_HostAddress}}/weatherforecast
+Authorization: Bearer {{Token}}
+
+###

@@ -1,4 +1,4 @@
-﻿namespace Vms.Blazor.Admin;
+﻿namespace Vms.Blazor.Shared;
 
 public interface ICopyable<T>
 {

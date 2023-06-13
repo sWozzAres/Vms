@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -111,8 +112,6 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
 app.UseStaticFiles();
 
 app.UseRouting();
-
-
 
 app.MapRazorPages();
 app.MapControllers();

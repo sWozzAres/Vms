@@ -1,4 +1,5 @@
-﻿@page "/person/create"
+﻿@page "/people/create"
+@inject HttpClient Http
 @using System.ComponentModel.DataAnnotations
 
 <PageTitle>Create Person</PageTitle>
@@ -6,120 +7,88 @@
 <section>
     <h1>Create Person</h1>
 
-    <FormTemplate Model="@person" ApiUrl="/api/person">
+    <FormTemplate Model="@person" ApiUrl="Person">
         <DataAnnotationsValidator />
-        
-        <label for="name">Name</label>
-        <InputText id="name" @bind-Value="person.Name" />
-        <ValidationMessage For="@(() => person.Name)" />
+
+        <div class="form-section">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="person.Name" />
+            <ValidationMessage For="@(() => person.Name)" />
 
 
-        <label for="email">Email</label>
-        <InputText id="email" @bind-Value="person.Email" />
-        <ValidationMessage For="@(() => person.Email)" />
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="person.Email" />
+            <ValidationMessage For="@(() => person.Email)" />
 
 
-        <label for="age">Age</label>
-        <InputNumber id="age" @bind-Value="person.Age" />
-        <ValidationMessage For="@(() => person.Age)" />
+            <label for="age">Age</label>
+            <InputNumber id="age" @bind-Value="person.Age" />
+            <ValidationMessage For="@(() => person.Age)" />
 
 
-        <label for="isAdministrator">Is Admin</label>
-        <InputCheckbox id="isAdministrator" @bind-Value="person.IsAdministrator" />
-        <ValidationMessage For="@(() => person.IsAdministrator)" />
+            <label for="isAdministrator">Is Admin</label>
+            <InputCheckbox id="isAdministrator" @bind-Value="person.IsAdministrator" />
+            <ValidationMessage For="@(() => person.IsAdministrator)" />
 
 
-        <label for="birthDate">Birth Date</label>
-        <InputDate id="birthDate" @bind-Value="person.BirthDate" />
-        <ValidationMessage For="@(() => person.BirthDate)" />
+            <label for="birthDate">Birth Date</label>
+            <InputDate id="birthDate" @bind-Value="person.BirthDate" />
+            <ValidationMessage For="@(() => person.BirthDate)" />
 
 
-        <label for="notes">Notes</label>
-        <InputTextArea id="notes" @bind-Value="person.Notes" />
-        <ValidationMessage For="@(() => person.Notes)" />
-
-
-        <label for="status">Status</label>
-        <InputSelect id="status" @bind-Value="person.Status">
-            <option value="">Select</option>
-            <option value="0">Active</option>
-            <option value="1">Deactivated</option>
-        </InputSelect>
-        <ValidationMessage For="@(() => person.Status)" />
-
-        <label>Manufacturer</label>
-        <div class="form-control">
-            <InputRadioGroup @bind-Value="person.TheManufacturer">
-                @foreach (var manufacturer in (Person.Manufacturer[])Enum
-                .GetValues(typeof(Person.Manufacturer)))
-                {
-
-                    <InputRadio Value="@manufacturer" />
-                    <text>&nbsp;</text>
-
-                    @manufacturer
-
-                }
-            </InputRadioGroup>
+            <label for="notes">Notes</label>
+            <InputTextArea id="notes" @bind-Value="person.Notes" />
+            <ValidationMessage For="@(() => person.Notes)" />
         </div>
-        <ValidationMessage For="@(() => person.TheManufacturer)" />
+        <div class="form-section">
+            <label for="status">Status</label>
+            <InputSelect id="status" @bind-Value="person.Status">
+                <option value="">Select</option>
+                <option value="0">Active</option>
+                <option value="1">Deactivated</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => person.Status)" />
+
+            <label>Manufacturer</label>
+            <div class="form-control">
+                <InputRadioGroup @bind-Value="person.TheManufacturer">
+                    @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
+                    {
+
+                        <InputRadio Value="@manufacturer" />
+                        <text>&nbsp;</text>
+
+                        @manufacturer
+
+                    }
+                </InputRadioGroup>
+            </div>
+            <ValidationMessage For="@(() => person.TheManufacturer)" />
+        </div>
     </FormTemplate>
 </section>
 
 @code {
     private Person person = new();
 
-    private record Person : ICopyable<Person>
+    protected override async Task OnParametersSetAsync()
     {
-        [Required]
-        [StringLength(20)]
-        public string Name { get; set; } = string.Empty;
+        //return base.OnParametersSetAsync();
+        var result = await Http.GetFromJsonAsync<Person>("Person/1");
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
-        [Required]
-        [Range(18, 100)]
-        public int Age { get; set; }
-
-        [Required]
-        [Range(typeof(bool), "true", "true", ErrorMessage = "This form only allows administrators.")]
-        public bool IsAdministrator { get; set; }
-
-        [Required]
-        public DateTime? BirthDate { get; set; }
-
-        [Required]
-        public string? Notes { get; set; } = null!;
-
-        [Required]
-        public int? Status { get; set; }
-
-        [Required]
-        [Range(typeof(Manufacturer), nameof(Manufacturer.SpaceX), nameof(Manufacturer.VirginGalactic), ErrorMessage = "Pick a manufacturer.")]
-        public Manufacturer TheManufacturer { get; set; } = Manufacturer.None;
-
-        // [Required, EnumDataType(typeof(Color))]
-        // public Color? TheColor { get; set; } = null;
-
-        // [Required, EnumDataType(typeof(Engine))]
-        // public Engine? TheEngine { get; set; } = null;
-
-        public enum Manufacturer { None, SpaceX, NASA, ULA, VirginGalactic }
-        public enum Color { ImperialRed, SpacecruiserGreen, StarshipBlue, VoyagerOrange }
-        public enum Engine { Ion, Plasma, Fusion, Warp }
-
-        public void CopyFrom(Person source)
+        if (result is not null)
         {
-            Name = source.Name;
-            Email = source.Email;
-            Age = source.Age;
-            IsAdministrator = source.IsAdministrator;
-            BirthDate = source.BirthDate;
-            Notes = source.Notes;
-            Status = source.Status;
-            TheManufacturer = source.TheManufacturer;
+            person = result;
+            //StateHasChanged();
         }
     }
+    
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     //return base.OnAfterRenderAsync(firstRender);
+    //     if (firstRender)
+    //     {
+            
+    //     }
+    // }
 }

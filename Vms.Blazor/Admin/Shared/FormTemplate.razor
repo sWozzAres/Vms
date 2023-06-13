@@ -2,16 +2,18 @@
 @using System.Text.Json;
 @using Microsoft.AspNetCore.Components.Forms;
 
-@typeparam TModel where TModel : class, ICopyable<TModel>
+@typeparam TModel where TModel : class, ICopyable<TModel>, new()
 @inject HttpClient Http
 @inject ILogger<FormTemplate<TModel>> Logger
 
-<EditForm Model="Model"  OnValidSubmit="@HandleValidSubmit" class="edit-form">
-    
-    @ChildContent
+<EditForm EditContext="editContext" OnValidSubmit="@HandleValidSubmit" class="edit-form">
+    <fieldset disabled="@FormIsDisabled">
+        @ChildContent
+    </fieldset>
     <div class="buttons">
-        <button type="button" @onclick="Cancel">Cancel</button>
-        <button type="submit" disabled="@IsDisabled">OK</button>
+        @* <button type="button" @onclick="Reset">Reset</button> *@
+        <button type="button" @ref="EditButton" @onclick="ToggleDisabled">@EditButtonText</button>
+        <button type="submit" disabled="@IsDisabled">Save</button>
     </div>
 </EditForm>
 
@@ -27,22 +29,36 @@
     [Parameter, EditorRequired]
     public string ApiUrl { get; set; } = null!;
 
-    //private EditContext editContext = null!;
+    private EditContext editContext = null!;
+    private ValidationMessageStore messageStore = null!;
 
     private TModel OriginalModel { get; set; } = default!;
     private bool IsPosting { get; set; }
+    private bool FormIsDisabled { get; set; } = true;
+    ElementReference EditButton { get; set; }
+    private string EditButtonText => FormIsDisabled ? "Edit" : "Cancel";
 
     protected override void OnInitialized()
     {
         //Model2 = Model;
         // Create a new EditContext and bind it to the model
-        //editContext = new EditContext(Model);
+        editContext = new EditContext(Model);
+        messageStore = new ValidationMessageStore(editContext);
 
-        // Make a copy of the original model
-        OriginalModel = JsonSerializer.Deserialize<TModel>(JsonSerializer.Serialize(Model))
-            ?? throw new InvalidOperationException("Failed to serialize model.");
+
+
+        // // Make a copy of the original model
+        // OriginalModel = JsonSerializer.Deserialize<TModel>(JsonSerializer.Serialize(Model))
+        //     ?? throw new InvalidOperationException("Failed to serialize model.");
     }
 
+    protected override void OnParametersSet()
+    {
+        //base.OnParametersSet();
+        Logger.LogInformation("Model = {model}", Model.ToString());
+        OriginalModel = new();
+        OriginalModel.CopyFrom(Model);
+    }
     private async Task HandleValidSubmit()
     {
         //if (editContext.Validate())
@@ -51,21 +67,25 @@
         IsPosting = true;
         try
         {
-            // Serialize the model to JSON
-            var json = JsonSerializer.Serialize(Model);
+            // // Serialize the model to JSON
+            // var json = JsonSerializer.Serialize(Model);
 
-            // Create a content object with the JSON and the media type
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            // // Create a content object with the JSON and the media type
+            // var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             // Post the content to the API
-            var response = await Http.PostAsync(ApiUrl, content);
+            var response = await Http.PostAsJsonAsync(ApiUrl, Model);
 
             // Check if the response is successful
             if (response.IsSuccessStatusCode)
             {
-                // Update the original model with the current values
-                OriginalModel = JsonSerializer.Deserialize<TModel>(json)
-                    ?? throw new InvalidOperationException("Failed to deserialize response.");
+                var content = await response.Content.ReadFromJsonAsync<TModel>();
+
+                OriginalModel.CopyFrom(content);
+
+                // // Update the original model with the current values
+                // OriginalModel = JsonSerializer.Deserialize<TModel>(json)
+                //     ?? throw new InvalidOperationException("Failed to deserialize response.");
             }
             else
             {
@@ -85,9 +105,24 @@
         // }
     }
 
-    private void Cancel()
+    private void ToggleDisabled()
+    {
+        FormIsDisabled = !FormIsDisabled;
+
+        if (FormIsDisabled)
+        {
+            Reset();
+        }
+    }
+
+    private void Reset()
     {
         Logger.LogInformation("Original Model: {model}", OriginalModel);
+        editContext = new EditContext(Model);
+        messageStore = new ValidationMessageStore(editContext);
+
+        //messageStore.Clear();
+        //editContext.NotifyValidationStateChanged();
 
         Model.CopyFrom(OriginalModel);
 
@@ -104,7 +139,8 @@
     {
         get
         {
-            return Model == OriginalModel || IsPosting;
+            Logger.LogInformation("Models are equal {equal}.", EqualityComparer<TModel>.Default.Equals(Model, OriginalModel));
+            return EqualityComparer<TModel>.Default.Equals(Model, OriginalModel) || IsPosting;
             // Return true if the form is invalid, unchanged, or being posted
             //return !editContext.Validate() || EqualityComparer<TModel>.Default.Equals(Model, OriginalModel) || IsPosting;
             //return EqualityComparer<TModel>.Default.Equals(Model, OriginalModel) || IsPosting;
