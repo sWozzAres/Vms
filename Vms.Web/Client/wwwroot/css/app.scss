@@ -116,6 +116,9 @@ main > section {
     padding: 1em;
     margin: 1em;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .mygrid {

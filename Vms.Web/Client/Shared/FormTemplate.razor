@@ -50,7 +50,10 @@
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadFromJsonAsync<TModel>();
-
+                if (content is null)
+                {
+                    throw new InvalidOperationException("Failed to deserialize model.");
+                }
                 OriginalModel.CopyFrom(content);
             }
             else

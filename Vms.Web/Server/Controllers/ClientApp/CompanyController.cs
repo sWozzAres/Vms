@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Vms.Web.Shared;
 using Vms.Domain.Infrastructure;
 
-namespace Vms.Blazor.Server.Controllers.Admin;
+namespace Vms.Web.Server.Controllers.ClientApp;
 
 [ApiController]
 [Route("ClientApp/api/[controller]")]
@@ -21,7 +21,7 @@ public class CompanyController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await context.Companies
-            .Select(x=>new CompanyListModel (x.Code, x.Name ))
+            .Select(x => new CompanyListModel(x.Code, x.Name))
             .ToListAsync(cancellationToken);
 
         return Ok(result);
@@ -30,12 +30,12 @@ public class CompanyController : ControllerBase
     [HttpGet("{code}")]
     [ProducesResponseType(typeof(CompanyModel), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<CompanyModel>> GetCompany(int code,
+    public async Task<ActionResult<CompanyModel>> GetCompany(string code,
         [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
     {
-        var company = await context.Companies.FindAsync(code, cancellationToken);
-        if (company == null)
+        var company = await context.Companies.FindAsync(new[] { code }, cancellationToken);
+        if (company is null)
         {
             return NotFound();
         }

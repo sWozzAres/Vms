@@ -52,4 +52,5 @@ public record Person : ICopyable<Person>
         Status = source.Status;
         TheManufacturer = source.TheManufacturer;
     }
+    //public Person ShallowCopy() => (Person)MemberwiseClone();
 }
