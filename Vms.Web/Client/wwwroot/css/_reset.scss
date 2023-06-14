@@ -1,0 +1,157 @@
+﻿*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    /* font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
+    font-family: 'Cascadia Code', Helvetica,Arial,sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: Geneva, 'Segoe UI', Tahoma, Verdana, sans-serif;
+    font-size: 100%;*/
+    /*font-family: sans-serif;*/
+    //background-color: var(--theme-background);
+    //color: var(--theme-on-background);
+    /*color: var(--normal-text);*/
+
+    font-family: system-ui, sans-serif;
+    background-color: var(--bg);
+    /*color: color-contrast(var(--bg));*/
+    
+    color: black;
+
+    @media (prefers-color-scheme: dark) {
+        color: white;
+    }
+}
+
+body {
+    margin: 0;
+}
+
+/*button {
+    font-size: 1rem;
+    font-weight: normal;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    color: var(--a-normal-text);
+    cursor: pointer;
+}*/
+
+input, textarea, select {
+    font: inherit;
+    
+}
+/*
+input {
+    &[type='number'] {
+        width: 100%;
+    }
+}
+
+
+input[type="number"], input[type="date"], input[type="text"], input:not([type]), textarea, select {
+    width: 100%;
+}*/
+
+
+fieldset {
+    margin: 0;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+}
+
+legend {
+    margin-bottom: 1em;
+}
+
+/*a[href] {
+    color: #034575;
+    color: var(--a-normal-text);
+    text-decoration: none;
+
+    &:focus, &:hover {
+    }
+}
+
+a:visited {
+    color: #034575;
+    color: var(--a-visited-text);
+}*/
+
+ul, ol {
+    margin-left: 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.25em 0 0.5em;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, dt {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font: 100% sans-serif; /* Reset all font styling to clear out UA styles */
+    font-family: inherit; /* Inherit the font family. */
+    line-height: 1.2; /* Keep wrapped headings compact */
+    hyphens: manual; /* Hyphenated headings look weird */
+}
+
+h2, h3, h4, h5, h6 {
+    margin-top: 2rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--heading-text-light);
+
+    @media (prefers-color-scheme: dark) {
+        color: var(--heading-text-dark);
+    }
+}
+
+h1 {
+    font-size: 170%;
+}
+
+h2 {
+    font-size: 140%;
+}
+
+h3 {
+    font-size: 120%;
+}
+
+h4 {
+    font-weight: bold;
+}
+
+h5 {
+    font-style: italic;
+}
+
+h6 {
+    font-variant: small-caps;
+}
+
+dt {
+    font-weight: bold;
+}
+
+/** Subheadings ***************************************************************/
+
+h1 + h2,
+#subtitle {
+    /* #subtitle is a subtitle in an H2 under the H1 */
+    margin-top: 0;
+}
+
+h2 + h3,
+h3 + h4,
+h4 + h5,
+h5 + h6 {
+    margin-top: 1.2em; /* = 1 x line-height */
+}

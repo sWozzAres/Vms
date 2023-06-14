@@ -1,0 +1,96 @@
+﻿@page "/people/create"
+@inject HttpClient Http
+@attribute [Authorize]
+
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Create Person</PageTitle>
+
+<section>
+    <h1>Create Person</h1>
+
+    <FormTemplate Model="@person" ApiUrl="Person">
+        <DataAnnotationsValidator />
+
+        <div class="form-section">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="person.Name" />
+            <ValidationMessage For="@(() => person.Name)" />
+
+
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="person.Email" />
+            <ValidationMessage For="@(() => person.Email)" />
+
+
+            <label for="age">Age</label>
+            <InputNumber id="age" @bind-Value="person.Age" />
+            <ValidationMessage For="@(() => person.Age)" />
+
+
+            <label for="isAdministrator">Is Admin</label>
+            <InputCheckbox id="isAdministrator" @bind-Value="person.IsAdministrator" />
+            <ValidationMessage For="@(() => person.IsAdministrator)" />
+
+
+            <label for="birthDate">Birth Date</label>
+            <InputDate id="birthDate" @bind-Value="person.BirthDate" />
+            <ValidationMessage For="@(() => person.BirthDate)" />
+
+
+            <label for="notes">Notes</label>
+            <InputTextArea id="notes" @bind-Value="person.Notes" />
+            <ValidationMessage For="@(() => person.Notes)" />
+        </div>
+        <div class="form-section">
+            <label for="status">Status</label>
+            <InputSelect id="status" @bind-Value="person.Status">
+                <option value="">Select</option>
+                <option value="0">Active</option>
+                <option value="1">Deactivated</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => person.Status)" />
+
+            <label>Manufacturer</label>
+            <div class="form-control">
+                <InputRadioGroup @bind-Value="person.TheManufacturer">
+                    @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
+                    {
+
+                        <InputRadio Value="@manufacturer" />
+                        <text>&nbsp;</text>
+
+                        @manufacturer
+
+                    }
+                </InputRadioGroup>
+            </div>
+            <ValidationMessage For="@(() => person.TheManufacturer)" />
+        </div>
+    </FormTemplate>
+</section>
+
+@code {
+    private Person person = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //return base.OnParametersSetAsync();
+        var result = await Http.GetFromJsonAsync<Person>("Person/1");
+
+        if (result is not null)
+        {
+            person = result;
+            //StateHasChanged();
+        }
+    }
+    
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     //return base.OnAfterRenderAsync(firstRender);
+    //     if (firstRender)
+    //     {
+            
+    //     }
+    // }
+}

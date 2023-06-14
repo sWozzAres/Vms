@@ -1,0 +1,40 @@
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-content: start;
+    background-color: var(--sidebar-bg);
+
+    ol, ul {
+        margin: 1em 0 1em 1em;
+        list-style: none;
+        padding-left: 0;
+
+        li {
+            margin: 0.5em 0 0.5em 0;
+
+            a {
+                display: block;
+                width: 100%;
+                padding: 0.5em 1em 0.5em 0.5em;
+
+                &.active {
+                    background-color: var(--bg)
+                }
+            }
+        }
+    }
+}
+
+.main {
+    padding: 1em 1em 0 1em;
+    flex-grow: 1;
+    display: flex;
+    background-color: #96c8ff;
+}

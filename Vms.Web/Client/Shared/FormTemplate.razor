@@ -1,0 +1,84 @@
+﻿@using System.Text
+@using System.Text.Json;
+@using Microsoft.AspNetCore.Components.Forms;
+
+@typeparam TModel where TModel : class, ICopyable<TModel>, new()
+@inject HttpClient Http
+@inject ILogger<FormTemplate<TModel>> Logger
+
+<EditForm EditContext="editContext" OnValidSubmit="@HandleValidSubmit" class="edit-form">
+    <fieldset disabled="@(!InEditMode)">
+        @ChildContent
+    </fieldset>
+    <div class="buttons">
+        <button type="button" @onclick="ToggleEdit">@EditButtonText</button>
+        <button type="submit" disabled="@(!InEditMode)">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public TModel Model { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string ApiUrl { get; set; } = null!;
+
+    private EditContext editContext = null!;
+    private ValidationMessageStore messageStore = null!;
+
+    private TModel OriginalModel { get; set; } = new();
+    private bool IsPosting { get; set; }
+    private bool InEditMode { get; set; } = false;
+    private string EditButtonText => InEditMode ? "Cancel" : "Edit";
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Model);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        IsPosting = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync(ApiUrl, Model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadFromJsonAsync<TModel>();
+
+                OriginalModel.CopyFrom(content);
+            }
+            else
+            {
+                Logger.LogError("Form submission failed with error '{ReasonPhrase}'.", response.ReasonPhrase);
+            }
+        }
+        finally
+        {
+            IsPosting = false;
+        }
+    }
+
+    private void ToggleEdit()
+    {
+        if (!InEditMode)
+        {
+            OriginalModel.CopyFrom(Model);
+        }
+
+        InEditMode = !InEditMode;
+
+        if (!InEditMode)
+        {
+            editContext = new EditContext(Model);
+            messageStore = new ValidationMessageStore(editContext);
+
+            Model.CopyFrom(OriginalModel);
+        }
+    }
+}

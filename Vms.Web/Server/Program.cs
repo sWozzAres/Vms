@@ -1,17 +1,14 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Serilog;
+using Microsoft.AspNetCore.ResponseCompression;
 using Serilog.Sinks.SystemConsole.Themes;
-using Vms.Blazor.Server.Configuration;
-using Vms.Blazor.Server.Services;
-using Vms.Domain.Infrastructure;
+using Serilog;
 using Vms.Domain.Services;
+using Vms.Web.Server.Services;
+using Microsoft.EntityFrameworkCore;
+using Vms.Domain.Infrastructure;
+using System.Reflection;
+using Vms.Web.Server.Configuration;
 
-const string AppName = "Vms.Blazor.Server";
+const string AppName = "Vms.Web.Server";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,28 +62,27 @@ else
 
 app.UseHttpsRedirection();
 
-//app.UseBlazorFrameworkFiles();
-app.MapWhen(ctx => ctx.Request.Host.Port == 5003 ||
-    ctx.Request.Host.Equals("firstapp.com"), adminApp =>
-    {
-        adminApp.Use((ctx, nxt) =>
-        {
-            ctx.Request.Path = "/AdminApp" + ctx.Request.Path;
-            return nxt();
-        });
+//app.MapWhen(ctx => ctx.Request.Host.Port == 5003 ||
+//    ctx.Request.Host.Equals("firstapp.com"), adminApp =>
+//    {
+//        adminApp.Use((ctx, nxt) =>
+//        {
+//            ctx.Request.Path = "/AdminApp" + ctx.Request.Path;
+//            return nxt();
+//        });
 
-        adminApp.UseBlazorFrameworkFiles("/AdminApp");
-        adminApp.UseStaticFiles();
-        adminApp.UseStaticFiles("/AdminApp");
-        adminApp.UseRouting();
-        adminApp.UseAuthorization();
-        adminApp.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-            endpoints.MapFallbackToFile("/AdminApp/{*path:nonfile}",
-                "AdminApp/index.html");
-        });
-    });
+//        adminApp.UseBlazorFrameworkFiles("/AdminApp");
+//        adminApp.UseStaticFiles();
+//        adminApp.UseStaticFiles("/AdminApp");
+//        adminApp.UseRouting();
+//        adminApp.UseAuthorization();
+//        adminApp.UseEndpoints(endpoints =>
+//        {
+//            endpoints.MapControllers();
+//            endpoints.MapFallbackToFile("/AdminApp/{*path:nonfile}",
+//                "AdminApp/index.html");
+//        });
+//    });
 
 app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
     ctx.Request.Host.Equals("secondapp.com"), clientApp =>
@@ -110,9 +106,11 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
         });
     });
 
+//app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
 
 app.MapRazorPages();
 app.MapControllers();
