@@ -2,21 +2,31 @@
 
 <PageTitle>Index</PageTitle>
 <section>
-<h1>Home</h1>
-<ol>
-    <li><a href="/fetchdata">Fetch</a></li>
-    <li><a href="/typography">Typography</a></li>
-    <li><a href="/buttons">Buttons</a></li>
-    <li><a href="/people/create">Create Person</a></li>
-</ol>
+    <h1>Home</h1>
 
-<ul>
-    <li>
-        Companies
-        <ul>
-            <li><a href="/company/create">Create</a></li>
-            <li><a href="/company/list">List</a></li>
-        </ul>
-    </li>
-</ul>
+    <MenuButton Items="@items"></MenuButton>
+
+    <ol>
+        <li><a href="/fetchdata">Fetch</a></li>
+        <li><a href="/typography">Typography</a></li>
+        <li><a href="/buttons">Buttons</a></li>
+        <li><a href="/people/create">Create Person</a></li>
+    </ol>
+
+    <ul>
+        <li>
+            Companies
+            <ul>
+                <li><a href="/company/create">Create</a></li>
+                <li><a href="/company/list">List</a></li>
+            </ul>
+        </li>
+    </ul>
 </section>
+
+@code {
+    private string[] items = new string[]
+        {
+        "Hello", "World"
+        };
+}

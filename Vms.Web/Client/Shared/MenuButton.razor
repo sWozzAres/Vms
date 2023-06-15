@@ -1,0 +1,195 @@
+﻿@inject ILogger<MenuButton> Logger
+@inject IJSRuntime JSRuntime
+
+<div  class="menu-button-actions"
+@onfocusin="onFocusin"
+@onfocusout="onFocusout">
+    <button type="button" id="menubutton1" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
+    @ref="buttonNode"
+    
+    @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
+        Actions
+        <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
+            <polygon points="1 0, 11 0, 6 8"></polygon>
+        </svg>
+    </button>
+    @{
+        var activeDescendant = $"mi{selectedMenuItem}";
+    }
+    <ul id="menu1" role="menu" tabindex="-1" aria-labelledby="menubutton1" aria-activedescendant="@activeDescendant" style="@menuNodeStyle()"
+    @ref="menuNode"
+    @onkeydown="onMenuKeydown">
+
+        @foreach (var mi in MenuItems)
+        {
+            var menuItem = mi.Value;
+
+            var id = $"mi{menuItem.Index}";
+
+            var className = selectedMenuItem == menuItem.Index ? "focus" : string.Empty;
+
+            <li id="@id" role="menuitem" @ref="menuItem.Ref" class="@className"
+            @onclick="async (e) => await onMenuitemClick(e, menuItem.Index)"
+            @onmouseover="onMenuitemMouseover">@menuItem.Name</li>
+        }
+
+    </ul>
+</div>
+
+@code {
+    [EditorRequired, Parameter]
+    public string[] Items { get; set; } = null!;
+
+    private Dictionary<int, MenuItem> MenuItems { get; set; } = new();
+    private int selectedMenuItem;
+
+    private ElementReference menuNode;
+    private ElementReference buttonNode;
+
+    private record MenuItem
+    {
+        public int Index { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public ElementReference Ref { get; set; }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        MenuItems.Clear();
+        for (int index = 0; index < Items.Length; index++)
+        {
+            MenuItems.Add(index, new MenuItem() { Index = index, Name = Items[index] });
+        }
+        Logger.LogInformation("Menu Items: {menuitems}.", MenuItems);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //await JSRuntime.InvokeVoidAsync("eval", await JSRuntime.InvokeAsync<string>("import", "/js/app.js"));
+            await JSRuntime.InvokeVoidAsync("myApp.installKeydown", "menubutton1");
+        }
+    }
+
+    private bool isOpen = false;
+    private string menuNodeStyle() => isOpen ? "display: block" : "display: none";
+    private async Task openPopup()
+    {
+        isOpen = true;
+        await menuNode.FocusAsync();
+        setFocusToFirstMenuitem();
+    }
+
+    private async Task closePopup()
+    {
+        isOpen = false;
+        await buttonNode.FocusAsync();
+    }
+
+    private void setFocusToFirstMenuitem()
+    {
+        selectedMenuItem = 0;
+    }
+
+    private void setFocusToLastMenuitem()
+    {
+        selectedMenuItem = MenuItems.Count - 1;
+    }
+
+    private void setFocusToPreviousMenuitem()
+    {
+        selectedMenuItem = selectedMenuItem == 0
+            ? MenuItems.Count - 1
+            : 0;
+    }
+
+    private void setFocusToNextMenuitem()
+    {
+        selectedMenuItem = selectedMenuItem == MenuItems.Count - 1
+            ? 0
+            : selectedMenuItem + 1;
+    }
+
+    private async void onButtonKeydown(KeyboardEventArgs e)
+    {
+        Logger.LogInformation("onButtonKeydown: {key}.", e.Key);
+        var flag = false;
+
+        switch (e.Key)
+        {
+            case " ":
+            case "Enter":
+            case "ArrowDown":
+            case "Down":
+                await openPopup();
+                setFocusToFirstMenuitem();
+                flag = true;
+                break;
+            case "Esc":
+            case "Escape":
+                await closePopup();
+                flag = true;
+                break;
+            case "Up":
+            case "ArrowUp":
+                await openPopup();
+                setFocusToLastMenuitem();
+                flag = true;
+                break;
+            default:
+                break;
+        }
+
+        if (flag)
+        {
+            //await JSRuntime.InvokeVoidAsync("myApp.preventDefaultAndStopPropagation", e);
+        }
+    }
+
+    private async Task onButtonClick(MouseEventArgs e)
+    {
+        if (isOpen)
+        {
+            await closePopup();
+        }
+        else
+        {
+            await openPopup();
+        }
+    }
+
+    private void onMenuKeydown(KeyboardEventArgs e)
+    {
+
+    }
+
+    private async Task onMenuitemClick(MouseEventArgs e, int index)
+    {
+        await closePopup();
+        Logger.LogInformation("Selected index {index}.", index);
+    }
+
+    private void onMenuitemMouseover(MouseEventArgs e)
+    {
+
+    }
+
+    private void onFocusin()
+    {
+
+    }
+
+    private void onFocusout()
+    {
+
+    }
+
+    // TODO???
+    private void onBackgroundMousedown()
+    {
+
+    }
+}
