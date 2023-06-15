@@ -22,21 +22,21 @@ public class CompanyController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    [HttpGet]
-    [Route("")]
-    [ProducesResponseType(typeof(IEnumerable<CompanyListModel>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<CompanyListModel>>> GetCompanies(
-        int? list,
-        //[FromServices] IAccountQueries _queries,
-        [FromServices] VmsDbContext context,
-        CancellationToken cancellationToken)
-    {
-        var result = await context.Companies
-            .Select(x => new CompanyListModel(x.Code, x.Name))
-            .ToListAsync(cancellationToken);
+    //[HttpGet]
+    //[Route("")]
+    //[ProducesResponseType(typeof(IEnumerable<CompanyListModel>), StatusCodes.Status200OK)]
+    //public async Task<ActionResult<IEnumerable<CompanyListModel>>> GetCompanies(
+    //    int? list,
+    //    //[FromServices] IAccountQueries _queries,
+    //    [FromServices] VmsDbContext context,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var result = await context.Companies
+    //        .Select(x => new CompanyListModel(x.Code, x.Name))
+    //        .ToListAsync(cancellationToken);
 
-        return Ok(result);
-    }
+    //    return Ok(result);
+    //}
 
     [HttpGet]
     [Route("{code}")]

@@ -4,28 +4,42 @@
 
 <PageTitle>View</PageTitle>
 
-<section>
-    <h1>View Company</h1>
-    @if (company is not null)
-    {
-        var apiUrl = $"api/Company/{Code}";
-
-        <FormTemplate Model="@company" ApiUrl="@apiUrl">
-            <DataAnnotationsValidator />
-
-        <div class="form-section">
-            <label for="name">Code</label>
-            <InputText id="name" @bind-Value="company.Code" />
-            <ValidationMessage For="@(() => company.Code)" />
-
-
-            <label for="email">Name</label>
-            <InputText id="email" @bind-Value="company.Name" />
-            <ValidationMessage For="@(() => company.Name)" />
+@{
+    var name = company is not null ? company.Name : ""; 
+}
+<ViewTemplate Title="Company" Name="@name">
+    <Icon>
+        <div class="purple">
+            <svg viewBox="0 0 384 512">
+                <use xlink:href="icons/solid.svg#building" />
+            </svg>
         </div>
-    </FormTemplate>
-    }
-</section>
+    </Icon>
+    <HeaderButtons>
+        <button>Test</button>
+    </HeaderButtons>
+    <Content>
+        @if (company is not null)
+        {
+            var apiUrl = $"api/Company/{Code}";
+
+            <FormTemplate Model="@company" ApiUrl="@apiUrl">
+                <DataAnnotationsValidator />
+
+                <div class="form-section">
+                    <label for="name">Code</label>
+                    <InputText id="name" @bind-Value="company.Code" />
+                    <ValidationMessage For="@(() => company.Code)" />
+
+
+                    <label for="email">Name</label>
+                    <InputText id="email" @bind-Value="company.Name" />
+                    <ValidationMessage For="@(() => company.Name)" />
+                </div>
+            </FormTemplate>
+        }
+    </Content>
+</ViewTemplate>
 
 @code {
     [Parameter]

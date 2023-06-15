@@ -14,3 +14,28 @@
 button:disabled {
   opacity: 0.5;
 }
+
+.btn-icon {
+  fill: black;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0;
+  border: 2px solid #d2d2d2;
+  border-radius: 5px;
+}
+.btn-group button {
+  border: 0;
+}
+.btn-group > :first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.btn-group > :last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.btn-group > :not(:last-child) {
+  border-right: 2px solid #d2d2d2;
+}

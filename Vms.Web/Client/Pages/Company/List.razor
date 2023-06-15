@@ -1,28 +1,45 @@
 ﻿@page "/company/list"
 @attribute [Authorize]
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <PageTitle>Companies</PageTitle>
 
-<ListTemplate Context="item" TItem="CompanyListModel" OnLoad="LoadItemsAsync" Lists="lists">
+<ListTemplate Context="item" TItem="CompanyListModel"
+              OnLoad="LoadItemsAsync"
+              Lists="lists"
+              Title="Companies">
+    <Icon>
+        <div class="purple">
+            <svg viewBox="0 0 384 512">
+                <use xlink:href="icons/solid.svg#building" />
+            </svg>
+        </div>
+    </Icon>
+    <HeaderButtons>
+        <button onclick="@(() => NavigationManager.NavigateTo("/company/create"))">New</button>
+        <button>Import</button>
+        <button>Add to Campaign</button>
+    </HeaderButtons>
     <TableHeader>
         <th>Code</th>
         <th>Name</th>
     </TableHeader>
     <RowTemplate>
-            <td><a href="/company/view/@item.Code">@item.Code</a></td>
-            <td><a href="/company/view/@item.Code">@item.Name</a></td>
+        <td><a href="/company/view/@item.Code">@item.Code</a></td>
+        <td><a href="/company/view/@item.Code">@item.Name</a></td>
     </RowTemplate>
 </ListTemplate>
 
 @code {
     private Dictionary<int, string> lists = new()
     {
-        {0, "All" },
-        {1, "Recent" },
+        {0, "All Companies" },
+        {1, "Recently Viewed" },
         {2, "Pinned" }
     };
 
-    public async Task<IReadOnlyList<CompanyListModel>?> LoadItemsAsync(int list)
-        => await Http.GetFromJsonAsync<List<CompanyListModel>>($"/api/Company?list={list}");
+    public async Task<IEnumerable<CompanyListModel>> LoadItemsAsync(int list)
+        => await Http.GetFromJsonAsync<List<CompanyListModel>>($"/api/Company?list={list}")
+            ?? Enumerable.Empty<CompanyListModel>();
 }

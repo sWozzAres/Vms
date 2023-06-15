@@ -4,6 +4,7 @@
 @import "_buttons2.css";
 @import "_buttons.custom.css";
 @import "_forms.scss";
+@import "_list.scss";
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
@@ -125,53 +126,53 @@ main > section {
     flex-grow: 1;
 }
 
-.mygrid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-
-    .validation-text {
-        grid-column-start: 2;
-    }
+.purple {
+    background: #a094ed;
 }
 
-.list-card {
+.red {
+    background-color: red;
+}
+
+.view-card {
     padding: 0;
     margin: 0;
     background-color: #fafaf9;
 
-
-    .list-header {
+    .view-header {
         padding: 1em;
         display: flex;
         flex-direction: column;
         background-color: #f3f2f2;
         gap: 1em;
 
-        .list-control {
+        .view-control {
             display: flex;
             gap: 1em;
             flex-wrap: wrap;
 
-            .list-icon {
+            .view-icon {
                 display: flex;
                 align-items: center;
-                background: #a094ed;
-                padding: 0.5em;
-                border-radius: 5px;
 
-                .list-icon-svg {
-                    background: #a094ed;
-                    fill: white;
-                    height: 2em;
+                div {
+                    padding: 0.5em;
+                    border-radius: 5px;
+
+                    > svg {
+                        height: 2em;
+                        fill: white;
+                    }
                 }
             }
 
-            .list-kind {
+            .view-info {
                 flex-grow: 1;
 
                 h1 {
                     font-size: small;
                     margin: 0;
+                    text-transform: uppercase;
                 }
 
                 h2 {
@@ -181,104 +182,19 @@ main > section {
                     column-gap: 0.5em;
 
                     button {
-                        padding-inline:0.2em;
+                        padding-inline: 0.2em;
                         padding-block: 0;
                     }
                 }
-
-                .list-dropdown-holder {
-                    position: relative;
-                }
-
-                .list-dropdown {
-                    position: absolute;
-                    background-color: #ffffff;
-
-                    ul > li {
-                        cursor: pointer;
-                    }
-                }
             }
 
-            .list-buttons {
+            .view-buttons {
                 justify-items: flex-end;
             }
         }
-
-        .list-info {
-            display: flex;
-            align-items: baseline;
-
-            .list-description {
-                flex-grow: 1;
-            }
-
-            .list-info-buttons {
-            }
-        }
     }
 
-    .list-data {
-
-        .message {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        table {
-            background-color: #ffffff;
-            width: 100%;
-            border-collapse: collapse;
-
-            > thead > tr, tr {
-                border-top: 1px solid #dee2e6;
-                border-bottom: 1px solid #dee2e6;
-            }
-
-            > thead > tr > th, > tbody > tr > td {
-                padding: 10px;
-            }
-
-            thead {
-                background-color: #fafaf9;
-                text-transform: uppercase;
-                color: #504d4b;
-
-                th {
-                    text-align: start;
-                }
-            }
-        }
-    }
-}
-
-.btn-icon {
-    fill: black;
-}
-
-.btn-group {
-    display: flex;
-    gap: 0;
-    border: 2px solid #d2d2d2;
-    border-radius: 5px;
-
-    button {
-        border: 0;
-    }
-
-    > :first-child {
-        border-top-left-radius: 5px;
-        border-bottom-left-radius: 5px;
-    }
-
-    > :last-child {
-        border-top-right-radius: 5px;
-        border-bottom-right-radius: 5px;
-    }
-
-    > :not(:last-child) {
-        border-right: 2px solid #d2d2d2;
+    .view-content {
+        padding: 1em;
     }
 }

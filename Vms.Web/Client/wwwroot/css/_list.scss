@@ -1,0 +1,120 @@
+.list-card {
+    padding: 0;
+    margin: 0;
+    background-color: #fafaf9;
+
+    .list-header {
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        background-color: #f3f2f2;
+        gap: 1em;
+
+        .list-control {
+            display: flex;
+            gap: 1em;
+            flex-wrap: wrap;
+
+            .list-icon {
+                display: flex;
+                align-items: center;
+
+                div {
+                    padding: 0.5em;
+                    border-radius: 5px;
+
+                    > svg {
+                        height: 2em;
+                        fill: white;
+                    }
+                }
+            }
+
+            .list-kind {
+                flex-grow: 1;
+
+                h1 {
+                    font-size: small;
+                    margin: 0;
+                    text-transform: uppercase;
+                }
+
+                h2 {
+                    margin: 0;
+                    display: flex;
+                    align-items: flex-end;
+                    column-gap: 0.5em;
+
+                    button {
+                        padding-inline: 0.2em;
+                        padding-block: 0;
+                    }
+                }
+
+                .list-dropdown-holder {
+                    position: relative;
+                }
+
+                .list-dropdown {
+                    position: absolute;
+                    background-color: #ffffff;
+
+                    ul > li {
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .list-buttons {
+                justify-items: flex-end;
+            }
+        }
+
+        .list-info {
+            display: flex;
+            align-items: baseline;
+
+            .list-description {
+                flex-grow: 1;
+            }
+
+            .list-info-buttons {
+            }
+        }
+    }
+
+    .list-data {
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        table {
+            background-color: #ffffff;
+            width: 100%;
+            border-collapse: collapse;
+
+            > thead > tr, tr {
+                border-top: 1px solid #dee2e6;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            > thead > tr > th, > tbody > tr > td {
+                padding: 10px;
+            }
+
+            thead {
+                background-color: #fafaf9;
+                text-transform: uppercase;
+                color: #504d4b;
+
+                th {
+                    text-align: start;
+                }
+            }
+        }
+    }
+}

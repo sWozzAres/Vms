@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Vms.Domain.Infrastructure;
 using System.Reflection;
 using Vms.Web.Server.Configuration;
+using Microsoft.AspNetCore.Authorization;
+using Vms.Web.Server.Endpoints;
 
 const string AppName = "Vms.Web.Server";
 
@@ -100,6 +102,8 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
         clientApp.UseAuthorization();
         clientApp.UseEndpoints(endpoints =>
         {
+            CompanyEndpoints.Map(endpoints);
+
             endpoints.MapControllers();
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",
                 "ClientApp/index.html");
