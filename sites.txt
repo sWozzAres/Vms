@@ -9,4 +9,4 @@ Port	App					User
 svgs
 ----
 C:\Users\markb\Downloads\fontawesome-free-6.4.0-web\fontawesome-free-6.4.0-web\svgs
-https://fontawesome.com/search?o=r&s=solid&f=classic
+https://fontawesome.com/search?o=r&m=free&s=solid&f=classic

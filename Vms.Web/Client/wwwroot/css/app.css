@@ -55,9 +55,10 @@
 
 html, body {
   /*font-family: system-ui, sans-serif;*/
-  font-family: "Open Sans", sans-serif;
-  /*font-family: 'Roboto', sans-serif;
+  /*font-family: 'Open Sans', sans-serif;
+
   font-family: 'Work Sans', sans-serif;*/
+  font-family: "Roboto", sans-serif;
   background-color: var(--bg);
   /*color: color-contrast(var(--bg));*/
   color: black;
@@ -148,12 +149,7 @@ h2, h3, h4, h5, h6 {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: var(--heading-text-light);
-}
-@media (prefers-color-scheme: dark) {
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--heading-text-dark);
-  }
+  color: var(--heading-text);
 }
 
 h1 {
@@ -200,8 +196,8 @@ h5 + h6 {
 
 #app {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  /*display: flex;
+  flex-direction: column;*/
 }
 
 .sidebar {
@@ -229,11 +225,11 @@ h5 + h6 {
 }
 
 .main {
-  padding: 1em 1em 0 1em;
-  flex-grow: 1;
+  /*padding: 1em 1em 0 1em;*/
+  /*flex-grow: 1;
   display: flex;
   background-color: #96c8ff;
-  flex-direction: row;
+  flex-direction: row;*/
 }
 
 form.edit-form {
@@ -300,6 +296,10 @@ form.edit-form > fieldset .buttons {
   grid-row: auto;
   grid-column: 1/-1;
   text-align: start;
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 a {
@@ -422,22 +422,12 @@ main > section {
 .list-card {
   padding: 0;
   margin: 0;
-  border: 1px solid #808080;
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
   background-color: #fafaf9;
 }
 .list-card .list-header {
   padding: 1em;
   display: flex;
   flex-direction: column;
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
   background-color: #f3f2f2;
   gap: 1em;
 }
@@ -465,21 +455,41 @@ main > section {
   font-size: small;
   margin: 0;
 }
-.list-card .list-header .list-control .list-kind h1 + h2 {
+.list-card .list-header .list-control .list-kind h2 {
   margin: 0;
-  font-weight: 600;
+  display: flex;
+  align-items: flex-end;
+  column-gap: 0.5em;
+}
+.list-card .list-header .list-control .list-kind h2 button {
+  padding-inline: 0.2em;
+  padding-block: 0;
+}
+.list-card .list-header .list-control .list-kind .list-dropdown-holder {
+  position: relative;
+}
+.list-card .list-header .list-control .list-kind .list-dropdown {
+  position: absolute;
+  background-color: #ffffff;
+}
+.list-card .list-header .list-control .list-kind .list-dropdown ul > li {
+  cursor: pointer;
 }
 .list-card .list-header .list-control .list-buttons {
   justify-items: flex-end;
 }
 .list-card .list-header .list-info {
   display: flex;
+  align-items: baseline;
 }
 .list-card .list-header .list-info .list-description {
   flex-grow: 1;
 }
-.list-card .list-data {
-  flex-grow: 1;
+.list-card .list-data .message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .list-card .list-data table {
   background-color: #ffffff;
@@ -497,6 +507,9 @@ main > section {
   background-color: #fafaf9;
   text-transform: uppercase;
   color: #504d4b;
+}
+.list-card .list-data table thead th {
+  text-align: start;
 }
 
 .btn-icon {

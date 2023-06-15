@@ -1,0 +1,47 @@
+﻿@page "/company/view/{code}"
+@inject HttpClient Http
+@attribute [Authorize]
+
+<PageTitle>View</PageTitle>
+
+<section>
+    <h1>View Company</h1>
+    @if (company is not null)
+    {
+        var apiUrl = $"api/Company/{Code}";
+
+        <FormTemplate Model="@company" ApiUrl="@apiUrl">
+            <DataAnnotationsValidator />
+
+        <div class="form-section">
+            <label for="name">Code</label>
+            <InputText id="name" @bind-Value="company.Code" />
+            <ValidationMessage For="@(() => company.Code)" />
+
+
+            <label for="email">Name</label>
+            <InputText id="email" @bind-Value="company.Name" />
+            <ValidationMessage For="@(() => company.Name)" />
+        </div>
+    </FormTemplate>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public string Code { get; set; } = null!;
+
+    private CompanyModel company = null!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //return base.OnParametersSetAsync();
+        var result = await Http.GetFromJsonAsync<CompanyModel>($"api/Company/{Code}");
+
+        if (result is not null)
+        {
+            company = result;
+            //StateHasChanged();
+        }
+    }
+}

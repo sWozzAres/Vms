@@ -6,10 +6,10 @@
 
 html, body {
     /*font-family: system-ui, sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;
     
-    font-family: 'Open Sans', sans-serif;
-    /*font-family: 'Roboto', sans-serif;
     font-family: 'Work Sans', sans-serif;*/
+    font-family: 'Roboto', sans-serif;
     background-color: var(--bg);
     /*color: color-contrast(var(--bg));*/
 
@@ -34,10 +34,12 @@ body {
     cursor: pointer;
 }*/
 
-:focus { z-index: 1}
+:focus {
+    z-index: 1;
+}
+
 input, textarea, select {
     font: inherit;
-    
 }
 /*
 input {
@@ -101,11 +103,7 @@ h2, h3, h4, h5, h6 {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--heading-text-light);
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--heading-text-dark);
-    }
+    color: var(--heading-text);
 }
 
 h1 {

@@ -1,94 +1,28 @@
 ﻿@page "/company/list"
-@using Vms.Web.Shared
-﻿@using Microsoft.AspNetCore.Components.QuickGrid
+@attribute [Authorize]
 @inject HttpClient Http
-@* @attribute [Authorize] *@
-@inject ILogger<List> Logger
-@inject NavigationManager NavigationManager
 
 <PageTitle>Companies</PageTitle>
 
-<section class="list-card">
-    <div class="list-header">
-        <div class="list-control">
-            <div class="list-icon">
-                <svg class="list-icon-svg" height="1em" viewBox="0 0 384 512">
-                    <use xlink:href="icons/solid.svg#building" />
-                </svg>
-            </div>
-            <div class="list-kind">
-                <h1>Companies</h1>
-                <h2>All Companies</h2>
-            </div>
-            <div class="list-buttons btn-group">
-                <button onclick="@(() => NavigationManager.NavigateTo("/company/create"))">New</button>
-                <button>Import</button>
-                <button>Add to Campaign</button>
-            </div>
-        </div>
-        <div class="list-info">
-            <div class="list-description">
-                22 items
-            </div>
-            <div class="list-info-buttons">
-                <button>
-                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
-                        <use xlink:href="icons/solid.svg#download" />
-                    </svg>
-                </button>
-                <button>
-                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
-                        <use xlink:href="icons/solid.svg#gear" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="list-data">
-        @if (companies == null)
-        {
-            <p><em>Loading...</em></p>
-        }
-        else
-        {
-            <table>
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in companies)
-                    {
-                        <tr>
-                            <td><a href="/company/view/@item.Code">@item.Code</a></td>
-                            <td><a href="/company/view/@item.Code">@item.Name</a></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            @* <QuickGrid Items="@companies.AsQueryable()">
-        <PropertyColumn Property="@(p=>p.Code)" />
-        <PropertyColumn Property="@(p=>p.Name)" />
-        </QuickGrid> *@
-        }
-    </div>
-</section>
+<ListTemplate Context="item" TItem="CompanyListModel" OnLoad="LoadItemsAsync" Lists="lists">
+    <TableHeader>
+        <th>Code</th>
+        <th>Name</th>
+    </TableHeader>
+    <RowTemplate>
+            <td><a href="/company/view/@item.Code">@item.Code</a></td>
+            <td><a href="/company/view/@item.Code">@item.Name</a></td>
+    </RowTemplate>
+</ListTemplate>
 
 @code {
-    private CompanyListModel[]? companies;
-
-    protected override async Task OnInitializedAsync()
+    private Dictionary<int, string> lists = new()
     {
-        Logger.LogInformation("Requesting companies...");
-        try
-        {
-            companies = await Http.GetFromJsonAsync<CompanyListModel[]>("api/Company");
-        }
-        catch (AccessTokenNotAvailableException exception)
-        {
-            exception.Redirect();
-        }
-    }
+        {0, "All" },
+        {1, "Recent" },
+        {2, "Pinned" }
+    };
+
+    public async Task<IReadOnlyList<CompanyListModel>?> LoadItemsAsync(int list)
+        => await Http.GetFromJsonAsync<List<CompanyListModel>>($"/api/Company?list={list}");
 }

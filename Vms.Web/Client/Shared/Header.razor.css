@@ -50,12 +50,17 @@
     grid-area: account;
     /*padding-left: 1em;*/
     cursor: pointer;
+    position: relative;
+    
 }
 
-#header-not-authorized {
-    /*padding-left: 1em;*/
-    grid-area: account;
-}
+    #header-account:focus-within #header-account-content {
+        visibility:visible;
+    }
+    #header-not-authorized {
+        /*padding-left: 1em;*/
+        grid-area: account;
+    }
 
 .hidden {
     display: none;
@@ -63,10 +68,13 @@
 
 #header-account-content {
     position: absolute;
+    top: 100%;
     right: 0;
-    /*background-color: var(--header-bg);*/
+    background-color: var(--header-bg);
     padding: 10px;
     z-index: 100;
+    visibility: hidden;
+    white-space: nowrap;
 }
 
 #search-history {

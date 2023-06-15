@@ -40,15 +40,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2EA2EA30
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeGenerator", "CodeGenerator\CodeGenerator.csproj", "{D6F06AD2-34C8-49AE-8975-23084C332725}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Api", "Vms.Api\Vms.Api.csproj", "{6B7639C4-7546-43E5-98C6-6FE7696BD790}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Api", "Vms.Api\Vms.Api.csproj", "{6B7639C4-7546-43E5-98C6-6FE7696BD790}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Web", "4 - Web", "{5E42BC5C-A059-44F1-B6CA-C37E33B2D39D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Web.Server", "Vms.Web\Server\Vms.Web.Server.csproj", "{14F86536-9031-4959-B9E9-D595002BECB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Web.Server", "Vms.Web\Server\Vms.Web.Server.csproj", "{14F86536-9031-4959-B9E9-D595002BECB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Web.Client", "Vms.Web\Client\Vms.Web.Client.csproj", "{44B516D9-52CA-434A-AB3E-458AB1160687}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Web.Client", "Vms.Web\Client\Vms.Web.Client.csproj", "{44B516D9-52CA-434A-AB3E-458AB1160687}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Web.Shared", "Vms.Web\Shared\Vms.Web.Shared.csproj", "{542F4A77-1872-4E5A-A9C4-239C26B23336}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Web.Shared", "Vms.Web\Shared\Vms.Web.Shared.csproj", "{542F4A77-1872-4E5A-A9C4-239C26B23336}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

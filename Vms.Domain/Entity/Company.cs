@@ -9,7 +9,7 @@ namespace Vms.Domain.Entity
     {
         public string Code { get; private set; } = null!;
 
-        public string Name { get; private set; } = null!;
+        public string Name { get; set; } = null!;
 
         internal List<Customer> Customers = new();
 

@@ -9,4 +9,9 @@ button {
     padding-inline: 1.75ch;
     padding-block: .75ch;
     border: 1px solid #919191;
+    font: inherit;
+
+    &:disabled {
+        opacity: 0.5;
+    }
 }

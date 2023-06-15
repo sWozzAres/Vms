@@ -1,0 +1,180 @@
+﻿@using Vms.Web.Shared
+﻿@using Microsoft.AspNetCore.Components.QuickGrid
+@typeparam TItem
+@inject HttpClient Http
+
+@inject ILogger<ListTemplate<TItem>> Logger
+@inject NavigationManager NavigationManager
+
+<section class="list-card">
+    <div class="list-header">
+        <div class="list-control">
+            <div class="list-icon">
+                <svg class="list-icon-svg" height="1em" viewBox="0 0 384 512">
+                    <use xlink:href="icons/solid.svg#building" />
+                </svg>
+            </div>
+            <div class="list-kind">
+                <h1>Companies</h1>
+                <div class="list-dropdown-holder">
+                    <h2>
+                        @Lists.ElementAt(selectedList).Value
+                        <button @onclick="ToggleListDropdownHidden" disabled="@(state == State.Loading)">
+                        <svg class="list-icon-svg" height="1em" viewBox="0 0 320 512">
+                            <use xlink:href="icons/solid.svg#caret-down" />
+                        </svg>
+                        </button>
+                    </h2>
+                    @{
+                        var className = listDropdownHidden ? "hidden" : "";
+                    }
+                    <div class="list-dropdown @className">
+                        <ul>
+                            @foreach (var list in Lists)
+                            {
+                                <li @onclick="async () => await SelectList(list.Key)">@list.Value</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="list-buttons btn-group">
+                <button onclick="@(() => NavigationManager.NavigateTo("/company/create"))">New</button>
+                <button>Import</button>
+                <button>Add to Campaign</button>
+            </div>
+        </div>
+        <div class="list-info">
+            <div class="list-description">
+                22 items
+            </div>
+            <div class="list-info-buttons">
+                <button>
+                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
+                        <use xlink:href="icons/solid.svg#download" />
+                    </svg>
+                </button>
+                <button>
+                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
+                        <use xlink:href="icons/solid.svg#gear" />
+                    </svg>
+                </button>
+                <button title="Refresh" @onclick="LoadItemsAsync" disabled="@(state == State.Loading)">
+                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
+                        <use xlink:href="icons/solid.svg#arrow-rotate-right" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="list-data">
+        @if (state == State.Error)
+        {
+            <div class="message">
+                <p>An error has occured.</p>
+                <button @onclick="LoadItemsAsync">Retry</button>
+            </div>
+        }
+        else if (state == State.Loading)
+        {
+            <p class="message"><em>Loading...</em></p>
+        }
+
+        else if (Items is not null)
+        {
+            <table>
+                <thead>
+                    <tr>
+                        @TableHeader
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Items)
+                    {
+                        if (RowTemplate is not null)
+                        {
+                            <tr>@RowTemplate(item)</tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</section>
+
+@code {
+    [EditorRequired, Parameter]
+    public RenderFragment<TItem>? RowTemplate { get; set; }
+
+    [EditorRequired, Parameter]
+    public RenderFragment? TableHeader { get; set; }
+
+    public delegate Task<IReadOnlyList<TItem>?> LoadItems(int index);
+
+    [EditorRequired, Parameter]
+    public LoadItems OnLoad { get; set; } = default!;
+    [EditorRequired, Parameter]
+    public Dictionary<int, string> Lists { get; set; } = null!;
+
+    private int selectedList = 0;
+    private bool listDropdownHidden = true;
+    private void ToggleListDropdownHidden() => listDropdownHidden = !listDropdownHidden;
+    private async Task SelectList(int key)
+    {
+        if (Lists.TryGetValue(key, out string? name))
+        {
+            selectedList = key;
+            listDropdownHidden = true;
+            await LoadItemsAsync();
+        }
+    }
+    private enum State { Loading = 0, Error, Loaded };
+    private State state;
+
+    private IReadOnlyList<TItem>? Items;
+    private string? errorText;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("Requesting companies...");
+        selectedList = Lists.First().Key;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync() {firstRender}", firstRender);
+
+        if (firstRender)
+        {
+            await LoadItemsAsync();
+        }
+    }
+
+    private async Task LoadItemsAsync()
+    {
+        state = State.Loading;
+        
+        try
+        {
+            await Task.Delay(2000);
+
+            Items = await OnLoad(selectedList);
+            //companies = await Http.GetFromJsonAsync<TItem[]>("api/Company");
+            state = State.Loaded;
+            StateHasChanged();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An error occured when loading.");
+            state = State.Error;
+            errorText = ex.Message;
+            StateHasChanged();
+        }
+    }
+}

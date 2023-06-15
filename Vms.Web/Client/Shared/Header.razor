@@ -45,9 +45,21 @@
     </form>
     <AuthorizeView>
         <Authorized>
-            <div id="header-account" @onclick="Toggle">
+            <button id="header-account" @onclick="Toggle">
                 <img src="/icons/user.svg" alt="icon name" height="40">
-            </div>
+                @{
+                    var className = contentVisible ? "" : "hidden";
+                }
+
+                <div id="header-account-content">
+                    <ul>
+                        <li><a href="authentication/profile">@context.User.Identity?.Name</a></li>
+                        <li><a href="/claims">Claims</a></li>
+                        <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
+                    </ul>
+                    @* <button @onclick="BeginLogOut">Log out</button> *@
+                </div>
+            </button>
         </Authorized>
         <NotAuthorized>
             <div id="header-not-authorized">
@@ -58,22 +70,7 @@
     </AuthorizeView>
 </header>
 
-@{
-    var className = contentVisible ? "" : "hidden";
-}
 
-<div id="header-account-content" class="@className">
-    <AuthorizeView>
-        <Authorized>
-            <ul>
-                <li><a href="authentication/profile">@context.User.Identity?.Name</a></li>
-                <li><a href="/claims">Claims</a></li>
-                <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
-            </ul>
-            @* <button @onclick="BeginLogOut">Log out</button> *@
-        </Authorized>
-    </AuthorizeView>
-</div>
 
 
 @code {
