@@ -4,10 +4,10 @@
 @{
     var className1 = domNodeFocused ? "focus" : string.Empty;
 }
-<div  class="menu-button-actions @className1" id="wdq87dqx"
+<div  class="menu-button-actions @className1" id="@Id"
 @onfocusin="onFocusin"
 @onfocusout="onFocusout">
-    <button type="button" id="menubutton1" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
+    <button type="button" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
     @ref="buttonNode"
     
     @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
@@ -19,7 +19,8 @@
     @{
         var activeDescendant = $"mi{selectedMenuItem}";
     }
-    <ul id="menu1" role="menu" tabindex="-1" aria-labelledby="menubutton1" aria-activedescendant="@activeDescendant" style="@menuNodeStyle()" @ref="menuNode">
+    <ul role="menu" tabindex="-1" aria-labelledby="menubutton1" aria-activedescendant="@activeDescendant" 
+        style="@menuNodeStyle()" @ref="menuNode">
 
         @foreach (var mi in MenuItems)
         {
@@ -41,6 +42,12 @@
     [EditorRequired, Parameter]
     public string[] Items { get; set; } = null!;
 
+    [Parameter]
+    public EventCallback<string> OnSelectCallback { get; set; }
+
+    private string Id = GenerateRandomString(10);
+    private int bgHook = 0;
+
     private Dictionary<int, MenuItem> MenuItems { get; set; } = new();
     private int selectedMenuItem;
 
@@ -55,6 +62,7 @@
         public int Index { get; set; }
         public string Name { get; set; } = string.Empty;
         public ElementReference Ref { get; set; }
+        public char FirstChar { get; set; }
     }
 
     protected override void OnInitialized()
@@ -69,7 +77,13 @@
         MenuItems.Clear();
         for (int index = 0; index < Items.Length; index++)
         {
-            MenuItems.Add(index, new MenuItem() { Index = index, Name = Items[index] });
+            if (string.IsNullOrEmpty(Items[index])) 
+                throw new InvalidOperationException("Data cannot be an empty string.");
+
+            MenuItems.Add(index, new MenuItem() { 
+                Index = index, 
+                Name = Items[index], 
+                FirstChar = Items[index].Substring(0,1).ToLower()[0] });
         }
         Logger.LogInformation("Menu Items: {menuitems}.", MenuItems);
     }
@@ -94,7 +108,7 @@
     {
         Logger.LogInformation("CloseAndPerformMenuAction()");
         await closePopup();
-
+        await OnSelectCallback.InvokeAsync(MenuItems[selectedMenuItem].Name);
         StateHasChanged();
     }
     [JSInvokable]
@@ -133,7 +147,7 @@
     {
         if (firstRender)
         {
-            var result = await JS.InvokeAsync<bool>("myApp.installKeydown", "wdq87dqx", objRef);
+            var result = await JS.InvokeAsync<bool>("menuButton.installKeydown", Id, objRef);
         }
 
         if (mustSetMenuNodeFocus) {
@@ -144,7 +158,7 @@
 
     private bool isOpen = false;
     private string menuNodeStyle() => isOpen ? "display: block" : "display: none";
-    //private string menuNodeStyle() => isOpen ? "visibility: visible" : "visibility: hidden";
+
     private bool mustSetMenuNodeFocus = false;
     private async Task openPopup()
     {
@@ -153,12 +167,16 @@
         mustSetMenuNodeFocus = true;
         //await menuNode.FocusAsync();
         setFocusToFirstMenuitem();
+        bgHook = await JS.InvokeAsync<int>("menuButton.installBackgroundHook", Id, objRef);
+        Logger.LogInformation("installBackgroundHook returned {result}.", bgHook);
     }
 
     private async Task closePopup()
     {
         isOpen = false;
         await buttonNode.FocusAsync();
+        var result = await JS.InvokeAsync<bool>("menuButton.removeBackgroundHook", bgHook);
+        Logger.LogInformation("removeBackgroundHook returned {result}.", result);
     }
 
     private void setFocusToFirstMenuitem()
@@ -186,9 +204,45 @@
     }
 
     [JSInvokable]
-    private void setFocusByFirstCharacter(string key)
+    public void setFocusByFirstCharacter(string key)
     {
         Logger.LogInformation("setFocusByFirstCharacter() key: {key}", key);
+
+        if (key.Length == 0)
+        {
+            return;
+        }
+
+        var keyChar = key[0];
+
+        var start = selectedMenuItem + 1;
+        if (start > MenuItems.Count - 1)
+        {
+            start = 0;
+        }
+        
+        int FindNextMenuItemByFirstChar(int s, int e)
+        {
+            for (var i = s; i < e; i++)
+            {
+                if (MenuItems[i].FirstChar == keyChar)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+
+        var index = FindNextMenuItemByFirstChar(start, MenuItems.Count);
+        if (index == -1)
+        {
+            index = FindNextMenuItemByFirstChar(0, start - 1);
+        }
+
+        if (index > -1)
+            selectedMenuItem = index;
+
         //TODO
         StateHasChanged();
     }
@@ -209,6 +263,7 @@
     {
         await closePopup();
         Logger.LogInformation("Selected index {index}.", index);
+        await OnSelectCallback.InvokeAsync(MenuItems[selectedMenuItem].Name);
     }
 
     private void onMenuitemMouseover(MouseEventArgs e, int index)
@@ -230,5 +285,14 @@
     private void onBackgroundMousedown()
     {
 
+    }
+
+    private static Random random = new Random(); // create a random object
+    public static string GenerateRandomString(int length)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; // define the valid characters
+        return new string(Enumerable.Repeat(chars, length) // repeat the chars string length times
+            .Select(s => s[random.Next(s.Length)]) // select a random character from each repetition
+            .ToArray()); // convert to an array and then to a string
     }
 }

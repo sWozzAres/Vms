@@ -1,15 +1,49 @@
-window.myApp = {
-    preventDefaultForKeys: function (event, keys) {
-        if (keys.includes(event.key)) {
-            event.preventDefault();
-        }
+window.menuButton = {
+    // keeps track of 'onmousedown' event listeners added to the window so they
+    // can later be removed.
+    listeners: [],
+    listenerId: 0,
+
+    installBackgroundHook: function (id, objRef) {
+        const element = document.querySelector('#' + id);
+        if (!element)
+            return -1;
+
+        const buttonNode = element.querySelector('button');
+
+        const listener = {
+            listenerId: this.listenerId,
+            
+            callback: (event) => {
+                //console.log('In eventlistener, element: ', element, ' contains: ', element.contains(event.target))
+                if (!element.contains(event.target)) {
+                    if (buttonNode.getAttribute('aria-expanded') === 'true') {
+                        objRef.invokeMethodAsync('Close');
+                    }
+                }
+            }
+        };
+
+        this.listeners.push(listener);
+
+        window.addEventListener('mousedown', listener.callback);
+
+        return this.listenerId++;
     },
 
-    preventDefaultAndStopPropagation: function (event) {
-        console.log('preventDefaultAndStopPropagation: ', event);
+    removeBackgroundHook: function (index) {
+        const idx = this.listeners.findIndex(x => x.listenerId === index);
+        if (idx === -1) {
+            return false;
+        }
 
-        event.preventDefault();
-        event.stopPropagation();
+        const listener = this.listeners[idx];
+
+        window.removeEventListener('mousedown', listener.callback);
+
+        this.listeners.splice(idx, 1);
+
+        return true;
     },
 
     installOnMenuKeydown: function (id, objRef) {
@@ -21,7 +55,6 @@ window.myApp = {
 
         element.addEventListener('keydown', (event) => {
             const key = event.key;
-            //let flag = false;
 
             function isPrintableCharacter(str) {
                 return str.length === 1 && str.match(/\S/);
@@ -38,98 +71,64 @@ window.myApp = {
 
             if (event.shiftKey) {
                 if (isPrintableCharacter(key)) {
-                    objRef.invokeMethodAsync('setFocusByFirstCharacter', key).then(() => {
-                        stopEvent();
-                    });
-                    //this.setFocusByFirstCharacter(key);
-                    //flag = true;
+                    stopEvent();
+                    objRef.invokeMethodAsync('setFocusByFirstCharacter', key);
                 }
 
                 if (event.key === 'Tab') {
-                    objRef.invokeMethodAsync('Close').then(() => {
-                        stopEvent();
-                    });
-                    //this.closePopup();
-                    //flag = true;
+                    stopEvent();
+                    objRef.invokeMethodAsync('Close');
                 }
             } else {
                 switch (key) {
                     case ' ':
                     case 'Enter':
-                        objRef.invokeMethodAsync('CloseAndPerformMenuAction').then(() => {
-                            stopEvent();
-                        });
-                        //this.closePopup();
-                        //this.performMenuAction(this.currentMenuitem);
-                        //flag = true;
+                        stopEvent();
+                        objRef.invokeMethodAsync('CloseAndPerformMenuAction');
                         break;
 
                     case 'Esc':
                     case 'Escape':
-                        objRef.invokeMethodAsync('Close').then(() => {
-                            stopEvent();
-                        });
-                        //this.closePopup();
-                        //flag = true;
+                        stopEvent();
+                        objRef.invokeMethodAsync('Close');
                         break;
 
                     case 'Up':
                     case 'ArrowUp':
-                        objRef.invokeMethodAsync('Previous').then(() => {
-                            stopEvent();
-                        });
-                        //this.setFocusToPreviousMenuitem();
-                        //flag = true;
+                        stopEvent();
+                        objRef.invokeMethodAsync('Previous');
                         break;
 
                     case 'ArrowDown':
                     case 'Down':
-                        objRef.invokeMethodAsync('Next').then(() => {
-                            stopEvent();
-                        });
-                        //this.setFocusToNextMenuitem();
-                        //flag = true;
+                        stopEvent();
+                        objRef.invokeMethodAsync('Next');
                         break;
 
                     case 'Home':
                     case 'PageUp':
-                        objRef.invokeMethodAsync('First').then(() => {
-                            stopEvent();
-                        });
-                        //this.setFocusToFirstMenuitem();
-                        //flag = true;
+                        stopEvent();
+                        objRef.invokeMethodAsync('First');
                         break;
 
                     case 'End':
                     case 'PageDown':
-                        objRef.invokeMethodAsync('Last').then(() => {
-                            stopEvent();
-                        });
-                        //this.setFocusToLastMenuitem();
-                        //flag = true;
+                        stopEvent();
+                        objRef.invokeMethodAsync('Last');
                         break;
 
                     case 'Tab':
                         objRef.invokeMethodAsync('Close');
-                        //this.closePopup();
                         break;
 
                     default:
                         if (isPrintableCharacter(key)) {
-                            objRef.invokeMethodAsync('setFocusByFirstCharacter', key).then(() => {
-                                stopEvent();
-                            });
-                            //this.setFocusByFirstCharacter(key);
-                            //flag = true;
+                            stopEvent();
+                            objRef.invokeMethodAsync('setFocusByFirstCharacter', key);
                         }
                         break;
                 }
             }
-
-            //if (flag) {
-            //    event.stopPropagation();
-            //    event.preventDefault();
-            //}
         })
 
         return true;
@@ -142,57 +141,41 @@ window.myApp = {
             return false;
         }
 
-        if(!this.installOnMenuKeydown(id, objRef)){
+        if (!this.installOnMenuKeydown(id, objRef)) {
             console.log('installOnMenuKeydown failed');
         }
 
         element.addEventListener('keydown', (event) => {
             console.log('onButtonKeydown: ', event.key);
 
-            //const key = event.key,
-            let flag = false;
-            let method = '';
+            function stopEvent() {
+                event.stopPropagation();
+                event.preventDefault();
+            }
 
             switch (event.key) {
                 case ' ':
                 case 'Enter':
                 case 'ArrowDown':
                 case 'Down':
-                    method = 'OpenFirst';
-                    //objRef.invokeMethodAsync('OpenFirst');
-                    //this.openPopup();
-                    //this.setFocusToFirstMenuitem();
-                    flag = true;
+                    stopEvent();
+                    objRef.invokeMethodAsync('OpenFirst');
                     break;
 
                 case 'Esc':
                 case 'Escape':
-                    /*this.closePopup();*/
-                    //objRef.invokeMethodAsync('Close');
-                    method = 'Close';
-                    flag = true;
+                    stopEvent();
+                    objRef.invokeMethodAsync('Close');
                     break;
 
                 case 'Up':
                 case 'ArrowUp':
-                    //objRef.invokeMethodAsync('OpenLast');
-                    //this.openPopup();
-                    //this.setFocusToLastMenuitem();
-                    method = 'OpenLast';
-                    flag = true;
+                    stopEvent();
+                    objRef.invokeMethodAsync('OpenLast');
                     break;
 
                 default:
                     break;
-            }
-
-            if (flag) {
-                console.log('calling method ', method);
-                objRef.invokeMethodAsync(method).then(() => {
-                    console.log('call complete');
-                    event.stopPropagation();
-                    event.preventDefault();
-                });
             }
         });
 

@@ -4,8 +4,11 @@
 <section>
     <h1>Home</h1>
 
-    <MenuButton Items="@items"></MenuButton>
+    <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val"></MenuButton>
 
+    <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val"></MenuButton>
+
+    <p>Selected item: @selectedItem</p>
     <ol>
         <li><a href="/fetchdata">Fetch</a></li>
         <li><a href="/typography">Typography</a></li>
@@ -25,8 +28,15 @@
 </section>
 
 @code {
+    private string selectedItem = string.Empty;
+
     private string[] items = new string[]
         {
-        "Hello", "World"
+            "ABC",
+            "Hello",
+            "World",
+            "World2",
+            "World3",
+            "World4",
         };
 }
