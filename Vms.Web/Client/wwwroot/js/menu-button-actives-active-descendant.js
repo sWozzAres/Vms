@@ -333,17 +333,34 @@ class MenuButtonActionsActiveDescendant {
     }
 }
 
+window.menuButton = {
+
+    init: function(id, objRef) {
+        var element = document.querySelector('#' + id);
+        if (!element) {
+            console.error('Id ', id, ' not found in document.');
+            return false;
+        }
+
+        this.objRef = objRef;
+        console.log('objRef: ', objRef);
+
+        new MenuButtonActionsActiveDescendant(element, (currentMenuitem) => {
+            console.log('currentMenuitem: ', currentMenuitem);
+        });
+    },
+}
 // Initialize menu buttons
 
-window.addEventListener('load', function () {
-    document.getElementById('action_output').value = 'none';
+//window.addEventListener('load', function () {
+//    document.getElementById('action_output').value = 'none';
 
-    function performMenuAction(node) {
-        document.getElementById('action_output').value = node.textContent.trim();
-    }
+//    function performMenuAction(node) {
+//        document.getElementById('action_output').value = node.textContent.trim();
+//    }
 
-    var menuButtons = document.querySelectorAll('.menu-button-actions');
-    for (var i = 0; i < menuButtons.length; i++) {
-        new MenuButtonActionsActiveDescendant(menuButtons[i], performMenuAction);
-    }
-});
+//    var menuButtons = document.querySelectorAll('.menu-button-actions');
+//    for (var i = 0; i < menuButtons.length; i++) {
+//        new MenuButtonActionsActiveDescendant(menuButtons[i], performMenuAction);
+//    }
+//});
