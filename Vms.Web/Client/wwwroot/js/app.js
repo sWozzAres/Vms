@@ -46,6 +46,125 @@ window.menuButton = {
         return true;
     },
 
+    installOnComboKeyDown: function (id, objRef) {
+        const element = document.querySelector('#' + id);
+        console.log('installOnComboKeyDown() id: ', id, ' element: ', element, ' objRef: ', objRef);
+        if (!element) {
+            return false;
+        }
+
+        const SelectActions = {
+            Close: 0,
+            CloseSelect: 1,
+            First: 2,
+            Last: 3,
+            Next: 4,
+            Open: 5,
+            PageDown: 6,
+            PageUp: 7,
+            Previous: 8,
+            Select: 9,
+            Type: 10,
+        };
+
+        element.addEventListener('keydown', (event) => {
+            
+            const { key } = event;
+
+            var aad = element.getAttribute('aria-activedescendant')
+
+            const action = getActionFromKey(event, aad.length > 0);
+
+            console.log('keydown ', event.key, ' action ', action, ' aad ', aad);
+
+            switch (action) {
+                case SelectActions.Last:
+                case SelectActions.First:
+                    objRef.invokeMethodAsync("updateMenuStateJS", true);
+                    //this.updateMenuState(true);
+                // intentional fallthrough
+                case SelectActions.Next:
+                case SelectActions.Previous:
+                case SelectActions.PageUp:
+                case SelectActions.PageDown:
+                    event.preventDefault();
+                    objRef.invokeMethodAsync("onOptionChangeJS", action);
+                    return;
+                    //return this.onOptionChange(
+                    //    getUpdatedIndex(this.activeIndex, max, action)
+                    //);
+                case SelectActions.CloseSelect:
+                    event.preventDefault();
+                    objRef.invokeMethodAsync("selectOptionJS");
+                    
+                    //this.selectOption(this.activeIndex);
+                // intentional fallthrough
+                case SelectActions.Close:
+                    event.preventDefault();
+                    //return this.updateMenuState(false);
+                    objRef.invokeMethodAsync("updateMenuStateJS", false);
+                    return;
+                case SelectActions.Type:
+                    objRef.invokeMethodAsync("onComboTypeJS", key);
+                    return;
+                    //return this.onComboType(key);
+                case SelectActions.Open:
+                    event.preventDefault();
+                    //return this.updateMenuState(true);
+                    objRef.invokeMethodAsync("updateMenuStateJS", true);
+                    return;
+            }
+
+            
+            function getActionFromKey(event, menuOpen) {
+                const { key, altKey, ctrlKey, metaKey } = event;
+                const openKeys = ['ArrowDown', 'ArrowUp', 'Enter', ' ']; // all keys that will do the default open action
+                // handle opening when closed
+                if (!menuOpen && openKeys.includes(key)) {
+                    return SelectActions.Open;
+                }
+
+                // home and end move the selected option when open or closed
+                if (key === 'Home') {
+                    return SelectActions.First;
+                }
+                if (key === 'End') {
+                    return SelectActions.Last;
+                }
+
+                // handle typing characters when open or closed
+                if (
+                    key === 'Backspace' ||
+                    key === 'Clear' ||
+                    (key.length === 1 && key !== ' ' && !altKey && !ctrlKey && !metaKey)
+                ) {
+                    return SelectActions.Type;
+                }
+
+                // handle keys when open
+                if (menuOpen) {
+                    if (key === 'ArrowUp' && altKey) {
+                        return SelectActions.CloseSelect;
+                    } else if (key === 'ArrowDown' && !altKey) {
+                        return SelectActions.Next;
+                    } else if (key === 'ArrowUp') {
+                        return SelectActions.Previous;
+                    } else if (key === 'PageUp') {
+                        return SelectActions.PageUp;
+                    } else if (key === 'PageDown') {
+                        return SelectActions.PageDown;
+                    } else if (key === 'Escape') {
+                        return SelectActions.Close;
+                    } else if (key === 'Enter' || key === ' ') {
+                        return SelectActions.CloseSelect;
+                    }
+                }
+            }
+        });
+
+        return true;
+    },
+
     installOnMenuKeydown: function (id, objRef) {
         const element = document.querySelector('#' + id + ' ul[role="menu"]');
         console.log('installOnMenuKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
@@ -134,15 +253,16 @@ window.menuButton = {
         return true;
     },
 
-    installKeydown: function (id, objRef) {
+    installOnMenuButtonKeydown: function (id, objRef) {
         const element = document.querySelector('#' + id);
-        console.log('installKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
+        console.log('installOnMenuButtonKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
         if (!element) {
             return false;
         }
 
         if (!this.installOnMenuKeydown(id, objRef)) {
             console.log('installOnMenuKeydown failed');
+            return false;
         }
 
         element.addEventListener('keydown', (event) => {

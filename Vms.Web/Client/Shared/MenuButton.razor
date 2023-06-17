@@ -1,5 +1,6 @@
 ﻿@inject ILogger<MenuButton> Logger
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 @{
     var className1 = domNodeFocused ? "focus" : string.Empty;
@@ -18,9 +19,10 @@
     </button>
     @{
         var activeDescendant = $"mi{selectedMenuItem}";
+        var menuNodeStyle = isOpen ? "display: block" : "display: none";
     }
     <ul role="menu" tabindex="-1" aria-labelledby="menubutton1" aria-activedescendant="@activeDescendant" 
-        style="@menuNodeStyle()" @ref="menuNode">
+        style="@menuNodeStyle" @ref="menuNode">
 
         @foreach (var mi in MenuItems)
         {
@@ -56,14 +58,10 @@
     private DotNetObjectReference<MenuButton>? objRef;
 
     private bool domNodeFocused = false;
+    private bool isOpen = false;
+    
 
-    private record MenuItem
-    {
-        public int Index { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public ElementReference Ref { get; set; }
-        public char FirstChar { get; set; }
-    }
+    private bool mustSetMenuNodeFocus = false;
 
     protected override void OnInitialized()
     {
@@ -78,7 +76,7 @@
         for (int index = 0; index < Items.Length; index++)
         {
             if (string.IsNullOrEmpty(Items[index])) 
-                throw new InvalidOperationException("Data cannot be an empty string.");
+                throw new InvalidOperationException("Items data cannot be an empty string.");
 
             MenuItems.Add(index, new MenuItem() { 
                 Index = index, 
@@ -143,11 +141,12 @@
         setFocusToLastMenuitem();
         StateHasChanged();
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var result = await JS.InvokeAsync<bool>("menuButton.installKeydown", Id, objRef);
+            var result = await JS.InvokeAsync<bool>("menuButton.installOnMenuButtonKeydown", Id, objRef);
         }
 
         if (mustSetMenuNodeFocus) {
@@ -156,52 +155,51 @@
         }
     }
 
-    private bool isOpen = false;
-    private string menuNodeStyle() => isOpen ? "display: block" : "display: none";
-
-    private bool mustSetMenuNodeFocus = false;
     private async Task openPopup()
     {
         isOpen = true;
-        //await Task.Yield();
+
         mustSetMenuNodeFocus = true;
-        //await menuNode.FocusAsync();
+
         setFocusToFirstMenuitem();
+        
         bgHook = await JS.InvokeAsync<int>("menuButton.installBackgroundHook", Id, objRef);
-        Logger.LogInformation("installBackgroundHook returned {result}.", bgHook);
+        if(bgHook == -1){
+            Logger.LogError("Failed to install background hook.");
+        }
     }
 
     private async Task closePopup()
     {
         isOpen = false;
         await buttonNode.FocusAsync();
-        var result = await JS.InvokeAsync<bool>("menuButton.removeBackgroundHook", bgHook);
-        Logger.LogInformation("removeBackgroundHook returned {result}.", result);
+        await RemoveBackgroundHook();
+    }
+
+    private async Task RemoveBackgroundHook()
+    {
+        if (bgHook != -1)
+        {
+            var result = await JS.InvokeAsync<bool>("menuButton.removeBackgroundHook", bgHook);
+            Logger.LogInformation("removeBackgroundHook returned {result}.", result);
+        }
     }
 
     private void setFocusToFirstMenuitem()
-    {
-        selectedMenuItem = 0;
-    }
+        => selectedMenuItem = 0;
 
     private void setFocusToLastMenuitem()
-    {
-        selectedMenuItem = MenuItems.Count - 1;
-    }
+        => selectedMenuItem = MenuItems.Count - 1;
 
     private void setFocusToPreviousMenuitem()
-    {
-        selectedMenuItem = selectedMenuItem == 0
+        => selectedMenuItem = selectedMenuItem == 0
             ? MenuItems.Count - 1
             : 0;
-    }
 
     private void setFocusToNextMenuitem()
-    {
-        selectedMenuItem = selectedMenuItem == MenuItems.Count - 1
+        => selectedMenuItem = selectedMenuItem == MenuItems.Count - 1
             ? 0
             : selectedMenuItem + 1;
-    }
 
     [JSInvokable]
     public void setFocusByFirstCharacter(string key)
@@ -220,7 +218,7 @@
         {
             start = 0;
         }
-        
+
         int FindNextMenuItemByFirstChar(int s, int e)
         {
             for (var i = s; i < e; i++)
@@ -233,7 +231,6 @@
             return -1;
         }
 
-
         var index = FindNextMenuItemByFirstChar(start, MenuItems.Count);
         if (index == -1)
         {
@@ -241,10 +238,10 @@
         }
 
         if (index > -1)
+        {
             selectedMenuItem = index;
-
-        //TODO
-        StateHasChanged();
+            StateHasChanged();
+        }
     }
 
     private async Task onButtonClick(MouseEventArgs e)
@@ -267,32 +264,39 @@
     }
 
     private void onMenuitemMouseover(MouseEventArgs e, int index)
-    {
-        selectedMenuItem = index;
-    }
+        => selectedMenuItem = index;
 
     private void onFocusin()
-    {
-        domNodeFocused = true;
-    }
+        => domNodeFocused = true;
 
     private void onFocusout()
+        => domNodeFocused = false;
+
+    public async ValueTask DisposeAsync()
     {
-        domNodeFocused = false;
+        await RemoveBackgroundHook();
+        if (objRef is not null)
+        {
+            objRef.Dispose();
+        }
     }
 
-    // TODO???
-    private void onBackgroundMousedown()
-    {
-
-    }
-
-    private static Random random = new Random(); // create a random object
+    private static Random random = new Random(); 
     public static string GenerateRandomString(int length)
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; // define the valid characters
-        return new string(Enumerable.Repeat(chars, length) // repeat the chars string length times
-            .Select(s => s[random.Next(s.Length)]) // select a random character from each repetition
-            .ToArray()); // convert to an array and then to a string
+        // define the valid characters
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; 
+
+        return new string(Enumerable.Repeat(chars, length) 
+            .Select(s => s[random.Next(s.Length)]) 
+            .ToArray());
+    }
+
+    private record MenuItem
+    {
+        public int Index { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public ElementReference Ref { get; set; }
+        public char FirstChar { get; set; }
     }
 }

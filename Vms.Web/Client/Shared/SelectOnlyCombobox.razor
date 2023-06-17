@@ -1,0 +1,262 @@
+﻿@inject IJSRuntime JS
+@inject ILogger<SelectOnlyCombobox> Logger
+
+@implements IDisposable
+
+<label id="@id" class="combo-label">Favorite Fruit</label>
+@{
+    var className1 = open ? "open" : "";
+}
+<div @ref="el" class="combo js-select @className1">
+    @{
+        var activeId = open ? ItemId(activeIndex) : string.Empty;
+    }
+    <div id="@comboId" @ref="comboEl" class="combo-input" role="combobox" tabindex="0"
+         aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="combo1-label" aria-activedescendant="@activeId"
+    @onblur="onComboBlur" @onclick="onComboClick">
+        @SelectItems[activeIndex].Name
+    </div>
+    <div id="@listboxId" @ref="listboxEl" class="combo-menu" role="listbox" aria-labelledby="combo1-label" tabindex="-1">
+
+        @for (int index = 0; index < SelectItems.Count; index++)
+        {
+            var idx = index;
+            var item = SelectItems[idx];
+
+            var isSelected = activeIndex == idx;
+            var className = isSelected ? "combo-option option-current" : "combo-option";
+
+            <div id="@item.Id" role="option" class="@className" aria-selected="@isSelected.ToHtml()"
+            @onclick="async () => await onOptionClick(idx)" @onclick:stopPropagation
+            @onmousedown="() => onOptionMouseDown()">
+                @item.Name
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    [EditorRequired, Parameter]
+    public string[] Items { get; set; } = null!;
+
+    Dictionary<int, SelectItem> SelectItems { get; set; } = new();
+
+    // ids
+    string id = null!;
+    string comboId = null!;
+    string listboxId = null!;
+
+    // element references
+    ElementReference el;
+    ElementReference comboEl;
+    ElementReference listboxEl;
+
+    DotNetObjectReference<SelectOnlyCombobox>? objRef;
+    int bgHook = 0;
+
+    // state
+    int activeIndex = 0;
+    bool open;
+    string searchString = string.Empty;
+
+    bool ignoreBlur;
+
+    string getSearchString(char c) { return ""; }
+    async Task onComboBlur()
+    {
+        if (ignoreBlur)
+        {
+            ignoreBlur = false;
+            return;
+        }
+
+        if (open)
+        {
+            selectOption(activeIndex);
+            await updateMenuState(false, false);
+        }
+    }
+
+    async Task onComboClick() => await updateMenuState(!open, false);
+    // void onComboKeyDown()
+    // {
+
+    // }
+    [JSInvokable]
+    public async Task onComboTypeJS(string key)
+    {
+        Logger.LogInformation("onComboTypeJS({key})", key);
+        // TODO check Backspace etc doesn't come here
+        if (key.Length == 1) {
+            await onComboType(key[0]);
+            StateHasChanged();
+        }
+    }
+    async Task onComboType(char letter)
+    {
+        await updateMenuState(true);
+
+        var searchString = getSearchString(letter);
+        var searchIndex = getIndexByLetter(searchString, activeIndex + 1);
+        if (searchIndex >= 0)
+        {
+            onOptionChange(searchIndex);
+        }
+        else
+        {
+            // TODO window.clearTimeout
+            searchString = string.Empty;
+        }
+
+        int getIndexByLetter(string ss, int index) { return -1; }
+    }
+    public enum SelectAction
+    {
+        Close = 0,
+        CloseSelect = 1,
+        First = 2,
+        Last = 3,
+        Next = 4,
+        Open = 5,
+        PageDown = 6,
+        PageUp = 7,
+        Previous = 8,
+        Select = 9,
+        Type = 10,
+    };
+    [JSInvokable]
+    public void onOptionChangeJS(SelectAction action)
+    {
+        Logger.LogInformation("onOptionChangeJS({action})", action);
+        onOptionChange(getUpdatedIndex(activeIndex, SelectItems.Count - 1, action));
+        StateHasChanged();
+
+        int getUpdatedIndex(int currentIndex, int maxIndex, SelectAction action)
+        {
+            const int pageSize = 10; // used for pageup/pagedown
+
+            switch (action)
+            {
+                case SelectAction.First:
+                    return 0;
+                case SelectAction.Last:
+                    return maxIndex;
+                case SelectAction.Previous:
+                    return Math.Max(0, currentIndex - 1);
+                case SelectAction.Next:
+                    return Math.Min(maxIndex, currentIndex + 1);
+                case SelectAction.PageUp:
+                    return Math.Max(0, currentIndex - pageSize);
+                case SelectAction.PageDown:
+                    return Math.Min(maxIndex, currentIndex + pageSize);
+                default:
+                    return currentIndex;
+            }
+        }
+    }
+    void onOptionChange(int index)
+    {
+        activeIndex = index;
+
+        //TODO scroll
+    }
+    async Task onOptionClick(int index)
+    {
+        onOptionChange(index);
+        selectOption(index);
+        await updateMenuState(false);
+    }
+    void onOptionMouseDown() => ignoreBlur = true;
+    [JSInvokable]
+    public void selectOptionJS()
+    {
+        selectOption(activeIndex); // not neccessary
+        StateHasChanged();
+    }
+    void selectOption(int index)
+    {
+        activeIndex = index;
+    }
+    [JSInvokable]
+    public async Task updateMenuStateJS(bool toOpen)
+    {
+        await updateMenuState(toOpen);
+        StateHasChanged();
+    }
+    async Task updateMenuState(bool toOpen, bool callFocus = true)
+    {
+        if (toOpen == open)
+        {
+            return;
+        }
+
+        open = toOpen;
+
+        //TODO scroll
+
+        if (callFocus)
+        {
+            await comboEl.FocusAsync();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        //base.OnInitialized();
+        id = GenerateRandomString(10);
+        comboId = $"{id}-combo";
+        listboxId = $"{id}-listbox";
+        objRef = DotNetObjectReference.Create(this);
+    }
+
+    public string ItemId(int i) => $"{id}-{i}";
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        SelectItems.Clear();
+        for (int index = 0; index < Items.Length; index++)
+        {
+            SelectItems.Add(index, new SelectItem(Items[index], ItemId(index)));
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await JS.InvokeAsync<bool>("menuButton.installOnComboKeyDown", comboId, objRef);
+            if (!result)
+                Logger.LogError("Failed to install keydown handler.");
+        }
+    }
+
+    public void Dispose()
+    {
+        if (objRef is not null)
+        {
+            objRef.Dispose();
+        }
+    }
+
+    private class SelectItem
+    {
+        public string Name { get; private set; }
+        public string Id { get; private set; }
+
+        public SelectItem(string name, string id) => (Name, Id) = (name, id);
+    }
+
+    private static Random random = new Random();
+    public static string GenerateRandomString(int length)
+    {
+        // define the valid characters
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)])
+            .ToArray());
+    }
+}
