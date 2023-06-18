@@ -2,8 +2,7 @@
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-rows: auto;
-    grid-template-areas: "logo search account";
-    align-items: stretch;
+    grid-template-areas: "logo search toolbar";
     align-items: center;
     justify-content: space-between;
     padding: 0.5em;
@@ -46,20 +45,23 @@
         flex: 0 1 auto;
     }
 
-#header-account {
-    grid-area: account;
+#header-toolbar {
+    grid-area: toolbar;
     /*padding-left: 1em;*/
     cursor: pointer;
     position: relative;
-    
+    display: flex;
 }
 
-    #header-account:focus-within #header-account-content {
-        visibility:visible;
+    ::deep #header-toolbar svg {
+        fill: var(--header-button-color);
+        height: 1.5em;
     }
+    /*#header-account:focus-within #header-account-content {
+        visibility:visible;
+    }*/
     #header-not-authorized {
-        /*padding-left: 1em;*/
-        grid-area: account;
+        grid-area: toolbar;
     }
 
 .hidden {
@@ -88,7 +90,7 @@
         display: grid;
         grid-template-columns: 1fr auto;
         grid-template-rows: auto auto;
-        grid-template-areas: "logo account" "search search";
+        grid-template-areas: "logo toolbar" "search search";
     }
 
     #header-search {

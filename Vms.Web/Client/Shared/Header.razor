@@ -45,7 +45,13 @@
     </form>
     <AuthorizeView>
         <Authorized>
-            <button id="header-account" @onclick="Toggle">
+            <div id="header-toolbar">
+            <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="(val) => selectedItem = val">
+                    <svg viewBox="0 0 448 512">
+                    <use xlink:href="icons/solid.svg#user" />
+                </svg>
+            </MenuButton>
+            @* <button id="header-account" @onclick="Toggle">
                 <img src="/icons/user.svg" alt="icon name" height="40">
                 @{
                     var className = contentVisible ? "" : "hidden";
@@ -57,9 +63,10 @@
                         <li><a href="/claims">Claims</a></li>
                         <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
                     </ul>
-                    @* <button @onclick="BeginLogOut">Log out</button> *@
+                    
                 </div>
-            </button>
+            </button> *@
+            </div>
         </Authorized>
         <NotAuthorized>
             <div id="header-not-authorized">
@@ -74,17 +81,35 @@
 
 
 @code {
-    private bool contentVisible = false;
-    private bool searchHistoryVisible = false;
+    private string[] items = new string[]
+    {
+        "Choose a Fruit",
+        "Apple",
+        "Banana",
+        "Blueberry",
+        "Boysenberry",
+        "Cherry",
+        "Cranberry",
+        "Durian",
+        "Eggplant",
+        "Fig",
+        "Grape",
+        "Guava",
+        "Huckleberry"
+    };
+    string selectedItem = string.Empty;
 
-    private IDisposable? registration;
+    bool contentVisible = false;
+    bool searchHistoryVisible = false;
 
-    private void GoHome() => NavigationManager.NavigateTo("/");
+    IDisposable? registration;
 
-    private void Toggle() => contentVisible = !contentVisible;
-    private void OnFocusIn() => searchHistoryVisible = true;
-    private void OnFocusOut() => searchHistoryVisible = false;
-    private void BeginLogOut()
+    void GoHome() => NavigationManager.NavigateTo("/");
+
+    void Toggle() => contentVisible = !contentVisible;
+    void OnFocusIn() => searchHistoryVisible = true;
+    void OnFocusOut() => searchHistoryVisible = false;
+    void BeginLogOut()
     {
         NavigationManager.NavigateToLogout("authentication/logout");
     }

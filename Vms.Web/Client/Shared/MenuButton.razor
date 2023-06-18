@@ -5,44 +5,49 @@
 @{
     var className1 = domNodeFocused ? "focus" : string.Empty;
 }
-<div  class="menu-button-actions @className1" id="@Id"
-@onfocusin="onFocusin"
-@onfocusout="onFocusout">
-    <button type="button" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
-    @ref="buttonNode"
-    
-    @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
-        Actions
-        <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
-            <polygon points="1 0, 11 0, 6 8"></polygon>
-        </svg>
-    </button>
-    @{
-        var activeDescendant = $"mi{selectedMenuItem}";
-        var menuNodeStyle = isOpen ? "display: block" : "display: none";
-    }
-    <ul role="menu" tabindex="-1" aria-labelledby="menubutton1" aria-activedescendant="@activeDescendant" 
-        style="@menuNodeStyle" @ref="menuNode">
-
-        @foreach (var mi in MenuItems)
-        {
-            var menuItem = mi.Value;
-
-            var id = $"mi{menuItem.Index}";
-
-            var className2 = selectedMenuItem == menuItem.Index ? "focus" : string.Empty;
-
-            <li id="@id" role="menuitem" @ref="menuItem.Ref" class="@className2" tabindex="-1"
-            @onclick="async (e) => await onMenuitemClick(e, menuItem.Index)"
-            @onmouseover="(e) => onMenuitemMouseover(e, menuItem.Index)">@menuItem.Name</li>
+<div class="menu-button-actions @className1" id="@Id" @onfocusin="onFocusin" @onfocusout="onFocusout">
+    <span class="wrapper">
+        <button type="button" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
+        @ref="buttonNode" @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
+            @ChildContent
+            <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
+                <polygon points="1 0, 11 0, 6 8"></polygon>
+            </svg>
+        </button>
+        @{
+            var activeDescendant = $"mi{selectedMenuItem}";
+            var menuNodeStyle = isOpen ? "display: block" : "display: none";
+            var className3 = Align == Alignment.Right ? "right" : "";
         }
+        <ul role="menu" tabindex="-1" aria-labelledby="@Id" aria-activedescendant="@activeDescendant"
+            style="@menuNodeStyle" @ref="menuNode" class="@className3">
 
-    </ul>
+            @foreach (var mi in MenuItems)
+            {
+                var menuItem = mi.Value;
+
+                var id = $"mi{menuItem.Index}";
+
+                var className2 = selectedMenuItem == menuItem.Index ? "focus" : string.Empty;
+
+                <li id="@id" role="menuitem" @ref="menuItem.Ref" class="@className2" tabindex="-1"
+                @onclick="async (e) => await onMenuitemClick(e, menuItem.Index)"
+                @onmouseover="(e) => onMenuitemMouseover(e, menuItem.Index)">@menuItem.Name</li>
+            }
+
+        </ul>
+    </span>
 </div>
-
 @code {
     [EditorRequired, Parameter]
     public string[] Items { get; set; } = null!;
+
+    [EditorRequired, Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    public enum Alignment { Left, Right };
+    [Parameter]
+    public Alignment Align { get; set; } = Alignment.Left;
 
     [Parameter]
     public EventCallback<string> OnSelectCallback { get; set; }
@@ -59,7 +64,7 @@
 
     private bool domNodeFocused = false;
     private bool isOpen = false;
-    
+
 
     private bool mustSetMenuNodeFocus = false;
 
@@ -75,13 +80,15 @@
         MenuItems.Clear();
         for (int index = 0; index < Items.Length; index++)
         {
-            if (string.IsNullOrEmpty(Items[index])) 
+            if (string.IsNullOrEmpty(Items[index]))
                 throw new InvalidOperationException("Items data cannot be an empty string.");
 
-            MenuItems.Add(index, new MenuItem() { 
-                Index = index, 
-                Name = Items[index], 
-                FirstChar = Items[index].Substring(0,1).ToLower()[0] });
+            MenuItems.Add(index, new MenuItem()
+                {
+                    Index = index,
+                    Name = Items[index],
+                    FirstChar = Items[index].Substring(0, 1).ToLower()[0]
+                });
         }
         Logger.LogInformation("Menu Items: {menuitems}.", MenuItems);
     }
@@ -149,7 +156,8 @@
             var result = await JS.InvokeAsync<bool>("menuButton.installOnMenuButtonKeydown", Id, objRef);
         }
 
-        if (mustSetMenuNodeFocus) {
+        if (mustSetMenuNodeFocus)
+        {
             mustSetMenuNodeFocus = false;
             await menuNode.FocusAsync();
         }
@@ -162,9 +170,10 @@
         mustSetMenuNodeFocus = true;
 
         setFocusToFirstMenuitem();
-        
+
         bgHook = await JS.InvokeAsync<int>("menuButton.installBackgroundHook", Id, objRef);
-        if(bgHook == -1){
+        if (bgHook == -1)
+        {
             Logger.LogError("Failed to install background hook.");
         }
     }
@@ -281,14 +290,14 @@
         }
     }
 
-    private static Random random = new Random(); 
+    private static Random random = new Random();
     public static string GenerateRandomString(int length)
     {
         // define the valid characters
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; 
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-        return new string(Enumerable.Repeat(chars, length) 
-            .Select(s => s[random.Next(s.Length)]) 
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)])
             .ToArray());
     }
 

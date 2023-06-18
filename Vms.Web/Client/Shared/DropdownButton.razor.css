@@ -1,9 +1,9 @@
-.menu-button-actions {
+.dropdown-button-actions {
     margin: 0;
     padding: 0;
 }
 
-    .menu-button-actions button {
+    .dropdown-button-actions button {
         margin: 0;
         padding: 6px;
         display: flex;
@@ -14,7 +14,7 @@
         border-radius: 5px;
     }
 
-    .menu-button-actions [role="menu"] {
+    .dropdown-button-actions [role="menu"] {
         display: none;
         position: absolute;
         margin: 0;
@@ -24,11 +24,7 @@
         background-color: #ffffff;
     }
 
-        .right {
-            right: 0;
-        }
-
-    .menu-button-actions [role="menuitem"], .menu-button-actions [role="separator"] {
+    .dropdown-button-actions ::deep [role="menuitem"] {
         margin: 0;
         padding: 6px;
         display: block;
@@ -39,28 +35,21 @@
         white-space: nowrap;
     }
 
-    .menu-button-actions [role="separator"] {
-        padding-top: 3px;
-        background-image: url("../images/separator.svg");
-        background-position: center;
-        background-repeat: repeat-x;
-    }
-
-    .menu-button-actions button svg.down {
+    .dropdown-button-actions button svg.down {
         padding-left: 0.125em;
         /*fill: currentcolor;
         stroke: currentcolor;*/
     }
 
-    .menu-button-actions button[aria-expanded="true"] svg.down {
+    .dropdown-button-actions button[aria-expanded="true"] svg.down {
         transform: rotate(180deg);
     }
 
     /* focus styling */
 
-    /*.menu-button-actions button:hover,
-    .menu-button-actions button:focus,
-    .menu-button-actions button[aria-expanded="true"] {
+    /*.dropdown-button-actions button:hover,
+    .dropdown-button-actions button:focus,
+    .dropdown-button-actions button[aria-expanded="true"] {
         padding: 4px;
         border: 3px solid #034575;
         background: #eee;
@@ -69,8 +58,8 @@
         margin: 0;
     }*/
 
-    .menu-button-actions [role="menuitem"].focus,
-    .menu-button-actions [role="menuitem"]:focus {
+    .dropdown-button-actions ::deep [role="menuitem"].focus,
+    .dropdown-button-actions ::deep [role="menuitem"]:focus {
         padding: 4px;
         border: 2px solid #034575;
         background: #034575;
@@ -79,6 +68,10 @@
         margin: 0;
     }
 
-    .menu-button-actions > .wrapper {
+    .dropdown-button-actions > .wrapper {
         position: relative;
     }
+
+.right {
+    right: 0;
+}

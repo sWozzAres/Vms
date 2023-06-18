@@ -4,11 +4,24 @@
 <section>
     <h1>Home</h1>
 
-    <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val"></MenuButton>
+    <DropdownButton OnSelectCallback="async (value) => SelectedValue = value">
+        <ButtonContent>Click Me!</ButtonContent>
+        <ChildContent>
+            <DropdownItem Value="1">Item 1</DropdownItem>
+            <DropdownItem Value="2">Item 2</DropdownItem>
+            <DropdownItem Value="3">Item 3</DropdownItem>
+        </ChildContent>
+    </DropdownButton>
 
-    <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val"></MenuButton>
+    <p>SelectedValue: @SelectedValue</p>
+    @* <div style="display:flex">
+    <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val">
+    Actions
+    </MenuButton>
 
-<SelectOnlyCombobox Items="@items"></SelectOnlyCombobox>
+
+    </div> *@
+    @* <SelectOnlyCombobox Items="@items"></SelectOnlyCombobox> *@
 
     <p>Selected item: @selectedItem</p>
     <ol>
@@ -30,15 +43,23 @@
 </section>
 
 @code {
+    int SelectedValue { get; set; }
     private string selectedItem = string.Empty;
 
     private string[] items = new string[]
-        {
-            "ABC",
-            "Hello",
-            "World",
-            "World2",
-            "World3",
-            "World4",
-        };
+    {
+        "Choose a Fruit",
+        "Apple",
+        "Banana",
+        "Blueberry",
+        "Boysenberry",
+        "Cherry",
+        "Cranberry",
+        "Durian",
+        "Eggplant",
+        "Fig",
+        "Grape",
+        "Guava",
+        "Huckleberry"
+    };
 }

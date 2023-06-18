@@ -1,0 +1,262 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject ILogger<DropdownButton> Logger
+
+<CascadingValue TValue="DropdownButton" Value="@this" IsFixed="true">
+    @{
+        var className1 = domNodeFocused ? "dropdown-button-actions focus" : "dropdown-button-actions";
+    }
+
+    <div id="@Id" class="@className1" @onfocusin="onFocusin" @onfocusout="onFocusout">
+        <span class="wrapper">
+            <button type="button" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
+            @ref="buttonNode" @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
+                @ButtonContent
+                <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
+                    <polygon points="1 0, 11 0, 6 8"></polygon>
+                </svg>
+            </button>
+            @{
+                var activeDescendant = $"{Id}-{SelectedValue}";
+                var menuNodeStyle = isOpen ? "display: block" : "display: none";
+                var className3 = Align == Alignment.Right ? "right" : "";
+            }
+            <ul role="menu" tabindex="-1" aria-labelledby="@Id" aria-activedescendant="@activeDescendant"
+                style="@menuNodeStyle" @ref="menuNode" class="@className3">
+                @ChildContent
+            </ul>
+        </span>
+    </div>
+</CascadingValue>
+
+@code {
+    [EditorRequired, Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    [EditorRequired, Parameter]
+    public RenderFragment ButtonContent { get; set; } = null!;
+
+    public string Id { get; set; } = null!;
+    public int SelectedValue { get; set; }
+
+    bool domNodeFocused = false;
+    bool isOpen = false;
+    int bgHook = 0;
+
+    ElementReference menuNode;
+    ElementReference buttonNode;
+    DotNetObjectReference<DropdownButton>? objRef;
+    bool mustSetMenuNodeFocus = false;
+
+    [Parameter]
+    public EventCallback<int> OnSelectCallback { get; set; }
+
+    public enum Alignment { Left, Right };
+    [Parameter]
+    public Alignment Align { get; set; } = Alignment.Left;
+
+    #region Lifecycle methods
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("OnInitialized()");
+        objRef = DotNetObjectReference.Create(this);
+        Id = GenerateRandomString(10);
+        SelectedValue = 1;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await JS.InvokeAsync<bool>("dropdownButton.installOnDropdownButtonKeydown", Id, objRef);
+        }
+
+        if (mustSetMenuNodeFocus)
+        {
+            mustSetMenuNodeFocus = false;
+            await menuNode.FocusAsync();
+        }
+    }
+    #endregion
+    #region JS callbacks
+    [JSInvokable]
+    public async Task OpenFirst()
+    {
+        Logger.LogInformation("OpenFirst()");
+        await openPopup();
+        setFocusToFirstMenuitem();
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public async Task Close()
+    {
+        Logger.LogInformation("Close()");
+        await closePopup();
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public async Task CloseAndPerformMenuAction()
+    {
+        Logger.LogInformation("CloseAndPerformMenuAction()");
+        await closePopup();
+
+        await OnSelectCallback.InvokeAsync(Items.ElementAt(selectedMenuItem).Value.Value);
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public async Task OpenLast()
+    {
+        Logger.LogInformation("OpenLast()");
+        await openPopup();
+        setFocusToLastMenuitem();
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public void Previous()
+    {
+        setFocusToPreviousMenuitem();
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public void Next()
+    {
+        setFocusToNextMenuitem();
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public void First()
+    {
+        setFocusToFirstMenuitem();
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public void Last()
+    {
+        setFocusToLastMenuitem();
+        StateHasChanged();
+    }
+    #endregion
+    public async Task ChildSelected(int value)
+    {
+        SelectedValue = value;
+        Logger.LogInformation("ChildSelected({value}) closePopup() start", value);
+        await closePopup();
+        Logger.LogInformation("ChildSelected({value}) closePopup() end", value);
+        Logger.LogInformation("Selected value {value}.", value);
+        Logger.LogInformation("ChildSelected({value}) OnSelectCallback() start", value);
+        await OnSelectCallback.InvokeAsync(value);
+        Logger.LogInformation("ChildSelected({value}) OnSelectCallback() end", value);
+
+        
+        //StateHasChanged();
+    }
+
+    Dictionary<int, DropdownItem> Items { get; set; } = new();
+
+    public void AddDropdownItem(DropdownItem item)
+    {
+        Items.Add(Items.Count, item);
+    }
+
+    private void onFocusin()
+        => domNodeFocused = true;
+
+    private void onFocusout()
+        => domNodeFocused = false;
+
+    private async Task openPopup()
+    {
+        isOpen = true;
+
+        mustSetMenuNodeFocus = true;
+
+        //setFocusToFirstMenuitem();
+
+        bgHook = await JS.InvokeAsync<int>("dropdownButton.installBackgroundHook", Id, objRef);
+        if (bgHook == -1)
+        {
+            Logger.LogError("Failed to install background hook.");
+        }
+    }
+
+    private async Task closePopup()
+    {
+        isOpen = false;
+        await buttonNode.FocusAsync();
+        await RemoveBackgroundHook();
+    }
+
+    //TODO
+    int selectedMenuItem;
+
+    private void UpdateSelectedValue()
+    {
+        SelectedValue = Items.ElementAt(selectedMenuItem).Value.Value;
+    }
+
+    private void setFocusToFirstMenuitem()
+    {
+        selectedMenuItem = 0;
+        UpdateSelectedValue();
+    }
+
+    private void setFocusToLastMenuitem()
+    {
+        selectedMenuItem = Items.Count - 1;
+        UpdateSelectedValue();
+    }
+
+    private void setFocusToPreviousMenuitem()
+    {
+        selectedMenuItem = selectedMenuItem == 0
+            ? Items.Count - 1
+            : 0;
+        UpdateSelectedValue();
+    }
+
+    private void setFocusToNextMenuitem()
+    {
+        selectedMenuItem = selectedMenuItem == Items.Count - 1
+            ? 0
+            : selectedMenuItem + 1;
+        UpdateSelectedValue();
+    }
+
+    private async Task RemoveBackgroundHook()
+    {
+        if (bgHook != -1)
+        {
+            var result = await JS.InvokeAsync<bool>("dropdownButton.removeBackgroundHook", bgHook);
+            Logger.LogInformation("removeBackgroundHook returned {result}.", result);
+        }
+    }
+
+    private async Task onButtonClick(MouseEventArgs e)
+    {
+        if (isOpen)
+        {
+            await closePopup();
+        }
+        else
+        {
+            await openPopup();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await RemoveBackgroundHook();
+        objRef?.Dispose();
+    }
+
+    private static Random random = new Random();
+    public static string GenerateRandomString(int length)
+    {
+        // define the valid characters
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)])
+            .ToArray());
+    }
+}
