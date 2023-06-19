@@ -244,20 +244,24 @@ main > section {
 }
 
 .mydropdown2 {
-    background-color: red;
     margin: 0;
     padding: 0;
+    border: 0;
 
     svg {
-        height: 1em;
+        height: 1.5em;
     }
 
-
+    svg.down 
+    {
+        display: none;
+    }
+    
     button {
         margin: 0;
         padding: 6px;
         background-color: #ffffff;
-        border: 2px solid var(--button-border-color);
+        border: 0;
         color: black;
         border-radius: 5px;
     }
@@ -287,7 +291,6 @@ main > section {
             padding: 4px;
             border: 2px solid #518ff6;
             background: #e3edfe;
-            
             outline: none;
             margin: 0;
         }

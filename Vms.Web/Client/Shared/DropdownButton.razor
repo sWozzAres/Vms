@@ -103,6 +103,13 @@
     #endregion
     #region JS callbacks
     [JSInvokable]
+    public async Task Open()
+    {
+        Logger.LogInformation("Open()");
+        await openPopup();
+        StateHasChanged();
+    }
+    [JSInvokable]
     public async Task OpenFirst()
     {
         Logger.LogInformation("OpenFirst()");
@@ -162,6 +169,9 @@
     #endregion
     public async Task ChildSelected(int value)
     {
+        var dd = Items.FirstOrDefault(x => x.Value.Value == value);
+        selectedMenuItem = dd.Key == 0 ? 0 : dd.Key;
+
         SelectedValue = value;
         Logger.LogInformation("ChildSelected({value}) closePopup() start", value);
         await closePopup();

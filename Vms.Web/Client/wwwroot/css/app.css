@@ -610,18 +610,21 @@ main > section {
 }
 
 .mydropdown2 {
-  background-color: red;
   margin: 0;
   padding: 0;
+  border: 0;
 }
 .mydropdown2 svg {
-  height: 1em;
+  height: 1.5em;
+}
+.mydropdown2 svg.down {
+  display: none;
 }
 .mydropdown2 button {
   margin: 0;
   padding: 6px;
   background-color: #ffffff;
-  border: 2px solid var(--button-border-color);
+  border: 0;
   color: black;
   border-radius: 5px;
 }

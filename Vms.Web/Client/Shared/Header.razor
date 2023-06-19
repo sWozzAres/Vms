@@ -1,21 +1,58 @@
 ﻿@implements IDisposable
 @inject NavigationManager NavigationManager
 @inject ILogger<Header> Logger
+@inject ISearchHistoryProvider SearchHistory
 
 <header id="header">
+    <div id="header-area">
+        <DropdownButton OnSelectCallback="async (value) => selectedArea = value" class="mydropdown2">
+            <ButtonContent>
+                <div class="holder">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path fill="currentColor" d="M0 72C0 49.9 17.9 32 40 32H88c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40H40c-22.1 0-40-17.9-40-40V72zM0 232c0-22.1 17.9-40 40-40H88c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40H40c-22.1 0-40-17.9-40-40V232zM128 392v48c0 22.1-17.9 40-40 40H40c-22.1 0-40-17.9-40-40V392c0-22.1 17.9-40 40-40H88c22.1 0 40 17.9 40 40zM160 72c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40H200c-22.1 0-40-17.9-40-40V72zM288 232v48c0 22.1-17.9 40-40 40H200c-22.1 0-40-17.9-40-40V232c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40zM160 392c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40H200c-22.1 0-40-17.9-40-40V392zM448 72v48c0 22.1-17.9 40-40 40H360c-22.1 0-40-17.9-40-40V72c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40zM320 232c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40H360c-22.1 0-40-17.9-40-40V232zM448 392v48c0 22.1-17.9 40-40 40H360c-22.1 0-40-17.9-40-40V392c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40z" class=""></path>
+                    </svg>
+                </div>
+            </ButtonContent>
+            <ChildContent>
+                <DropdownItem Value="1">
+                    <div class="holder">
+                        <svg viewBox="0 0 448 512" fill="red">
+                            <use xlink:href="icons/solid.svg#user" />
+                        </svg>
+                        User
+                    </div>
+                </DropdownItem>
+                <DropdownItem Value="2">
+                    <div class="holder">
+                        <svg viewBox="0 0 448 512" fill="green">
+                            <use xlink:href="icons/solid.svg#user" />
+                        </svg>
+                        User
+                    </div>
+                </DropdownItem>
+                <DropdownItem Value="3">
+                    <div class="holder">
+                        <svg viewBox="0 0 448 512">
+                            <use xlink:href="icons/solid.svg#user" />
+                        </svg>
+                        User
+                    </div>
+                </DropdownItem>
+            </ChildContent>
+        </DropdownButton>
+    </div>
     <div id="header-logo" @onclick="GoHome">
         <svg class="logo-svg" height="60" viewBox="0 0 640 512">
             <use xlink:href="icons/solid.svg#car-side" />
         </svg>
-        VMS
     </div>
     <form id="header-search">
         <div class="wrapper">
             <input type="search" placeholder="Search"
                    autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
                    aria-label="Search" role="combobox" aria-haspopup="false" aria-autocomplete="list"
-            @onfocusin="OnFocusIn" @onfocusout="OnFocusOut" />
-            <button>
+            @onfocusin="OnFocusIn" @onfocusout="OnFocusOut" @bind="SearchString" />
+            <button type="submit" @onclick="OnSearch" @onclick:preventDefault @onclick:stopPropagation>
                 <svg viewBox="0 0 16 16"
                      class="bi bi-search"
                      fill="currentColor"
@@ -34,11 +71,12 @@
             }
         </div>
         <div id="search-history" class="@c">
-            <ul>
-                <li>Item 1</li>
-                <li>Item 2</li>
-                <li>Item 3</li>
-                <li>Item 4</li>
+            @* @if (history is not null) *@
+                <ul>
+                    @foreach (var item in SearchHistory.History.Where(x=>x.StartsWith(SearchString)))
+                    {
+                        <li>@item</li>
+                    }
             </ul>
         </div>
 
@@ -46,26 +84,26 @@
     <AuthorizeView>
         <Authorized>
             <div id="header-toolbar">
-            <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="(val) => selectedItem = val">
+                <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="(val) => selectedItem = val">
                     <svg viewBox="0 0 448 512">
-                    <use xlink:href="icons/solid.svg#user" />
-                </svg>
-            </MenuButton>
-            @* <button id="header-account" @onclick="Toggle">
+                        <use xlink:href="icons/solid.svg#user" />
+                    </svg>
+                </MenuButton>
+                @* <button id="header-account" @onclick="Toggle">
                 <img src="/icons/user.svg" alt="icon name" height="40">
                 @{
-                    var className = contentVisible ? "" : "hidden";
+                var className = contentVisible ? "" : "hidden";
                 }
 
                 <div id="header-account-content">
-                    <ul>
-                        <li><a href="authentication/profile">@context.User.Identity?.Name</a></li>
-                        <li><a href="/claims">Claims</a></li>
-                        <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
-                    </ul>
-                    
+                <ul>
+                <li><a href="authentication/profile">@context.User.Identity?.Name</a></li>
+                <li><a href="/claims">Claims</a></li>
+                <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
+                </ul>
+
                 </div>
-            </button> *@
+                </button> *@
             </div>
         </Authorized>
         <NotAuthorized>
@@ -81,6 +119,8 @@
 
 
 @code {
+    int selectedArea = 1;
+
     private string[] items = new string[]
     {
         "Choose a Fruit",
@@ -109,6 +149,19 @@
     void Toggle() => contentVisible = !contentVisible;
     void OnFocusIn() => searchHistoryVisible = true;
     void OnFocusOut() => searchHistoryVisible = false;
+
+    string SearchString { get; set; } = null!;
+
+    async Task OnSearch()
+    {
+        if (!string.IsNullOrEmpty(SearchString)) {
+            Logger.LogInformation("SearchHistory {SearchHistory}", SearchHistory);
+            await SearchHistory.AddAsync(SearchString);
+            NavigationManager.NavigateTo($"/search/{SearchString}", false);
+        }
+    }
+
+
     void BeginLogOut()
     {
         NavigationManager.NavigateToLogout("authentication/logout");
@@ -134,6 +187,14 @@
     {
         NavigationManager.LocationChanged += LocationChanged;
         base.OnInitialized();
+    }
+
+    //IEnumerable<string> history = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //return base.OnInitializedAsync();
+        await SearchHistory.InitializeAsync();
     }
 
     protected override void OnAfterRender(bool firstRender)

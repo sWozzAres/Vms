@@ -1,8 +1,10 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Vms.Web.Client;
 using Vms.Web.Client.Security;
+using Vms.Web.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -41,6 +43,19 @@ builder.Services.AddAuthorizationCore(configure =>
 });
 
 builder.Services.AddApiAuthorization();
+
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<ISearchHistoryProvider, SearchHistoryProvider>();
+//builder.Services.AddScoped<ISearchHistoryProvider>(sp =>
+//{
+
+//    var i = sp.GetRequiredService<ILocalStorageService>();
+
+//    var service = new SearchHistoryProvider(i);
+//    service.InitializeAsync().Wa.Wait();
+//    return service;
+
+//});
 
 await builder.Build().RunAsync();
 

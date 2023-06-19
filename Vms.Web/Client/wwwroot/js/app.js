@@ -146,6 +146,9 @@ window.dropdownButton = {
             switch (event.key) {
                 case ' ':
                 case 'Enter':
+                    stopEvent();
+                    objRef.invokeMethodAsync('Open');
+                    break;
                 case 'ArrowDown':
                 case 'Down':
                     stopEvent();

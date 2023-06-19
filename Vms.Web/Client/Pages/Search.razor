@@ -1,0 +1,14 @@
+﻿@page "/search/{SearchString}"
+
+<PageTitle>Search</PageTitle>
+
+<section>
+    <h1>Search Results</h1>
+
+    <h2>@SearchString</h2>
+</section>
+
+@code {
+    [Parameter]
+    public string SearchString { get; set; } = null!;
+}

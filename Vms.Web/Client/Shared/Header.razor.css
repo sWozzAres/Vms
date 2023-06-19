@@ -1,13 +1,14 @@
 #header {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto;
     grid-template-rows: auto;
-    grid-template-areas: "logo search toolbar";
+    grid-template-areas: "area logo search toolbar";
     align-items: center;
     justify-content: space-between;
     padding: 0.5em;
     background-color: var(--header-bg);
     color: var(--header-color);
+    gap: 0.5em 1em;
 }
 
 @media (prefers-color-scheme: dark){
@@ -29,6 +30,7 @@
 #header-search {
     grid-area: search;
     justify-self: center;
+    position: relative;
 }
 
     #header-search .wrapper {
@@ -88,13 +90,13 @@
 @media (max-width: 640px) {
     #header {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr auto;
         grid-template-rows: auto auto;
-        grid-template-areas: "logo toolbar" "search search";
+        grid-template-areas: "area logo toolbar" "search search search";
     }
 
     #header-search {
         padding-top: 0;
-        justify-self: start;
+        justify-self: center;
     }
 }
