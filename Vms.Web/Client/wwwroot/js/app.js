@@ -86,10 +86,12 @@ window.dropdownButton = {
 
                     case 'Up':
                     case 'ArrowUp':
+                    case 'ArrowLeft':
                         stopEvent();
                         objRef.invokeMethodAsync('Previous');
                         break;
 
+                    case 'ArrowRight':
                     case 'ArrowDown':
                     case 'Down':
                         stopEvent();

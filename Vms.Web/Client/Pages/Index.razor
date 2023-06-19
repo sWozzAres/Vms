@@ -4,12 +4,49 @@
 <section>
     <h1>Home</h1>
 
-    <DropdownButton OnSelectCallback="async (value) => SelectedValue = value">
+    <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown">
         <ButtonContent>Click Me!</ButtonContent>
         <ChildContent>
             <DropdownItem Value="1">Item 1</DropdownItem>
             <DropdownItem Value="2">Item 2</DropdownItem>
             <DropdownItem Value="3">Item 3</DropdownItem>
+        </ChildContent>
+    </DropdownButton>
+
+    <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown2">
+        <ButtonContent>
+            <div class="holder">
+                <svg viewBox="0 0 448 512">
+                    <use xlink:href="icons/solid.svg#user" />
+                </svg>
+                User
+            </div>
+        </ButtonContent>
+        <ChildContent>
+            <DropdownItem Value="1">
+                <div class="holder">
+                    <svg viewBox="0 0 448 512" fill="red">
+                        <use xlink:href="icons/solid.svg#user" />
+                    </svg>
+                    User
+                </div>
+            </DropdownItem>
+            <DropdownItem Value="2">
+                <div class="holder">
+                    <svg viewBox="0 0 448 512" fill="green">
+                        <use xlink:href="icons/solid.svg#user" />
+                    </svg>
+                    User
+                </div>
+            </DropdownItem>
+            <DropdownItem Value="3">
+                <div class="holder">
+                    <svg viewBox="0 0 448 512">
+                        <use xlink:href="icons/solid.svg#user" />
+                    </svg>
+                    User
+                </div>
+            </DropdownItem>
         </ChildContent>
     </DropdownButton>
 

@@ -1,14 +1,18 @@
 ﻿@inject ILogger<DropdownItem> Logger
 
 @{
-    Logger.LogInformation("SelectedValue {selectedValue}, Value {value}.", Parent?.SelectedValue, Value);    
+    //Parent.AddDropdownItem(this);
+
+    Logger.LogInformation("{counter} SelectedValue {selectedValue}, Value {value}.", counter++, Parent?.SelectedValue, Value);
     var className = Parent?.SelectedValue == Value ? "focus" : string.Empty;
 }
 <li id="@Id" class="@className" role="menuitem" tabindex="-1"
 @onclick="onMenuitemClick">
-@ChildContent
+    @ChildContent
 </li>
 @code {
+    static int counter = 0;
+
     [EditorRequired, Parameter]
     public RenderFragment ChildContent { get; set; } = null!;
 
@@ -20,26 +24,10 @@
 
     string Id => $"{Parent.Id}-{Value}";
 
-    bool? _shouldRender = null;
-    protected override bool ShouldRender()
-    {
-        if (_shouldRender.HasValue && !_shouldRender.Value)
-            return false;
-
-        return base.ShouldRender();
-    }
     private async Task onMenuitemClick(MouseEventArgs e)
     {
-        _shouldRender = false;
-        try
-        {
-            Logger.LogInformation("onMenuItemClick {value}", Value);
-            await Parent.ChildSelected(Value);
-        }
-        finally
-        {
-            _shouldRender = null;
-        }
+        Logger.LogInformation("onMenuItemClick {value}", Value);
+        await Parent.ChildSelected(Value);
     }
 
     protected override void OnParametersSet()

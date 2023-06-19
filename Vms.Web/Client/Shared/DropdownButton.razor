@@ -3,11 +3,12 @@
 @inject ILogger<DropdownButton> Logger
 
 <CascadingValue TValue="DropdownButton" Value="@this" IsFixed="true">
-    @{
-        var className1 = domNodeFocused ? "dropdown-button-actions focus" : "dropdown-button-actions";
+    @* @{
+    var className1 = domNodeFocused ? "dropdown-button-actions focus" : "dropdown-button-actions";
     }
 
-    <div id="@Id" class="@className1" @onfocusin="onFocusin" @onfocusout="onFocusout">
+    <div id="@Id" class="@className1" @onfocusin="onFocusin" @onfocusout="onFocusout"> *@
+    <div id="@Id" class="@className">
         <span class="wrapper">
             <button type="button" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
             @ref="buttonNode" @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
@@ -21,10 +22,12 @@
                 var menuNodeStyle = isOpen ? "display: block" : "display: none";
                 var className3 = Align == Alignment.Right ? "right" : "";
             }
-            <ul role="menu" tabindex="-1" aria-labelledby="@Id" aria-activedescendant="@activeDescendant"
-                style="@menuNodeStyle" @ref="menuNode" class="@className3">
-                @ChildContent
-            </ul>
+            <div style="@menuNodeStyle" class="menu-holder">
+                <ul role="menu" tabindex="-1" aria-labelledby="@Id" aria-activedescendant="@activeDescendant"
+                @ref="menuNode" class="@className3">
+                    @ChildContent
+                </ul>
+            </div>
         </span>
     </div>
 </CascadingValue>
@@ -35,6 +38,9 @@
 
     [EditorRequired, Parameter]
     public RenderFragment ButtonContent { get; set; } = null!;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> InputAttributes { get; set; } = null!;
 
     public string Id { get; set; } = null!;
     public int SelectedValue { get; set; }
@@ -47,6 +53,7 @@
     ElementReference buttonNode;
     DotNetObjectReference<DropdownButton>? objRef;
     bool mustSetMenuNodeFocus = false;
+    bool mustSetButtonNodeFocus = false;
 
     [Parameter]
     public EventCallback<int> OnSelectCallback { get; set; }
@@ -55,6 +62,8 @@
     [Parameter]
     public Alignment Align { get; set; } = Alignment.Left;
 
+    string className = null!;
+
     #region Lifecycle methods
     protected override void OnInitialized()
     {
@@ -62,6 +71,12 @@
         objRef = DotNetObjectReference.Create(this);
         Id = GenerateRandomString(10);
         SelectedValue = 1;
+
+        var classNameAddition = InputAttributes?.Where(ia => ia.Key == "class").Select(k => k.Value);
+
+        className = classNameAddition is not null && classNameAddition.Any()
+            ? string.Join(" ", "dropdown-button-actions", classNameAddition.First())
+            : "dropdown-button-actions";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -73,8 +88,16 @@
 
         if (mustSetMenuNodeFocus)
         {
+            Logger.LogInformation("Setting menuNode focus.");
             mustSetMenuNodeFocus = false;
             await menuNode.FocusAsync();
+        }
+
+        if (mustSetButtonNodeFocus)
+        {
+            Logger.LogInformation("Setting buttonNode focus.");
+            mustSetButtonNodeFocus = false;
+            await buttonNode.FocusAsync();
         }
     }
     #endregion
@@ -92,6 +115,7 @@
     {
         Logger.LogInformation("Close()");
         await closePopup();
+        mustSetButtonNodeFocus = true;
         StateHasChanged();
     }
     [JSInvokable]
@@ -147,22 +171,44 @@
         await OnSelectCallback.InvokeAsync(value);
         Logger.LogInformation("ChildSelected({value}) OnSelectCallback() end", value);
 
-        
+
         //StateHasChanged();
     }
+
+    // bool _collectingItems;
+
+    // private void StartCollectingItems()
+    // {
+    //     Items.Clear();
+    //     _collectingItems = true;
+    // }
+
+    // private void FinishCollectingItems()
+    // {
+    //     _collectingItems = false;
+    // }
 
     Dictionary<int, DropdownItem> Items { get; set; } = new();
 
     public void AddDropdownItem(DropdownItem item)
     {
-        Items.Add(Items.Count, item);
+        //if (_collectingItems)
+        {
+            Items.Add(Items.Count, item);
+        }
     }
 
     private void onFocusin()
-        => domNodeFocused = true;
+    {
+        domNodeFocused = true;
+        Logger.LogInformation("onFocusin()");
+    }
 
     private void onFocusout()
-        => domNodeFocused = false;
+    {
+        domNodeFocused = false;
+        Logger.LogInformation("onFocusout()");
+    }
 
     private async Task openPopup()
     {
@@ -182,7 +228,8 @@
     private async Task closePopup()
     {
         isOpen = false;
-        await buttonNode.FocusAsync();
+        mustSetButtonNodeFocus = true;
+        //await buttonNode.FocusAsync();
         await RemoveBackgroundHook();
     }
 
@@ -210,7 +257,7 @@
     {
         selectedMenuItem = selectedMenuItem == 0
             ? Items.Count - 1
-            : 0;
+            : selectedMenuItem - 1;
         UpdateSelectedValue();
     }
 
@@ -226,7 +273,10 @@
     {
         if (bgHook != -1)
         {
+            Logger.LogInformation("removeBackgroundHook start.");
+
             var result = await JS.InvokeAsync<bool>("dropdownButton.removeBackgroundHook", bgHook);
+
             Logger.LogInformation("removeBackgroundHook returned {result}.", result);
         }
     }

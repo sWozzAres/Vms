@@ -169,7 +169,7 @@
 
         mustSetMenuNodeFocus = true;
 
-        setFocusToFirstMenuitem();
+        //setFocusToFirstMenuitem();
 
         bgHook = await JS.InvokeAsync<int>("menuButton.installBackgroundHook", Id, objRef);
         if (bgHook == -1)
@@ -203,7 +203,7 @@
     private void setFocusToPreviousMenuitem()
         => selectedMenuItem = selectedMenuItem == 0
             ? MenuItems.Count - 1
-            : 0;
+            : selectedMenuItem - 1;
 
     private void setFocusToNextMenuitem()
         => selectedMenuItem = selectedMenuItem == MenuItems.Count - 1
