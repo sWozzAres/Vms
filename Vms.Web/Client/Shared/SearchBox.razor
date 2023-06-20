@@ -130,7 +130,7 @@
 
     #region JS Callbacks
     [JSInvokable]
-    public async Task Next()
+    public void Next()
     {
         Logger.LogInformation("Next() {s}",selectedItem);
 
@@ -142,7 +142,7 @@
         StateHasChanged();
     }
     [JSInvokable]
-    public async Task Prev()
+    public void Prev()
     {
         Logger.LogInformation("Prev() {s}", selectedItem);
         selectedItem = selectedItem == 0

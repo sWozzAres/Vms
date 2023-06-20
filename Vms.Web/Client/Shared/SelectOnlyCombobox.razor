@@ -3,32 +3,28 @@
 
 @implements IDisposable
 
-<label id="@id" class="combo-label">Favorite Fruit</label>
-@{
-    var className1 = open ? "open" : "";
-}
-<div @ref="el" class="combo js-select @className1">
-    @{
-        var activeId = open ? ItemId(activeIndex) : string.Empty;
-    }
-    <div id="@comboId" @ref="comboEl" class="combo-input" role="combobox" tabindex="0"
-         aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeId"
-    @onblur="onComboBlur" @onclick="onComboClick">
-        @SelectItems[selectedIndex].Name
-    </div>
-    <div id="@listboxId" @ref="listboxEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1">
+<label id="@id" class="@labelClassName">@Label</label>
+<div @ref="comboEl" class="@comboClassName">
 
-        @for (int index = 0; index < SelectItems.Count; index++)
+    <div id="@comboInputId" @ref="comboInputEl" class="combo-input" role="combobox" tabindex="0"
+         aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeItemId"
+        @onblur="onComboInputBlur" @onclick="onComboInputClick">
+        @selectItems[selectedIndex].Name
+    </div>
+    
+    <div id="@comboMenuId" @ref="comboMenuEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1">
+
+        @for (int index = 0; index < selectItems.Count; index++)
         {
             var idx = index;
-            var item = SelectItems[idx];
-           
-            var isSelected = selectedIndex == idx;
-            var className = activeIndex == idx ? "combo-option option-current" : "combo-option";
+            var item = selectItems[idx];
 
-            <div id="@item.Id" role="option" class="@className" aria-selected="@isSelected.ToHtml()"
-            @onclick="async () => await onOptionClick(idx)" @onclick:stopPropagation
-            @onmousedown="() => onOptionMouseDown()">
+            var isSelected = selectedIndex == idx;
+            var className2 = activeIndex == idx ? "combo-option option-current" : "combo-option";
+
+            <div id="@item.Id" role="option" class="@className2" aria-selected="@isSelected.ToHtml()"
+            @onclick="async () => await onComboMenuClick(idx)" @onclick:stopPropagation
+            @onmousedown="() => onComboMenuMouseDown()">
                 @item.Name
             </div>
         }
@@ -40,17 +36,31 @@
     [EditorRequired, Parameter]
     public string[] Items { get; set; } = null!;
 
-    Dictionary<int, SelectItem> SelectItems { get; set; } = new();
+    [EditorRequired, Parameter]
+    public string Label { get; set; } = null!;
+
+    [Parameter]
+    public bool LabelHidden { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> InputAttributes { get; set; } = null!;
+
+    Dictionary<int, SelectItem> selectItems { get; set; } = new();
+
+    string labelClassName => LabelHidden ? "combo-label hidden" : "combo-label";
+    string comboClassName => open ? "combo open" : "combo";
+    string activeItemId => open ? itemId(activeIndex) : string.Empty;
+    string itemId(int i) => $"{id}-{i}";
 
     // ids
     string id = null!;
-    string comboId = null!;
-    string listboxId = null!;
+    string comboInputId = null!;
+    string comboMenuId = null!;
 
     // element references
-    ElementReference el;
     ElementReference comboEl;
-    ElementReference listboxEl;
+    ElementReference comboInputEl;
+    ElementReference comboMenuEl;
 
     DotNetObjectReference<SelectOnlyCombobox>? objRef;
     int bgHook = 0;
@@ -64,6 +74,50 @@
     bool ignoreBlur;
 
     Timer? timer;
+
+    async Task updateMenuState(bool shouldOpen, bool callFocus = true)
+    {
+        if (shouldOpen == open)
+            return;
+
+        open = shouldOpen;
+
+        if (callFocus)
+            await comboInputEl.FocusAsync();
+    }
+    
+    void selectOption(int index) => selectedIndex = index;
+
+    #region ComboInput events
+    async Task onComboInputBlur()
+    {
+        if (ignoreBlur)
+        {
+            ignoreBlur = false;
+            return;
+        }
+
+        if (open)
+        {
+            selectOption(activeIndex);
+            await updateMenuState(false, false);
+        }
+    }
+
+    async Task onComboInputClick() => await updateMenuState(!open, false);
+    #endregion
+    
+    void onOptionChange(int index) => activeIndex = index;
+
+    #region ComboMenu events
+    async Task onComboMenuClick(int index)
+    {
+        onOptionChange(index);
+        selectOption(index);
+        await updateMenuState(false);
+    }
+    void onComboMenuMouseDown() => ignoreBlur = true;
+    #endregion
 
     string getSearchString(string key)
     {
@@ -96,29 +150,7 @@
 
         return searchString;
     }
-    async Task onComboBlur()
-    {
-        if (ignoreBlur)
-        {
-            ignoreBlur = false;
-            return;
-        }
-
-        if (open)
-        {
-            selectOption(activeIndex);
-            await updateMenuState(false, false);
-        }
-    }
-
-    async Task onComboClick() => await updateMenuState(!open, false);
-
-    [JSInvokable]
-    public async Task onComboTypeJS(string key)
-    {
-        await onComboType(key);
-        StateHasChanged();
-    }
+    
     async Task onComboType(string key)
     {
         await updateMenuState(true);
@@ -128,7 +160,7 @@
         if (searchIndex >= 0)
         {
             Logger.LogInformation("Found index {index}.", searchIndex);
-            
+
             onOptionChange(searchIndex);
         }
         else
@@ -139,16 +171,16 @@
             searchString = string.Empty;
         }
 
-        int getIndexByLetter(string ss, int index) 
+        int getIndexByLetter(string ss, int index)
         {
-            var orderedOptions = SelectItems.Where(item => item.Key >= index)
-                .Concat(SelectItems.Where(item => item.Key < index));
-            
-            Logger.LogInformation("orderedOptions {o}", orderedOptions.Select(x=>x.Value.Name));
+            var orderedOptions = selectItems.Where(item => item.Key >= index)
+                .Concat(selectItems.Where(item => item.Key < index));
+
+            Logger.LogInformation("orderedOptions {o}", orderedOptions.Select(x => x.Value.Name));
 
             var firstMatch = orderedOptions.Where(x => x.Value.Name.StartsWith(ss, StringComparison.OrdinalIgnoreCase));
 
-            return firstMatch.Any() ? firstMatch.First().Key : - 1;
+            return firstMatch.Any() ? firstMatch.First().Key : -1;
         }
     }
     public enum SelectAction
@@ -166,10 +198,16 @@
         Type = 10,
     };
     [JSInvokable]
+    public async Task onComboTypeJS(string key)
+    {
+        await onComboType(key);
+        StateHasChanged();
+    }
+    [JSInvokable]
     public void onOptionChangeJS(SelectAction action)
     {
         Logger.LogInformation("onOptionChangeJS({action})", action);
-        onOptionChange(getUpdatedIndex(activeIndex, SelectItems.Count - 1, action));
+        onOptionChange(getUpdatedIndex(activeIndex, selectItems.Count - 1, action));
         StateHasChanged();
 
         int getUpdatedIndex(int currentIndex, int maxIndex, SelectAction action)
@@ -195,71 +233,43 @@
             }
         }
     }
-    void onOptionChange(int index)
-    {
-        activeIndex = index;
-
-        //TODO scroll
-    }
-    async Task onOptionClick(int index)
-    {
-        onOptionChange(index);
-        selectOption(index);
-        await updateMenuState(false);
-    }
-    void onOptionMouseDown() => ignoreBlur = true;
+    
+    
     [JSInvokable]
     public void selectOptionJS()
     {
         selectOption(activeIndex); // not neccessary
         StateHasChanged();
     }
-    void selectOption(int index)
-    {
-        selectedIndex = index;
-    }
+    
+    
     [JSInvokable]
     public async Task updateMenuStateJS(bool toOpen)
     {
         await updateMenuState(toOpen);
         StateHasChanged();
     }
-    async Task updateMenuState(bool toOpen, bool callFocus = true)
-    {
-        if (toOpen == open)
-        {
-            return;
-        }
-
-        open = toOpen;
-
-        //TODO scroll
-
-        if (callFocus)
-        {
-            await comboEl.FocusAsync();
-        }
-    }
+    
 
     protected override void OnInitialized()
     {
         //base.OnInitialized();
-        id = GenerateRandomString(10);
-        comboId = $"{id}-combo";
-        listboxId = $"{id}-listbox";
+        id = Helpers.GetRandomHtmlId();
+        comboInputId = $"{id}-combo";
+        comboMenuId = $"{id}-listbox";
         objRef = DotNetObjectReference.Create(this);
     }
 
-    public string ItemId(int i) => $"{id}-{i}";
+    
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
-        SelectItems.Clear();
+        selectItems.Clear();
         for (int index = 0; index < Items.Length; index++)
         {
-            SelectItems.Add(index, new SelectItem(Items[index], ItemId(index)));
+            selectItems.Add(index, new SelectItem(Items[index], itemId(index)));
         }
     }
 
@@ -267,7 +277,7 @@
     {
         if (firstRender)
         {
-            var result = await JS.InvokeAsync<bool>("menuButton.installOnComboKeyDown", comboId, objRef);
+            var result = await JS.InvokeAsync<bool>("menuButton.installOnComboKeyDown", comboInputId, objRef);
             if (!result)
                 Logger.LogError("Failed to install keydown handler.");
         }
@@ -288,16 +298,5 @@
         public string Id { get; private set; }
 
         public SelectItem(string name, string id) => (Name, Id) = (name, id);
-    }
-
-    private static Random random = new Random();
-    public static string GenerateRandomString(int length)
-    {
-        // define the valid characters
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-        return new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[random.Next(s.Length)])
-            .ToArray());
     }
 }

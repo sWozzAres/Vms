@@ -305,17 +305,16 @@ window.menuButton = {
 
             const { key } = event;
 
-            var aad = element.getAttribute('aria-activedescendant');
+            //var aad = element.getAttribute('aria-activedescendant');
+            const isOpen = element.getAttribute('aria-activedescendant').length > 0;
 
-            const action = getActionFromKey(event, aad.length > 0);
-
-            console.log('keydown ', event.key, ' action ', action, ' aad ', aad);
+            const action = getActionFromKey(event, isOpen);
 
             switch (action) {
                 case SelectActions.Last:
                 case SelectActions.First:
                     objRef.invokeMethodAsync("updateMenuStateJS", true);
-                //this.updateMenuState(true);
+                
                 // intentional fallthrough
                 case SelectActions.Next:
                 case SelectActions.Previous:
@@ -325,30 +324,27 @@ window.menuButton = {
                     objRef.invokeMethodAsync("onOptionChangeJS", action);
 
                     const activeElement = element.getAttribute('aria-activedescendant');
-                    const el = document.getElementById(activeElement);
-                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    if (activeElement) {
+                        const el = document.getElementById(activeElement);
+                        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                     return;
-                //return this.onOptionChange(
-                //    getUpdatedIndex(this.activeIndex, max, action)
-                //);
+                
                 case SelectActions.CloseSelect:
                     event.preventDefault();
                     objRef.invokeMethodAsync("selectOptionJS");
 
-                //this.selectOption(this.activeIndex);
                 // intentional fallthrough
                 case SelectActions.Close:
                     event.preventDefault();
-                    //return this.updateMenuState(false);
                     objRef.invokeMethodAsync("updateMenuStateJS", false);
                     return;
                 case SelectActions.Type:
                     objRef.invokeMethodAsync("onComboTypeJS", key);
                     return;
-                //return this.onComboType(key);
+                
                 case SelectActions.Open:
                     event.preventDefault();
-                    //return this.updateMenuState(true);
                     objRef.invokeMethodAsync("updateMenuStateJS", true);
                     return;
             }
