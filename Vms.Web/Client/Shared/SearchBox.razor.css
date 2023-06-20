@@ -2,16 +2,12 @@
     display: flex;
 }
 
-search-box input[type=search] {
+.search-box input[type='search'] {
     flex: 1 1 auto;
-    width: 30ch;
+    width: clamp(10ch, 30ch, 50ch);
 }
 
-search-box button[type='submit'] {
-}
-
-search-box select {
-    flex: 0 1 auto;
+.search-box button[type='submit'] {
 }
 
 #search-history {

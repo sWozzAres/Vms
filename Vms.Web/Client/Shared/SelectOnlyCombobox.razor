@@ -14,17 +14,17 @@
     <div id="@comboId" @ref="comboEl" class="combo-input" role="combobox" tabindex="0"
          aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeId"
     @onblur="onComboBlur" @onclick="onComboClick">
-        @SelectItems[activeIndex].Name
+        @SelectItems[selectedIndex].Name
     </div>
-    <div id="@listboxId" @ref="listboxEl" class="combo-menu" role="listbox" aria-labelledby="combo1-label" tabindex="-1">
+    <div id="@listboxId" @ref="listboxEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1">
 
         @for (int index = 0; index < SelectItems.Count; index++)
         {
             var idx = index;
             var item = SelectItems[idx];
            
-            var isSelected = activeIndex == idx;
-            var className = isSelected ? "combo-option option-current" : "combo-option";
+            var isSelected = selectedIndex == idx;
+            var className = activeIndex == idx ? "combo-option option-current" : "combo-option";
 
             <div id="@item.Id" role="option" class="@className" aria-selected="@isSelected.ToHtml()"
             @onclick="async () => await onOptionClick(idx)" @onclick:stopPropagation
@@ -57,6 +57,7 @@
 
     // state
     int activeIndex = 0;
+    int selectedIndex = 0;
     bool open;
     string searchString = string.Empty;
 
@@ -215,7 +216,7 @@
     }
     void selectOption(int index)
     {
-        activeIndex = index;
+        selectedIndex = index;
     }
     [JSInvokable]
     public async Task updateMenuStateJS(bool toOpen)

@@ -1,6 +1,6 @@
 window.jsInterop = {
     setFocus: function (id) {
-        const element = document.querySelector('#' + id);
+        const element = document.getElementById(id);
         if (!element)
             return false;
 
@@ -11,7 +11,7 @@ window.jsInterop = {
 
 window.searchBox = {
     installOnKeydownHandler: function (id, objRef) {
-        const element = document.querySelector('#' + id);
+        const element = document.getElementById(id);
         console.log('searchBox.installOnKeydownHandler() id: ', id, ' element: ', element, ' objRef: ', objRef);
 
         if (!element)
@@ -166,7 +166,7 @@ window.dropdownButton = {
     },
 
     installOnDropdownButtonKeydown: function (id, objRef) {
-        const element = document.querySelector('#' + id);
+        const element = document.getElementById(id);
         console.log('installOnDropdownButtonKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
         if (!element) {
             return false;
@@ -233,7 +233,7 @@ window.menuButton = {
 
         const listener = {
             listenerId: this.listenerId,
-            
+
             callback: (event) => {
                 //console.log('In eventlistener, element: ', element, ' contains: ', element.contains(event.target))
                 if (!element.contains(event.target)) {
@@ -266,6 +266,20 @@ window.menuButton = {
         return true;
     },
 
+    maintainScrollVisibility: function (activeElement, scrollParent) {
+        const { offsetHeight, offsetTop } = activeElement;
+        const { offsetHeight: parentOffsetHeight, scrollTop } = scrollParent;
+
+        const isAbove = offsetTop < scrollTop;
+        const isBelow = offsetTop + offsetHeight > scrollTop + parentOffsetHeight;
+
+        if (isAbove) {
+            scrollParent.scrollTo(0, offsetTop);
+        } else if (isBelow) {
+            scrollParent.scrollTo(0, offsetTop - parentOffsetHeight + offsetHeight);
+        }
+    },
+
     installOnComboKeyDown: function (id, objRef) {
         const element = document.querySelector('#' + id);
         console.log('installOnComboKeyDown() id: ', id, ' element: ', element, ' objRef: ', objRef);
@@ -288,10 +302,10 @@ window.menuButton = {
         };
 
         element.addEventListener('keydown', (event) => {
-            
+
             const { key } = event;
 
-            var aad = element.getAttribute('aria-activedescendant')
+            var aad = element.getAttribute('aria-activedescendant');
 
             const action = getActionFromKey(event, aad.length > 0);
 
@@ -301,7 +315,7 @@ window.menuButton = {
                 case SelectActions.Last:
                 case SelectActions.First:
                     objRef.invokeMethodAsync("updateMenuStateJS", true);
-                    //this.updateMenuState(true);
+                //this.updateMenuState(true);
                 // intentional fallthrough
                 case SelectActions.Next:
                 case SelectActions.Previous:
@@ -309,15 +323,19 @@ window.menuButton = {
                 case SelectActions.PageDown:
                     event.preventDefault();
                     objRef.invokeMethodAsync("onOptionChangeJS", action);
+
+                    const activeElement = element.getAttribute('aria-activedescendant');
+                    const el = document.getElementById(activeElement);
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     return;
-                    //return this.onOptionChange(
-                    //    getUpdatedIndex(this.activeIndex, max, action)
-                    //);
+                //return this.onOptionChange(
+                //    getUpdatedIndex(this.activeIndex, max, action)
+                //);
                 case SelectActions.CloseSelect:
                     event.preventDefault();
                     objRef.invokeMethodAsync("selectOptionJS");
-                    
-                    //this.selectOption(this.activeIndex);
+
+                //this.selectOption(this.activeIndex);
                 // intentional fallthrough
                 case SelectActions.Close:
                     event.preventDefault();
@@ -327,7 +345,7 @@ window.menuButton = {
                 case SelectActions.Type:
                     objRef.invokeMethodAsync("onComboTypeJS", key);
                     return;
-                    //return this.onComboType(key);
+                //return this.onComboType(key);
                 case SelectActions.Open:
                     event.preventDefault();
                     //return this.updateMenuState(true);
@@ -335,7 +353,7 @@ window.menuButton = {
                     return;
             }
 
-            
+
             function getActionFromKey(event, menuOpen) {
                 const { key, altKey, ctrlKey, metaKey } = event;
                 const openKeys = ['ArrowDown', 'ArrowUp', 'Enter', ' ']; // all keys that will do the default open action

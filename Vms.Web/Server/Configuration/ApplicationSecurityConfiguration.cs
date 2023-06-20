@@ -20,8 +20,11 @@ public static class ApplicationSecurityConfiguration
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = false,
-                    NameClaimType = "name"
+                    NameClaimType = "name",
+                    ClockSkew = TimeSpan.FromSeconds(5)
                 };
+
+                
             });
         services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
         services.AddAuthorization(options =>
