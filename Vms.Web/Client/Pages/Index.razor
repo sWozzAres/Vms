@@ -58,7 +58,12 @@
 
 
     </div> *@
-    <SelectOnlyCombobox Items="@items" Label="Select Fruit" LabelHidden=true></SelectOnlyCombobox>
+    @* OnItemSelected="(i) => selectedItem = items[i]"> *@
+    <SelectOnlyCombobox Items="@items" Label="Select Fruit" LabelHidden=true 
+        
+        @bind-SelectedIndex="SelectedValue"
+    >
+    </SelectOnlyCombobox>
 
     <p>Selected item: @selectedItem</p>
     <ol>
@@ -80,7 +85,7 @@
 </section>
 
 @code {
-    int SelectedValue { get; set; }
+    int SelectedValue { get; set; } = 12;
     private string selectedItem = string.Empty;
 
     private string[] items = new string[]
