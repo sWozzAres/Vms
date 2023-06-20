@@ -1,0 +1,44 @@
+.search-box .wrapper {
+    display: flex;
+}
+
+search-box input[type=search] {
+    flex: 1 1 auto;
+    width: 30ch;
+}
+
+search-box button[type='submit'] {
+}
+
+search-box select {
+    flex: 0 1 auto;
+}
+
+#search-history {
+    position: absolute;
+    background-color: #fff;
+    padding: 10px;
+    z-index: 100;
+    width: 100%;
+}
+
+    #search-history ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    #search-history li {
+        cursor: pointer;
+        padding: 6px;
+        margin: 0;
+
+    }
+
+        #search-history li:hover, #search-history li.focus {
+            background-color: black;
+            color: white;
+        }
+
+.hidden {
+    display: none;
+}

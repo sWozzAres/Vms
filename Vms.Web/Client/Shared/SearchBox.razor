@@ -1,0 +1,177 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject ILogger<SearchBox> Logger
+@inject ISearchHistoryProvider SearchHistory
+@inject IJSRuntime JS
+
+<form class="search-box">
+    <div class="wrapper">
+        <input id="@inputId" type="search" placeholder="Search"
+               autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+               aria-label="Search" role="combobox" aria-haspopup="false" aria-autocomplete="list"
+        @onblur="OnInputBlur" @oninput="OnInput" @bind="searchString"
+        @onfocusin="OnFocusIn" @onfocusout="OnFocusOut" />
+        <button type="submit" @onclick="OnSearch" @onclick:preventDefault @onclick:stopPropagation>
+            <svg viewBox="0 0 16 16"
+                 class="bi bi-search"
+                 fill="currentColor"
+                 id="search"
+                 height="24"
+                 width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M10.442 10.442a1 1 0 011.415 0l3.85 3.85a1 1 0 01-1.414 1.415l-3.85-3.85a1 1 0 010-1.415z" />
+                <path fill-rule="evenodd"
+                      d="M6.5 12a5.5 5.5 0 100-11 5.5 5.5 0 000 11zM13 6.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+            </svg>
+        </button>
+    </div>
+    @{
+        var className = searchHistoryVisible ? "" : "hidden";
+    }
+    <div id="search-history" class="@className">
+        <ul>
+            @{
+                Logger.LogInformation("searchString '{s}'.", searchString);
+            }
+            @for (var index = 0; index < items.Count; index++) //SearchHistory.History.Where(x => x.SearchString.StartsWith(searchString)))
+            {
+                var item = items[index];
+                var className2 = selectedItem == index ? "focus" : "";
+                <li class="@className2" @onclick="async () => await SelectItem(item)" @onmousedown="() => OnHistoryMouseDown(item)">@item.SearchString</li>
+            }
+        </ul>
+    </div>
+</form>
+
+@code {
+    bool searchHistoryVisible = false;
+    string searchString { get; set; } = string.Empty;
+    bool ignoreBlur;
+    SearchItem? searchItem = null;
+    DotNetObjectReference<SearchBox> objRef = null!;
+    string inputId = null!;
+    int selectedItem = -1;
+    List<SearchItem> items = new();
+
+    async Task OnSearch()
+    {
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            Logger.LogInformation("SearchHistory {SearchHistory}", SearchHistory);
+            await SearchHistory.AddAsync(searchString);
+            NavigationManager.NavigateTo($"/search/{searchString}", false);
+        }
+    }
+    void LoadItems()
+    {
+        Logger.LogInformation("LoadItems() '{s}'", searchString);
+        if (string.IsNullOrEmpty(searchString))
+        {
+            items = SearchHistory.History.OrderByDescending(x => x.Count).Take(10).ToList();
+        }
+        else
+        {
+            items = SearchHistory.History.Where(x => x.SearchString.StartsWith(searchString)).ToList();
+        }
+        selectedItem = -1;
+    }
+    void OnInput(ChangeEventArgs? e)
+    {
+        searchString = e?.Value?.ToString() ?? string.Empty;
+        Logger.LogInformation("OnInput('{s}')", searchString);
+        LoadItems();
+    }
+    void OnFocus()
+    {
+        Logger.LogInformation("OnFocus()");
+        searchHistoryVisible = true;
+    }
+    void OnFocusIn()
+    {
+        Logger.LogInformation("OnFocusIn()");
+        searchHistoryVisible = true;
+        LoadItems();
+    }
+    async Task OnFocusOut()
+    {
+        Logger.LogInformation("OnFocusOut()");
+        searchHistoryVisible = false;
+
+        if (searchItem is not null)
+        {
+            await SelectItem(searchItem);
+            searchItem = null;
+        }
+    }
+    void OnInputBlur()
+    {
+        Logger.LogInformation("OnInputBlur() {ignoreBlur}", ignoreBlur);
+        if (ignoreBlur)
+        {
+            ignoreBlur = false;
+            return;
+        }
+    }
+    void OnHistoryMouseDown(SearchItem item)
+    {
+        Logger.LogInformation("OnHistoryMouseDown('{item}')", item.SearchString);
+        ignoreBlur = true;
+        searchItem = item;
+    }
+
+    async Task SelectItem(SearchItem item)
+    {
+        Logger.LogInformation("SelectItem '{item}'", item);
+        searchString = item.SearchString;
+        await OnSearch();
+        searchHistoryVisible = false;
+    }
+
+    #region JS Callbacks
+    [JSInvokable]
+    public async Task Next()
+    {
+        Logger.LogInformation("Next() {s}",selectedItem);
+
+        selectedItem = selectedItem < items.Count - 1
+            ? selectedItem + 1
+            : 0;
+
+        searchString = items[selectedItem].SearchString;
+        StateHasChanged();
+    }
+    [JSInvokable]
+    public async Task Prev()
+    {
+        Logger.LogInformation("Prev() {s}", selectedItem);
+        selectedItem = selectedItem == 0
+            ? items.Count - 1
+            : selectedItem - 1;
+
+        searchString = items[selectedItem].SearchString;
+        StateHasChanged();
+    }
+    #endregion
+    #region Lifecycle events
+    protected override async Task OnInitializedAsync()
+    {
+        inputId = Helpers.GetRandomHtmlId();
+        objRef = DotNetObjectReference.Create(this);
+        await SearchHistory.InitializeAsync();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await JS.InvokeAsync<bool>("searchBox.installOnKeydownHandler", inputId, objRef);
+            if (!result)
+                Logger.LogError("Failed to install keydown handler.");
+        }
+    }
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+    #endregion
+}

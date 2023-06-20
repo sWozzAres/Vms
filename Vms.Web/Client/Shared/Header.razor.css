@@ -33,19 +33,7 @@
     position: relative;
 }
 
-    #header-search .wrapper {
-        display: flex;
-    }
-
-    #header-search input[type=search] {
-        flex: 1 1 auto;
-        width: 30ch;
-        
-    }
-
-    #header-search select {
-        flex: 0 1 auto;
-    }
+    
 
 #header-toolbar {
     grid-area: toolbar;
@@ -81,12 +69,7 @@
     white-space: nowrap;
 }
 
-#search-history {
-    position: absolute;
-    background-color: #fff;
-    padding: 10px;
-    z-index: 100;
-}
+
 @media (max-width: 640px) {
     #header {
         display: grid;

@@ -1,3 +1,45 @@
+window.jsInterop = {
+    setFocus: function (id) {
+        const element = document.querySelector('#' + id);
+        if (!element)
+            return false;
+
+        element.focus();
+        return true;
+    }
+}
+
+window.searchBox = {
+    installOnKeydownHandler: function (id, objRef) {
+        const element = document.querySelector('#' + id);
+        console.log('searchBox.installOnKeydownHandler() id: ', id, ' element: ', element, ' objRef: ', objRef);
+
+        if (!element)
+            return false;
+
+        element.addEventListener('keydown', (event) => {
+
+            function stopEvent() {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            switch (event.key) {
+
+                case 'ArrowDown':
+                    stopEvent();
+                    objRef.invokeMethodAsync('Next');
+                    break;
+                case 'ArrowUp':
+                    stopEvent();
+                    objRef.invokeMethodAsync('Prev');
+                    break;
+            }
+        });
+
+        return true;
+    }
+}
 window.dropdownButton = {
     // keeps track of 'onmousedown' event listeners added to the window so they
     // can later be removed.

@@ -7,7 +7,7 @@ namespace Vms.Web.Client.Services;
 public interface ISearchHistoryProvider
 {
     //Task<IEnumerable<string>> GetHistory(CancellationToken cancellationToken = default);
-    IEnumerable<string> History { get; }
+    IEnumerable<SearchItem> History { get; }
     Task AddAsync(string searchString, CancellationToken cancellationToken = default);
     Task InitializeAsync(CancellationToken cancellationToken = default);
 }
@@ -19,24 +19,18 @@ public class SearchHistoryProvider : ISearchHistoryProvider
 
     readonly ILocalStorageService _localStorage;
 
-    Queue<string> history { get; set; } = new();
-    public IEnumerable<string> History => history;
+    Queue<SearchItem> history { get; set; } = new(HistorySize);
+    public IEnumerable<SearchItem> History => history;
 
     bool _isLoaded;
 
     public SearchHistoryProvider(ILocalStorageService localStorage) => _localStorage = localStorage;
-    
-    //public async Task<IEnumerable<string>> GetHistory(CancellationToken cancellationToken = default)
-    //{
-    //    await EnsureLoaded(cancellationToken);
-    //    return history;
-    //}
 
     async Task EnsureLoaded(CancellationToken cancellationToken)
     {
         if (!_isLoaded)
         {
-            history = await _localStorage.GetItemAsync<Queue<string>>(Key, cancellationToken) ?? new(HistorySize);
+            history = await _localStorage.GetItemAsync<Queue<SearchItem>>(Key, cancellationToken) ?? new(HistorySize);
             _isLoaded = true;
         }
     }
@@ -50,11 +44,25 @@ public class SearchHistoryProvider : ISearchHistoryProvider
     {
         await EnsureLoaded(cancellationToken);
 
-        if (history.Count == HistorySize)
-            _ = history.Dequeue();
+        var entry = history.FirstOrDefault(item => item.SearchString == searchString);
+        if (entry is not null)
+        {
+            entry.Count++;
+        }
+        else
+        {
+            if (history.Count >= HistorySize)
+                _ = history.Dequeue();
 
-        history.Enqueue(searchString);
+            history.Enqueue(new SearchItem() { SearchString = searchString, Count = 1 });
+        }
 
         await _localStorage.SetItemAsync(Key, history, cancellationToken);
     }
+}
+
+public class SearchItem
+{
+    public string SearchString { get; set; } = null!;
+    public int Count { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿@implements IDisposable
 @inject NavigationManager NavigationManager
 @inject ILogger<Header> Logger
-@inject ISearchHistoryProvider SearchHistory
+
 
 <header id="header">
     <div id="header-area">
@@ -46,41 +46,9 @@
             <use xlink:href="icons/solid.svg#car-side" />
         </svg>
     </div>
-    <form id="header-search">
-        <div class="wrapper">
-            <input type="search" placeholder="Search"
-                   autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
-                   aria-label="Search" role="combobox" aria-haspopup="false" aria-autocomplete="list"
-            @onfocusin="OnFocusIn" @onfocusout="OnFocusOut" @bind="SearchString" />
-            <button type="submit" @onclick="OnSearch" @onclick:preventDefault @onclick:stopPropagation>
-                <svg viewBox="0 0 16 16"
-                     class="bi bi-search"
-                     fill="currentColor"
-                     id="search"
-                     height="24"
-                     width="24"
-                     xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                          d="M10.442 10.442a1 1 0 011.415 0l3.85 3.85a1 1 0 01-1.414 1.415l-3.85-3.85a1 1 0 010-1.415z" />
-                    <path fill-rule="evenodd"
-                          d="M6.5 12a5.5 5.5 0 100-11 5.5 5.5 0 000 11zM13 6.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
-                </svg>
-            </button>
-            @{
-                var c = searchHistoryVisible ? "" : "hidden";
-            }
-        </div>
-        <div id="search-history" class="@c">
-            @* @if (history is not null) *@
-                <ul>
-                    @foreach (var item in SearchHistory.History.Where(x=>x.StartsWith(SearchString)))
-                    {
-                        <li>@item</li>
-                    }
-            </ul>
-        </div>
-
-    </form>
+    <div id="header-search">
+        <SearchBox></SearchBox>
+    </div>
     <AuthorizeView>
         <Authorized>
             <div id="header-toolbar">
@@ -140,26 +108,16 @@
     string selectedItem = string.Empty;
 
     bool contentVisible = false;
-    bool searchHistoryVisible = false;
+    
 
     IDisposable? registration;
 
     void GoHome() => NavigationManager.NavigateTo("/");
 
     void Toggle() => contentVisible = !contentVisible;
-    void OnFocusIn() => searchHistoryVisible = true;
-    void OnFocusOut() => searchHistoryVisible = false;
+    
 
-    string SearchString { get; set; } = null!;
-
-    async Task OnSearch()
-    {
-        if (!string.IsNullOrEmpty(SearchString)) {
-            Logger.LogInformation("SearchHistory {SearchHistory}", SearchHistory);
-            await SearchHistory.AddAsync(SearchString);
-            NavigationManager.NavigateTo($"/search/{SearchString}", false);
-        }
-    }
+    
 
 
     void BeginLogOut()
@@ -191,11 +149,7 @@
 
     //IEnumerable<string> history = null!;
 
-    protected override async Task OnInitializedAsync()
-    {
-        //return base.OnInitializedAsync();
-        await SearchHistory.InitializeAsync();
-    }
+    
 
     protected override void OnAfterRender(bool firstRender)
     {
