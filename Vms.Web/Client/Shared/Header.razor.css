@@ -1,4 +1,7 @@
 #header {
+    position: sticky;
+    z-index: 100;
+    top: 0;
     display: grid;
     grid-template-columns: auto auto 1fr auto;
     grid-template-rows: auto;

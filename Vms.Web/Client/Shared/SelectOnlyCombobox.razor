@@ -6,35 +6,34 @@
 <label id="@id" class="@labelClassName">@Label</label>
 <div @ref="comboEl" class="@comboClassName">
 
-    <div id="@comboInputId" @ref="comboInputEl" class="combo-input" role="combobox" tabindex="0"
+    <div id="@comboInputId" @ref="comboInputEl" class="@comboInputClassName" role="combobox" tabindex="@comboInputTabIndex"
          aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeItemId"
     @onblur="onComboInputBlur" @onclick="onComboInputClick">
-        @selectItems[SelectedIndex].Name
+        @selectItems[selectedIndex].Name
     </div>
 
-    <div id="@comboMenuId" @ref="comboMenuEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1">
+    <div id="@comboMenuId" @ref="comboMenuEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1"
+    @onmousedown="() => onComboMenuMouseDown()">
 
         @for (int index = 0; index < selectItems.Count; index++)
         {
             var idx = index;
             var item = selectItems[idx];
 
-            var isSelected = SelectedIndex == idx;
+            var isSelected = selectedIndex == idx;
             var className2 = activeIndex == idx ? "combo-option option-current" : "combo-option";
 
             <div id="@item.Id" role="option" class="@className2" aria-selected="@isSelected.ToHtml()"
-            @onclick="async () => await onComboMenuClick(idx)" @onclick:stopPropagation
-            @onmousedown="() => onComboMenuMouseDown()">
+            @onclick="async () => await onComboMenuClick(idx)" @onclick:stopPropagation>
                 @item.Name
             </div>
         }
     </div>
 </div>
 
-
 @code {
     [EditorRequired, Parameter]
-    public string[] Items { get; set; } = null!;
+    public SelectOption[] Items { get; set; } = null!;
 
     [EditorRequired, Parameter]
     public string Label { get; set; } = null!;
@@ -45,15 +44,21 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> InputAttributes { get; set; } = null!;
 
+    [CascadingParameter(Name ="IsDisabled")]
+    public bool IsDisabled { get; set; }
+
     [Parameter]
-    public int SelectedIndex { get; set; }
+    public int? SelectedValue { get; set; }
     [Parameter]
-    public EventCallback<int> SelectedIndexChanged { get; set; }
+    public EventCallback<int?> SelectedValueChanged { get; set; }
 
     Dictionary<int, SelectItem> selectItems { get; set; } = new();
 
-    string labelClassName => LabelHidden ? "combo-label hidden" : "combo-label";
-    string comboClassName => open ? "combo open" : "combo";
+    string classNameAddition = "";
+    string labelClassName => string.Join(" ", LabelHidden ? "combo-label hidden" : "combo-label", classNameAddition);
+    string comboClassName => string.Join(" ", open ? "combo open" : "combo", classNameAddition);
+    string comboInputClassName => IsDisabled ? "combo-input disabled" : "combo-input";
+    string comboInputTabIndex => IsDisabled ? "-1" : "0";
     string activeItemId => open ? itemId(activeIndex) : string.Empty;
     string itemId(int i) => $"{id}-{i}";
 
@@ -61,6 +66,7 @@
     string id = null!;
     string comboInputId = null!;
     string comboMenuId = null!;
+    int selectedIndex;
 
     // element references
     ElementReference comboEl;
@@ -68,10 +74,9 @@
     ElementReference comboMenuEl;
 
     DotNetObjectReference<SelectOnlyCombobox>? objRef;
-    int bgHook = 0;
 
     // state
-    int activeIndex = 0;
+    int activeIndex;
     bool open;
     string searchString = string.Empty;
     bool ignoreBlur;
@@ -91,13 +96,17 @@
 
     async Task selectOption(int index)
     {
-        SelectedIndex = index;
-        await SelectedIndexChanged.InvokeAsync(index);
+        selectedIndex = index;
+        Logger.LogInformation("Selected index {index}.", index);
+
+        SelectedValue = selectItems[selectedIndex].Value;
+        await SelectedValueChanged.InvokeAsync(SelectedValue);
     }
 
     #region ComboInput events
     async Task onComboInputBlur()
     {
+        Logger.LogInformation("onComboInputBlur() {ignoreBlur}", ignoreBlur);
         if (ignoreBlur)
         {
             ignoreBlur = false;
@@ -111,7 +120,12 @@
         }
     }
 
-    async Task onComboInputClick() => await updateMenuState(!open, false);
+    async Task onComboInputClick() {
+        if (IsDisabled)
+            return;
+
+        await updateMenuState(!open, false);
+    }
     #endregion
 
     void onOptionChange(int index) => activeIndex = index;
@@ -199,7 +213,7 @@
             return firstMatch.Any() ? firstMatch.First().Key : -1;
         }
     }
-    
+
     public enum SelectAction
     {
         Close = 0,
@@ -214,7 +228,7 @@
         Select = 9,
         Type = 10,
     };
-    
+
     [JSInvokable]
     public async Task<string> onComboTypeJS(string key)
     {
@@ -270,20 +284,44 @@
 
     protected override void OnInitialized()
     {
-        //base.OnInitialized();
         id = Helpers.GetRandomHtmlId();
         comboInputId = $"{id}-combo";
         comboMenuId = $"{id}-listbox";
         objRef = DotNetObjectReference.Create(this);
+
+        if (InputAttributes is not null && InputAttributes.TryGetValue("class", out var o))
+        {
+            if (o is not null && o is string)
+                classNameAddition = (string)o;
+            else
+                Logger.LogWarning("'class' parameter is invalid.");
+        }
+
+        Logger.LogInformation("classNameAddition {a}", classNameAddition);
+        // labelClassName = LabelHidden ? $"combo-label hidden" : $"combo-label";
+        // comboClassName = open ? $"combo open" : $"combo";
+
+        // if (InputAttributes is not null &&
+        // {
+        //     labelClassName += " " + classNameAddition;
+        //     comboClassName += " " + classNameAddition;
+        // }
+        //var classNameAddition = InputAttributes?.TryGetValue .Where(ia => ia.Key == "class").Select(k => k.Value);
+
+        // className = classNameAddition is not null && classNameAddition.Any()
+        //     ? string.Join(" ", "dropdown-button-actions", classNameAddition.First())
     }
 
     protected override void OnParametersSet()
     {
-        base.OnParametersSet();
-
-        if (!SelectedIndexChanged.HasDelegate)
+        if (!SelectedValueChanged.HasDelegate)
         {
-            throw new InvalidOperationException("You must bind the SelectedIndex parameter.");
+            throw new InvalidOperationException($"You must bind the '{nameof(selectedIndex)}' parameter.");
+        }
+
+        if (Items.Length == 0)
+        {
+            throw new InvalidOperationException("No items specified.");
         }
 
         selectItems.Clear();
@@ -291,14 +329,18 @@
         {
             selectItems.Add(index, new SelectItem(Items[index], itemId(index)));
         }
+
+        // check initial SelectedValue value exists, if not default to 0
+        KeyValuePair<int, SelectItem>? foundEntry = selectItems.FirstOrDefault(entry => entry.Value.Value == SelectedValue);
+        selectedIndex = foundEntry.HasValue ? foundEntry.Value.Key : 0;
+        activeIndex = selectedIndex;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var result = await JS.InvokeAsync<bool>("selectOnlyCombobox.installOnComboKeyDown", comboInputId, objRef);
-            if (!result)
+            if (!await JS.InvokeAsync<bool>("selectOnlyCombobox.installOnComboKeyDown", comboInputId, objRef))
                 Logger.LogError("Failed to install keydown handler.");
         }
     }
@@ -311,9 +353,10 @@
 
     private class SelectItem
     {
+        public int? Value { get; set; }
         public string Name { get; private set; }
         public string Id { get; private set; }
 
-        public SelectItem(string name, string id) => (Name, Id) = (name, id);
+        public SelectItem(SelectOption option, string id) => (Value, Name, Id) = (option.Value, option.Name, id);
     }
 }

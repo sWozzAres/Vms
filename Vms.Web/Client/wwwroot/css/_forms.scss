@@ -1,6 +1,15 @@
 form.edit-form {
     font-size: 1rem;
 
+    input:disabled, .combo-input.disabled {
+        background-color: red;
+        color: white;
+    }
+
+    > fieldset:disabled label {
+        color: red;
+    }
+
     > fieldset {
         display: grid;
         grid-template-columns: 1fr 1fr;

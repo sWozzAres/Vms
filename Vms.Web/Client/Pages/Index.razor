@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.ComponentModel.DataAnnotations;
 
 <PageTitle>Index</PageTitle>
 <section>
@@ -59,18 +60,40 @@
 
     </div> *@
     @* OnItemSelected="(i) => selectedItem = items[i]"> *@
-    <SelectOnlyCombobox Items="@items" Label="Select Fruit" LabelHidden=true 
-        
-        @bind-SelectedIndex="SelectedValue"
-    >
+     <SelectOnlyCombobox Items="@items" Label="Select Fruit" LabelHidden=false
+    @bind-SelectedValue="SelectedValue">
     </SelectOnlyCombobox>
+    
+    <p>SelectedValue: @Model.SelectedValue</p>
 
+    <EditFormTemplate Model="@Model" ApiUrl="">
+        <DataAnnotationsValidator />
+
+        <div class="form-section">
+            <InputSelectOnlyCombobox Options="@items" LabelText="A label" @bind-Value="Model.SelectedValue" />
+            <ValidationMessage For="@(() => Model.SelectedValue)" />
+
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="Model.Name" />
+            <ValidationMessage For="@(() => Model.Name)" />
+        </div>
+    </EditFormTemplate>
+    
+    <select id="status" class="valid" _bl_32="">
+        <!--!-->
+        <option value="">Select</option>
+        <!--!-->
+        <option value="0">Active</option>
+        <!--!-->
+        <option value="1">Deactivated</option>
+    </select>
     <p>Selected item: @selectedItem</p>
     <ol>
         <li><a href="/fetchdata">Fetch</a></li>
         <li><a href="/typography">Typography</a></li>
         <li><a href="/buttons">Buttons</a></li>
         <li><a href="/people/create">Create Person</a></li>
+        <li><a href="/people/view/1">Edit Person</a></li>
     </ol>
 
     <ul>
@@ -85,23 +108,41 @@
 </section>
 
 @code {
-    int SelectedValue { get; set; } = 12;
+
+    int? SelectedValue { get; set; } = null;
     private string selectedItem = string.Empty;
 
-    private string[] items = new string[]
+    private SelectOption[] items = new SelectOption[]
     {
-        "Choose a Fruit",
-        "Apple",
-        "Banana",
-        "Blueberry",
-        "Boysenberry",
-        "Cherry",
-        "Cranberry",
-        "Durian",
-        "Eggplant",
-        "Fig",
-        "Grape",
-        "Guava",
-        "Huckleberry"
+        new SelectOption(0, "--Choose a Fruit--"),
+        new SelectOption(null, "Apple"),
+        new SelectOption(2, "Banana"),
+        new SelectOption(3, "Blueberry"),
+        new SelectOption(4, "Boysenberry"),
+        new SelectOption(5, "Cherry"),
+        new SelectOption(6, "Cranberry"),
+        new SelectOption(7, "Durian"),
+        new SelectOption(8, "Eggplant"),
+        new SelectOption(9, "Fig"),
+        new SelectOption(10, "Grape"),
+        new SelectOption(111, "Guava"),
+        new SelectOption(122, "Huckleberry")
     };
+
+    public MyModel Model { get; set; } = new();
+
+    public record MyModel : ICopyable<MyModel>
+    {
+        [Range(1,122)]
+        public int? SelectedValue { get; set; } = 0;
+
+        [Required]
+        public string Name { get; set; } = "Mark";
+
+        public void CopyFrom(MyModel source)
+        {
+            SelectedValue = source.SelectedValue;
+            Name = source.Name;
+        }
+    }
 }

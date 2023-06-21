@@ -15,13 +15,14 @@ public class PersonController : ControllerBase
     {
         return Ok(new Person()
         {
+            Id = id,
             Name = "Mark",
-            Age = 19,
+            Age = 19 + id,
             BirthDate = new DateTime(1972, 4, 16),
             Email = "markb@utopiasoftware.co.uk",
             IsAdministrator = true,
             Notes = "notes",
-            Status = 0,
+            Status = null,
             TheManufacturer = Person.Manufacturer.VirginGalactic
         });
     }
@@ -30,5 +31,11 @@ public class PersonController : ControllerBase
     public IActionResult Post(Person person)
     {
         return CreatedAtAction("Get", new { id = 1 }, person);
+    }
+
+    [HttpPatch]
+    public IActionResult Patch(Person person)
+    {
+        return Ok(person);
     }
 }

@@ -1,7 +1,8 @@
 ﻿namespace Vms.Web.Shared;
 
-public record Person : ICopyable<Person>
+public class Person : ICopyable<Person>
 {
+    public int Id { get; set; }
     [Required]
     [StringLength(20)]
     public string Name { get; set; } = string.Empty;
@@ -24,7 +25,7 @@ public record Person : ICopyable<Person>
     [Required]
     public string? Notes { get; set; } = null!;
 
-    [Required]
+    [Required, Range(0,1)]
     public int? Status { get; set; }
 
     [Required]
@@ -40,17 +41,4 @@ public record Person : ICopyable<Person>
     public enum Manufacturer { None, SpaceX, NASA, ULA, VirginGalactic }
     public enum Color { ImperialRed, SpacecruiserGreen, StarshipBlue, VoyagerOrange }
     public enum Engine { Ion, Plasma, Fusion, Warp }
-
-    public void CopyFrom(Person source)
-    {
-        Name = source.Name;
-        Email = source.Email;
-        Age = source.Age;
-        IsAdministrator = source.IsAdministrator;
-        BirthDate = source.BirthDate;
-        Notes = source.Notes;
-        Status = source.Status;
-        TheManufacturer = source.TheManufacturer;
-    }
-    //public Person ShallowCopy() => (Person)MemberwiseClone();
 }

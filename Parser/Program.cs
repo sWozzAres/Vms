@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Text;
 using System.ComponentModel.Design;
 using System.Net.Http.Headers;
+using System.Reflection;
 
 namespace Parser
 {
@@ -8,7 +9,13 @@ namespace Parser
     {
         static async Task Main(string[] args)
         {
-            
+            var person1 = new Person() { Name = "Fred" };
+            var person2 = new Person() { Name = "Jim" };
+
+            var c1 = person1 as ICopyable<Person>;
+            c1.CopyFrom2(person2);
+
+            return;
 
             T();
             return;
@@ -90,5 +97,27 @@ namespace Parser
                 Console.WriteLine(tagName + " " + closing + " " + content);
             }
         }
+    }
+
+    public interface ICopyable<T>
+    {
+        public void CopyFrom2(T source)
+        {
+            Type recordType = typeof(T);
+            PropertyInfo[] properties = recordType.GetProperties();
+
+            foreach (PropertyInfo property in properties)
+            {
+                object sourceValue = property.GetValue(source)
+                    ?? throw new InvalidOperationException("Property not found on source.");
+
+                property.SetValue(this, sourceValue);
+            }
+        }
+    }
+
+    public record Person : ICopyable<Person> 
+    {
+        public string Name { get; set; }
     }
 }

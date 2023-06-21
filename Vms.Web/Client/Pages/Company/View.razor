@@ -23,7 +23,7 @@
         {
             var apiUrl = $"api/Company/{Code}";
 
-            <FormTemplate Model="@company" ApiUrl="@apiUrl">
+            <EditFormTemplate Model="@company" ApiUrl="@apiUrl">
                 <DataAnnotationsValidator />
 
                 <div class="form-section">
@@ -36,7 +36,7 @@
                     <InputText id="email" @bind-Value="company.Name" />
                     <ValidationMessage For="@(() => company.Name)" />
                 </div>
-            </FormTemplate>
+            </EditFormTemplate>
         }
     </Content>
 </ViewTemplate>

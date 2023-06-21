@@ -1,15 +1,15 @@
-﻿@page "/people/create"
+﻿@page "/people/view/{id:int}"
 @inject HttpClient Http
 @attribute [Authorize]
 
 @using System.ComponentModel.DataAnnotations
 
-<PageTitle>Create Person</PageTitle>
+<PageTitle>Person</PageTitle>
 
 <section>
-    <h1>Create Person</h1>
+    <h1>Person</h1>
 
-    <CreateFormTemplate Model="@person" ApiUrl="Person">
+    <EditFormTemplate Model="@person" ApiUrl="Person">
         <DataAnnotationsValidator />
 
         <div class="form-section">
@@ -24,7 +24,7 @@
 
 
             <label for="age">Age</label>
-            <InputNumber id="age" @bind-Value="person.Age" />
+            <InputNumber id="age" @bind-Value="person.Age" disabled />
             <ValidationMessage For="@(() => person.Age)" />
 
 
@@ -62,11 +62,14 @@
             </div>
             <ValidationMessage For="@(() => person.TheManufacturer)" />
         </div>
-    </CreateFormTemplate>
-    <p>@person</p>
+    </EditFormTemplate>
+    <p style="height: 100vh;">@person</p>
 </section>
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
+
     public Person person = new() {Name = "x"};
 
     public SelectOption[] statusOptions = new SelectOption[]
@@ -78,11 +81,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var result = await Http.GetFromJsonAsync<Person>("Person/1");
+        await Task.Delay(3000);
+        var result = await Http.GetFromJsonAsync<Person>($"Person/{Id}");
 
         if (result is not null)
         {
-            (person as ICopyable<Person>).CopyFrom(result);
+            person = result;
+            //(person as ICopyable<Person>).CopyFrom(result);
         }
     }
 }

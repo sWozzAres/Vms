@@ -1,0 +1,106 @@
+﻿@using System.Text
+@using System.Text.Json;
+@using Microsoft.AspNetCore.Components.Forms;
+
+@typeparam TModel where TModel : class, ICopyable<TModel>, new()
+@inject HttpClient Http
+@inject ILogger<CreateFormTemplate<TModel>> Logger
+
+<EditForm EditContext="editContext" OnSubmit="HandleSubmit" class="edit-form">
+    <fieldset>
+            @ChildContent
+    </fieldset>
+    <div class="buttons">
+        <button type="button" @onclick="ResetForm">Reset</button>
+        <button type="submit">Create</button>
+    </div>
+
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public TModel Model { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string ApiUrl { get; set; } = null!;
+
+    EditContext editContext = null!;
+    ValidationMessageStore messageStore = null!;
+
+    TModel OriginalModel { get; set; } = new();
+    bool IsPosting { get; set; }
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Model);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+
+    async Task HandleSubmit()
+    {
+        Logger.LogInformation("Handling submit form {model}", Model);
+        if (editContext is null)
+            return;
+
+        if (editContext.Validate())
+        {
+            Logger.LogInformation("HandleSubmit called: Form is valid");
+
+            // Process the valid form
+            // await ...
+            //await Task.CompletedTask;
+            await HandleValidSubmit();
+        }
+        else
+        {
+            var vm = editContext.GetValidationMessages();
+
+            Logger.LogInformation("HandleSubmit called: Form is INVALID: {vm}.", vm);
+        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        Logger.LogInformation("Submitting form {model}", Model);
+        IsPosting = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync(ApiUrl, Model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.Created)
+                {
+                    var content = await response.Content.ReadFromJsonAsync<TModel>();
+                    if (content is null)
+                    {
+                        throw new InvalidOperationException("Failed to deserialize model.");
+                    }
+                    OriginalModel.CopyFrom(content);
+                }
+                else
+                {
+                    Logger.LogError("Form submission returned unexpected status code '{statusCode}'.", response.StatusCode);
+                }
+            }
+            else
+            {
+                Logger.LogError("Form submission failed with error '{ReasonPhrase}'.", response.ReasonPhrase);
+            }
+        }
+        finally
+        {
+            IsPosting = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        //editContext = new EditContext(Model);
+        //messageStore = new ValidationMessageStore(editContext);
+
+        Model.CopyFrom(OriginalModel);
+    }
+}

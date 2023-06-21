@@ -238,13 +238,19 @@ window.selectOnlyCombobox = {
             Type: 10,
         };
 
+        element.addEventListener("mousedown", (event) => {
+            // if element is disabled, prevent 'mousedown' setting focus 
+            if (element.getAttribute('tabindex') === '-1') {
+                event.preventDefault();
+            }
+        });
+
         element.addEventListener('keydown', (event) => {
 
             const { key } = event;
 
-            const isOpen = element.getAttribute('aria-activedescendant').length > 0;
-
-            const action = getActionFromKey(event, isOpen);
+            // 'aria-activedescendant' only set when the menu is open
+            const action = getActionFromKey(event, element.getAttribute('aria-activedescendant').length > 0);
 
             switch (action) {
                 case SelectActions.Last:
@@ -257,8 +263,9 @@ window.selectOnlyCombobox = {
                 case SelectActions.PageUp:
                 case SelectActions.PageDown:
                     event.preventDefault();
-                    objRef.invokeMethodAsync("onOptionChangeJS", action);
-                    scrollActiveItemIntoView(element.getAttribute('aria-activedescendant'));
+                    objRef.invokeMethodAsync("onOptionChangeJS", action).then(() => { 
+                        scrollActiveItemIntoView(element.getAttribute('aria-activedescendant'));
+                    });
                     return;
 
                 case SelectActions.CloseSelect:
@@ -270,6 +277,7 @@ window.selectOnlyCombobox = {
                     event.preventDefault();
                     objRef.invokeMethodAsync("updateMenuStateJS", false);
                     return;
+
                 case SelectActions.Type:
                     objRef.invokeMethodAsync("onComboTypeJS", key).then(activeId => {
                         scrollActiveItemIntoView(activeId);
@@ -278,7 +286,9 @@ window.selectOnlyCombobox = {
 
                 case SelectActions.Open:
                     event.preventDefault();
-                    objRef.invokeMethodAsync("updateMenuStateJS", true);
+                    objRef.invokeMethodAsync("updateMenuStateJS", true).then(() => {
+                        scrollActiveItemIntoView(element.getAttribute('aria-activedescendant'));
+                    });
                     return;
             }
 

@@ -3,7 +3,7 @@
 @{
     //Parent.AddDropdownItem(this);
 
-    Logger.LogInformation("{counter} SelectedValue {selectedValue}, Value {value}.", counter++, Parent?.SelectedValue, Value);
+    // Logger.LogInformation("{counter} SelectedValue {selectedValue}, Value {value}.", counter++, Parent?.SelectedValue, Value);
     var className = Parent?.SelectedValue == Value ? "focus" : string.Empty;
 }
 <li id="@Id" class="@className" role="menuitem" tabindex="-1"
@@ -11,7 +11,7 @@
     @ChildContent
 </li>
 @code {
-    static int counter = 0;
+    //static int counter = 0;
 
     [EditorRequired, Parameter]
     public RenderFragment ChildContent { get; set; } = null!;
