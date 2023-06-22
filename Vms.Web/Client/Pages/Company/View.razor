@@ -23,7 +23,7 @@
         {
             var apiUrl = $"api/Company/{Code}";
 
-            <EditFormTemplate TModel="CompanyModel" ApiUrl="@apiUrl">
+            <EditFormTemplate Model="@company" ApiUrl="@apiUrl">
                 <DataAnnotationsValidator />
 
                 <div class="form-section">

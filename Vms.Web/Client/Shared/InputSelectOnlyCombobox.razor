@@ -3,7 +3,7 @@
 @inject ILogger<InputSelectOnlyCombobox> Logger
 
 <input type="hidden" @bind="CurrentValue" />
-<SelectOnlyCombobox Items="@Options" Label="@LabelText" LabelHidden=false
+<SelectOnlyCombobox Items="@Options" Label="@LabelText"
 @bind-SelectedValue="CurrentValue" class="form-combo">
 </SelectOnlyCombobox>
 
@@ -16,24 +16,20 @@
 
     [Parameter] public string ParsingErrorMessage { get; set; } = "The {0} field must be a number.";
 
-    //[Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> InputAttributes { get; set; } = null!;
-
     string classNameAddition = string.Empty;
 
-    //int SelectedValue { get; set; } = 111;
+    // protected override void OnInitialized()
+    // {
+    //     base.OnInitialized();
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        if (AdditionalAttributes is not null && AdditionalAttributes.TryGetValue("class", out var o))
-        {
-            if (o is not null && o is string)
-                classNameAddition = (string)o;
-            else
-                Logger.LogWarning("'class' parameter is invalid.");
-        }
-    }
+    //     if (AdditionalAttributes is not null && AdditionalAttributes.TryGetValue("class", out var o))
+    //     {
+    //         if (o is not null && o is string)
+    //             classNameAddition = (string)o;
+    //         else
+    //             Logger.LogWarning("'class' parameter is invalid.");
+    //     }
+    // }
 
     protected override bool TryParseValueFromString(string? value,
     [MaybeNullWhen(false)] out int? result,

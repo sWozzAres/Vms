@@ -2,6 +2,7 @@
 @import "_buttons.custom.css";
 @import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
 :root {
+  --outline-size: 5px;
   --bg-light: #ffffff;
   --bg-dark: hsl(218.18deg 9.4% 22.94%);
   --bg: var(--bg-light);
@@ -414,12 +415,17 @@ form.edit-form > fieldset .buttons {
   display: flex;
   column-gap: 1em;
   border: none;
+  border-radius: 4px;
 }
 .combo.header-combo .combo-input svg {
   justify-self: start;
 }
 .combo.header-combo .combo-menu {
+  margin-top: var(--outline-size);
   font-size: 1rem;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
 }
 
 .combo.form-combo .combo-input {
@@ -441,6 +447,12 @@ form.edit-form > fieldset .buttons {
 .combo.form-combo .combo-input svg {
   padding-left: 0.5em;
   border-left: 1px solid black;
+}
+.combo.form-combo .combo-menu {
+  margin-top: var(--outline-size);
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
 }
 
 .hidden {
@@ -481,7 +493,7 @@ h1:focus {
   background-color: #fff;
   border-color: #86b7fe;*/
   outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  box-shadow: 0 0 0 var(--outline-size) rgba(13, 110, 253, 0.25);
 }
 
 #blazor-error-ui {

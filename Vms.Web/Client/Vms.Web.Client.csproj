@@ -20,6 +20,12 @@
 
 	<ItemGroup>
 	  <Content Remove="compilerconfig.json" />
+	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Shared\_SelectOnlyCombobox.razor.css" />
+	  <None Remove="Shared\_SelectOnlyCombobox.razor.js" />
 	</ItemGroup>
 
 	<ItemGroup>

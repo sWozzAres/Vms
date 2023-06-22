@@ -6,52 +6,52 @@
     <h1>Home</h1>
 
     @* <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown">
-        <ButtonContent>Click Me!</ButtonContent>
-        <ChildContent>
-            <DropdownItem Value="1">Item 1</DropdownItem>
-            <DropdownItem Value="2">Item 2</DropdownItem>
-            <DropdownItem Value="3">Item 3</DropdownItem>
-        </ChildContent>
+    <ButtonContent>Click Me!</ButtonContent>
+    <ChildContent>
+    <DropdownItem Value="1">Item 1</DropdownItem>
+    <DropdownItem Value="2">Item 2</DropdownItem>
+    <DropdownItem Value="3">Item 3</DropdownItem>
+    </ChildContent>
     </DropdownButton>
 
     <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown2">
-        <ButtonContent>
-            <div class="holder">
-                <svg viewBox="0 0 448 512">
-                    <use xlink:href="icons/solid.svg#user" />
-                </svg>
-                User
-            </div>
-        </ButtonContent>
-        <ChildContent>
-            <DropdownItem Value="1">
-                <div class="holder">
-                    <svg viewBox="0 0 448 512" fill="red">
-                        <use xlink:href="icons/solid.svg#user" />
-                    </svg>
-                    User
-                </div>
-            </DropdownItem>
-            <DropdownItem Value="2">
-                <div class="holder">
-                    <svg viewBox="0 0 448 512" fill="green">
-                        <use xlink:href="icons/solid.svg#user" />
-                    </svg>
-                    User
-                </div>
-            </DropdownItem>
-            <DropdownItem Value="3">
-                <div class="holder">
-                    <svg viewBox="0 0 448 512">
-                        <use xlink:href="icons/solid.svg#user" />
-                    </svg>
-                    User
-                </div>
-            </DropdownItem>
-        </ChildContent>
+    <ButtonContent>
+    <div class="holder">
+    <svg viewBox="0 0 448 512">
+    <use xlink:href="icons/solid.svg#user" />
+    </svg>
+    User
+    </div>
+    </ButtonContent>
+    <ChildContent>
+    <DropdownItem Value="1">
+    <div class="holder">
+    <svg viewBox="0 0 448 512" fill="red">
+    <use xlink:href="icons/solid.svg#user" />
+    </svg>
+    User
+    </div>
+    </DropdownItem>
+    <DropdownItem Value="2">
+    <div class="holder">
+    <svg viewBox="0 0 448 512" fill="green">
+    <use xlink:href="icons/solid.svg#user" />
+    </svg>
+    User
+    </div>
+    </DropdownItem>
+    <DropdownItem Value="3">
+    <div class="holder">
+    <svg viewBox="0 0 448 512">
+    <use xlink:href="icons/solid.svg#user" />
+    </svg>
+    User
+    </div>
+    </DropdownItem>
+    </ChildContent>
     </DropdownButton> *@
 
-    
+
     @* <div style="display:flex">
     <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val">
     Actions
@@ -61,18 +61,19 @@
     </div> *@
     @* OnItemSelected="(i) => selectedItem = items[i]"> *@
     <h2>
-     <SelectOnlyCombobox Items="@items" Label="Select Fruit" LabelHidden=false
-    @bind-SelectedValue="SelectedValue" class="header-combo">
-    </SelectOnlyCombobox>
+
+        <SelectOnlyCombobox Items="@items" Label="Select Fruit"
+        @bind-SelectedValue="SelectedValue" class="header-combo">
+        </SelectOnlyCombobox>
     </h2>
     <p>SelectedValue: @SelectedValue</p>
-    
+
 
     <EditFormTemplate Model="Model" ApiUrl="">
         <DataAnnotationsValidator />
 
         <div class="form-section">
-            <InputSelectOnlyCombobox Options="@items" LabelText="A label" @bind-Value="Model.SelectedValue"  />
+            <InputSelectOnlyCombobox Options="@items" LabelText="A label" @bind-Value="Model.SelectedValue" />
             <ValidationMessage For="@(() => Model.SelectedValue)" />
 
             @* <label for="name">Name</label>
@@ -103,8 +104,7 @@
 </section>
 
 @code {
-
-    int? SelectedValue { get; set; } = null;
+    int? SelectedValue { get; set; }
     private string selectedItem = string.Empty;
 
     private SelectOption[] items = new SelectOption[]
@@ -128,7 +128,7 @@
 
     public record MyModel : ICopyable<MyModel>
     {
-        [Range(1,122)]
+        [Range(1, 122)]
         public int? SelectedValue { get; set; } = 0;
 
         [Required]

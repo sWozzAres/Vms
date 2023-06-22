@@ -15,7 +15,7 @@
                 <div class="list-dropdown-holder">
                     <h2>
                         <SelectOnlyCombobox Items="@Lists" Label="List" LabelHidden="true"
-                        @bind-SelectedValue="selectedList" @bind-SelectedValue:after="SelectedValueChanged" class="header-combo" />
+                        @bind-SelectedValue="selectedList" @bind-SelectedValue:after="SelectedValueChanged2" class="header-combo" />
 
                         @* @Lists.ElementAt(selectedList).Value
                         <button @onclick="ToggleListDropdownHidden" disabled="@(state == State.Loading)">
@@ -128,7 +128,7 @@
     private bool listDropdownHidden = true;
     private void ToggleListDropdownHidden() => listDropdownHidden = !listDropdownHidden;
 
-    async Task SelectedValueChanged()
+    async Task SelectedValueChanged2()
     {
         listDropdownHidden = true;
         await LoadItemsAsync();

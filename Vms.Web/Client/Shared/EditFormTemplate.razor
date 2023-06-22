@@ -48,7 +48,7 @@ else if (Model is not null)
     public string Id { get; set; } = null!;
 
     EditContext editContext = null!;
-    bool isLoaded;
+    
     ValidationMessageStore messageStore = null!;
     Exception? loadingException;
     TModel OriginalModel { get; set; } = new();

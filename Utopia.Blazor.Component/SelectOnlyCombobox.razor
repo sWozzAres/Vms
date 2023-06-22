@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime JS
 @inject ILogger<SelectOnlyCombobox> Logger
-
+@namespace Utopia.Blazor.Component
 @implements IAsyncDisposable
 
 <label id="@id" class="@labelClassName">@Label</label>
@@ -50,7 +50,7 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> InputAttributes { get; set; } = null!;
 
-    [CascadingParameter(Name ="IsDisabled")]
+    [CascadingParameter(Name = "IsDisabled")]
     public bool IsDisabled { get; set; }
 
     [Parameter]
@@ -128,7 +128,8 @@
         }
     }
 
-    async Task onComboInputClick() {
+    async Task onComboInputClick()
+    {
         if (IsDisabled)
             return;
 
@@ -292,7 +293,7 @@
 
     protected override void OnInitialized()
     {
-        id = Helpers.GetRandomHtmlId();
+        id = HtmlHelpers.GetRandomHtmlId();
         comboInputId = $"{id}-combo";
         comboMenuId = $"{id}-listbox";
         objRef = DotNetObjectReference.Create(this);
@@ -348,7 +349,7 @@
     {
         if (firstRender)
         {
-            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/SelectOnlyCombobox.razor.js");
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/SelectOnlyCombobox.razor.js");
             _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("init", comboInputEl, objRef);
 
             // if (!await JS.InvokeAsync<bool>("selectOnlyCombobox.installOnComboKeyDown", comboInputId, objRef))
