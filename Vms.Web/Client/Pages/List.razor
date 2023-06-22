@@ -86,9 +86,9 @@
         {
             companies = await Http.GetFromJsonAsync<CompanyListModel[]>("Company");
         }
-        catch (AccessTokenNotAvailableException exception)
+        catch (AccessTokenNotAvailableException ex)
         {
-            exception.Redirect();
+            ex.Redirect();
         }
     }
 }

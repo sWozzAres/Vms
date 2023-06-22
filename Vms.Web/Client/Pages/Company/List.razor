@@ -32,12 +32,19 @@
 </ListTemplate>
 
 @code {
-    private Dictionary<int, string> lists = new()
+    public SelectOption[] lists = new SelectOption[]
     {
-        {0, "All Companies" },
-        {1, "Recently Viewed" },
-        {2, "Pinned" }
+        new SelectOption(0, "All Companies"),
+        new SelectOption(1, "Recently Viewed"),
+        new SelectOption(2, "Pinned"),
     };
+
+    // private Dictionary<int, string> lists = new()
+    // {
+    //     {0, "All Companies" },
+    //     {1, "Recently Viewed" },
+    //     {2, "Pinned" }
+    // };
 
     public async Task<IEnumerable<CompanyListModel>> LoadItemsAsync(int list)
         => await Http.GetFromJsonAsync<List<CompanyListModel>>($"/api/Company?list={list}")

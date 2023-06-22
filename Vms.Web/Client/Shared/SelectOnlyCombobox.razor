@@ -9,7 +9,10 @@
     <div id="@comboInputId" @ref="comboInputEl" class="@comboInputClassName" role="combobox" tabindex="@comboInputTabIndex"
          aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeItemId"
     @onblur="onComboInputBlur" @onclick="onComboInputClick">
-        @selectItems[selectedIndex].Name
+        <span>@selectItems[selectedIndex].Name</span>
+        <svg viewBox="0 0 512 512">
+            <use xlink:href="icons/solid.svg#chevron-down" />
+        </svg>
     </div>
 
     <div id="@comboMenuId" @ref="comboMenuEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1"
@@ -25,7 +28,10 @@
 
             <div id="@item.Id" role="option" class="@className2" aria-selected="@isSelected.ToHtml()"
             @onclick="async () => await onComboMenuClick(idx)" @onclick:stopPropagation>
-                @item.Name
+                <svg viewBox="0 0 448 512">
+                    <use xlink:href="icons/solid.svg#check" />
+                </svg>
+                <span>@item.Name</span>
             </div>
         }
     </div>

@@ -1,0 +1,49 @@
+.combo.header-combo {
+    width: 100%;
+
+    .combo-input {
+        display: flex;
+        column-gap: 1em;
+        border: none;
+
+
+        span {
+        }
+
+        svg {
+            justify-self: start;
+        }
+    }
+
+    .combo-menu {
+        font-size: 1rem;
+    }
+}
+
+.combo.form-combo {
+
+    .combo-input {
+        display: flex;
+        column-gap: 0.5em;
+        background-color: #ffffff;
+        border: 1px solid rgb(0 0 0 / 75%);
+        border-radius: 4px;
+        padding: 0.5em;
+        text-align: left;
+        width: 100%;
+
+        .open {
+            border-radius: 4px 4px 0 0;
+        }
+
+        span {
+            flex-grow: 1;
+        }
+
+        svg {
+            padding-left: 0.5em;
+            border-left: 1px solid black;
+        }
+    }
+}
+

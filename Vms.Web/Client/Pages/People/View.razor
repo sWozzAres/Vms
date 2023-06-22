@@ -1,5 +1,6 @@
-﻿@page "/people/view/{id:int}"
+﻿@page "/people/view/{id}"
 @inject HttpClient Http
+@inject ILogger<View> Logger
 @attribute [Authorize]
 
 @using System.ComponentModel.DataAnnotations
@@ -8,8 +9,9 @@
 
 <section>
     <h1>Person</h1>
+    <a href="/people/view/2">Edit Person</a>
 
-    <EditFormTemplate Model="@person" ApiUrl="Person">
+    <EditFormTemplate Model="@person" Id="@Id" ApiUrl="Person">
         <DataAnnotationsValidator />
 
         <div class="form-section">
@@ -63,14 +65,20 @@
             <ValidationMessage For="@(() => person.TheManufacturer)" />
         </div>
     </EditFormTemplate>
-    <p style="height: 100vh;">@person</p>
+
+    <p>@person</p>
+
 </section>
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string Id { get; set; } = null!;
 
-    public Person person = new() {Name = "x"};
+    //EditFormTemplate<Person> template = null!;
+    Person person = null!;
+
+    //public template.Model template.Model => template.Model;// null!;// new() { Name = "z"};
+    //Exception? loadingException;
 
     public SelectOption[] statusOptions = new SelectOption[]
     {
@@ -79,15 +87,68 @@
         new SelectOption(1, "Inactive"),
     };
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+
+        }
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        Logger.LogInformation("SetParametersAsync()");
+        await base.SetParametersAsync(parameters);
+        //await Task.Delay(1000);
+    }
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("OnInitialized()");
+        base.OnInitialized();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync()");
+        await base.OnInitializedAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnParametersSet()
+    {
+        Logger.LogInformation("OnParametersSet()");
+        base.OnParametersSet();
+    }
     protected override async Task OnParametersSetAsync()
     {
-        await Task.Delay(3000);
+        Logger.LogInformation("OnParametersSetAsync()");
+        await base.OnParametersSetAsync();
+        //await Task.Delay(1000);
+
         var result = await Http.GetFromJsonAsync<Person>($"Person/{Id}");
 
         if (result is not null)
         {
-            person = result;
-            //(person as ICopyable<Person>).CopyFrom(result);
+            //template.Model = result;
+            //template.Model = new();
+            //template.SetModel(result);
+            // template.Model = new Person();
+            // (template.Model as ICopyable<Person>).CopyFrom(result);
+            //template.SetModel(template.Model);
+            person = new();
+            (person as ICopyable<Person>).CopyFrom(result);
         }
     }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+        base.OnAfterRender(firstRender);
+    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+    //     await base.OnAfterRenderAsync(firstRender);
+    //     //await Task.Delay(1000);
+    // }
 }

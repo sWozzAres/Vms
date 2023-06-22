@@ -5,48 +5,68 @@
 @typeparam TModel where TModel : class, ICopyable<TModel>, new()
 @inject HttpClient Http
 @inject ILogger<EditFormTemplate<TModel>> Logger
+@if (loadingException is not null)
+{
+    <p>An error occured loading the page.</p>
+    <p>@loadingException.Message</p>
+}
+else if (Model is not null)
+{
+    <EditForm Model="@Model"  OnSubmit="HandleSubmit" class="edit-form">
+        <fieldset disabled="@(!InEditMode)">
+            <CascadingValue Value="IsDisabled" Name="IsDisabled">
+                @ChildContent
+            </CascadingValue>
+        </fieldset>
+        <div class="buttons">
+            <button type="button" @onclick="ToggleEdit">@EditButtonText</button>
+            <button type="submit" disabled="@(!InEditMode)">Save</button>
+        </div>
 
-<EditForm EditContext="editContext" OnSubmit="HandleSubmit" class="edit-form">
-    <fieldset disabled="@(!InEditMode)">
-        <CascadingValue Value="IsDisabled" Name="IsDisabled">
-            @ChildContent
-        </CascadingValue>
-    </fieldset>
-    <div class="buttons">
-        <button type="button" @onclick="ToggleEdit">@EditButtonText</button>
-        <button type="submit" disabled="@(!InEditMode)">Save</button>
-    </div>
-
-</EditForm>
+    </EditForm>
+    <p>@Model</p>
+}
 
 @code {
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; } = null!;
+    //public RenderFragment ChildContent2 { get; set; } = null!;
 
     [Parameter, EditorRequired]
-    public TModel Model { get; set; } = default!;
+    public TModel Model { get; set; } = null!;// default!;
+    // public void SetModel(TModel model)
+    // {
+    //     Model = new();
+    //     (Model as ICopyable<TModel>).CopyFrom(model);
+    //     StateHasChanged();
+    // }
 
     [Parameter, EditorRequired]
     public string ApiUrl { get; set; } = null!;
 
-    EditContext editContext = null!;
-    ValidationMessageStore messageStore = null!;
+    [Parameter]
+    public string Id { get; set; } = null!;
 
+    EditContext editContext = null!;
+    bool isLoaded;
+    ValidationMessageStore messageStore = null!;
+    Exception? loadingException;
     TModel OriginalModel { get; set; } = new();
     bool IsPosting { get; set; }
     bool InEditMode { get; set; } = false;
     string EditButtonText => InEditMode ? "Cancel" : "Edit";
     bool IsDisabled => !InEditMode;
 
-    protected override void OnInitialized()
-    {
-        editContext = new EditContext(Model);
-        messageStore = new ValidationMessageStore(editContext);
-    }
-
     protected override void OnParametersSet()
     {
         Logger.LogInformation("OnParametersSet()");
+        base.OnParametersSet();
+
+        // if (Model is not null)
+        // {
+        //     editContext = new EditContext(Model);
+        //     messageStore = new ValidationMessageStore(editContext);
+        // }
     }
 
     async Task HandleSubmit()
@@ -89,7 +109,7 @@
                         throw new InvalidOperationException("Failed to deserialize model.");
                     }
                     OriginalModel.CopyFrom(content);
-                    
+
                     InEditMode = false;
                 }
                 else if (response.StatusCode == HttpStatusCode.NoContent)
@@ -128,5 +148,47 @@
 
             Model.CopyFrom(OriginalModel);
         }
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+
+        Logger.LogInformation("SetParametersAsync({parameters})", parameters.ToDictionary());
+        await base.SetParametersAsync(parameters);
+        //await Task.Delay(1000);
+        //ChildContent2 = ChildContent;
+    }
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("OnInitialized()");
+        base.OnInitialized();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync()");
+        await base.OnInitializedAsync();
+        //await Task.Delay(1000);
+    }
+    // protected override void OnParametersSet()
+    // {
+    //     Logger.LogInformation("OnParametersSet()");
+    //     base.OnParametersSet();
+    // }
+    protected override async Task OnParametersSetAsync()
+    {
+        Logger.LogInformation("OnParametersSetAsync()");
+        await base.OnParametersSetAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+        base.OnAfterRender(firstRender);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+        //await Task.Delay(1000);
     }
 }

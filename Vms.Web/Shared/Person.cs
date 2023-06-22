@@ -1,6 +1,6 @@
 ﻿namespace Vms.Web.Shared;
 
-public class Person : ICopyable<Person>
+public record Person : ICopyable<Person>
 {
     public int Id { get; set; }
     [Required]

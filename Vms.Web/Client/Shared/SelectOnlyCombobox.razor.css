@@ -12,28 +12,11 @@
     position: relative;
 }
 
-    .combo::after {
-        content: "\25BC";
-        display: block;
-        pointer-events: none;
-        position: absolute;
-        right: 0;
-        top: 0;
-        padding: 0.5em;
-    }
-
-.combo-input {
-    background-color: #ffffff;
-    border: 1px solid rgb(0 0 0 / 75%);
-    border-radius: 4px;
-    padding: 0.5em;
-    text-align: left;
-    width: 100%;
+.combo-input svg {
+    height: 1em;
 }
 
-.open .combo-input {
-    border-radius: 4px 4px 0 0;
-}
+
 
 .combo-menu {
     background-color: #f5f5f5;
@@ -54,11 +37,18 @@
 }
 
 .combo-option {
-    padding: 0.5em 0.5em 0.5em 2em;
+    padding: 0.5em 0.5em 0.5em 0.5em;
+    display: flex;
+    column-gap: 1em;
 }
 
     .combo-option:hover {
         background-color: rgb(0 0 0 / 10%);
+    }
+
+    .combo-option svg {
+        height: 1em;
+        visibility: hidden;
     }
 
     .combo-option.option-current {
@@ -67,12 +57,14 @@
     }
 
     .combo-option[aria-selected="true"] {
-        padding-left: 2em;
         position: relative;
     }
 
-        .combo-option[aria-selected="true"]::after {
-            content: "\2714";
-            position: absolute;
-            left: 0.5em;
+        .combo-option[aria-selected="true"] svg {
+            visibility: visible;
         }
+/*.combo-option[aria-selected="true"]::after {
+        content: "\2714";
+        position: absolute;
+        left: 0.5em;
+    }*/

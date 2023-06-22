@@ -5,7 +5,7 @@
 <section>
     <h1>Home</h1>
 
-    <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown">
+    @* <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown">
         <ButtonContent>Click Me!</ButtonContent>
         <ChildContent>
             <DropdownItem Value="1">Item 1</DropdownItem>
@@ -49,9 +49,9 @@
                 </div>
             </DropdownItem>
         </ChildContent>
-    </DropdownButton>
+    </DropdownButton> *@
 
-    <p>SelectedValue: @SelectedValue</p>
+    
     @* <div style="display:flex">
     <MenuButton Items="@items" OnSelectCallback="(val) => selectedItem = val">
     Actions
@@ -60,35 +60,30 @@
 
     </div> *@
     @* OnItemSelected="(i) => selectedItem = items[i]"> *@
+    <h2>
      <SelectOnlyCombobox Items="@items" Label="Select Fruit" LabelHidden=false
-    @bind-SelectedValue="SelectedValue">
+    @bind-SelectedValue="SelectedValue" class="header-combo">
     </SelectOnlyCombobox>
+    </h2>
+    <p>SelectedValue: @SelectedValue</p>
     
-    <p>SelectedValue: @Model.SelectedValue</p>
 
-    <EditFormTemplate Model="@Model" ApiUrl="">
+    <EditFormTemplate Model="Model" ApiUrl="">
         <DataAnnotationsValidator />
 
         <div class="form-section">
-            <InputSelectOnlyCombobox Options="@items" LabelText="A label" @bind-Value="Model.SelectedValue" />
+            <InputSelectOnlyCombobox Options="@items" LabelText="A label" @bind-Value="Model.SelectedValue"  />
             <ValidationMessage For="@(() => Model.SelectedValue)" />
 
-            <label for="name">Name</label>
+            @* <label for="name">Name</label>
             <InputText id="name" @bind-Value="Model.Name" />
-            <ValidationMessage For="@(() => Model.Name)" />
+            <ValidationMessage For="@(() => Model.Name)" /> *@
         </div>
     </EditFormTemplate>
-    
-    <select id="status" class="valid" _bl_32="">
-        <!--!-->
-        <option value="">Select</option>
-        <!--!-->
-        <option value="0">Active</option>
-        <!--!-->
-        <option value="1">Deactivated</option>
-    </select>
-    <p>Selected item: @selectedItem</p>
+    <p>SelectedValue: @Model.SelectedValue</p>
+
     <ol>
+        <li><a href="/test/1">Test</a></li>
         <li><a href="/fetchdata">Fetch</a></li>
         <li><a href="/typography">Typography</a></li>
         <li><a href="/buttons">Buttons</a></li>
@@ -114,8 +109,8 @@
 
     private SelectOption[] items = new SelectOption[]
     {
-        new SelectOption(0, "--Choose a Fruit--"),
-        new SelectOption(null, "Apple"),
+        new SelectOption(null, "--Choose a Fruit--"),
+        new SelectOption(1, "Apple"),
         new SelectOption(2, "Banana"),
         new SelectOption(3, "Blueberry"),
         new SelectOption(4, "Boysenberry"),

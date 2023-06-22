@@ -5,6 +5,7 @@
 @import "_buttons.custom.css";
 @import "_forms.scss";
 @import "_list.scss";
+@import "_combos.scss";
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
@@ -116,7 +117,7 @@ h1:focus {
 
 
 
-main > section {
+/*main > section {
     background-color: var(--section-bg);
     padding: 1em;
     margin: 1em;
@@ -124,7 +125,7 @@ main > section {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-}
+}*/
 
 .purple {
     background: #a094ed;
