@@ -4,7 +4,7 @@ using Vms.Application.UseCase;
 using Vms.Domain.Entity;
 using Vms.Web.Server;
 
-namespace Vms.Domain.Infrastructure;
+namespace Vms.Domain.Infrastructure.Seed;
 
 public interface IVmsDbContextSeeder
 {
@@ -22,17 +22,25 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     static readonly string[] SurNames = new string[]
     {
         "Smith", "Jones", "Taylor", "Brown", "Williams", "Wilson", "Johnson", "Davies", "Robinson", "Wright", "Thomson", "Evans",
-        "Walker", "White", "Roberts", "Green", "Hall", "Wood", "Jackson", "Clark"
+        "Walker", "White", "Roberts", "Green", "Hall", "Wood", "Jackson", "Clark",
+        "Marshall", "Stevenson", "Sutherland", "Craig", "Wright", "McKenzie", "Kennedy",
+        "Jones", "Burns", "White", "Muir", "Murphy", "Johnstone", "Hughes"
     };
 
     static readonly string[] MaleFirstNames = new string[]
     {
-        "Oliver", "George", "Arthur", "Noah", "Muhammad", "Leo", "Oscar", "Harry", "Archie", "Henry"
+        "Oliver", "George", "Arthur", "Noah", "Muhammad", "Leo", "Oscar", "Harry", "Archie", "Henry",
+        "James", "Robert", "John", "Michael", "David", "William", "Richard","Joseph","Thomas",
+        "Charles", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Andrew", "Paul",
+        "Joshua", "Kenneth", "Kevin", "Brian", "Timothy", "Ronald", "Jason", "Edward"
     };
 
     static readonly string[] FemaleFirstNames = new string[]
     {
-        "Olivia", "Amelia", "Isla", "Ava", "Mia", "Ivy", "Lily", "Isabella", "Sophia", "Rosie"
+        "Olivia", "Amelia", "Isla", "Ava", "Mia", "Ivy", "Lily", "Isabella", "Sophia", "Rosie",
+        "Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Barbara", "Susan", "Jessica",
+        "Sarah", "Karen", "Lisa", "Nancy", "Betty", "Sandra", "Margaret", "Ashley",
+        "Kimberly", "Emily", "Donna", "Michelle", "Carol", "Amanda", "Melissa", "Deborah"
     };
 
     static readonly string[] MakeNames = new string[] { "MERCEDES", "FORD", "SUBARU" };
@@ -45,7 +53,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     const double maxLongitude = 2.668112510252122;
     const double deltaLatitude = maxLatitude - minLatitude;
     const double deltaLongitude = maxLongitude - minLongitude;
-    static Point RandomPoint() => new(minLongitude + (deltaLongitude * rnd.NextDouble()), minLatitude + (deltaLatitude * rnd.NextDouble())) { SRID = 4326 };
+    static Geometry RandomPoint() => new Point(minLongitude + (deltaLongitude * rnd.NextDouble()), minLatitude + (deltaLatitude * rnd.NextDouble())) { SRID = 4326 };
 
     static readonly Random rnd = new();
 
@@ -54,90 +62,96 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         if (_context.Companies.Any())
             return 0;
 
-        var company1 = new CreateCompany(_context)
-            .Create(new CreateCompanyRequest("TEST001", "Company #1"));
-
-        var fleet1_1 = await new CreateFleet(_context)
-            .CreateAsync(new CreateFleetRequest(company1.Code, "FL00101", "Fleet #1 Company #1"));
-        var fleet2_1 = await new CreateFleet(_context)
-            .CreateAsync(new CreateFleetRequest(company1.Code, "FL00102", "Fleet #2 Company #1"));
-
-        var network1_1 = await new CreateNetwork(_context)
-            .CreateAsync(new CreateNetworkRequest(company1.Code, "NET00101", "Network #1 Company #1"));
-        var network2_1 = await new CreateNetwork(_context)
-            .CreateAsync(new CreateNetworkRequest(company1.Code, "NET00102", "Network #2 Company #1"));
-
-        var customer1_1 = await new CreateCustomer(_context)
-            .CreateAsync(new CreateCustomerRequest(company1.Code, "CUS00101", "Customer #1 Company #1"));
-        var customer2_1 = await new CreateCustomer(_context)
-            .CreateAsync(new CreateCustomerRequest(company1.Code, "CUS00102", "Customer #2 Company #1"));
-
-        var company2 = new CreateCompany(_context)
-            .Create(new CreateCompanyRequest("TEST002", "Company #2"));
-
-        var fleet1_2 = await new CreateFleet(_context)
-            .CreateAsync(new CreateFleetRequest(company1.Code, "FL00201", "Fleet #2 Company #1"));
-
-        var network1_2 = await new CreateNetwork(_context)
-            .CreateAsync(new CreateNetworkRequest(company1.Code, "NET00201", "Network #2 Company #1"));
-
-        var customer1_2 = await new CreateCustomer(_context)
-            .CreateAsync(new CreateCustomerRequest(company1.Code, "CUS00201", "Customer #2 Company #1"));
-
-        if (!_context.Drivers.Any())
+        List<CompanyInfo> companies = new();
+        foreach(var ci in Enumerable.Range(1, 5))
         {
-            var fullNames = (string[] firstNames) => from surName in SurNames
-                                                     from firstName in firstNames
-                                                     select (firstName, surName);
+            string code = $"TEST{ci:D3}";
+            string name = $"Company #{ci}";
+            var company = new CreateCompany(_context)
+                .Create(new CreateCompanyRequest(code, name));
 
-            var drivers =
-                fullNames(MaleFirstNames).Select(n => new Driver()
-                {
-                    FirstName = n.firstName,
-                    LastName = n.surName,
-                    Salutation = "Mr",
-                    EmailAddress = GenerateEmailAddress(n.firstName, n.surName),
-                    MobileNumber = RandomPhoneNumber(),
-                    HomeLocation = RandomPoint()
-                })
-                .Concat(fullNames(FemaleFirstNames).Select(n => new Driver()
-                {
-                    FirstName = n.firstName,
-                    LastName = n.surName,
-                    Salutation = rnd.Next(2) == 0 ? "Ms" : "Mrs",
-                    EmailAddress = GenerateEmailAddress(n.firstName, n.surName),
-                    MobileNumber = RandomPhoneNumber(),
-                    HomeLocation = RandomPoint()
-                })
-                );
+            foreach(var fi in Enumerable.Range(1, 50))
+            {
+                string fleetCode = $"FL{ci:D3}{fi:D2}";
+                string fleetName = $"Fleet #{fi:D2} Company #{ci:D3}";
 
-            await _context.Drivers.AddRangeAsync(drivers);
+                var fleet1 = await new CreateFleet(_context)
+                    .CreateAsync(new CreateFleetRequest(company.Code, fleetCode, fleetName));
+            }
 
-            string RandomPhoneNumber() => "0" + (7700000000 + rnd.Next(99999999)).ToString();
-            string GenerateEmailAddress(string firstName, string lastName) => $"{firstName.ToLower()}.{lastName.ToLower()}{DateTime.Now.Year - 20 - rnd.Next(30)}@somewhere.com";
+            foreach (var ni in Enumerable.Range(1, 20))
+            {
+                string networkCode = $"NET{ci:D3}{ni:D2}";
+                string networkName = $"Network #{ni:D2} Company #{ci:D3}";
+
+                var fleet = await new CreateNetwork(_context)
+                    .CreateAsync(new CreateNetworkRequest(company.Code, networkCode, networkName));
+            }
+
+            foreach (var csi in Enumerable.Range(1, 100))
+            {
+                string customerCode = $"CUS{ci:D3}{csi:D3}";
+                string customerName = $"Customer #{csi:D3} Company #{ci:D3}";
+
+                var customer = await new CreateCustomer(_context)
+                    .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
+            }
         }
-
-        if (!_context.Suppliers.Any())
-        {
-            SeedSuppliers();
-        }
+        
+        SeedSuppliers();
 
         // generate make / model data
         var makes = MakeNames.Select(name =>
             new MakeInfo(name,
                 Enumerable.Range(1, 100).Select(x => new ModelInfo($"Model #{x}")).ToList()));
 
-        foreach(var makeInfo in makes)
+        foreach (var makeInfo in makes)
         {
             new CreateMake(_context)
                 .Create(new CreateMakeRequest(makeInfo.Make));
 
-            foreach(var modelInfo in makeInfo.Models)
+            foreach (var modelInfo in makeInfo.Models)
             {
                 await new CreateModel(_context)
                     .CreateAsync(new CreateModelRequest(makeInfo.Make, modelInfo.Model));
             }
         }
+
+
+        IEnumerable<DriverInfo> GetDrivers()
+        {
+            var fullNames = (IEnumerable<string> firstNames)
+                => from surName in SurNames.Distinct()
+                   from firstName in firstNames
+                   select (firstName, surName);
+
+            var drivers =
+                fullNames(MaleFirstNames.Distinct()).Select(n => new DriverInfo(
+                    "Mr",
+                    n.firstName,
+                    "",
+                    n.surName,
+                    GenerateEmailAddress(n.firstName, n.surName),
+                    RandomPhoneNumber(),
+                    RandomPoint()
+                ))
+                .Concat(fullNames(FemaleFirstNames.Distinct()).Select(n => new DriverInfo(
+                    rnd.Next(2) == 0 ? "Ms" : "Mrs",
+                    n.firstName,
+                    "",
+                    n.surName,
+                    GenerateEmailAddress(n.firstName, n.surName),
+                    RandomPhoneNumber(),
+                    RandomPoint()
+                )));
+
+            return drivers;
+
+            string RandomPhoneNumber() => "0" + (7700000000 + rnd.Next(99999999)).ToString();
+            string GenerateEmailAddress(string firstName, string lastName) => $"{firstName.ToLower()}.{lastName.ToLower()}{DateTime.Now.Year - 20 - rnd.Next(30)}@nowhere.com";
+        }
+
+        //await _context.Drivers.AddRangeAsync(drivers);
 
         //if (!_context.VehicleMakes.Any())
         //{
@@ -158,63 +172,53 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         //    await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
         //}
 
-        if (!_context.Vehicles.Any())
+        var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x=>x.Entity).ToList();
+
+        foreach (var driverInfo in GetDrivers())
         {
-            foreach (var driver in _context.Drivers)
+            var (Make, Model) = RandomMakeModel(rnd);
+
+            DateOnly RandomDate(int minYear, int maxYear)
             {
-                var (Make, Model) = RandomMakeModel(rnd);
+                int year = rnd.Next(minYear, maxYear);
+                int month = rnd.Next(12) + 1;
+                int day = rnd.Next(DateTime.DaysInMonth(year, month)) + 1;
+                return new DateOnly(year, month, day);
+            }
 
-                DateOnly RandomDate(int minYear, int maxYear)
-                {
-                    int year = rnd.Next(minYear, maxYear);
-                    int month = rnd.Next(12) + 1;
-                    int day = rnd.Next(DateTime.DaysInMonth(year, month)) + 1;
-                    return new DateOnly(year, month, day);
-                }
+            var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
 
-                var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
-                var vehicle = Vehicle.Create(company1.Code, RandomVrm(dateFirstRegistered), Make, Model,
+            var company = allCompanies.ElementAt(rnd.Next(0, allCompanies.Count - 1));
+
+            var vehicle = await new CreateVehicle(_context)
+                .CreateAsync(new CreateVehicleRequest(
+                    company.Code,
+                    RandomVrm(dateFirstRegistered),
+                    Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
-                    new Address("","","","",new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 }));
-                
+                    new Address("", "", "", "", new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 }),
+                    null, null));
 
-                var driverVehicle = new DriverVehicle()
-                {
-                    Vehicle = vehicle,
-                    EmailAddress = driver.EmailAddress
-                };
 
-                char RandomLetter() => letters[rnd.Next(0, letters.Length)];
+            var driver = await new CreateDriver(_context)
+                .CreateAsync(new CreateDriverRequest(vehicle.Id,
+                    driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName, 
+                    driverInfo.EmailAddress, driverInfo.MobileNumber,
+                    driverInfo.HomeLocation));
+            
 
-                string RandomVrm(DateOnly firstRegistered)
-                {
-                    var range1 = new DateOnly(firstRegistered.Year, 3, 1);
-                    var range2 = new DateOnly(firstRegistered.Year, 8, 31);
-                    var add = firstRegistered >= range1 && firstRegistered <= range2
-                        ? 0
-                        : 50;
+            char RandomLetter() => letters[rnd.Next(0, letters.Length)];
 
-                    return $"{RandomLetter()}{RandomLetter()}{firstRegistered.Year - 2000 + add:D2}{RandomLetter()}{RandomLetter()}{RandomLetter()}";
-                }
+            string RandomVrm(DateOnly firstRegistered)
+            {
+                var range1 = new DateOnly(firstRegistered.Year, 3, 1);
+                var range2 = new DateOnly(firstRegistered.Year, 8, 31);
+                var add = firstRegistered >= range1 && firstRegistered <= range2
+                    ? 0
+                    : 50;
 
-                //var vehicleVrm = new VehicleVrm()
-                //{
-                //    Vehicle = vehicle,
-                //    Vrm = RandomVrm(vehicle.DateFirstRegistered)
-
-                //};
-
-                //var vehicleMot = new NextMot()
-                //{
-                //    Vehicle = vehicle,
-                //    Due = DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28)))
-                //};
-
-                //_context.VehicleVrms.Add(vehicleVrm);
-                _context.Add(vehicle);
-                _context.Add(driverVehicle);
-                //_context.NextMots.Add(vehicleMot);
+                return $"{RandomLetter()}{RandomLetter()}{firstRegistered.Year - 2000 + add:D2}{RandomLetter()}{RandomLetter()}{RandomLetter()}";
             }
         }
 
@@ -232,19 +236,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                         $"Supplier #{i}",
                         new Address("", "", "", "", RandomPoint()),
                         true));
-
-                //var supplier = new Supplier(
-                //    $"SUP{i:D4}",
-                //    $"Supplier #{i}",
-                //    new Address("","","","", RandomPoint()),
-                //    true
-                //);
-
-                //await _context.Suppliers.AddAsync(supplier);
             }
         }
-
-
     }
 }
 
@@ -267,4 +260,27 @@ class ModelInfo
     {
         Model = model ?? throw new ArgumentNullException(nameof(model));
     }
+}
+
+public record DriverInfo(string? Salutation, string? FirstName, string? MiddleNames,
+    string LastName, string EmailAddress, string MobileNumber, Geometry HomeLocation);
+
+public class CompanyInfo(string code, string name)
+{
+    public string Code { get; set; } = code;
+    public string Name { get; set; } = name;
+    public List<FleetInfo> Fleets { get; set; } = new();
+    public List<CompanyInfo> Companies{ get; set; } = new();
+}
+
+public class FleetInfo(string code, string name)
+{
+    public string Code { get; set; } = code;
+    public string Name { get; set; } = name;
+}
+
+public class CustomerInfo(string code, string name)
+{
+    public string Code { get; set; } = code;
+    public string Name { get; set; } = name;
 }

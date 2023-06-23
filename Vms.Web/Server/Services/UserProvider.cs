@@ -40,13 +40,14 @@ public static class ClaimsPrincipalExtensions
 
 public class UserProvider : IUserProvider
 {
+    public static bool InMigration;
     string _userId;
     public string UserId => _userId;
     string _tenantId;
     public string TenantId => _tenantId;
     public UserProvider(IHttpContextAccessor context)
     {
-        _userId = context.HttpContext?.User.UserId() ?? throw new InvalidOperationException("Failed to retrieve user id.");
-        _tenantId = context.HttpContext?.User.TenantId() ?? throw new InvalidOperationException("Failed to retrieve tenant id.");
+        _userId = InMigration ? "" : context.HttpContext?.User.UserId() ?? throw new InvalidOperationException("Failed to retrieve user id.");
+        _tenantId = InMigration ? "*" : context.HttpContext?.User.TenantId() ?? throw new InvalidOperationException("Failed to retrieve tenant id.");
     }
 }

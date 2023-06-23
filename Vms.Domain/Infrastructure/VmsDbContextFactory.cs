@@ -10,7 +10,7 @@ public class VmsDbContextFactory : IDesignTimeDbContextFactory<VmsDbContext>
     public VmsDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<VmsDbContext>();
-        optionsBuilder.UseSqlServer(@"Data Source=SKYLAKE\SQL2019;Initial Catalog=VehicleManagementSystem;Integrated Security=true;TrustServerCertificate=True;Encrypt=False",
+        optionsBuilder.UseSqlServer(@"Data Source=SKYLAKE\SQL2019;Initial Catalog=Vms.Data;Integrated Security=true;TrustServerCertificate=True;Encrypt=False",
             x =>
             {
                 x.UseNetTopologySuite();

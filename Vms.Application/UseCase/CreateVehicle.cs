@@ -35,6 +35,7 @@ public class CreateVehicle
     }
 }
 
-public record CreateVehicleRequest(string CompanyCode, string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue,
+public record CreateVehicleRequest(string CompanyCode, 
+    string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue,
     Address HomeLocation,
     string? CustomerCode = null, string? FleetCode = null);

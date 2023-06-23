@@ -15,6 +15,17 @@ namespace Vms.Domain.Entity
         public Geometry HomeLocation { get; set; } = null!;
 
         public virtual DriverVehicle DriverVehicle { get; set; } = null!;
+
+        public Driver(string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
+        {
+            Salutation = salutation;
+            FirstName = firstName;
+            MiddleNames = middleNames;
+            LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
+            EmailAddress = emailAddress ?? throw new ArgumentNullException(nameof(emailAddress));
+            MobileNumber = mobileNumber ?? throw new ArgumentNullException(nameof(mobileNumber));
+            HomeLocation = homeLocation ?? throw new ArgumentNullException(nameof(homeLocation));
+        }
     }
 
     public partial class DriverVehicle

@@ -12,6 +12,7 @@ using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
 using Vms.Web.Server;
 using Microsoft.Extensions.Options;
+using Vms.Domain.Infrastructure.Seed;
 
 const string AppName = "Vms.Web.Server";
 
@@ -55,6 +56,7 @@ builder.Services.AddRazorPages();
 var app = builder.Build();
 
 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
+UserProvider.InMigration = true;
 app.MigrateDbContext<VmsDbContext>((context, services) =>
 {
     var logger = services.GetService<ILogger<VmsDbContextSeeder>>() ?? throw new InvalidOperationException(); ;
@@ -65,6 +67,7 @@ app.MigrateDbContext<VmsDbContext>((context, services) =>
         .SeedAsync(env, settings)
         .Wait();
 });
+UserProvider.InMigration = false;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
