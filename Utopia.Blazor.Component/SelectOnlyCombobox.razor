@@ -104,6 +104,9 @@
 
     async Task selectOption(int index)
     {
+        if (selectedIndex == index)
+            return;
+
         selectedIndex = index;
         Logger.LogInformation("Selected index {index}.", index);
 
@@ -123,7 +126,7 @@
 
         if (open)
         {
-            await selectOption(activeIndex);
+            //await selectOption(activeIndex);
             await updateMenuState(false, false);
         }
     }
@@ -144,8 +147,9 @@
     {
         Logger.LogInformation("OnComboMenuClick('{index}')", index);
         onOptionChange(index);
-        await selectOption(index);
+        
         await updateMenuState(false);
+        await selectOption(index);
     }
     void onComboMenuMouseDown()
     {

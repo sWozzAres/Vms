@@ -6,4 +6,4 @@
 //    public string Name { get; set; } = name;
 //}
 
-public record SelectOption(int? Value, string Name);
+public record _SelectOption(int? Value, string Name);

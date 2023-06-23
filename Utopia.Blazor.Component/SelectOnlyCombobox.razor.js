@@ -1,4 +1,5 @@
 export function init(element, objRef) {
+    console.log('init: ', element, objRef);
 
     const SelectActions = {
         Close: 0,

@@ -19,11 +19,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Shared\SelectOption.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Content Remove="compilerconfig.json" />
+	  <Content Remove="Shared\SelectOnlyCombobox.razor" />
 	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Shared\SelectOnlyCombobox.razor.css" />
+	  <None Remove="Shared\SelectOnlyCombobox.razor.js" />
 	  <None Remove="Shared\_SelectOnlyCombobox.razor.css" />
 	  <None Remove="Shared\_SelectOnlyCombobox.razor.js" />
 	</ItemGroup>
@@ -44,6 +51,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
 		<ProjectReference Include="..\Shared\Vms.Web.Shared.csproj" />
 	</ItemGroup>
 
