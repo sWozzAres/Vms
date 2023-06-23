@@ -6,6 +6,7 @@
 @import "_forms.scss";
 @import "_list.scss";
 @import "_combos.scss";
+@import "_entity.scss";
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
@@ -26,20 +27,6 @@ a {
 h1:focus {
     outline: none;
 }
-
-/*a, .btn-link {
-    color: #0071c1;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}*/
 
 .content {
     padding-top: 1.1rem;
@@ -126,14 +113,6 @@ h1:focus {
     flex-direction: column;
     flex-grow: 1;
 }*/
-
-.purple {
-    background: #a094ed;
-}
-
-.red {
-    background-color: red;
-}
 
 .view-card {
     padding: 0;

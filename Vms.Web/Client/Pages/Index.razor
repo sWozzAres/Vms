@@ -1,10 +1,11 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
 @using System.ComponentModel.DataAnnotations;
 
 <PageTitle>Index</PageTitle>
 <section>
     <h1>Home</h1>
-
+    <button @onclick="SignOut">Sign out</button>
     @* <DropdownButton OnSelectCallback="async (value) => SelectedValue = value" class="mydropdown">
     <ButtonContent>Click Me!</ButtonContent>
     <ChildContent>
@@ -101,9 +102,24 @@
             </ul>
         </li>
     </ul>
+
+    <ul>
+        <li>
+            Vehicles
+            <ul>
+                <li><a href="/vehicle/create">Create</a></li>
+                <li><a href="/vehicle/list">List</a></li>
+            </ul>
+        </li>
+    </ul>
 </section>
 
 @code {
+    void SignOut()
+    {
+        Navigation.NavigateToLogout("authentication/logout");
+    }
+
     int? SelectedValue { get; set; }
     private string selectedItem = string.Empty;
 

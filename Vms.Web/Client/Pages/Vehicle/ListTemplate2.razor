@@ -1,40 +1,33 @@
-﻿@page "/company/list"
-@attribute [Authorize]
+﻿@typeparam TGridItem
+
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@inject ILogger<List> Logger
-
-<PageTitle>Companies</PageTitle>
+@inject ILogger<ListTemplate2<TGridItem>> Logger
+@attribute [CascadingTypeParameter(nameof(TGridItem))]
 
 <section class="list-card">
     <div class="list-header">
         <div class="list-control">
             <div class="list-icon">
-                <div class="entity-svg-company">
-                    <svg viewBox="0 0 384 512">
-                        <use xlink:href="icons/solid.svg#building" />
-                    </svg>
-                </div>
+                @IconContent
             </div>
             <div class="list-kind">
-                <h1>Companies</h1>
+                <h1>Vehicles</h1>
                 <div class="list-dropdown-holder">
                     <h2>
-                        <SelectOnlyCombobox Items="listOptions" Label="List" LabelHidden="true"
-                            @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
+                        <SelectOnlyCombobox Items="Options" Label="List" LabelHidden="true"
+                        @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
                     </h2>
                 </div>
             </div>
             <div class="list-buttons btn-group">
-                <button onclick="@(() => NavigationManager.NavigateTo("/company/create"))">New</button>
-                <button>Import</button>
-                <button>Add to Campaign</button>
+                @Buttons
             </div>
         </div>
         <div class="list-info">
             <div class="list-description">
                 <Paginator State="pagination">
-                    
+
                 </Paginator>
             </div>
             <div class="list-info-buttons">
@@ -66,45 +59,40 @@
         }
         else
         {
-            <QuickGrid @ref="grid" ItemsProvider="listProvider" Pagination="pagination">
-                <TemplateColumn Title="Code">
-                    <a href="/companies/view/@context.Code">@context.Code</a>
-                </TemplateColumn>
-                <PropertyColumn Property="p=>p.Name" />
+            <QuickGrid TGridItem="TGridItem" @ref="grid" ItemsProvider="itemsProvider" Pagination="pagination">
+                @GridColumns
             </QuickGrid>
         }
     </div>
 </section>
 
-@code {
-    QuickGrid<CompanyListModel> grid = null!;
 
-    bool error;
+@code {
+    [Parameter, EditorRequired] public SelectOption[] Options { get; set; } = null!;
+    [Parameter, EditorRequired] public string ApiUrl { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment? GridColumns { get; set; }
+
+    GridItemsProvider<TGridItem> itemsProvider { get; set; } = null!;
+    PaginationState pagination = new() { ItemsPerPage = 10 };
+    QuickGrid<TGridItem> grid = null!;
     int? selectedList = 0;
 
     async Task Refresh() => await grid.RefreshDataAsync();
-
-    SelectOption[] listOptions = new SelectOption[]
-    {
-        new SelectOption(0, "All Companies"),
-        new SelectOption(1, "Recently Viewed"),
-        new SelectOption(2, "Pinned"),
-    };
-
-    GridItemsProvider<CompanyListModel> listProvider = null!;
-    PaginationState pagination = new() { ItemsPerPage = 10 };
+    bool error;
 
     protected override void OnInitialized()
     {
-        listProvider = async req =>
+        itemsProvider = async req =>
         {
             try
             {
-                var response = await Http.GetFromJsonAsync<List<CompanyListModel>>($"/api/Company?list={selectedList}&start={req.StartIndex}&take={req.Count}");
+                var response = await Http.GetFromJsonAsync<List<TGridItem>>($"{ApiUrl}?list={selectedList}&start={req.StartIndex}&take={req.Count}");
                 if (response is null)
                     throw new InvalidOperationException("Failed to load data.");
                 error = false;
-                return GridItemsProviderResult.From(response, 10);
+                return GridItemsProviderResult.From(response, 1000);
             }
             catch (Exception ex)
             {
@@ -112,7 +100,7 @@
 
                 error = true;
                 StateHasChanged();
-                return GridItemsProviderResult.From(Enumerable.Empty<CompanyListModel>().ToList(), 10);
+                return GridItemsProviderResult.From(Enumerable.Empty<TGridItem>().ToList(), 10);
             }
         };
     }

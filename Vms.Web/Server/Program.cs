@@ -122,6 +122,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
         clientApp.UseEndpoints(endpoints =>
         {
             CompanyEndpoints.Map(endpoints);
+            VehicleEndpoints.Map(endpoints);
 
             endpoints.MapControllers();
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",

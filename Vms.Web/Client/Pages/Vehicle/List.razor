@@ -1,0 +1,37 @@
+﻿@page "/vehicle/list"
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Vehicles</PageTitle>
+
+<ListTemplate2 TGridItem="VehicleListModel" Options="listOptions" ApiUrl="/api/vehicle">
+    <IconContent>
+        <div class="entity-svg-vehicle">
+            <svg viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#car" />
+            </svg>
+        </div>
+    </IconContent>
+    <Buttons>
+        <button onclick="@(() => NavigationManager.NavigateTo("/vehicle/create"))">New</button>
+        <button>Import</button>
+        <button>Add to Campaign</button>
+    </Buttons>
+    <GridColumns>
+        <PropertyColumn Property="x=>x.CompanyCode" />
+        <TemplateColumn Title="Vrm">
+            <a href="/companies/view/@context.Vrm">@context.Vrm</a>
+        </TemplateColumn>
+        <PropertyColumn Property="p=>p.Make" />
+        <PropertyColumn Property="p=>p.Model" />
+    </GridColumns>
+</ListTemplate2>
+
+@code {
+    SelectOption[] listOptions = new SelectOption[]
+    {
+        new SelectOption(0, "All Vehicles"),
+        new SelectOption(1, "Recently Viewed"),
+        new SelectOption(2, "Pinned"),
+    };
+}
