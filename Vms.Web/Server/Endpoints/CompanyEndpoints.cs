@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Vms.Domain.Infrastructure;
+using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Endpoints;
 
@@ -13,12 +14,19 @@ public static class CompanyEndpoints
             return Results.Ok("Hello World!");
         });
 
-        endpoints.MapGet("/ClientApp/api/Company", [Authorize(Policy = "ClientPolicy")] async (int? list, VmsDbContext context, CancellationToken cancellationToken) =>
+        endpoints.MapGet("/ClientApp/api/Company",
+            [Authorize(Policy = "ClientPolicy")] async (int list, int start, int take, VmsDbContext context, CancellationToken cancellationToken) =>
         {
-            //return Results.Ok("Hello World2!");
-            return await context.Companies
+            //int totalCount = await context.Companies.CountAsync();
+          
+            var result = await context.Companies
+                .Skip(start)
+                .Take(take)
                 .Select(x => new Vms.Web.Shared.CompanyListModel(x.Code, x.Name))
                 .ToListAsync(cancellationToken);
+            return result;
+
+            //return new CompanyListResponse(result, totalCount);
         });
     }
 }

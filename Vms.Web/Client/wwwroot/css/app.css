@@ -322,6 +322,11 @@ form.edit-form > fieldset .buttons {
   background-color: #f3f2f2;
   gap: 1em;
 }
+.list-header .paginator {
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 .list-header .list-control {
   display: flex;
   gap: 1em;
@@ -381,11 +386,18 @@ form.edit-form > fieldset .buttons {
 .list-header .list-info .list-description {
   flex-grow: 1;
 }
-.list-data .message {
+.list-data .error {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 1em;
+}
+.list-data .error p {
+  color: red;
+}
+.list-data .col-title {
+  padding: 0 !important;
 }
 .list-data table {
   background-color: #ffffff;
@@ -397,7 +409,7 @@ form.edit-form > fieldset .buttons {
   border-bottom: 1px solid #dee2e6;
 }
 .list-data table > thead > tr > th, .list-data table > tbody > tr > td {
-  padding: 10px;
+  padding: 10px !important;
 }
 .list-data table thead {
   background-color: #fafaf9;

@@ -9,6 +9,9 @@ using System.Reflection;
 using Vms.Web.Server.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Vms.Web.Server.Endpoints;
+using Vms.Web.Server.Extensions;
+using Vms.Web.Server;
+using Microsoft.Extensions.Options;
 
 const string AppName = "Vms.Web.Server";
 
@@ -29,6 +32,7 @@ Log.Logger = new LoggerConfiguration()
 
 Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
+builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 
@@ -49,6 +53,18 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+Log.Information("Applying migrations ({ApplicationContext})...", AppName);
+app.MigrateDbContext<VmsDbContext>((context, services) =>
+{
+    var logger = services.GetService<ILogger<VmsDbContextSeeder>>() ?? throw new InvalidOperationException(); ;
+    var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
+    var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
+
+    new VmsDbContextSeeder(context, logger)
+        .SeedAsync(env, settings)
+        .Wait();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

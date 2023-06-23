@@ -16,26 +16,7 @@
                     <h2>
                         <SelectOnlyCombobox Items="@Lists" Label="List" LabelHidden="true"
                         @bind-SelectedValue="selectedList" @bind-SelectedValue:after="SelectedValueChanged2" class="header-combo" />
-
-                        @* @Lists.ElementAt(selectedList).Value
-                        <button @onclick="ToggleListDropdownHidden" disabled="@(state == State.Loading)">
-                            <svg class="list-icon-svg" height="1em" viewBox="0 0 320 512">
-                                <use xlink:href="icons/solid.svg#caret-down" />
-                            </svg>
-                        </button> *@
                     </h2>
-                   @*  @{
-                        var className = listDropdownHidden ? "hidden" : "";
-                    }
-                    <div class="list-dropdown @className">
-                        <ul>
-                            @foreach (var list in Lists)
-                            {
-                                var key = list.Key;
-                                <li @onclick="async () => await SelectListAsync(key)">@list.Value</li>
-                            }
-                        </ul>
-                    </div> *@
                 </div>
             </div>
             <div class="list-buttons btn-group">

@@ -7,11 +7,10 @@ public class CreateCompany
     public CreateCompany(VmsDbContext dbContext)
        => DbContext = dbContext;
 
-    public async Task<Company> CreateAsync(CreateCompanyRequest request, CancellationToken cancellationToken = default)
+    public Company Create(CreateCompanyRequest request)
     {
         var company = new Company(request.Code, request.Name);
-
-        await DbContext.AddAsync(company);
+        DbContext.Add(company);
 
         return company;
     }

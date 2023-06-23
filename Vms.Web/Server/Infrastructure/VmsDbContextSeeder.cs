@@ -1,41 +1,43 @@
-﻿using NetTopologySuite.Geometries;
+﻿using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
+using Vms.Application.UseCase;
 using Vms.Domain.Entity;
+using Vms.Web.Server;
 
 namespace Vms.Domain.Infrastructure;
 
 public interface IVmsDbContextSeeder
 {
-    Task<int> Seed();
+    Task<int> SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings);
 }
 
 public class VmsDbContextSeeder : IVmsDbContextSeeder
 {
-    private readonly VmsDbContext _context;
+    readonly VmsDbContext _context;
+    readonly ILogger<VmsDbContextSeeder> _logger;
 
-    public VmsDbContextSeeder(VmsDbContext context)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    public VmsDbContextSeeder(VmsDbContext context, ILogger<VmsDbContextSeeder> logger)
+        => (_context, _logger) = (context, logger);
 
-    static string[] SurNames = new string[]
+    static readonly string[] SurNames = new string[]
     {
         "Smith", "Jones", "Taylor", "Brown", "Williams", "Wilson", "Johnson", "Davies", "Robinson", "Wright", "Thomson", "Evans",
         "Walker", "White", "Roberts", "Green", "Hall", "Wood", "Jackson", "Clark"
     };
 
-    static string[] MaleFirstNames = new string[]
+    static readonly string[] MaleFirstNames = new string[]
     {
         "Oliver", "George", "Arthur", "Noah", "Muhammad", "Leo", "Oscar", "Harry", "Archie", "Henry"
     };
 
-    static string[] FemaleFirstNames = new string[]
+    static readonly string[] FemaleFirstNames = new string[]
     {
         "Olivia", "Amelia", "Isla", "Ava", "Mia", "Ivy", "Lily", "Isabella", "Sophia", "Rosie"
     };
 
-    static string[] MakeNames = new string[] { "MERCEDES", "FORD", "SUBARU" };
+    static readonly string[] MakeNames = new string[] { "MERCEDES", "FORD", "SUBARU" };
 
-    static char[] letters = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'V', 'W', 'X', 'Y' };
+    static readonly char[] letters = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'V', 'W', 'X', 'Y' };
 
     const double minLatitude = 58.88670472493245;
     const double minLongitude = -9.372902643217499;
@@ -47,13 +49,40 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     static readonly Random rnd = new();
 
-    public async Task<int> Seed()
+    public async Task<int> SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
     {
         if (_context.Companies.Any())
             return 0;
 
-        var company = new Company("DEMO001", "Demonstration Company");
-        await _context.AddAsync(company);
+        var company1 = new CreateCompany(_context)
+            .Create(new CreateCompanyRequest("TEST001", "Company #1"));
+
+        var fleet1_1 = await new CreateFleet(_context)
+            .CreateAsync(new CreateFleetRequest(company1.Code, "FL00101", "Fleet #1 Company #1"));
+        var fleet2_1 = await new CreateFleet(_context)
+            .CreateAsync(new CreateFleetRequest(company1.Code, "FL00102", "Fleet #2 Company #1"));
+
+        var network1_1 = await new CreateNetwork(_context)
+            .CreateAsync(new CreateNetworkRequest(company1.Code, "NET00101", "Network #1 Company #1"));
+        var network2_1 = await new CreateNetwork(_context)
+            .CreateAsync(new CreateNetworkRequest(company1.Code, "NET00102", "Network #2 Company #1"));
+
+        var customer1_1 = await new CreateCustomer(_context)
+            .CreateAsync(new CreateCustomerRequest(company1.Code, "CUS00101", "Customer #1 Company #1"));
+        var customer2_1 = await new CreateCustomer(_context)
+            .CreateAsync(new CreateCustomerRequest(company1.Code, "CUS00102", "Customer #2 Company #1"));
+
+        var company2 = new CreateCompany(_context)
+            .Create(new CreateCompanyRequest("TEST002", "Company #2"));
+
+        var fleet1_2 = await new CreateFleet(_context)
+            .CreateAsync(new CreateFleetRequest(company1.Code, "FL00201", "Fleet #2 Company #1"));
+
+        var network1_2 = await new CreateNetwork(_context)
+            .CreateAsync(new CreateNetworkRequest(company1.Code, "NET00201", "Network #2 Company #1"));
+
+        var customer1_2 = await new CreateCustomer(_context)
+            .CreateAsync(new CreateCustomerRequest(company1.Code, "CUS00201", "Customer #2 Company #1"));
 
         if (!_context.Drivers.Any())
         {
@@ -90,20 +119,31 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         if (!_context.Suppliers.Any())
         {
-            await SeedSuppliers();
+            SeedSuppliers();
         }
 
         // generate make / model data
-
         var makes = MakeNames.Select(name =>
             new MakeInfo(name,
                 Enumerable.Range(1, 100).Select(x => new ModelInfo($"Model #{x}")).ToList()));
 
-
-        if (!_context.VehicleMakes.Any())
+        foreach(var makeInfo in makes)
         {
-            await _context.VehicleMakes.AddRangeAsync(makes.Select(x => new VehicleMake(x.Make)));
+            new CreateMake(_context)
+                .Create(new CreateMakeRequest(makeInfo.Make));
+
+            foreach(var modelInfo in makeInfo.Models)
+            {
+                await new CreateModel(_context)
+                    .CreateAsync(new CreateModelRequest(makeInfo.Make, modelInfo.Model));
+            }
         }
+
+        //if (!_context.VehicleMakes.Any())
+        //{
+
+        //    await _context.VehicleMakes.AddRangeAsync(makes.Select(x => new VehicleMake(x.Make)));
+        //}
 
         IEnumerable<(string Make, string Model)> flattenedMakeModel = from make in makes
                                                                       from model in make.Models
@@ -113,10 +153,10 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             flattenedMakeModel.ElementAt(rnd.Next(flattenedMakeModel.Count()));
 
 
-        if (!_context.VehicleModels.Any())
-        {
-            await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
-        }
+        //if (!_context.VehicleModels.Any())
+        //{
+        //    await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
+        //}
 
         if (!_context.Vehicles.Any())
         {
@@ -133,7 +173,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 }
 
                 var dateFirstRegistered = RandomDate(2001, DateTime.Now.Year - 1);
-                var vehicle = Vehicle.Create(company.Code, RandomVrm(dateFirstRegistered), Make, Model,
+                var vehicle = Vehicle.Create(company1.Code, RandomVrm(dateFirstRegistered), Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
                     new Address("","","","",new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 }));
@@ -182,19 +222,25 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         return 0;
 
-        async Task SeedSuppliers()
+        void SeedSuppliers()
         {
             foreach (var i in Enumerable.Range(1, 100))
             {
+                var supplier = new CreateSupplier(_context)
+                    .Create(new CreateSupplierRequest(
+                        $"SUP{i:D4}",
+                        $"Supplier #{i}",
+                        new Address("", "", "", "", RandomPoint()),
+                        true));
 
-                var supplier = new Supplier(
-                    $"SUP{i:D4}",
-                    $"Supplier #{i}",
-                    new Address("","","","", RandomPoint()),
-                    true
-                );
+                //var supplier = new Supplier(
+                //    $"SUP{i:D4}",
+                //    $"Supplier #{i}",
+                //    new Address("","","","", RandomPoint()),
+                //    true
+                //);
 
-                await _context.Suppliers.AddAsync(supplier);
+                //await _context.Suppliers.AddAsync(supplier);
             }
         }
 

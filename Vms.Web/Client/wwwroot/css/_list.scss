@@ -11,6 +11,12 @@
     background-color: #f3f2f2;
     gap: 1em;
 
+    .paginator {
+        border: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .list-control {
         display: flex;
         gap: 1em;
@@ -91,11 +97,18 @@
 
 .list-data {
 
-    .message {
+    .error {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        padding: 1em;
+
+        p { color: red;}
+    }
+
+    .col-title {
+        padding: 0 !important;
     }
 
     table {
@@ -109,7 +122,7 @@
         }
 
         > thead > tr > th, > tbody > tr > td {
-            padding: 10px;
+            padding: 10px !important;
         }
 
         thead {

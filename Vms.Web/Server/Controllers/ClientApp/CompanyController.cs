@@ -26,12 +26,14 @@ public class CompanyController : ControllerBase
     //[Route("")]
     //[ProducesResponseType(typeof(IEnumerable<CompanyListModel>), StatusCodes.Status200OK)]
     //public async Task<ActionResult<IEnumerable<CompanyListModel>>> GetCompanies(
-    //    int? list,
+    //    int? list, int? start, int? take,
     //    //[FromServices] IAccountQueries _queries,
     //    [FromServices] VmsDbContext context,
     //    CancellationToken cancellationToken)
     //{
     //    var result = await context.Companies
+    //        .Skip(start)
+    //        .Take(take)
     //        .Select(x => new CompanyListModel(x.Code, x.Name))
     //        .ToListAsync(cancellationToken);
 

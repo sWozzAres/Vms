@@ -13,4 +13,5 @@ public record CompanyModel : ICopyable<CompanyModel>
         Name = source.Name;
     }
 }
+public record struct CompanyListResponse(List<CompanyListModel> List, int TotalCount);
 public record CompanyListModel(string Code, string Name);
