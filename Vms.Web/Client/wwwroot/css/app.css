@@ -479,6 +479,10 @@ form.edit-form > fieldset .buttons {
   visibility: hidden;
 }
 
+.w100 {
+  width: 100%;
+}
+
 a {
   color: var(--a-normal-text);
   text-decoration: none;

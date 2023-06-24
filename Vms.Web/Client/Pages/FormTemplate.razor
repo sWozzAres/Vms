@@ -1,33 +1,49 @@
-﻿@page "/test/{msg}"
-@inject ILogger<Test> Logger
+﻿@using System.Text.Json;
+@inject ILogger<FormTemplate<TModel>> Logger
+@typeparam TModel where TModel : class
 
-<h3>Test</h3>
-
-<p>
-    @msg
-</p>
-<a href="/test/@Helpers.GetRandomHtmlId(10)">Hello</a>
-
-<EditForm Model="@Model">
-    <InputText @bind-Value="Model.Name"></InputText>
-
+<EditForm Model="Model">
+    <fieldset disabled="@(!inEdit)">
+        @ChildContent
+    </fieldset>
+    <button @onclick="ToggleEdit">@buttonText</button>
 </EditForm>
-
-<FormTemplate Model="@Model2">
-    <InputText @bind-Value="Model2.Name"></InputText>
-</FormTemplate>
 
 @code {
     [Parameter]
-    public string msg { get; set; } = null!;
+    public TModel Model { get; set; } = null!;
 
-    public TestModel Model { get; set; } = new() { Name = "1" };
-    public TestModel Model2 { get; set; } = new() { Name = "2" };
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 
+    bool shouldRender;
+    //protected override bool ShouldRender() => shouldRender;
+    bool inEdit;
+    TModel? originalModel;
+    string buttonText => inEdit ? "Cancel" : "Edit";
+
+    void ToggleEdit()
+    {
+        Logger.LogInformation("ToggleEdit() {inEdit}", inEdit);
+        if (!inEdit)
+        {
+            originalModel = DeepClone(Model);
+        }
+
+        inEdit = !inEdit;
+
+        if (!inEdit)
+        {
+            Logger.LogInformation("Restoring {m} {o}", Model, originalModel);
+            Model = DeepClone(originalModel!);
+            Logger.LogInformation("Restoring {m} {o}", Model, originalModel);
+        }
+    }
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        Logger.LogInformation("SetParametersAsync()");
+        Logger.LogInformation("SetParametersAsync() {model}", Model);
         await base.SetParametersAsync(parameters);
+        //shouldRender = false;
         //await Task.Delay(1000);
     }
     protected override void OnInitialized()
@@ -64,8 +80,7 @@
         //await Task.Delay(1000);
     }
 
-    public record TestModel
-    {
-        public string Name { get; set; } = null!;
-    }
+    public TModel DeepClone(TModel obj)
+        => JsonSerializer.Deserialize<TModel>(JsonSerializer.Serialize(obj)) 
+            ?? throw new InvalidOperationException("Failed to deserialize.");
 }

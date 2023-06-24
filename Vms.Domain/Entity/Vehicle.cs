@@ -110,11 +110,11 @@ namespace Vms.Domain.Entity.Configuration
             builder.Property(e => e.DateFirstRegistered).HasColumnType("date");
 
             builder.Property(e => e.Make)
-                .HasMaxLength(30)
+                .HasMaxLength(VehicleMake.Make_Maxlength)
                 .IsUnicode(false);
 
             builder.Property(e => e.Model)
-                .HasMaxLength(50)
+                .HasMaxLength(VehicleModel.Model_MaxLength)
                 .IsUnicode(false);
 
             builder.OwnsOne(e => e.Address, ce =>

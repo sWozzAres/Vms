@@ -66,7 +66,6 @@
     </div>
 </section>
 
-
 @code {
     [Parameter, EditorRequired] public SelectOption[] Options { get; set; } = null!;
     [Parameter, EditorRequired] public string ApiUrl { get; set; } = null!;
@@ -88,11 +87,11 @@
         {
             try
             {
-                var response = await Http.GetFromJsonAsync<List<TGridItem>>($"{ApiUrl}?list={selectedList}&start={req.StartIndex}&take={req.Count}");
+                var response = await Http.GetFromJsonAsync<ListResult<TGridItem>>($"{ApiUrl}?list={selectedList}&start={req.StartIndex}&take={req.Count}");
                 if (response is null)
                     throw new InvalidOperationException("Failed to load data.");
                 error = false;
-                return GridItemsProviderResult.From(response, 1000);
+                return GridItemsProviderResult.From(response.Items, response.TotalCount);
             }
             catch (Exception ex)
             {
@@ -100,7 +99,7 @@
 
                 error = true;
                 StateHasChanged();
-                return GridItemsProviderResult.From(Enumerable.Empty<TGridItem>().ToList(), 10);
+                return GridItemsProviderResult.From(Enumerable.Empty<TGridItem>().ToList(), 0);
             }
         };
     }

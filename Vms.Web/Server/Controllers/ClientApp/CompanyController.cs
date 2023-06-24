@@ -86,7 +86,7 @@ public class CompanyController : ControllerBase
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogInformation("Concurrency violation while modifying company code '{code}'.", company.Code);
+                _logger.LogInformation("Concurrency violation while modifying company, code '{code}'.", company.Code);
 
                 //if (rowVersion is not null)
                 //    return StatusCode(StatusCodes.Status412PreconditionFailed);

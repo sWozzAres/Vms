@@ -1,0 +1,19 @@
+﻿@page "/vehicle/create"
+@inject HttpClient Http
+@attribute [Authorize]
+
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Create Vehicle</PageTitle>
+
+<section>
+    <h1>Create Vehicle</h1>
+
+    <CreateFormTemplate Model="@vehicle" ApiUrl="Vehicle">
+        <DataAnnotationsValidator/>
+    </CreateFormTemplate>
+</section>
+
+@code {
+    VehicleDto vehicle = new();
+}

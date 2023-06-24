@@ -1,6 +1,6 @@
 ﻿namespace Vms.Web.Shared;
 
-public record Person : ICopyable<Person>
+public class Person : ICopyable<Person>
 {
     public int Id { get; set; }
     [Required]
@@ -31,6 +31,19 @@ public record Person : ICopyable<Person>
     [Required]
     [Range(typeof(Manufacturer), nameof(Manufacturer.SpaceX), nameof(Manufacturer.VirginGalactic), ErrorMessage = "Pick a manufacturer.")]
     public Manufacturer TheManufacturer { get; set; } = Manufacturer.None;
+
+    public void CopyFrom(Person source)
+    {
+        Id = source.Id;
+        Name = source.Name;
+        Email = source.Email;
+        Age = source.Age;
+        IsAdministrator = source.IsAdministrator;
+        BirthDate = source.BirthDate;
+        Notes = source.Notes;
+        Status = source.Status;
+        TheManufacturer = source.TheManufacturer;
+    }
 
     // [Required, EnumDataType(typeof(Color))]
     // public Color? TheColor { get; set; } = null;

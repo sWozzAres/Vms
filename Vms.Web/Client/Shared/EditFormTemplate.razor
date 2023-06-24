@@ -12,8 +12,8 @@
 }
 else if (Model is not null)
 {
-    <EditForm Model="@Model"  OnSubmit="HandleSubmit" class="edit-form">
-        <fieldset disabled="@(!InEditMode)">
+    <EditForm @ref="editForm" EditContext="@editContext" OnSubmit="HandleSubmit" class="edit-form">
+        <fieldset disabled="@IsDisabled">
             <CascadingValue Value="IsDisabled" Name="IsDisabled">
                 @ChildContent
             </CascadingValue>
@@ -28,27 +28,13 @@ else if (Model is not null)
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public RenderFragment ChildContent { get; set; } = null!;
-    //public RenderFragment ChildContent2 { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    [Parameter, EditorRequired] public TModel Model { get; set; } = null!;
+    [Parameter, EditorRequired] public string ApiUrl { get; set; } = null!;
+    [Parameter] public string Id { get; set; } = null!;
 
-    [Parameter, EditorRequired]
-    public TModel Model { get; set; } = null!;// default!;
-    // public void SetModel(TModel model)
-    // {
-    //     Model = new();
-    //     (Model as ICopyable<TModel>).CopyFrom(model);
-    //     StateHasChanged();
-    // }
-
-    [Parameter, EditorRequired]
-    public string ApiUrl { get; set; } = null!;
-
-    [Parameter]
-    public string Id { get; set; } = null!;
-
-    EditContext editContext = null!;
-    
+    EditContext editContext { get; set; } = null!;
+    EditForm editForm = null!;
     ValidationMessageStore messageStore = null!;
     Exception? loadingException;
     TModel OriginalModel { get; set; } = new();
@@ -59,14 +45,14 @@ else if (Model is not null)
 
     protected override void OnParametersSet()
     {
-        Logger.LogInformation("OnParametersSet()");
+        Logger.LogInformation("OnParametersSet() Model is {model}", Model);
         base.OnParametersSet();
 
-        // if (Model is not null)
-        // {
-        //     editContext = new EditContext(Model);
-        //     messageStore = new ValidationMessageStore(editContext);
-        // }
+        if (Model is not null && editContext is null)
+        {
+            editContext = new EditContext(Model);
+            messageStore = new ValidationMessageStore(editContext);
+        }
     }
 
     async Task HandleSubmit()
@@ -143,16 +129,12 @@ else if (Model is not null)
 
         if (!InEditMode)
         {
-            editContext = new EditContext(Model);
-            messageStore = new ValidationMessageStore(editContext);
-
             Model.CopyFrom(OriginalModel);
         }
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-
         Logger.LogInformation("SetParametersAsync({parameters})", parameters.ToDictionary());
         await base.SetParametersAsync(parameters);
         //await Task.Delay(1000);

@@ -18,12 +18,12 @@
         <button>Add to Campaign</button>
     </Buttons>
     <GridColumns>
-        <PropertyColumn Property="x=>x.CompanyCode" />
+        <PropertyColumn Property="x=>x!.CompanyCode" Title="Company" />
         <TemplateColumn Title="Vrm">
-            <a href="/companies/view/@context.Vrm">@context.Vrm</a>
+            <a href="/vehicle/view/@context!.Vrm">@context.Vrm</a>
         </TemplateColumn>
-        <PropertyColumn Property="p=>p.Make" />
-        <PropertyColumn Property="p=>p.Model" />
+        <PropertyColumn Property="p=>p!.Make" />
+        <PropertyColumn Property="p=>p!.Model" Class="w100" />
     </GridColumns>
 </ListTemplate2>
 

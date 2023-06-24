@@ -136,8 +136,9 @@
             // template.Model = new Person();
             // (template.Model as ICopyable<Person>).CopyFrom(result);
             //template.SetModel(template.Model);
-            person = new();
-            (person as ICopyable<Person>).CopyFrom(result);
+            person = result;
+            // person = new();
+            // (person as ICopyable<Person>).CopyFrom(result);
         }
     }
     protected override void OnAfterRender(bool firstRender)

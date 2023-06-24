@@ -1,6 +1,6 @@
 ﻿namespace Vms.Web.Shared;
 
-public record CompanyModel : ICopyable<CompanyModel>
+public class CompanyModel : ICopyable<CompanyModel>
 {
     [Required]
     public string Code { get; set; } = string.Empty;

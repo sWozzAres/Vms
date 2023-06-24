@@ -12,14 +12,15 @@ public static class VehicleEndpoints
         endpoints.MapGet("/ClientApp/api/Vehicle",
             [Authorize(Policy = "ClientPolicy")] async (int list, int start, int take, VmsDbContext context, CancellationToken cancellationToken) =>
         {
-            //int totalCount = await context.Companies.CountAsync();
+            int totalCount = await context.Vehicles.CountAsync();
           
             var result = await context.Vehicles
                 .Skip(start)
                 .Take(take)
-                .Select(x => new VehicleListModel(x.CompanyCode, x.Vrm, x.Make, x.Model))
+                .Select(x => new VehicleListModel(x.Id, x.CompanyCode, x.Vrm, x.Make, x.Model))
                 .ToListAsync(cancellationToken);
-            return result;
+            
+            return new ListResult<VehicleListModel>(totalCount, result);
         });
     }
 }

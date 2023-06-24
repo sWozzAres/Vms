@@ -142,7 +142,7 @@
 
     public MyModel Model { get; set; } = new();
 
-    public record MyModel : ICopyable<MyModel>
+    public class MyModel : ICopyable<MyModel>
     {
         [Range(1, 122)]
         public int? SelectedValue { get; set; } = 0;
