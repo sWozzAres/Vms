@@ -6,19 +6,20 @@ using VmsTesting;
 
 namespace Vms.Tests;
 
-public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
+public class ServiceBookingTests //: IClassFixture<TestDatabaseFixture>
 {
-    readonly TestDatabaseFixture Fixture;
+    //readonly TestDatabaseFixture Fixture;
     readonly ServiceProvider ServiceProvider;
-    readonly ILoggerFactory LoggerFactory;
+    //readonly ILoggerFactory LoggerFactory;
 
-    public ServiceBookingTests(TestDatabaseFixture fixture)
+    //public ServiceBookingTests(TestDatabaseFixture fixture)
+    public ServiceBookingTests()
     {
-        Fixture = fixture;
+        //Fixture = fixture;
         ServiceProvider = new ServiceCollection()
             .AddLogging(builder => builder.AddDebug())
             .BuildServiceProvider();
-        LoggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
+        //LoggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
     }
 
     [Fact]
@@ -33,7 +34,7 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact]
-    public async Task Get_Companies()
+    public void Get_Companies()
     {
         using var context = TestDatabaseFixture.CreateContext();
 

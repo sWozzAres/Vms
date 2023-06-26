@@ -5,7 +5,7 @@ namespace Vms.Web.Shared;
 
 public record VehicleListModel(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 
-public class VehicleDto : ICopyable<VehicleDto>
+public partial class VehicleDto : ICopyable<VehicleDto>
 {
     [Required, StringLength(10)]
     public string CompanyCode { get; set; } = string.Empty;
@@ -52,7 +52,7 @@ public class VehicleDto : ICopyable<VehicleDto>
     }
 }
 
-public class AddressDto : ICopyable<AddressDto>
+public partial class AddressDto : ICopyable<AddressDto>
 {
     [Required, StringLength(50)]
     public string Street { get; set; } = string.Empty;
@@ -83,7 +83,7 @@ public class AddressDto : ICopyable<AddressDto>
 }
 
 
-public class GeometryDto : ICopyable<GeometryDto>
+public partial class GeometryDto : ICopyable<GeometryDto>
 {
     public double Latitude { get; set; }
     public double Longitude { get; set; }

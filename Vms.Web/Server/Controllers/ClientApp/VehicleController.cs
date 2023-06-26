@@ -32,7 +32,7 @@ public class VehicleController : ControllerBase
         [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
     {
-        var vehicle = await context.Vehicles.FindAsync(new[] { id }, cancellationToken);
+        var vehicle = await context.Vehicles.FindAsync(id, cancellationToken);
         if (vehicle is null)
         {
             return NotFound();

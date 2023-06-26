@@ -1,3 +1,3 @@
 ﻿namespace Utopia.Blazor.Component;
 
-public record SelectOption(int? Value, string Name);
+public record SelectOption<TValue>(TValue? Value, string Name);

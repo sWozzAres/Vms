@@ -24,6 +24,7 @@
 
 	<ItemGroup>
 	  <Content Remove="compilerconfig.json" />
+	  <Content Remove="Pages\Company\View.razor" />
 	  <Content Remove="Shared\SelectOnlyCombobox.razor" />
 	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
 	</ItemGroup>

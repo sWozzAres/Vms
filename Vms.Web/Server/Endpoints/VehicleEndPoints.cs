@@ -22,5 +22,12 @@ public static class VehicleEndpoints
             
             return new ListResult<VehicleListModel>(totalCount, result);
         });
+
+        endpoints.MapGet("/ClientApp/api/VehicleMake/All",
+            [Authorize(Policy = "ClientPolicy")] async (VmsDbContext context, CancellationToken cancellationToken)
+                => await context.VehicleMakes
+                    .Select(x => new VehicleMakeListModel(x.Make))
+                    .ToListAsync(cancellationToken)
+            );
     }
 }

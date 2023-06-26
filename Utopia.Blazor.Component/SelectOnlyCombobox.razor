@@ -1,6 +1,7 @@
 ﻿@inject IJSRuntime JS
-@inject ILogger<SelectOnlyCombobox> Logger
+@inject ILogger<SelectOnlyCombobox<TValue>> Logger
 @namespace Utopia.Blazor.Component
+@typeparam TValue
 @implements IAsyncDisposable
 
 <label id="@id" class="@labelClassName">@Label</label>
@@ -39,7 +40,7 @@
 
 @code {
     [EditorRequired, Parameter]
-    public SelectOption[] Items { get; set; } = null!;
+    public SelectOption<TValue>[] Items { get; set; } = null!;
 
     [EditorRequired, Parameter]
     public string Label { get; set; } = null!;
@@ -54,9 +55,9 @@
     public bool IsDisabled { get; set; }
 
     [Parameter]
-    public int? SelectedValue { get; set; }
+    public TValue? SelectedValue { get; set; }
     [Parameter]
-    public EventCallback<int?> SelectedValueChanged { get; set; }
+    public EventCallback<TValue?> SelectedValueChanged { get; set; }
 
     Dictionary<int, SelectItem> selectItems { get; set; } = new();
 
@@ -81,7 +82,7 @@
     private IJSObjectReference? _jsModule;
     private IJSObjectReference? _jsEventDisposable;
 
-    DotNetObjectReference<SelectOnlyCombobox>? objRef;
+    DotNetObjectReference<SelectOnlyCombobox<TValue>>? objRef;
 
     // state
     int activeIndex;
@@ -147,7 +148,7 @@
     {
         Logger.LogInformation("OnComboMenuClick('{index}')", index);
         onOptionChange(index);
-        
+
         await updateMenuState(false);
         await selectOption(index);
     }
@@ -227,7 +228,7 @@
         }
     }
 
-    public enum SelectAction
+    public enum SelectAction : int
     {
         Close = 0,
         CloseSelect = 1,
@@ -251,9 +252,11 @@
     }
 
     [JSInvokable]
-    public void onOptionChangeJS(SelectAction action)
+    public void onOptionChangeJS(int actionInt)
     {
-        Logger.LogInformation("onOptionChangeJS({action})", action);
+        Logger.LogInformation("onOptionChangeJS({action})", actionInt);
+        
+        SelectAction action = (SelectAction)actionInt;
         onOptionChange(getUpdatedIndex(activeIndex, selectItems.Count - 1, action));
         StateHasChanged();
 
@@ -344,7 +347,8 @@
         }
 
         // check initial SelectedValue value exists, if not default to 0
-        KeyValuePair<int, SelectItem>? foundEntry = selectItems.FirstOrDefault(entry => entry.Value.Value == SelectedValue);
+        KeyValuePair<int, SelectItem>? foundEntry = 
+            selectItems.FirstOrDefault(entry => EqualityComparer<TValue>.Default.Equals(entry.Value.Value,SelectedValue));
         selectedIndex = foundEntry.HasValue ? foundEntry.Value.Key : 0;
         activeIndex = selectedIndex;
     }
@@ -388,10 +392,10 @@
 
     private class SelectItem
     {
-        public int? Value { get; set; }
+        public TValue? Value { get; set; }
         public string Name { get; private set; }
         public string Id { get; private set; }
 
-        public SelectItem(SelectOption option, string id) => (Value, Name, Id) = (option.Value, option.Name, id);
+        public SelectItem(SelectOption<TValue> option, string id) => (Value, Name, Id) = (option.Value, option.Name, id);
     }
 }

@@ -1,21 +1,21 @@
-﻿@page "/people/view/{id}"
+﻿@page "/vehicle/view/{id}"
 @inject HttpClient Http
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
 @using System.ComponentModel.DataAnnotations
 
-<PageTitle>Person</PageTitle>
+<PageTitle>Vehicle</PageTitle>
 
 <section>
-    <h1>Person</h1>
-    <a href="/people/view/2">Edit Person</a>
+    <h1>Vehicle</h1>
+    @if (makes is not null)
+    {
+        <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="Vehicle" OnLoad="LoadVehicle">
+            <DataAnnotationsValidator />
 
-    <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="Person" OnLoad="LoadPerson">
-        <DataAnnotationsValidator />
-
-        <div class="form-section">
-            <label for="name">Name</label>
+            <div class="form-section">
+                @* <label for="name">Name</label>
             <InputText id="name" @bind-Value="editForm.Model.Name" />
             <ValidationMessage For="@(() => editForm.Model.Name)" />
 
@@ -41,46 +41,50 @@
 
             <label for="notes">Notes</label>
             <InputTextArea id="notes" @bind-Value="editForm.Model.Notes" />
-            <ValidationMessage For="@(() => editForm.Model.Notes)" />
-        </div>
-        <div class="form-section">
-            <InputSelectOnlyCombobox Options="@statusOptions" LabelText="Status" @bind-Value="editForm.Model.Status" />
-            <ValidationMessage For="@(() => editForm.Model.Status)" />
-
-            <label>Manufacturer</label>
-            <div class="form-control">
-                <InputRadioGroup @bind-Value="editForm.Model.TheManufacturer">
-                    @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
-                    {
-
-                        <InputRadio Value="@manufacturer" />
-                        <text>&nbsp;</text>
-
-                        @manufacturer
-
-                    }
-                </InputRadioGroup>
+            <ValidationMessage For="@(() => editForm.Model.Notes)" /> *@
             </div>
-            <ValidationMessage For="@(() => editForm.Model.TheManufacturer)" />
-        </div>
-    </EditFormTemplate>
+            <div class="form-section">
+                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
+                <ValidationMessage For="@(() => editForm.Model.Make)" />
+
+                @* <label>Manufacturer</label>
+            <div class="form-control">
+            <InputRadioGroup @bind-Value="editForm.Model.TheManufacturer">
+            @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
+            {
+
+            <InputRadio Value="@manufacturer" />
+            <text>&nbsp;</text>
+
+            @manufacturer
+
+            }
+            </InputRadioGroup>
+            </div>
+            <ValidationMessage For="@(() => editForm.Model.TheManufacturer)" /> *@
+            </div>
+        </EditFormTemplate>
+    }
 </section>
 
 @code {
     [Parameter]
     public string Id { get; set; } = null!;
 
-    EditFormTemplate<Person> editForm = null!;
+    EditFormTemplate<VehicleDto> editForm = null!;
 
-    SelectOption<int?>[] statusOptions = new SelectOption<int?>[]
-    {
-        new (null, "-- Select Status --"),
-        new (0, "Active"),
-        new (1, "Inactive"),
+    SelectOption<string>[] makeOptions
+     = new SelectOption<string>[]
+     {
+         new (null, "-- Select Make --"),
+         //     new (0, "Active"),
+         //     new (1, "Inactive"),
     };
 
-    async Task<Person?> LoadPerson()
-        => await Http.GetFromJsonAsync<Person>($"Person/{Id}");
+    VehicleMakeListModel[]? makes;
+
+    async Task<VehicleDto?> LoadVehicle()
+        => await Http.GetFromJsonAsync<VehicleDto>($"/api/Vehicle/{Id}");
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -97,7 +101,14 @@
     {
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
-        //await Task.Delay(1000);
+
+        makes = await Http.GetFromJsonAsync<VehicleMakeListModel[]>("/api/VehicleMake/All");
+        if (makes is not null)
+        {
+            makeOptions = makeOptions.Concat(
+                makes.Select(m => new SelectOption<string>(m.Make, m.Make))
+            ).ToArray();
+        }
     }
     protected override void OnParametersSet()
     {

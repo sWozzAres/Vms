@@ -27,7 +27,7 @@ export function init(element, objRef) {
 
         // 'aria-activedescendant' only set when the menu is open
         const action = getActionFromKey(event, element.getAttribute('aria-activedescendant').length > 0);
-
+        
         switch (action) {
             case SelectActions.Last:
             case SelectActions.First:

@@ -20,7 +20,7 @@
     <GridColumns>
         <PropertyColumn Property="x=>x!.CompanyCode" Title="Company" />
         <TemplateColumn Title="Vrm">
-            <a href="/vehicle/view/@context!.Vrm">@context.Vrm</a>
+            <a href="/vehicle/view/@context!.Id">@context.Vrm</a>
         </TemplateColumn>
         <PropertyColumn Property="p=>p!.Make" />
         <PropertyColumn Property="p=>p!.Model" Class="w100" />
@@ -28,10 +28,10 @@
 </ListTemplate2>
 
 @code {
-    SelectOption[] listOptions = new SelectOption[]
+    SelectOption<int?>[] listOptions = new SelectOption<int?>[]
     {
-        new SelectOption(0, "All Vehicles"),
-        new SelectOption(1, "Recently Viewed"),
-        new SelectOption(2, "Pinned"),
+        new (0, "All Vehicles"),
+        new (1, "Recently Viewed"),
+        new (2, "Pinned"),
     };
 }

@@ -386,16 +386,6 @@ form.edit-form > fieldset .buttons {
 .list-header .list-info .list-description {
   flex-grow: 1;
 }
-.list-data .error {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 1em;
-}
-.list-data .error p {
-  color: red;
-}
 .list-data .col-title {
   padding: 0 !important;
 }
@@ -489,6 +479,17 @@ a {
 }
 a:visited {
   color: var(--a-visited-text);
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1em;
+}
+.error p {
+  color: red;
 }
 
 h1:focus {

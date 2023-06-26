@@ -25,6 +25,17 @@ a {
     }
 }
 
+.error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1em;
+
+    p {
+        color: red;
+    }
+}
 
 h1:focus {
     outline: none;

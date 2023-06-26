@@ -69,11 +69,11 @@
 @code {
     public Person person = new() {Name = "x"};
 
-    public SelectOption[] statusOptions = new SelectOption[]
+    public SelectOption<int?>[] statusOptions = new SelectOption<int?>[]
     {
-        new SelectOption(null, "-- Select Status --"),
-        new SelectOption(0, "Active"),
-        new SelectOption(1, "Inactive"),
+        new (null, "-- Select Status --"),
+        new (0, "Active"),
+        new (1, "Inactive"),
     };
 
     protected override async Task OnParametersSetAsync()

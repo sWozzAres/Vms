@@ -84,11 +84,11 @@
 
     async Task Refresh() => await grid.RefreshDataAsync();
 
-    SelectOption[] listOptions = new SelectOption[]
+    SelectOption<int?>[] listOptions = new SelectOption<int?>[]
     {
-        new SelectOption(0, "All Companies"),
-        new SelectOption(1, "Recently Viewed"),
-        new SelectOption(2, "Pinned"),
+        new (0, "All Companies"),
+        new (1, "Recently Viewed"),
+        new (2, "Pinned"),
     };
 
     GridItemsProvider<CompanyListModel> listProvider = null!;

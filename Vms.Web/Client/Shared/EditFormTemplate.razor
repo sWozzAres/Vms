@@ -5,55 +5,50 @@
 @typeparam TModel where TModel : class, ICopyable<TModel>, new()
 @inject HttpClient Http
 @inject ILogger<EditFormTemplate<TModel>> Logger
+@inject NavigationManager NavigationManager
+
 @if (loadingException is not null)
 {
-    <p>An error occured loading the page.</p>
-    <p>@loadingException.Message</p>
+    <div class="error">
+        <p>An error occured loading the page.</p>
+        <p>@loadingException.Message</p>
+        <button @onclick="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)">Retry</button>
+    </div>
 }
 else if (Model is not null)
 {
-    <EditForm @ref="editForm" EditContext="@editContext" OnSubmit="HandleSubmit" class="edit-form">
-        <fieldset disabled="@IsDisabled">
-            <CascadingValue Value="IsDisabled" Name="IsDisabled">
+    <EditForm EditContext="@editContext" OnSubmit="HandleSubmit" class="edit-form">
+        <fieldset disabled="@isDisabled">
+            <CascadingValue Value="isDisabled" Name="IsDisabled">
                 @ChildContent
             </CascadingValue>
         </fieldset>
         <div class="buttons">
-            <button type="button" @onclick="ToggleEdit">@EditButtonText</button>
-            <button type="submit" disabled="@(!InEditMode)">Save</button>
+            <button type="button" @onclick="ToggleEdit">@editButtonText</button>
+            <button type="submit" disabled="@(!inEditMode)">Save</button>
         </div>
-
     </EditForm>
-    <p>@Model</p>
 }
 
 @code {
+    public delegate Task<TModel?> LoadModel();
+
+    [Parameter, EditorRequired] public LoadModel OnLoad { get; set; } = null!;
+
     [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
-    [Parameter, EditorRequired] public TModel Model { get; set; } = null!;
+    public TModel Model { get; set; } = null!;
     [Parameter, EditorRequired] public string ApiUrl { get; set; } = null!;
     [Parameter] public string Id { get; set; } = null!;
 
     EditContext editContext { get; set; } = null!;
-    EditForm editForm = null!;
     ValidationMessageStore messageStore = null!;
+
     Exception? loadingException;
-    TModel OriginalModel { get; set; } = new();
-    bool IsPosting { get; set; }
-    bool InEditMode { get; set; } = false;
-    string EditButtonText => InEditMode ? "Cancel" : "Edit";
-    bool IsDisabled => !InEditMode;
-
-    protected override void OnParametersSet()
-    {
-        Logger.LogInformation("OnParametersSet() Model is {model}", Model);
-        base.OnParametersSet();
-
-        if (Model is not null && editContext is null)
-        {
-            editContext = new EditContext(Model);
-            messageStore = new ValidationMessageStore(editContext);
-        }
-    }
+    TModel originalModel { get; set; } = new();
+    bool isPosting { get; set; }
+    bool inEditMode { get; set; } = false;
+    string editButtonText => inEditMode ? "Cancel" : "Edit";
+    bool isDisabled => !inEditMode;
 
     async Task HandleSubmit()
     {
@@ -80,7 +75,7 @@ else if (Model is not null)
     private async Task HandleValidSubmit()
     {
         Logger.LogInformation("Submitting form {model}", Model);
-        IsPosting = true;
+        isPosting = true;
         try
         {
             var response = await Http.PatchAsJsonAsync(ApiUrl, Model);
@@ -94,9 +89,9 @@ else if (Model is not null)
                     {
                         throw new InvalidOperationException("Failed to deserialize model.");
                     }
-                    OriginalModel.CopyFrom(content);
+                    originalModel.CopyFrom(content);
 
-                    InEditMode = false;
+                    inEditMode = false;
                 }
                 else if (response.StatusCode == HttpStatusCode.NoContent)
                 {
@@ -114,22 +109,22 @@ else if (Model is not null)
         }
         finally
         {
-            IsPosting = false;
+            isPosting = false;
         }
     }
 
     private void ToggleEdit()
     {
-        if (!InEditMode)
+        if (!inEditMode)
         {
-            OriginalModel.CopyFrom(Model);
+            originalModel.CopyFrom(Model);
         }
 
-        InEditMode = !InEditMode;
+        inEditMode = !inEditMode;
 
-        if (!InEditMode)
+        if (!inEditMode)
         {
-            Model.CopyFrom(OriginalModel);
+            Model.CopyFrom(originalModel);
         }
     }
 
@@ -138,7 +133,6 @@ else if (Model is not null)
         Logger.LogInformation("SetParametersAsync({parameters})", parameters.ToDictionary());
         await base.SetParametersAsync(parameters);
         //await Task.Delay(1000);
-        //ChildContent2 = ChildContent;
     }
     protected override void OnInitialized()
     {
@@ -149,18 +143,38 @@ else if (Model is not null)
     {
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
-        //await Task.Delay(1000);
+        try
+        {
+            Model = await OnLoad() ?? throw new InvalidOperationException("Failed to load.");
+            if (Model is not null && editContext is null)
+            {
+                editContext = new EditContext(Model);
+                messageStore = new ValidationMessageStore(editContext);
+            }
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed.");
+            loadingException = ex;
+        }
     }
-    // protected override void OnParametersSet()
-    // {
-    //     Logger.LogInformation("OnParametersSet()");
-    //     base.OnParametersSet();
-    // }
+    protected override void OnParametersSet()
+    {
+        Logger.LogInformation("OnParametersSet() Model is {model}", Model);
+        base.OnParametersSet();
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         Logger.LogInformation("OnParametersSetAsync()");
         await base.OnParametersSetAsync();
         //await Task.Delay(1000);
+
+
     }
     protected override void OnAfterRender(bool firstRender)
     {
@@ -171,6 +185,10 @@ else if (Model is not null)
     {
         Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
         await base.OnAfterRenderAsync(firstRender);
-        //await Task.Delay(1000);
+
+        if (firstRender)
+        {
+
+        }
     }
 }

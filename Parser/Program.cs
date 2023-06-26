@@ -11,9 +11,7 @@ namespace Parser
     {
         static void Main(string[] args)
         {
-            var s1 = "Hello";
-            var s2 = s1;
-
+            Console.WriteLine(args);
         }
     }
 
@@ -27,5 +25,10 @@ namespace Parser
     public record Address
     {
         public string Street { get; set; } = "MyStreet";
+    }
+
+    public partial class TestDto
+    {
+        public string Name { get; set; } = null!;
     }
 }

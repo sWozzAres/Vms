@@ -1,9 +1,11 @@
 ﻿@using System.Diagnostics.CodeAnalysis
-@inherits InputBase<int?>
-@inject ILogger<InputSelectOnlyCombobox> Logger
+@typeparam TValue
+@inherits InputBase<TValue?>
+@inject ILogger<InputSelectOnlyCombobox<TValue>> Logger
+@attribute [CascadingTypeParameter(nameof(TValue))]
 
 <input type="hidden" @bind="CurrentValue" />
-<SelectOnlyCombobox Items="@Options" Label="@LabelText"
+<SelectOnlyCombobox TValue="TValue" Items="@Options" Label="@LabelText"
 @bind-SelectedValue="CurrentValue" class="form-combo">
 </SelectOnlyCombobox>
 
@@ -12,7 +14,7 @@
     public string LabelText { get; set; } = null!;
 
     [Parameter]
-    public SelectOption[] Options { get; set; } = null!;
+    public SelectOption<TValue>[] Options { get; set; } = null!;
 
     [Parameter] public string ParsingErrorMessage { get; set; } = "The {0} field must be a number.";
 
@@ -32,10 +34,10 @@
     // }
 
     protected override bool TryParseValueFromString(string? value,
-    [MaybeNullWhen(false)] out int? result,
+    [MaybeNullWhen(false)] out TValue? result,
         [NotNullWhen(false)] out string? validationErrorMessage)
     {
-        if (BindConverter.TryConvertTo<int?>(value, CultureInfo.InvariantCulture, out result))
+        if (BindConverter.TryConvertTo<TValue?>(value, CultureInfo.InvariantCulture, out result))
         {
             validationErrorMessage = null;
             return true;

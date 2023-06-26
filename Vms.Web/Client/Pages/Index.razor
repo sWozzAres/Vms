@@ -70,18 +70,16 @@
     <p>SelectedValue: @SelectedValue</p>
 
 
-    <EditFormTemplate Model="Model" ApiUrl="">
+@*     <EditFormTemplate Model="Model" ApiUrl="">
         <DataAnnotationsValidator />
 
         <div class="form-section">
             <InputSelectOnlyCombobox Options="@items" LabelText="A label" @bind-Value="Model.SelectedValue" />
             <ValidationMessage For="@(() => Model.SelectedValue)" />
 
-            @* <label for="name">Name</label>
-            <InputText id="name" @bind-Value="Model.Name" />
-            <ValidationMessage For="@(() => Model.Name)" /> *@
+            
         </div>
-    </EditFormTemplate>
+    </EditFormTemplate> *@
     <p>SelectedValue: @Model.SelectedValue</p>
 
     <ol>
@@ -123,21 +121,21 @@
     int? SelectedValue { get; set; }
     private string selectedItem = string.Empty;
 
-    private SelectOption[] items = new SelectOption[]
+    private SelectOption<int?>[] items = new SelectOption<int?>[]
     {
-        new SelectOption(null, "--Choose a Fruit--"),
-        new SelectOption(1, "Apple"),
-        new SelectOption(2, "Banana"),
-        new SelectOption(3, "Blueberry"),
-        new SelectOption(4, "Boysenberry"),
-        new SelectOption(5, "Cherry"),
-        new SelectOption(6, "Cranberry"),
-        new SelectOption(7, "Durian"),
-        new SelectOption(8, "Eggplant"),
-        new SelectOption(9, "Fig"),
-        new SelectOption(10, "Grape"),
-        new SelectOption(111, "Guava"),
-        new SelectOption(122, "Huckleberry")
+        new (null, "--Choose a Fruit--"),
+        new (1, "Apple"),
+        new (2, "Banana"),
+        new (3, "Blueberry"),
+        new (4, "Boysenberry"),
+        new (5, "Cherry"),
+        new (6, "Cranberry"),
+        new (7, "Durian"),
+        new (8, "Eggplant"),
+        new (9, "Fig"),
+        new (10, "Grape"),
+        new (111, "Guava"),
+        new (122, "Huckleberry")
     };
 
     public MyModel Model { get; set; } = new();
