@@ -1,0 +1,72 @@
+﻿@inject ILogger<TabPage> Logger
+
+<div id="@Id" role="tabpanel" aria-labelledby="tab-@Index" class="@className">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter]
+    private TabControl Parent { get; set; }
+
+    [Parameter]
+    public string Text { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    string Id => $"{Parent.Id}-tabpanel-{Index}";
+    public int Index { get; set; }
+    bool isVisible => Parent.ActivePage == this;
+    string className => isVisible ? "" : "is-hidden";
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("OnInitialized() {index}", Index);
+
+        if (Parent == null)
+            throw new ArgumentNullException(nameof(Parent), "TabPage must exist within a TabControl");
+        base.OnInitialized();
+
+        Index = Parent.AddPage(this);
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        Logger.LogInformation("SetParametersAsync() {index}",Index);
+        await base.SetParametersAsync(parameters);
+        //await Task.Delay(1000);
+    }
+    // protected override void OnInitialized()
+    // {
+    //     Logger.LogInformation("OnInitialized()");
+    //     base.OnInitialized();
+    // }
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync() {index}", Index);
+        await base.OnInitializedAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnParametersSet()
+    {
+        Logger.LogInformation("OnParametersSet() {index}", Index);
+        base.OnParametersSet();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        Logger.LogInformation("OnParametersSetAsync() {index}", Index);
+        await base.OnParametersSetAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRender({firstRender}) {index}", firstRender, Index);
+        base.OnAfterRender(firstRender);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync({firstRender}) {index}", firstRender, Index);
+        await base.OnAfterRenderAsync(firstRender);
+        //await Task.Delay(1000);
+    }
+}

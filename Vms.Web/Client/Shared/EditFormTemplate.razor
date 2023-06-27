@@ -46,7 +46,7 @@ else if (Model is not null)
     Exception? loadingException;
     TModel originalModel { get; set; } = new();
     bool isPosting { get; set; }
-    bool inEditMode { get; set; } = false;
+    bool inEditMode { get; set; }
     string editButtonText => inEditMode ? "Cancel" : "Edit";
     bool isDisabled => !inEditMode;
 
@@ -150,11 +150,8 @@ else if (Model is not null)
         try
         {
             Model = await OnLoad() ?? throw new InvalidOperationException("Failed to load.");
-            if (Model is not null && editContext is null)
-            {
-                editContext = new EditContext(Model);
-                messageStore = new ValidationMessageStore(editContext);
-            }
+            editContext = new EditContext(Model);
+            messageStore = new ValidationMessageStore(editContext);
         }
         catch (AccessTokenNotAvailableException ex)
         {

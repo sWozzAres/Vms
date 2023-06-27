@@ -104,19 +104,10 @@
 </section>
 
 @code {
-    [Parameter]
-    public string Id { get; set; } = null!;
+    [Parameter] public string Id { get; set; } = null!;
 
     EditFormTemplate<VehicleDto> editForm = null!;
-
     SelectOption<string?>[] makeOptions = null!;
-    //  = new SelectOption<string>[]
-    //  {
-    //      new (null, "-- Select Make --"),
-    //      //     new (0, "Active"),
-    //      //     new (1, "Inactive"),
-    // };
-
     VehicleMakeListModel[]? makes;
 
     async Task<VehicleDto?> LoadVehicle() {

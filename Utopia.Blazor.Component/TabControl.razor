@@ -1,0 +1,205 @@
+﻿@inject ILogger<TabControl> Logger
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="tabs">
+    @if (TitleVisible)
+    {
+        <h3 id="@Id" style="display:none">@Title</h3>
+    }
+    else
+    {
+        <h3 id="@Id">@Title</h3>
+    }
+    <CascadingValue Value="this">
+        <div role="tablist" aria-labelledby="@Id" class="manual" @ref="tabControlEl">
+            @for (var i = 0; i < Pages.Count(); i++)
+            {
+                var index = i;
+                var tabPage = Pages.ElementAt(i);
+
+                var selected = ActivePage.Index == index;
+                var buttonId = $"{Id}-tab-{index}";
+                var tabIndex = selected ? "0" : "-1";
+                <button id="@buttonId" type="button" tabindex="@tabIndex" role="tab" aria-selected="@selected.ToHtml()" aria-controls="tabpanel-@index" @onclick=@( () => ActivatePage(tabPage) )>
+                    <span class="focus">
+                        @tabPage.Text
+                    </span>
+                </button>
+            }
+        </div>
+        @ChildContent
+    </CascadingValue>
+
+</div>
+
+@code {
+    [EditorRequired, Parameter] public RenderFragment ChildContent { get; set; } = null!;
+    [Parameter] public string Title { get; set; } = null!;
+    [Parameter] public bool TitleVisible { get; set; }
+    public TabPage ActivePage { get; set; } = null!;
+
+    List<TabPage> Pages = new List<TabPage>();
+
+    public string Id = null!;
+    IJSObjectReference? _jsModule;
+    IJSObjectReference? _jsEventDisposable;
+    ElementReference tabControlEl;
+    DotNetObjectReference<TabControl>? objRef;
+    int focusIndex = 0;
+
+    internal int AddPage(TabPage tabPage)
+    {
+        Pages.Add(tabPage);
+        if (Pages.Count == 1)
+            ActivePage = tabPage;
+
+        return Pages.IndexOf(tabPage);
+    }
+
+    void ActivatePage(TabPage page)
+    {
+        ActivePage = page;
+        focusIndex = Pages.IndexOf(page);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public int moveFocusToPreviousTabJS()
+    {
+        Logger.LogInformation("moveFocusToPreviousTabJS()");
+        if (focusIndex > 0)
+        {
+            focusIndex--;
+        }
+        return focusIndex;
+        // if (ActivePage.Index > 0)
+        // {
+        //     ActivatePage(Pages.ElementAt(ActivePage.Index - 1));
+        // }
+    }
+    [JSInvokable]
+    public int moveFocusToNextTabJS()
+    {
+        Logger.LogInformation("moveFocusToNextTabJS()");
+        if (focusIndex < Pages.Count() - 1)
+        {
+            focusIndex++;
+        }
+
+        return focusIndex;
+        // if (ActivePage.Index < Pages.Count() - 1)
+        // {
+        //     ActivatePage(Pages.ElementAt(ActivePage.Index + 1));
+        // }
+    }
+    [JSInvokable]
+    public int moveFocusToFirstTabJS()
+    {
+        Logger.LogInformation("moveFocusToFirstTabJS()");
+        if (focusIndex > 0)
+        {
+            focusIndex = 0;
+        }
+        return focusIndex;
+        // if (ActivePage.Index > 0)
+        // {
+        //     ActivatePage(Pages.ElementAt(0));
+        // }
+    }
+    [JSInvokable]
+    public int moveFocusToLastTabJS()
+    {
+        Logger.LogInformation("moveFocusToLastTabJS()");
+        if (focusIndex < Pages.Count() - 1)
+        {
+            focusIndex = Pages.Count() - 1;
+        }
+        return focusIndex;
+        // if (ActivePage.Index < Pages.Count() - 1)
+        // {
+        //     ActivatePage(Pages.ElementAt(Pages.Count() - 1));
+        // }
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        Logger.LogInformation("SetParametersAsync()");
+        await base.SetParametersAsync(parameters);
+        //await Task.Delay(1000);
+    }
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("OnInitialized()");
+        base.OnInitialized();
+
+        ArgumentNullException.ThrowIfNull(ChildContent);
+
+        Id = HtmlHelpers.GetRandomHtmlId();
+        objRef = DotNetObjectReference.Create(this);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync()");
+        await base.OnInitializedAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnParametersSet()
+    {
+        Logger.LogInformation("OnParametersSet()");
+        base.OnParametersSet();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        Logger.LogInformation("OnParametersSetAsync()");
+        await base.OnParametersSetAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+
+
+            StateHasChanged();
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/TabControl.razor.js");
+            _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("tabControlInit", tabControlEl, objRef);
+        }
+        //await Task.Delay(1000);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        objRef?.Dispose();
+
+        try
+        {
+            if (_jsEventDisposable is not null)
+            {
+                await _jsEventDisposable.InvokeVoidAsync("stop");
+                await _jsEventDisposable.DisposeAsync();
+            }
+
+            if (_jsModule is not null)
+            {
+                await _jsModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // The JS side may routinely be gone already if the reason we're disposing is that
+            // the client disconnected. This is not an error.
+        }
+    }
+}
