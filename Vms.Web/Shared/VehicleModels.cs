@@ -3,13 +3,15 @@ using Vms.Web.Shared;
 
 namespace Vms.Web.Shared;
 
-public record VehicleListModel(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
+public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 
 public partial class VehicleDto : ICopyable<VehicleDto>
 {
     [Required, StringLength(10)]
     public string CompanyCode { get; set; } = string.Empty;
     public Guid Id { get; set; }
+    [Required, StringLength(12)]
+    public string Vrm { get; set; } = string.Empty;
     [Required, StringLength(30)]
     public string Make { get; set; } = string.Empty;
     [Required, StringLength(50)]
@@ -23,12 +25,13 @@ public partial class VehicleDto : ICopyable<VehicleDto>
     [StringLength(10)]
     public string? FleetCode { get; set; }
     public VehicleDto() { }
-    public VehicleDto(string companyCode, Guid id, string make, string model, string? chassisNumber,
+    public VehicleDto(string companyCode, Guid id, string vrm, string make, string model, string? chassisNumber,
         DateOnly dateFirstRegistered, AddressDto address,
         string? customerCode, string? fleetCode)
     {
         CompanyCode = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
         Id = id;
+        Vrm = vrm;
         Make = make ?? throw new ArgumentNullException(nameof(make));
         Model = model ?? throw new ArgumentNullException(nameof(model));
         ChassisNumber = chassisNumber;
@@ -42,6 +45,7 @@ public partial class VehicleDto : ICopyable<VehicleDto>
     {
         CompanyCode = source.CompanyCode;
         Id = source.Id;
+        Vrm = source.Vrm;
         Make = source.Make;
         Model = source.Model;
         ChassisNumber = source.ChassisNumber;
@@ -54,16 +58,16 @@ public partial class VehicleDto : ICopyable<VehicleDto>
 
 public partial class AddressDto : ICopyable<AddressDto>
 {
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public string Street { get; set; } = string.Empty;
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public string Locality { get; set; } = string.Empty;
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public string Town { get; set; } = string.Empty;
-    [Required, StringLength(8)]
+    [StringLength(8)]
     public string Postcode { get; set; } = string.Empty;
     public GeometryDto Location { get; set; } = new(0, 0);
-
+    public AddressDto() { }
     public AddressDto(string street, string locality, string town, string postcode, GeometryDto location)
     {
         Street = street ?? throw new ArgumentNullException(nameof(street));
@@ -87,7 +91,7 @@ public partial class GeometryDto : ICopyable<GeometryDto>
 {
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-
+    public GeometryDto() { }
     public GeometryDto(double latitude, double longitude)
     {
         Latitude = latitude;

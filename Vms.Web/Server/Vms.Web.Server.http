@@ -1,10 +1,47 @@
 ﻿@Vms.Web.Server_HostAddress = https://localhost:5002
+@Token = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkQ2RUFEMUJFNTlBNUJCNTZGRjcyNzBFREI5ODA0QUNBIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2ODc4NjQ3MjQsImV4cCI6MTY4Nzg2ODMyNCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6WyJ2bXNjbGllbnQiLCJodHRwczovL2xvY2FsaG9zdDo1MDAwL3Jlc291cmNlcyJdLCJjbGllbnRfaWQiOiJ2bXNjbGllbnQiLCJzdWIiOiI4Y2FiODgxNC05OGIzLTQ1MmUtOWIxYS05M2ExMzQ2NzU4MGUiLCJhdXRoX3RpbWUiOjE2ODc1MzgxOTgsImlkcCI6ImxvY2FsIiwibmFtZSI6IkJvYiBTbWl0aCIsInRlbmFudGlkIjoiVEVTVDAwMSIsImp0aSI6IjA1MjQ0OTZENkQ0NzMxOUE3Q0UzNUZBMzE3RDg0NzU2Iiwic2lkIjoiRjcyM0I1MjFDNjIwNEFBNTE0RUQ1QURBOEQ4RjA4RjkiLCJpYXQiOjE2ODc4NjQ3MjQsInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiLCJlbWFpbCIsInZtcy5jbGllbnQiXSwiYW1yIjpbInB3ZCJdfQ.Z0ctiN4bQ-I3YeGCVBCkHpzsSzKqE-Y_IOj_Ovems9qCFp3xZoRq5jN4Lek7EFJnWFveQp5DGxl8QWiOnvNPeN6okVN6PTgdksKvTcB-8USjFlBScWBhAvz9l5L56JKjHR6UbkjL_jSrJV_6TyYp-9PCvcFLzScIZR5SlHxdcinXzgLeNaVrYYUojuB12N0BAWZnKagEzPfMHkYr_1PhrlFGgBHxN0_r6jLmi0FXyDHEyF1P_Az3OtjzIOAuy4LkSPhqogF-QdVtOb0_kNqBQ264OdCnK-8U2mgqhIW42OMMrcK97OzHYwLKHE3LAJgIOR7x21sf8g4eyodExqItcA
+@Id = 92ac9c74-2ca7-4934-bf1b-00a7f3f033a8
 
 GET {{Vms.Web.Server_HostAddress}}/test
 
 ###
 
-GET {{Vms.Web.Server_HostAddress}}/api/Company?list=0
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkQ2RUFEMUJFNTlBNUJCNTZGRjcyNzBFREI5ODA0QUNBIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2ODY4NTI4MDEsImV4cCI6MTY4Njg1NjQwMSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6WyJ2bXNjbGllbnQiLCJodHRwczovL2xvY2FsaG9zdDo1MDAwL3Jlc291cmNlcyJdLCJjbGllbnRfaWQiOiJ2bXNjbGllbnQiLCJzdWIiOiI2ZWM3ODJiZC0xN2Q0LTQ2ZTEtYmJkNC0zMmEwMmE3ZjAxMmUiLCJhdXRoX3RpbWUiOjE2ODY4MzMzNjQsImlkcCI6ImxvY2FsIiwibmFtZSI6IkFsaWNlIFNtaXRoIiwidGVuYW50aWQiOiIqIiwianRpIjoiQTM1N0QxQzJGQTRGNEMyN0M2N0U2RjZCNzBDMjkwQTYiLCJzaWQiOiIxRjEzRUY3RjFCMkNCQzcwODhCQjNDRTM3QkVGNTY2OSIsImlhdCI6MTY4Njg1MjgwMSwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsImVtYWlsIiwidm1zLmNsaWVudCJdLCJhbXIiOlsicHdkIl19.HWBz62ti-im87JRieZz2_4359qpqn8jps_wRlCSMtV_0l2an-bZDYJZMjsPBwtpe7mi9DP0Z0D4qumdfJzKOlY0FWm7f1JuZRChQJrwUiPuEKFyYHym1nh_TozBSJEpYMBhw6wh8qT06RdiRNOFi4obU4XJLFygHIVFMAAZPkXhafWd9PA31H9aZWNCgEF3mkMXv5ZCV4Vzg2hbEXxOiLaCRHVHX67KN7Mcl1BZIaUvyeveAIk69dLqxtw9s5iAwPwE-beL7FC37GUPwn0OOJpoynEWqhW_dz1QyF4Nk2WSkWnjabsasBs2eUhXDOD1XtyFF0T9sffep1dTthDzqIg
+GET {{Vms.Web.Server_HostAddress}}/api/Company?list=0&start=0&take=10
+Authorization: {{Token}}
+
+###
+
+GET {{Vms.Web.Server_HostAddress}}/api/vehicle?list=0&start=0&take=10
+Authorization: {{Token}}
+###
+
+GET {{Vms.Web.Server_HostAddress}}/api/Vehicle/{{Id}}?r=1
+Authorization: {{Token}}
+
+###
+
+PUT {{Vms.Web.Server_HostAddress}}/api/Vehicle/{{Id}}
+Authorization: {{Token}}
+Content-Type: application/json
+
+{
+  "companyCode":"TEST001   ",
+  "id":"92ac9c74-2ca7-4934-bf1b-00a7f3f033a8",
+  "vrm":"KX01HXW",
+  "make":"FORD",
+  "model":"Model #67",
+  "chassisNumber":null,
+  "dateFirstRegistered":"2001-08-10",
+  "address":
+  {
+    "street":"",
+    "locality":"",
+    "town":"",
+    "postcode":"",
+    "location":{"latitude":51.72816804510823,"longitude":-2.2832425208311116}
+  },
+  "customerCode":"CUS001001 ",
+  "fleetCode":null
+}
 
 ###

@@ -11,15 +11,29 @@
     <h1>Vehicle</h1>
     @if (makes is not null)
     {
-        <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="Vehicle" OnLoad="LoadVehicle">
+        <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
             <DataAnnotationsValidator />
 
             <div class="form-section">
-                @* <label for="name">Name</label>
-            <InputText id="name" @bind-Value="editForm.Model.Name" />
-            <ValidationMessage For="@(() => editForm.Model.Name)" />
+                <label for="vrm">Vrm</label>
+                <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
+                <ValidationMessage For="@(() => editForm.Model.Vrm)" />
 
+                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
+                <ValidationMessage For="@(() => editForm.Model.Make)" />
 
+                <label for="model">Model</label>
+                <InputText id="model" @bind-Value="editForm.Model.Model" />
+                <ValidationMessage For="@(() => editForm.Model.Model)" />
+
+                <label for="chassis">Chassis Number</label>
+                <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
+                <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
+
+                <label for="datereg">First Registered</label>
+                <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
+                <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
+                @*
             <label for="email">Email</label>
             <InputText id="email" @bind-Value="editForm.Model.Email" />
             <ValidationMessage For="@(() => editForm.Model.Email)" />
@@ -44,8 +58,30 @@
             <ValidationMessage For="@(() => editForm.Model.Notes)" /> *@
             </div>
             <div class="form-section">
-                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
-                <ValidationMessage For="@(() => editForm.Model.Make)" />
+
+                <label for="street">Street</label>
+                <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+
+                <label for="locality">Locality</label>
+                <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+
+                <label for="town">Town</label>
+                <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+
+                <label for="postcode">Postcode</label>
+                <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+
+                <label for="latitude">Latitude</label>
+                <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+
+                <label for="longitude">Longitude</label>
+                <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
 
                 @* <label>Manufacturer</label>
             <div class="form-control">
@@ -73,18 +109,20 @@
 
     EditFormTemplate<VehicleDto> editForm = null!;
 
-    SelectOption<string>[] makeOptions
-     = new SelectOption<string>[]
-     {
-         new (null, "-- Select Make --"),
-         //     new (0, "Active"),
-         //     new (1, "Inactive"),
-    };
+    SelectOption<string?>[] makeOptions = null!;
+    //  = new SelectOption<string>[]
+    //  {
+    //      new (null, "-- Select Make --"),
+    //      //     new (0, "Active"),
+    //      //     new (1, "Inactive"),
+    // };
 
     VehicleMakeListModel[]? makes;
 
-    async Task<VehicleDto?> LoadVehicle()
-        => await Http.GetFromJsonAsync<VehicleDto>($"/api/Vehicle/{Id}");
+    async Task<VehicleDto?> LoadVehicle() {
+        var vehicle = await Http.GetFromJsonAsync<VehicleFullDto>($"/api/Vehicle/{Id}?r=1");
+        return vehicle is null ? null : vehicle.ToDto();
+    }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -105,9 +143,8 @@
         makes = await Http.GetFromJsonAsync<VehicleMakeListModel[]>("/api/VehicleMake/All");
         if (makes is not null)
         {
-            makeOptions = makeOptions.Concat(
-                makes.Select(m => new SelectOption<string>(m.Make, m.Make))
-            ).ToArray();
+            makeOptions = SelectOption<string?>.WithPrompt("Make", 
+                makes.Select(m => new SelectOption<string?>(m.Make, m.Make)));
         }
     }
     protected override void OnParametersSet()

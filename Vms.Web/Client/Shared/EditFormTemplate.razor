@@ -78,7 +78,7 @@ else if (Model is not null)
         isPosting = true;
         try
         {
-            var response = await Http.PatchAsJsonAsync(ApiUrl, Model);
+            var response = await Http.PutAsJsonAsync($"{ApiUrl}/{Id}", Model);
 
             if (response.IsSuccessStatusCode)
             {
@@ -125,6 +125,10 @@ else if (Model is not null)
         if (!inEditMode)
         {
             Model.CopyFrom(originalModel);
+
+            // recreate edit context in order to clear any validation messages
+            editContext = new EditContext(Model);
+            messageStore = new ValidationMessageStore(editContext);
         }
     }
 

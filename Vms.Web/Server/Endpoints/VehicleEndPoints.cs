@@ -17,10 +17,10 @@ public static class VehicleEndpoints
             var result = await context.Vehicles
                 .Skip(start)
                 .Take(take)
-                .Select(x => new VehicleListModel(x.Id, x.CompanyCode, x.Vrm, x.Make, x.Model))
+                .Select(x => new VehicleListDto(x.Id, x.CompanyCode, x.Vrm, x.Make, x.Model))
                 .ToListAsync(cancellationToken);
             
-            return new ListResult<VehicleListModel>(totalCount, result);
+            return new ListResult<VehicleListDto>(totalCount, result);
         });
 
         endpoints.MapGet("/ClientApp/api/VehicleMake/All",

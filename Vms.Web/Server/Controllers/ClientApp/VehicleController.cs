@@ -27,40 +27,69 @@ public class VehicleController : ControllerBase
     [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<VehicleDto>> GetVehicle(Guid id,
+    public async Task<IActionResult> GetVehicle(Guid id,
+        [FromQuery] int? r,
         [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
     {
-        var vehicle = await context.Vehicles.FindAsync(id, cancellationToken);
-        if (vehicle is null)
+        return r switch
         {
-            return NotFound();
-        }
+            null or 0 => await GetRepresentation(),
+            1 => await GetFullRepresentation(),
+            _ => NotFound(),
+        };
 
-        return vehicle.ToDto();
+        async Task<IActionResult> GetRepresentation()
+        {
+            var vehicle = await context.Vehicles.AsNoTracking()
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+            return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
+        };
+
+        async Task<IActionResult> GetFullRepresentation()
+        {
+            var vehicle = await context.Vehicles.AsNoTracking()
+                .Include(v => v.C)
+                .Include(v => v.Fleet)
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+            return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
+        };
+
     }
 
-    [HttpPatch]
+    [HttpPut]
     [Route("{id}")]
+    [ActionName("PutAsync")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
-    public async Task<IActionResult> PatchAsync([FromRoute] Guid id,
+    public async Task<IActionResult> PutAsync([FromRoute] Guid id,
         [FromServices] VmsDbContext context,
-        [FromBody] VehicleModel request,
+        [FromBody] VehicleDto request,
         CancellationToken cancellationToken)
     {
-        var vehicle = await context.Vehicles.FindAsync(new[] { id }, cancellationToken);
+        if(request.Id != id)
+        {
+            return BadRequest();
+        }
+        
+        _logger.LogInformation("Put vehicle, id {id}.", id);
+
+        var vehicle = await context.Vehicles.FindAsync(id, cancellationToken);
         if (vehicle is null)
         {
             return NotFound();
         }
 
-        //vehicle.Name = request.Name;
+        vehicle.Vrm = request.Vrm;
+        vehicle.UpdateModel(request.Make, request.Model);
 
         if (context.Entry(vehicle).State == EntityState.Modified)
         {
@@ -90,10 +119,32 @@ public class VehicleController : ControllerBase
 }
 public static partial class DomainExtensions
 {
+    public static VehicleFullDto ToFullDto(this Vehicle vehicle)
+    => new(
+            vehicle.CompanyCode,
+            vehicle.Id,
+            vehicle.Vrm,
+            vehicle.Make,
+            vehicle.Model,
+            vehicle.ChassisNumber,
+            vehicle.DateFirstRegistered,
+            vehicle.Address.ToFullDto(),
+            vehicle.C is null ? null : new CustomerSummaryResource(vehicle.C.Code, vehicle.C.Name),
+            vehicle.Fleet is null ? null : new FleetSummaryResource(vehicle.Fleet.Code, vehicle.Fleet.Name)
+            );
+    
+
+    public static AddressFullDto ToFullDto(this Address address)
+        => new(address.Street, address.Locality, address.Town, address.Postcode, address.Location.ToFullDto());
+
+    public static GeometryFullDto ToFullDto(this Geometry geometry)
+        => new(geometry.Coordinate.X, geometry.Coordinate.Y);
+
     public static VehicleDto ToDto(this Vehicle vehicle)
         => new(
             vehicle.CompanyCode,
             vehicle.Id,
+            vehicle.Vrm,
             vehicle.Make,
             vehicle.Model,
             vehicle.ChassisNumber,

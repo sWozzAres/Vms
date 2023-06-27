@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using System.Runtime.Serialization;
+using Microsoft.VisualBasic.FileIO;
 
 namespace Vms.Domain.Entity
 {
@@ -60,6 +61,11 @@ namespace Vms.Domain.Entity
         }
         public void AssignToCustomer(string customerCode) => CustomerCode = customerCode;
         public void AssignToFleet(string fleetCode) => FleetCode = fleetCode;
+        public void UpdateModel(string make, string model)
+        {
+            Make = make;
+            Model = model;
+        }
     }
 
     public partial class VehicleMot
@@ -176,6 +182,8 @@ namespace Vms.Domain.Entity.Configuration
                         .HasPeriodEnd("ValidTo")
                         .HasColumnName("ValidTo");
                 }));
+
+                x.Property(p => p.Vrm).HasMaxLength(12);
 
                 x.WithOwner(x => x.Vehicle)
                     .HasForeignKey(d => d.VehicleId)

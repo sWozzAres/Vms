@@ -14,7 +14,7 @@
     public string LabelText { get; set; } = null!;
 
     [Parameter]
-    public SelectOption<TValue>[] Options { get; set; } = null!;
+    public SelectOption<TValue?>[] Options { get; set; } = null!;
 
     [Parameter] public string ParsingErrorMessage { get; set; } = "The {0} field must be a number.";
 
