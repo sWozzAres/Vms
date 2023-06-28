@@ -5,11 +5,11 @@
 <div class="tabs">
     @if (TitleVisible)
     {
-        <h3 id="@Id" style="display:none">@Title</h3>
+        <h3 id="@Id">@Title</h3>
     }
     else
     {
-        <h3 id="@Id">@Title</h3>
+        <h3 id="@Id" style="display:none">@Title</h3>
     }
     <CascadingValue Value="this">
         <div role="tablist" aria-labelledby="@Id" class="manual" @ref="tabControlEl">

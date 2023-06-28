@@ -2,6 +2,7 @@
 @import "_buttons.custom.css";
 @import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
 :root {
+  --tabs-highlight: rgb(0 132 255);
   --outline-size: 5px;
   --bg-light: #ffffff;
   --bg-dark: hsl(218.18deg 9.4% 22.94%);
@@ -38,7 +39,6 @@
   --control-focus-color: #7aaee4;
   --box-shadow-size: 3px;
   --header-background-color: rgb(244,242,242);
-  --tabs-highlight: rgb(17,98,173);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -234,6 +234,7 @@ h5 + h6 {
   display: flex;
   background-color: #96c8ff;
   flex-direction: row;*/
+  padding: 0.5em;
 }
 
 form.edit-form {
@@ -466,81 +467,65 @@ form.edit-form > fieldset .buttons {
 }
 
 .tabs {
-  font-family: "lucida grande", sans-serif;
+  padding: 0.5em;
+}
+.tabs [role=tabpanel] {
+  border: 0;
+  border-top-width: 1px;
+  border-top-color: var(--border-color);
+  border-top-style: solid;
+  padding-top: 1em;
+}
+.tabs [role=tab] {
+  border: 3px solid #ffffff;
+}
+.tabs [role=tab][aria-selected=true] {
+  font-weight: bold;
+  border-bottom-color: var(--tabs-highlight);
 }
 
-[role=tablist] {
-  min-width: 100%;
-}
-
-[role=tab],
-[role=tab]:focus,
-[role=tab]:hover {
-  display: inline-block;
-  position: relative;
-  z-index: 2;
-  top: 2px;
-  margin: 0;
-  margin-top: 4px;
-  padding: 3px 3px 4px;
+.tabs2 [role=tab],
+.tabs2 [role=tab]:focus,
+.tabs2 [role=tab]:hover {
+  font-weight: bold;
   border: 1px solid hsl(219deg, 1%, 72%);
   border-bottom: 2px solid hsl(219deg, 1%, 72%);
   border-radius: 5px 5px 0 0;
   background: hsl(220deg, 20%, 94%);
-  outline: none;
-  font-weight: bold;
-  max-width: 22%;
-  overflow: hidden;
-  text-align: left;
-  cursor: pointer;
+  top: 2px;
+  margin: 0;
+  margin-top: 4px;
+  padding: 3px 3px 4px;
 }
-
-[role=tab][aria-selected=true] {
+.tabs2 [role=tab][aria-selected=true] {
+  border-top-color: var(--tabs-highlight);
+  border-bottom-color: var(--tabpanel-background);
+  background: hsl(220deg, 43%, 99%);
   padding: 2px 2px 4px;
   margin-top: 0;
   border-width: 2px;
   border-top-width: 6px;
-  border-top-color: rgb(36, 116, 214);
-  border-bottom-color: hsl(220deg, 43%, 99%);
-  background: hsl(220deg, 43%, 99%);
 }
-
-[role=tab][aria-selected=false] {
+.tabs2 [role=tab][aria-selected=false] {
   border-bottom: 1px solid hsl(219deg, 1%, 72%);
 }
-
-[role=tab] span.focus {
-  display: inline-block;
+.tabs2 [role=tab] span.focus {
   margin: 2px;
   padding: 4px 6px;
 }
-
-[role=tab]:hover span.focus,
-[role=tab]:focus span.focus,
-[role=tab]:active span.focus {
+.tabs2 [role=tab]:hover span.focus,
+.tabs2 [role=tab]:focus span.focus,
+.tabs2 [role=tab]:active span.focus {
+  border: 2px solid var(--tabs-highlight);
   padding: 2px 4px;
-  border: 2px solid rgb(36, 116, 214);
   border-radius: 3px;
 }
-
-[role=tabpanel] {
-  padding: 5px;
+.tabs2 [role=tabpanel] {
+  background: var(--tabpanel-background);
   border: 2px solid hsl(219deg, 1%, 72%);
+  padding: 5px;
   border-radius: 0 5px 5px;
-  background: hsl(220deg, 43%, 99%);
-  min-height: 10em;
-  width: 100%;
-  overflow: auto;
 }
-
-[role=tabpanel].is-hidden {
-  display: none;
-}
-
-[role=tabpanel] p {
-  margin: 0;
-}
-
 .hidden {
   visibility: hidden;
 }
@@ -582,6 +567,7 @@ h1:focus {
   border-color: #86b7fe;*/
   outline: 0;
   box-shadow: 0 0 0 var(--outline-size) rgba(13, 110, 253, 0.25);
+  z-index: 100 !important;
 }
 
 #blazor-error-ui {

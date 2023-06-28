@@ -1,4 +1,5 @@
 ﻿:root {
+    --tabs-highlight: rgb(0 132 255);
     --outline-size: 5px;
     --bg-light: #ffffff;
     --bg-dark: hsl(218.18deg 9.4% 22.94%);
@@ -38,7 +39,6 @@
     --control-focus-color: #7aaee4;
     --box-shadow-size: 3px;
     --header-background-color: rgb(244,242,242);
-    --tabs-highlight: rgb(17,98,173);
 }
 
 @media(prefers-color-scheme: dark) {

@@ -7,100 +7,111 @@
 
 <PageTitle>Vehicle</PageTitle>
 
+
 <section>
     <h1>Vehicle</h1>
-    @if (makes is not null)
-    {
-        <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
-            <DataAnnotationsValidator />
 
-            <div class="form-section">
-                <label for="vrm">Vrm</label>
-                <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
-                <ValidationMessage For="@(() => editForm.Model.Vrm)" />
-
-                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
-                <ValidationMessage For="@(() => editForm.Model.Make)" />
-
-                <label for="model">Model</label>
-                <InputText id="model" @bind-Value="editForm.Model.Model" />
-                <ValidationMessage For="@(() => editForm.Model.Model)" />
-
-                <label for="chassis">Chassis Number</label>
-                <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
-                <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
-
-                <label for="datereg">First Registered</label>
-                <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
-                <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
-                @*
-            <label for="email">Email</label>
-            <InputText id="email" @bind-Value="editForm.Model.Email" />
-            <ValidationMessage For="@(() => editForm.Model.Email)" />
-
-
-            <label for="age">Age</label>
-            <InputNumber id="age" @bind-Value="editForm.Model.Age" disabled />
-            <ValidationMessage For="@(() => editForm.Model.Age)" />
-
-
-            <label for="isAdministrator">Is Admin</label>
-            <InputCheckbox id="isAdministrator" @bind-Value="editForm.Model.IsAdministrator" />
-            form.Model
-
-            <label for="birthDate">Birth Date</label>
-            <InputDate id="birthDate" @bind-Value="editForm.Model.BirthDate" />
-            <ValidationMessage For="@(() => editForm.Model.BirthDate)" />
-
-
-            <label for="notes">Notes</label>
-            <InputTextArea id="notes" @bind-Value="editForm.Model.Notes" />
-            <ValidationMessage For="@(() => editForm.Model.Notes)" /> *@
-            </div>
-            <div class="form-section">
-
-                <label for="street">Street</label>
-                <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
-
-                <label for="locality">Locality</label>
-                <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
-
-                <label for="town">Town</label>
-                <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
-
-                <label for="postcode">Postcode</label>
-                <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
-
-                <label for="latitude">Latitude</label>
-                <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
-
-                <label for="longitude">Longitude</label>
-                <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-
-                @* <label>Manufacturer</label>
-            <div class="form-control">
-            <InputRadioGroup @bind-Value="editForm.Model.TheManufacturer">
-            @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
+    <TabControl Title="Vehicle Tabs" TitleVisible="false">
+        <TabPage Text="Detail">
+            @if (makes is not null)
             {
+                <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
+                    <DataAnnotationsValidator />
 
-            <InputRadio Value="@manufacturer" />
-            <text>&nbsp;</text>
+                    <div class="form-section">
+                        <label for="vrm">Vrm</label>
+                        <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
+                        <ValidationMessage For="@(() => editForm.Model.Vrm)" />
 
-            @manufacturer
+                        <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
+                        <ValidationMessage For="@(() => editForm.Model.Make)" />
 
+                        <label for="model">Model</label>
+                        <InputText id="model" @bind-Value="editForm.Model.Model" />
+                        <ValidationMessage For="@(() => editForm.Model.Model)" />
+
+                        <label for="chassis">Chassis Number</label>
+                        <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
+                        <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
+
+                        <label for="datereg">First Registered</label>
+                        <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
+                        <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
+                        @*
+                    <label for="email">Email</label>
+                    <InputText id="email" @bind-Value="editForm.Model.Email" />
+                    <ValidationMessage For="@(() => editForm.Model.Email)" />
+
+
+                    <label for="age">Age</label>
+                    <InputNumber id="age" @bind-Value="editForm.Model.Age" disabled />
+                    <ValidationMessage For="@(() => editForm.Model.Age)" />
+
+
+                    <label for="isAdministrator">Is Admin</label>
+                    <InputCheckbox id="isAdministrator" @bind-Value="editForm.Model.IsAdministrator" />
+                    form.Model
+
+                    <label for="birthDate">Birth Date</label>
+                    <InputDate id="birthDate" @bind-Value="editForm.Model.BirthDate" />
+                    <ValidationMessage For="@(() => editForm.Model.BirthDate)" />
+
+
+                    <label for="notes">Notes</label>
+                    <InputTextArea id="notes" @bind-Value="editForm.Model.Notes" />
+                    <ValidationMessage For="@(() => editForm.Model.Notes)" /> *@
+                    </div>
+                    <div class="form-section">
+
+                        <label for="street">Street</label>
+                        <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+                        <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+
+                        <label for="locality">Locality</label>
+                        <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+                        <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+
+                        <label for="town">Town</label>
+                        <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+                        <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+
+                        <label for="postcode">Postcode</label>
+                        <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+                        <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+
+                        <label for="latitude">Latitude</label>
+                        <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+                        <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+
+                        <label for="longitude">Longitude</label>
+                        <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+                        <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
+
+                        @* <label>Manufacturer</label>
+                    <div class="form-control">
+                    <InputRadioGroup @bind-Value="editForm.Model.TheManufacturer">
+                    @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
+                    {
+
+                    <InputRadio Value="@manufacturer" />
+                    <text>&nbsp;</text>
+
+                    @manufacturer
+
+                    }
+                    </InputRadioGroup>
+                    </div>
+                    <ValidationMessage For="@(() => editForm.Model.TheManufacturer)" /> *@
+                    </div>
+                </EditFormTemplate>
             }
-            </InputRadioGroup>
-            </div>
-            <ValidationMessage For="@(() => editForm.Model.TheManufacturer)" /> *@
-            </div>
-        </EditFormTemplate>
-    }
+        </TabPage>
+        <TabPage Text="Related">
+
+        </TabPage>
+    </TabControl>
+
+    
 </section>
 
 @code {

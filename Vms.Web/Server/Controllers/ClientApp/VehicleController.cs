@@ -91,7 +91,8 @@ public class VehicleController : ControllerBase
         vehicle.Vrm = request.Vrm;
         vehicle.UpdateModel(request.Make, request.Model);
 
-        if (context.Entry(vehicle).State == EntityState.Modified)
+        
+        if (context.Entry(vehicle).State == EntityState.Modified || context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
         {
             try
             {

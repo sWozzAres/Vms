@@ -52,6 +52,7 @@ h1:focus {
     border-color: #86b7fe;*/
     outline: 0;
     box-shadow: 0 0 0 var(--outline-size) rgba(13,110,253,.25);
+    z-index: 100 !important;
 }
 
 #blazor-error-ui {
