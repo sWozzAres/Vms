@@ -52,21 +52,23 @@
     [Parameter]
     public EventCallback<string> OnSelectCallback { get; set; }
 
-    private string Id = GenerateRandomString(10);
-    private int bgHook = 0;
+    string Id = HtmlHelpers.GetRandomHtmlId(10);
+    //int bgHook = 0;
 
-    private Dictionary<int, MenuItem> MenuItems { get; set; } = new();
-    private int selectedMenuItem;
+    Dictionary<int, MenuItem> MenuItems { get; set; } = new();
+    int selectedMenuItem;
 
-    private ElementReference menuNode;
-    private ElementReference buttonNode;
-    private DotNetObjectReference<MenuButton>? objRef;
+    IJSObjectReference? _jsModule;
+    IJSObjectReference? _jsEventDisposable;
+    ElementReference menuNode;
+    ElementReference buttonNode;
+    DotNetObjectReference<MenuButton>? objRef;
 
-    private bool domNodeFocused = false;
-    private bool isOpen = false;
+    bool domNodeFocused = false;
+    bool isOpen = false;
 
 
-    private bool mustSetMenuNodeFocus = false;
+    bool mustSetMenuNodeFocus = false;
 
     protected override void OnInitialized()
     {
@@ -94,6 +96,13 @@
     }
 
     [JSInvokable]
+    public async Task Open()
+    {
+        Logger.LogInformation("Open()");
+        await openPopup();
+        StateHasChanged();
+    }
+    [JSInvokable]
     public async Task OpenFirst()
     {
         Logger.LogInformation("OpenFirst()");
@@ -109,14 +118,6 @@
         StateHasChanged();
     }
     [JSInvokable]
-    public async Task CloseAndPerformMenuAction()
-    {
-        Logger.LogInformation("CloseAndPerformMenuAction()");
-        await closePopup();
-        await OnSelectCallback.InvokeAsync(MenuItems[selectedMenuItem].Name);
-        StateHasChanged();
-    }
-    [JSInvokable]
     public async Task OpenLast()
     {
         Logger.LogInformation("OpenLast()");
@@ -124,6 +125,16 @@
         setFocusToLastMenuitem();
         StateHasChanged();
     }
+
+    [JSInvokable]
+    public async Task CloseAndPerformMenuAction()
+    {
+        Logger.LogInformation("CloseAndPerformMenuAction()");
+        await closePopup();
+        await OnSelectCallback.InvokeAsync(MenuItems[selectedMenuItem].Name);
+        StateHasChanged();
+    }
+    
     [JSInvokable]
     public void Previous()
     {
@@ -153,7 +164,10 @@
     {
         if (firstRender)
         {
-            var result = await JS.InvokeAsync<bool>("menuButton.installOnMenuButtonKeydown", Id, objRef);
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/MenuButton.razor.js");
+            _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("menuButtonInit", buttonNode, menuNode, objRef);
+
+            //var result = await JS.InvokeAsync<bool>("menuButton.installOnMenuButtonKeydown", Id, objRef);
         }
 
         if (mustSetMenuNodeFocus)
@@ -171,27 +185,35 @@
 
         //setFocusToFirstMenuitem();
 
-        bgHook = await JS.InvokeAsync<int>("menuButton.installBackgroundHook", Id, objRef);
-        if (bgHook == -1)
-        {
-            Logger.LogError("Failed to install background hook.");
-        }
+        await InstallBackgroundHook();
+        // bgHook = await JS.InvokeAsync<int>("menuButton.installBackgroundHook", Id, objRef);
+        // if (bgHook == -1)
+        // {
+        //     Logger.LogError("Failed to install background hook.");
+        // }
     }
 
     private async Task closePopup()
     {
         isOpen = false;
         await buttonNode.FocusAsync();
-        await RemoveBackgroundHook();
+        await UninstallBackgroundHook();
     }
 
-    private async Task RemoveBackgroundHook()
+    private async Task InstallBackgroundHook()
     {
-        if (bgHook != -1)
-        {
-            var result = await JS.InvokeAsync<bool>("menuButton.removeBackgroundHook", bgHook);
-            Logger.LogInformation("removeBackgroundHook returned {result}.", result);
-        }
+        Logger.LogInformation("InstallBackgroundHook()");
+        await _jsEventDisposable!.InvokeVoidAsync("install");
+    }
+    private async Task UninstallBackgroundHook()
+    {
+        Logger.LogInformation("UninstallBackgroundHook()");
+        await _jsEventDisposable!.InvokeVoidAsync("uninstall");
+        // if (bgHook != -1)
+        // {
+        //     var result = await JS.InvokeAsync<bool>("menuButton.removeBackgroundHook", bgHook);
+        //     Logger.LogInformation("removeBackgroundHook returned {result}.", result);
+        // }
     }
 
     private void setFocusToFirstMenuitem()
@@ -283,22 +305,31 @@
 
     public async ValueTask DisposeAsync()
     {
-        await RemoveBackgroundHook();
-        if (objRef is not null)
+        // await UninstallBackgroundHook();
+        // if (objRef is not null)
+        // {
+        //     objRef.Dispose();
+        // }
+        objRef?.Dispose();
+
+        try
         {
-            objRef.Dispose();
+            if (_jsEventDisposable is not null)
+            {
+                await _jsEventDisposable.InvokeVoidAsync("stop");
+                await _jsEventDisposable.DisposeAsync();
+            }
+
+            if (_jsModule is not null)
+            {
+                await _jsModule.DisposeAsync();
+            }
         }
-    }
-
-    private static Random random = new Random();
-    public static string GenerateRandomString(int length)
-    {
-        // define the valid characters
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-        return new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[random.Next(s.Length)])
-            .ToArray());
+        catch (JSDisconnectedException)
+        {
+            // The JS side may routinely be gone already if the reason we're disposing is that
+            // the client disconnected. This is not an error.
+        }
     }
 
     private record MenuItem
