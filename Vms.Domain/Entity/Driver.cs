@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.IdentityModel.Tokens;
 using NetTopologySuite.Geometries;
 
 namespace Vms.Domain.Entity
@@ -14,7 +15,7 @@ namespace Vms.Domain.Entity
         public string MobileNumber { get; set; } = null!;
         public Geometry HomeLocation { get; set; } = null!;
 
-        public virtual DriverVehicle DriverVehicle { get; set; } = null!;
+        public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
 
         public Driver(string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
         {
@@ -25,6 +26,11 @@ namespace Vms.Domain.Entity
             EmailAddress = emailAddress ?? throw new ArgumentNullException(nameof(emailAddress));
             MobileNumber = mobileNumber ?? throw new ArgumentNullException(nameof(mobileNumber));
             HomeLocation = homeLocation ?? throw new ArgumentNullException(nameof(homeLocation));
+        }
+        public string FullName() 
+        {
+            string?[] names = { Salutation, FirstName, MiddleNames, LastName };
+            return string.Join(" ", names.Where(x=>!string.IsNullOrEmpty(x)));
         }
     }
 
@@ -78,15 +84,15 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<DriverVehicle> entity)
         {
-            entity.HasKey(e => e.EmailAddress);
+            entity.HasKey(e => new { e.EmailAddress, e.VehicleId });
 
             entity.Property(e => e.EmailAddress)
                 .HasMaxLength(128)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.EmailAddressNavigation)
-                .WithOne(p => p.DriverVehicle)
-                .HasForeignKey<DriverVehicle>(d => d.EmailAddress)
+                .WithMany(p => p.DriverVehicles)
+                .HasForeignKey(d => d.EmailAddress)
                 .HasConstraintName("FK_DriverVehicles_Driver");
 
             entity.HasOne(d => d.Vehicle)

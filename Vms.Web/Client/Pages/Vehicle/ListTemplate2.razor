@@ -5,66 +5,64 @@
 @inject ILogger<ListTemplate2<TGridItem>> Logger
 @attribute [CascadingTypeParameter(nameof(TGridItem))]
 
-<section class="list-card">
-    <div class="list-header">
-        <div class="list-control">
-            <div class="list-icon">
-                @IconContent
-            </div>
-            <div class="list-kind">
-                <h1>Vehicles</h1>
-                <div class="list-dropdown-holder">
-                    <h2>
-                        <SelectOnlyCombobox Items="Options" Label="List" LabelHidden="true"
-                        @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
-                    </h2>
-                </div>
-            </div>
-            <div class="list-buttons btn-group">
-                @Buttons
-            </div>
+<div class="page-header">
+    <div class="icon">
+        @IconContent
+    </div>
+    <div class="info">
+        <h1>Vehicles</h1>
+        <div class="list-dropdown-holder">
+            <h2>
+                <SelectOnlyCombobox Items="Options" Label="List" LabelHidden="true"
+                                    @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
+            </h2>
         </div>
-        <div class="list-info">
-            <div class="list-description">
-                <Paginator State="pagination">
+    </div>
+    <div class="buttons btn-group">
+        @Buttons
+    </div>
+</div>
 
-                </Paginator>
-            </div>
-            <div class="list-info-buttons">
-                <button>
-                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
-                        <use xlink:href="icons/solid.svg#download" />
-                    </svg>
-                </button>
-                <button>
-                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
-                        <use xlink:href="icons/solid.svg#gear" />
-                    </svg>
-                </button>
-                <button title="Refresh" @onclick="Refresh" disabled="@error">
-                    <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
-                        <use xlink:href="icons/solid.svg#arrow-rotate-right" />
-                    </svg>
-                </button>
-            </div>
+<div class="list-info">
+    <div class="list-description">
+        <Paginator State="pagination">
+
+        </Paginator>
+    </div>
+    <div class="list-info-buttons">
+        <button>
+            <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#download" />
+            </svg>
+        </button>
+        <button>
+            <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#gear" />
+            </svg>
+        </button>
+        <button title="Refresh" @onclick="Refresh" disabled="@error">
+            <svg class="btn-icon" height="1em" viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#arrow-rotate-right" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<div class="list-data">
+    @if (error)
+    {
+        <div class="error">
+            <p>An error has occured.</p>
+            <button @onclick="Refresh">Retry</button>
         </div>
-    </div>
-    <div class="list-data">
-        @if (error)
-        {
-            <div class="error">
-                <p>An error has occured.</p>
-                <button @onclick="Refresh">Retry</button>
-            </div>
-        }
-        else
-        {
-            <QuickGrid TGridItem="TGridItem" @ref="grid" ItemsProvider="itemsProvider" Pagination="pagination">
-                @GridColumns
-            </QuickGrid>
-        }
-    </div>
-</section>
+    }
+    else
+    {
+        <QuickGrid TGridItem="TGridItem" @ref="grid" ItemsProvider="itemsProvider" Pagination="pagination">
+            @GridColumns
+        </QuickGrid>
+    }
+</div>
 
 @code {
     [Parameter, EditorRequired] public SelectOption<int?>[] Options { get; set; } = null!;

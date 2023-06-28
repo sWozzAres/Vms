@@ -24,41 +24,73 @@ public class VehicleController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    //[HttpGet]
+    //[Route("{id}")]
+    //[ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
+    //[ProducesResponseType((int)HttpStatusCode.NotFound)]
+    //public async Task<IActionResult> GetVehicle(Guid id,
+    //    [FromQuery] int? r,
+    //    [FromServices] VmsDbContext context,
+    //    CancellationToken cancellationToken)
+    //{
+    //    return r switch
+    //    {
+    //        null or 0 => await GetRepresentation(),
+    //        1 => await GetFullRepresentation(),
+    //        _ => NotFound(),
+    //    };
+
+    //    async Task<IActionResult> GetRepresentation()
+    //    {
+    //        var vehicle = await context.Vehicles.AsNoTracking()
+    //            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+    //        return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
+    //    };
+
+    //    async Task<IActionResult> GetFullRepresentation()
+    //    {
+    //        var vehicle = await context.Vehicles.AsNoTracking()
+    //            .Include(v => v.C)
+    //            .Include(v => v.Fleet)
+    //            .Include(v=>v.DriverVehicles).ThenInclude(dv=>dv.EmailAddressNavigation)
+    //            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+    //        return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
+    //    };
+
+    //}
     [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicle(Guid id,
-        [FromQuery] int? r,
         [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
     {
-        return r switch
-        {
-            null or 0 => await GetRepresentation(),
-            1 => await GetFullRepresentation(),
-            _ => NotFound(),
-        };
-
-        async Task<IActionResult> GetRepresentation()
-        {
-            var vehicle = await context.Vehicles.AsNoTracking()
+        var vehicle = await context.Vehicles.AsNoTracking()
                 .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
-            return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
-        };
+        return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
 
-        async Task<IActionResult> GetFullRepresentation()
-        {
-            var vehicle = await context.Vehicles.AsNoTracking()
+    }
+    [HttpGet]
+    [Route("{id}")]
+    [AcceptHeader("application/vnd.vehiclefull")]
+    [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetVehicleFull(Guid id,
+        [FromServices] VmsDbContext context,
+        CancellationToken cancellationToken)
+    {
+        var vehicle = await context.Vehicles.AsNoTracking()
                 .Include(v => v.C)
                 .Include(v => v.Fleet)
+                .Include(v => v.DriverVehicles).ThenInclude(dv => dv.EmailAddressNavigation)
                 .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
-            return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
-        };
-
+        return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
     }
 
     [HttpPut]
@@ -120,6 +152,9 @@ public class VehicleController : ControllerBase
 }
 public static partial class DomainExtensions
 {
+    public static DriverFullDto ToFullDto(this Driver driver)
+        => new(driver.EmailAddress, driver.FullName(), driver.MobileNumber);
+
     public static VehicleFullDto ToFullDto(this Vehicle vehicle)
     => new(
             vehicle.CompanyCode,
@@ -131,7 +166,8 @@ public static partial class DomainExtensions
             vehicle.DateFirstRegistered,
             vehicle.Address.ToFullDto(),
             vehicle.C is null ? null : new CustomerSummaryResource(vehicle.C.Code, vehicle.C.Name),
-            vehicle.Fleet is null ? null : new FleetSummaryResource(vehicle.Fleet.Code, vehicle.Fleet.Name)
+            vehicle.Fleet is null ? null : new FleetSummaryResource(vehicle.Fleet.Code, vehicle.Fleet.Name),
+            vehicle.DriverVehicles.Select(x=>x.EmailAddressNavigation.ToFullDto()).ToList()
             );
     
 

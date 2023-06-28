@@ -7,112 +7,135 @@
 
 <PageTitle>Vehicle</PageTitle>
 
-
-<section>
-    <h1>Vehicle</h1>
-
-    <TabControl Title="Vehicle Tabs" TitleVisible="false">
-        <TabPage Text="Detail">
-            @if (makes is not null)
-            {
-                <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
-                    <DataAnnotationsValidator />
-
-                    <div class="form-section">
-                        <label for="vrm">Vrm</label>
-                        <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
-                        <ValidationMessage For="@(() => editForm.Model.Vrm)" />
-
-                        <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
-                        <ValidationMessage For="@(() => editForm.Model.Make)" />
-
-                        <label for="model">Model</label>
-                        <InputText id="model" @bind-Value="editForm.Model.Model" />
-                        <ValidationMessage For="@(() => editForm.Model.Model)" />
-
-                        <label for="chassis">Chassis Number</label>
-                        <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
-                        <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
-
-                        <label for="datereg">First Registered</label>
-                        <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
-                        <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
-                        @*
-                    <label for="email">Email</label>
-                    <InputText id="email" @bind-Value="editForm.Model.Email" />
-                    <ValidationMessage For="@(() => editForm.Model.Email)" />
-
-
-                    <label for="age">Age</label>
-                    <InputNumber id="age" @bind-Value="editForm.Model.Age" disabled />
-                    <ValidationMessage For="@(() => editForm.Model.Age)" />
-
-
-                    <label for="isAdministrator">Is Admin</label>
-                    <InputCheckbox id="isAdministrator" @bind-Value="editForm.Model.IsAdministrator" />
-                    form.Model
-
-                    <label for="birthDate">Birth Date</label>
-                    <InputDate id="birthDate" @bind-Value="editForm.Model.BirthDate" />
-                    <ValidationMessage For="@(() => editForm.Model.BirthDate)" />
-
-
-                    <label for="notes">Notes</label>
-                    <InputTextArea id="notes" @bind-Value="editForm.Model.Notes" />
-                    <ValidationMessage For="@(() => editForm.Model.Notes)" /> *@
-                    </div>
-                    <div class="form-section">
-
-                        <label for="street">Street</label>
-                        <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-                        <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
-
-                        <label for="locality">Locality</label>
-                        <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-                        <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
-
-                        <label for="town">Town</label>
-                        <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-                        <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
-
-                        <label for="postcode">Postcode</label>
-                        <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-                        <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
-
-                        <label for="latitude">Latitude</label>
-                        <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-                        <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
-
-                        <label for="longitude">Longitude</label>
-                        <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-                        <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-
-                        @* <label>Manufacturer</label>
-                    <div class="form-control">
-                    <InputRadioGroup @bind-Value="editForm.Model.TheManufacturer">
-                    @foreach (var manufacturer in (Person.Manufacturer[])Enum.GetValues(typeof(Person.Manufacturer)))
+<ViewTemplate Title="@Title">
+    <IconContent>
+        <div class="entity-svg-vehicle">
+            <svg viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#car" />
+            </svg>
+        </div>
+    </IconContent>
+    <Buttons>
+        <button onclick="Follow">Follow</button>
+    </Buttons>
+    <HeaderContent>
+        @if (vehicle is not null)
+        {
+            <div class="namevalue">
+                <span class="name">Vrm</span>
+                <span class="value">@vehicle.Vrm</span>
+            </div>
+            <div class="namevalue">
+                <span class="name">Make</span>
+                <span class="value">@vehicle.Make</span>
+            </div>
+            <div class="namevalue">
+                <span class="name">Model</span>
+                <span class="value">@vehicle.Model</span>
+            </div>
+            <div class="namevalue">
+                <span class="name">Customer</span>
+                <span class="value">@vehicle.Customer?.Name</span>
+            </div>
+            <div class="namevalue">
+                <span class="name">Fleet</span>
+                <span class="value">@vehicle.Fleet?.Name</span>
+            </div>
+        }
+    </HeaderContent>
+    <ChildContent>
+        @if (vehicle is not null)
+        {
+            <TabControl Title="Vehicle Tabs" TitleVisible="false">
+                <TabPage Text="Details">
+                    @if (makes is not null)
                     {
+                        <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
+                            <DataAnnotationsValidator />
 
-                    <InputRadio Value="@manufacturer" />
-                    <text>&nbsp;</text>
+                            <div class="form-section">
+                                <label for="vrm">Vrm</label>
+                                <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
+                                <ValidationMessage For="@(() => editForm.Model.Vrm)" />
 
-                    @manufacturer
+                                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
+                                <ValidationMessage For="@(() => editForm.Model.Make)" />
 
+                                <label for="model">Model</label>
+                                <InputText id="model" @bind-Value="editForm.Model.Model" />
+                                <ValidationMessage For="@(() => editForm.Model.Model)" />
+
+                                <label for="chassis">Chassis Number</label>
+                                <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
+                                <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
+
+                                <label for="datereg">First Registered</label>
+                                <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
+                                <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
+
+                            </div>
+                            <div class="form-section">
+                                <fieldset>
+                                    <legend>Address</legend>
+
+                                    <label for="street">Street</label>
+                                    <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+                                    <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+
+                                    <label for="locality">Locality</label>
+                                    <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+                                    <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+
+                                    <label for="town">Town</label>
+                                    <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+                                    <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+
+                                    <label for="postcode">Postcode</label>
+                                    <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+                                    <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+
+                                    <label for="latitude">Latitude</label>
+                                    <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+                                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+
+                                    <label for="longitude">Longitude</label>
+                                    <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+                                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
+                                </fieldset>
+                            </div>
+                        </EditFormTemplate>
                     }
-                    </InputRadioGroup>
-                    </div>
-                    <ValidationMessage For="@(() => editForm.Model.TheManufacturer)" /> *@
-                    </div>
-                </EditFormTemplate>
-            }
-        </TabPage>
-        <TabPage Text="Related">
+                </TabPage>
+                <TabPage Text="Related">
+                    <RelatedList TypeName="Drivers" Items="vehicle.Drivers" Context="driver">
+                        <IconContent>
+                            <div class="entity-svg-person">
+                                <svg viewBox="0 0 320 512">
+                                    <use xlink:href="icons/solid.svg#person" />
+                                </svg>
+                            </div>
+                        </IconContent>
+                        <Buttons>
+                            <button onclick="NewDriver">New</button>
+                        </Buttons>
+                        <ItemTemplate>
+                            <article>
+                                <h1><a href="/driver/view/@driver.EmailAddress">@driver.FullName</a></h1>
+                                <dl>
+                                    <dt>Email:</dt>
+                                    <dd><a href="@mailToAddress(driver.EmailAddress)">@driver.EmailAddress</a></dd>
+                                    <dt>Mobile:</dt>
+                                    <dd>@driver.MobileNumber</dd>
+                                </dl>
+                            </article>
+                        </ItemTemplate>
+                    </RelatedList>
+                </TabPage>
+            </TabControl>
+        }
+    </ChildContent>
+</ViewTemplate>
 
-        </TabPage>
-    </TabControl>
-
-    
-</section>
 
 @code {
     [Parameter] public string Id { get; set; } = null!;
@@ -120,10 +143,23 @@
     EditFormTemplate<VehicleDto> editForm = null!;
     SelectOption<string?>[] makeOptions = null!;
     VehicleMakeListModel[]? makes;
+    VehicleFullDto? vehicle;
+    string Title => vehicle is null ? "" : vehicle.Vrm;
+    string mailToAddress(string emailAddress) => $"mailto:{emailAddress}";
 
-    async Task<VehicleDto?> LoadVehicle() {
-        var vehicle = await Http.GetFromJsonAsync<VehicleFullDto>($"/api/Vehicle/{Id}?r=1");
+    async Task<VehicleDto?> LoadVehicle()
+    {
         return vehicle is null ? null : vehicle.ToDto();
+    }
+
+    async Task Follow()
+    {
+        await Task.CompletedTask;
+    }
+
+    async Task NewDriver()
+    {
+        await Task.CompletedTask;
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -145,9 +181,12 @@
         makes = await Http.GetFromJsonAsync<VehicleMakeListModel[]>("/api/VehicleMake/All");
         if (makes is not null)
         {
-            makeOptions = SelectOption<string?>.WithPrompt("Make", 
+            makeOptions = SelectOption<string?>.WithPrompt("Make",
                 makes.Select(m => new SelectOption<string?>(m.Make, m.Make)));
         }
+
+        Http.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.vehiclefull"));
+        vehicle = await Http.GetFromJsonAsync<VehicleFullDto>($"/api/Vehicle/{Id}");
     }
     protected override void OnParametersSet()
     {

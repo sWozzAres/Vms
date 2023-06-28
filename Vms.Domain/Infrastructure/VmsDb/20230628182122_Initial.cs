@@ -38,7 +38,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Driver_1", x => x.EmailAddress);
+                    table.PrimaryKey("PK_Driver", x => x.EmailAddress);
                 });
 
             migrationBuilder.CreateTable(
@@ -282,12 +282,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "DriverVehicles",
                 columns: table => new
                 {
-                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
-                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DriverVehicles", x => x.EmailAddress);
+                    table.PrimaryKey("PK_DriverVehicles", x => new { x.EmailAddress, x.VehicleId });
                     table.ForeignKey(
                         name: "FK_DriverVehicles_Driver",
                         column: x => x.EmailAddress,
@@ -352,7 +352,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .Annotation("SqlServer:TemporalHistoryTableSchema", null)
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
-                    Vrm = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Vrm = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false)
                         .Annotation("SqlServer:IsTemporal", true)
                         .Annotation("SqlServer:TemporalHistoryTableName", "VehicleVrmHistory")
                         .Annotation("SqlServer:TemporalHistoryTableSchema", null)

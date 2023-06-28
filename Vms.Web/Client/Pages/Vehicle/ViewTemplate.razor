@@ -1,0 +1,23 @@
+﻿<div class="page-header">
+    <div class="icon">
+        @IconContent
+    </div>
+    <div class="info">
+        <h1>Vehicle</h1>
+        <h2>@Title &nbsp;</h2>
+    </div>
+    <div class="buttons btn-group">
+        @Buttons
+    </div>
+</div>
+<div class="view-header">
+    @HeaderContent
+</div>
+@ChildContent
+@code {
+    [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment HeaderContent { get; set; } = null!;
+    [Parameter, EditorRequired] public string Title { get; set; } = null!;
+}

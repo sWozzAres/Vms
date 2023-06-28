@@ -13,7 +13,7 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230606111852_Initial")]
+    [Migration("20230628182122_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -130,7 +130,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("varchar(5)");
 
                     b.HasKey("EmailAddress")
-                        .HasName("PK_Driver_1");
+                        .HasName("PK_Driver");
 
                     b.ToTable("Driver", (string)null);
                 });
@@ -145,7 +145,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("EmailAddress");
+                    b.HasKey("EmailAddress", "VehicleId");
 
                     b.HasIndex("VehicleId");
 
@@ -409,8 +409,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Entity.DriverVehicle", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Driver", "EmailAddressNavigation")
-                        .WithOne("DriverVehicle")
-                        .HasForeignKey("Vms.Domain.Entity.DriverVehicle", "EmailAddress")
+                        .WithMany("DriverVehicles")
+                        .HasForeignKey("EmailAddress")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_DriverVehicles_Driver");
@@ -727,7 +727,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.Property<string>("Vrm")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasMaxLength(12)
+                                .HasColumnType("nvarchar(12)");
 
                             b1.HasKey("VehicleId");
 
@@ -800,8 +801,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Driver", b =>
                 {
-                    b.Navigation("DriverVehicle")
-                        .IsRequired();
+                    b.Navigation("DriverVehicles");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Fleet", b =>

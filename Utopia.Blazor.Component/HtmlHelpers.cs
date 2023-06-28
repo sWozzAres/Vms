@@ -1,8 +1,10 @@
-﻿namespace Utopia.Blazor.Component.Helpers;
+﻿using System.Security.Cryptography;
+
+namespace Utopia.Blazor.Component.Helpers;
 
 public static class HtmlHelpers
 {
-    private static Random random = new();
+    static readonly Random random = new();
     public static string GetRandomHtmlId(int length = 10)
     {
         // define the valid characters

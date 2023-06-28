@@ -1,28 +1,13 @@
-.list-card {
-    padding: 0;
-    margin: 0;
-    background-color: #fafaf9;
-}
-
-.list-header {
+.related-list {
+    background: #f2f3f8;
     padding: 1em;
-    display: flex;
-    flex-direction: column;
-    background-color: #f3f2f2;
-    gap: 1em;
 
-    .paginator {
-        border: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .list-control {
+    .header {
         display: flex;
+        align-items: center;
         gap: 1em;
-        flex-wrap: wrap;
 
-        .list-icon {
+        .icon {
             display: flex;
             align-items: center;
 
@@ -31,74 +16,154 @@
                 border-radius: 5px;
 
                 > svg {
-                    height: 2em;
+                    height: 1em;
                     fill: white;
                 }
             }
         }
 
-        .list-kind {
+        .title {
             flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-
-
-            h1 {
-                font-size: small;
-                margin: 0;
-                text-transform: uppercase;
-            }
-
-            h2 {
-                margin: 0;
-                display: flex;
-                align-items: flex-end;
-                column-gap: 0.5em;
-
-                button {
-                    padding-inline: 0.2em;
-                    padding-block: 0;
-                }
-            }
-
-            .list-dropdown-holder {
-                position: relative;
-            }
-
-            .list-dropdown {
-                position: absolute;
-                background-color: #ffffff;
-
-                ul > li {
-                    cursor: pointer;
-                }
-            }
-        }
-
-        .list-buttons {
-            justify-items: flex-end;
-            align-self: end;
+            font-weight: bold;
         }
     }
 
-    .list-info {
+    .content {
         display: flex;
-        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 1em;
 
-        .list-description {
-            flex-grow: 1;
-        }
+        article {
+            display: inline;
+            font-size: smaller;
 
-        .list-info-buttons {
+            h1 {
+                font-size: 100%;
+            }
+
+            dl {
+                display: grid;
+                grid-template-columns: auto auto;
+            }
         }
     }
 }
 
+.page-header {
+    display: flex;
+    gap: 1em;
+    flex-wrap: wrap;
+    background-color: var(--page-header-background-color);
+    padding: 0.5em;
+
+    .icon {
+        display: flex;
+        align-items: center;
+
+        div {
+            padding: 0.5em;
+            border-radius: 5px;
+
+            > svg {
+                height: 2em;
+                fill: white;
+            }
+        }
+    }
+
+    .info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+
+
+        h1 {
+            font-size: small;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            margin: 0;
+            display: flex;
+            align-items: flex-end;
+            column-gap: 0.5em;
+
+            button {
+                padding-inline: 0.2em;
+                padding-block: 0;
+            }
+        }
+    }
+
+    .buttons {
+        justify-items: flex-end;
+        align-self: end;
+    }
+}
+
+.view-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+    padding: 1em;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+
+    .namevalue {
+        display: flex;
+        flex-direction: column;
+
+        .name {
+            font-size: smaller;
+        }
+
+        .value {
+        }
+    }
+}
+
+.list-info {
+    display: flex;
+    align-items: baseline;
+    background-color: var(--page-header-background-color);
+    padding: 0.5em;
+
+    .list-description {
+        flex-grow: 1;
+
+        .paginator {
+            border: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+
+    .list-info-buttons {
+    }
+}
+
+.list-dropdown-holder {
+    position: relative;
+}
+
+/*.list-dropdown {
+    position: absolute;
+    background-color: #ffffff;
+
+    ul > li {
+        cursor: pointer;
+    }
+}*/
+
+/*.list-card {
+    padding: 0;
+    margin: 0;
+    background-color: #fafaf9;
+}*/
+
 .list-data {
-
-    
-
     .col-title {
         padding: 0 !important;
     }

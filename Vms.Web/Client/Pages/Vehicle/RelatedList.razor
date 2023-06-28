@@ -1,0 +1,25 @@
+﻿@typeparam TItem
+<div class="related-list">
+    <div class="header">
+        <div class="icon">
+            @IconContent
+        </div>
+        <span class="title">@TypeName (@Items.Count())</span>
+        <div class="buttons btn-group">
+            @Buttons
+        </div>
+    </div>
+    <div class="content">
+        @foreach(var item in Items)
+        {
+            @ItemTemplate(item)
+        }
+    </div>
+</div>
+@code {
+    [Parameter, EditorRequired] public string TypeName { get; set; } = null!;
+    [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<TItem> ItemTemplate { get; set; } = null!;
+}

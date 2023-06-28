@@ -89,7 +89,9 @@ li {
     padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6, dt {
+
+
+h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
     page-break-inside: avoid;
     font: 100% sans-serif; /* Reset all font styling to clear out UA styles */
@@ -131,9 +133,12 @@ h6 {
 }
 
 dt {
-    font-weight: bold;
+    font-weight: normal;
 }
 
+dl {
+    font-weight: bold;
+}
 /** Subheadings ***************************************************************/
 
 h1 + h2,

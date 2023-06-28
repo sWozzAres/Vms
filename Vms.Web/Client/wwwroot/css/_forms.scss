@@ -1,22 +1,42 @@
 form.edit-form {
     font-size: 1rem;
 
-    input:disabled, .combo-input.disabled {
-        background-color: red;
-        color: white;
+
+
+    label {
+        font-size: smaller;
     }
 
-    > fieldset:disabled label {
+   /* input:disabled, .combo-input.disabled {
+        background-color: rgba(239, 239, 239, 0.3);
+        color: rgb(84, 84, 84);
+        border: 0;
+    }*/
+
+    > fieldset.form-grid:disabled {
+        input, .combo-input {
         color: red;
+        background-color: #ffffff;
+        color: rgb(84, 84, 84);
+        border: 1px solid #ffffff;
+        }
     }
 
-    > fieldset {
+    > fieldset.form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-gap: 0.5em 1em;
 
         .form-section {
             grid-column: span 2;
+        }
+
+        fieldset {
+            legend {
+                background-color: var(--form-legend-background-color);
+                width: 100%;
+                padding: 0.5em;
+            }
         }
 
         @media (min-width: 1024px) {

@@ -1,6 +1,7 @@
 ﻿.tabs {
     padding: 0.5em;
-
+    background-color: #ffffff;
+    
     [role="tablist"] {
     }
 
@@ -9,11 +10,12 @@
         border-top-width: 1px;
         border-top-color: var(--border-color);
         border-top-style: solid;
-        padding-top: 1em;
+        padding: 1em 0.5em 0.5em 0.5em;
     }
 
     [role="tab"] {
         border: 3px solid #ffffff;
+        text-transform: uppercase;
     }
 
     [role="tab"][aria-selected="true"] {
@@ -22,7 +24,7 @@
     }
 }
 
-.tabs2 {
+/*.tabs2 {
 
 
     [role="tab"],
@@ -76,3 +78,4 @@
     [role="tabpanel"].is-hidden {
     }
 }
+*/
