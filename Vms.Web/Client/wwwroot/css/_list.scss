@@ -36,6 +36,15 @@
         article {
             display: inline;
             font-size: smaller;
+            width: 50ch;
+
+            .header {
+                display: flex;
+
+                h1 {
+                    flex-grow: 1;
+                }
+            }
 
             h1 {
                 font-size: 100%;

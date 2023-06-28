@@ -5,7 +5,7 @@
 @{
     var className1 = domNodeFocused ? "focus" : string.Empty;
 }
-<div class="menu-button-actions @className1" id="@Id" @onfocusin="onFocusin" @onfocusout="onFocusout">
+<div @ref="menuButtonNode" class="menu-button-actions @className1" id="@Id" @onfocusin="onFocusin" @onfocusout="onFocusout">
     <span class="wrapper">
         <button type="button" aria-haspopup="true" aria-controls="menu1" aria-expanded="@isOpen.ToHtml()"
         @ref="buttonNode" @onclick="onButtonClick" @onclick:preventDefault @onclick:stopPropagation>
@@ -60,6 +60,7 @@
 
     IJSObjectReference? _jsModule;
     IJSObjectReference? _jsEventDisposable;
+    ElementReference menuButtonNode;
     ElementReference menuNode;
     ElementReference buttonNode;
     DotNetObjectReference<MenuButton>? objRef;
@@ -165,7 +166,7 @@
         if (firstRender)
         {
             _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/MenuButton.razor.js");
-            _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("menuButtonInit", buttonNode, menuNode, objRef);
+            _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("menuButtonInit", menuButtonNode, buttonNode, menuNode, objRef);
 
             //var result = await JS.InvokeAsync<bool>("menuButton.installOnMenuButtonKeydown", Id, objRef);
         }

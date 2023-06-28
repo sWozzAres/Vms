@@ -1,0 +1,65 @@
+﻿@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<dialog @ref="dialogEl">
+    @ChildContent
+</dialog>
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    //[Parameter, EditorRequired] public string Message { get; set; } = null!;
+
+    public enum ShowMode { None, Show, ShowModal };
+    [Parameter] public ShowMode AutoShow { get; set; } = ShowMode.None;
+
+    ElementReference dialogEl;
+    IJSObjectReference? _jsModule;
+    IJSObjectReference? _jsEventDisposable;
+
+    public async Task Show() => await _jsEventDisposable!.InvokeVoidAsync("show");
+    public async Task ShowModal() => await _jsEventDisposable!.InvokeVoidAsync("showModal");
+    public async Task Close() => await _jsEventDisposable!.InvokeVoidAsync("close");
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (ChildContent is null)
+            throw new InvalidOperationException("You must supply child content to the Dialog component.");
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/Dialog.razor.js");
+            _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("dialogInit", dialogEl);
+
+            if (AutoShow == ShowMode.Show)
+                await Show();
+            else if (AutoShow == ShowMode.ShowModal)
+                await ShowModal();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_jsEventDisposable is not null)
+            {
+                //await _jsEventDisposable.InvokeVoidAsync("close");
+                await _jsEventDisposable.DisposeAsync();
+            }
+
+            if (_jsModule is not null)
+            {
+                await _jsModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // The JS side may routinely be gone already if the reason we're disposing is that
+            // the client disconnected. This is not an error.
+        }
+    }
+}

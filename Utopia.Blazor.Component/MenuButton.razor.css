@@ -22,6 +22,7 @@
         border: 2px solid var(--button-border-color);
         border-radius: 5px;
         background-color: #ffffff;
+        cursor: pointer;
     }
 
         .right {

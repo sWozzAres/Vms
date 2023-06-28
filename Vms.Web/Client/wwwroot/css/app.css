@@ -360,6 +360,13 @@ form.edit-form > fieldset.form-grid .buttons {
 .related-list .content article {
   display: inline;
   font-size: smaller;
+  width: 50ch;
+}
+.related-list .content article .header {
+  display: flex;
+}
+.related-list .content article .header h1 {
+  flex-grow: 1;
 }
 .related-list .content article h1 {
   font-size: 100%;

@@ -1,7 +1,7 @@
-export function menuButtonInit(buttonNode, menuNode, objRef) {
+export function menuButtonInit(menuButtonNode, buttonNode, menuNode, objRef) {
 
     const callback = (event) => {
-        if (!buttonNode.contains(event.target)) {
+        if (!menuButtonNode.contains(event.target)) {
             if (buttonNode.getAttribute('aria-expanded') === 'true') {
                 objRef.invokeMethodAsync('Close');
             }
@@ -111,7 +111,6 @@ export function menuButtonInit(buttonNode, menuNode, objRef) {
         }
     };
 
-    window.addEventListener('mousedown', callback);
     buttonNode.addEventListener('keydown', buttonKeydown);
     menuNode.addEventListener('keydown', itemKeydown);
 

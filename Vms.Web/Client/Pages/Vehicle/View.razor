@@ -120,7 +120,14 @@
                         </Buttons>
                         <ItemTemplate>
                             <article>
-                                <h1><a href="/driver/view/@driver.EmailAddress">@driver.FullName</a></h1>
+                                <div class="header">
+                                    <h1><a href="/driver/view/@driver.EmailAddress">@driver.FullName</a></h1>
+                                    <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right" OnSelectCallback="(val) => DriverOptionSelected(val, driver.EmailAddress)">
+                                        @* <svg viewBox="0 0 448 512">
+                                            <use xlink:href="icons/solid.svg#user" />
+                                        </svg> *@
+                                    </MenuButton>
+                                </div>
                                 <dl>
                                     <dt>Email:</dt>
                                     <dd><a href="@mailToAddress(driver.EmailAddress)">@driver.EmailAddress</a></dd>
@@ -146,7 +153,15 @@
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
     string mailToAddress(string emailAddress) => $"mailto:{emailAddress}";
+    string[] driverOptions = new string[]
+    {
+        "Delete"
+    };
 
+    void DriverOptionSelected(string? command, string emailAddress)
+    {
+        Logger.LogInformation("{index} {emailAddress}", command, emailAddress);
+    }
     async Task<VehicleDto?> LoadVehicle()
     {
         return vehicle is null ? null : vehicle.ToDto();
