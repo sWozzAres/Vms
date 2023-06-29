@@ -362,18 +362,23 @@ form.edit-form > fieldset.form-grid .buttons {
   font-size: smaller;
   width: 50ch;
 }
-.related-list .content article .header {
+.related-list .content article .content-header {
   display: flex;
 }
-.related-list .content article .header h1 {
+.related-list .content article .content-header h1 {
   flex-grow: 1;
 }
 .related-list .content article h1 {
-  font-size: 100%;
+  font-size: 120%;
+  margin: 0;
 }
 .related-list .content article dl {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto 1fr;
+  column-gap: 1em;
+}
+.related-list .content article dd {
+  margin: 0;
 }
 
 .page-header {

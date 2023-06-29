@@ -24,43 +24,6 @@ public class VehicleController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    //[HttpGet]
-    //[Route("{id}")]
-    //[ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
-    //[ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
-    //[ProducesResponseType((int)HttpStatusCode.NotFound)]
-    //public async Task<IActionResult> GetVehicle(Guid id,
-    //    [FromQuery] int? r,
-    //    [FromServices] VmsDbContext context,
-    //    CancellationToken cancellationToken)
-    //{
-    //    return r switch
-    //    {
-    //        null or 0 => await GetRepresentation(),
-    //        1 => await GetFullRepresentation(),
-    //        _ => NotFound(),
-    //    };
-
-    //    async Task<IActionResult> GetRepresentation()
-    //    {
-    //        var vehicle = await context.Vehicles.AsNoTracking()
-    //            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
-
-    //        return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
-    //    };
-
-    //    async Task<IActionResult> GetFullRepresentation()
-    //    {
-    //        var vehicle = await context.Vehicles.AsNoTracking()
-    //            .Include(v => v.C)
-    //            .Include(v => v.Fleet)
-    //            .Include(v=>v.DriverVehicles).ThenInclude(dv=>dv.EmailAddressNavigation)
-    //            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
-
-    //        return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
-    //    };
-
-    //}
     [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
@@ -91,6 +54,25 @@ public class VehicleController : ControllerBase
                 .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
+    }
+    [HttpDelete]
+    [Route("{id}/drivers/{emailAddress}")]
+    [ProducesResponseType((int)HttpStatusCode.Accepted)]
+    public async Task<IActionResult> RemoveDriverFromVehicle(
+        Guid id, string emailAddress,
+        [FromServices] VmsDbContext context,
+        CancellationToken cancellationToken)
+    {
+        var entry = await context.DriverVehicles.FindAsync(new object[] { emailAddress, id }, cancellationToken);
+        if (entry is null)
+        {
+            return NotFound();
+        }
+
+        context.DriverVehicles.Remove(entry);
+        await context.SaveChangesAsync();
+
+        return Accepted();
     }
 
     [HttpPut]

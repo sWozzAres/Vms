@@ -1,0 +1,92 @@
+﻿@inject ILogger<DriverRelatedList> Logger
+@inject HttpClient Http
+
+<RelatedList TypeName="Drivers" Items="Items" Context="driver">
+    <IconContent>
+        <div class="entity-svg-person">
+            <svg viewBox="0 0 320 512">
+                <use xlink:href="icons/solid.svg#person" />
+            </svg>
+        </div>
+    </IconContent>
+    <Buttons>
+        <button onclick="NewDriver">New</button>
+    </Buttons>
+    <ItemTemplate>
+        <article>
+            <div class="content-header">
+                <h1><a href="/driver/view/@driver.EmailAddress">@driver.FullName</a></h1>
+                <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right"
+                            OnSelectCallback="(val) => OptionSelected(val, driver)" />
+            </div>
+            <dl>
+                <dt>Email:</dt>
+                <dd><a href="@mailToAddress(driver.EmailAddress)">@driver.EmailAddress</a></dd>
+                <dt>Mobile:</dt>
+                <dd>@driver.MobileNumber</dd>
+            </dl>
+        </article>
+    </ItemTemplate>
+</RelatedList>
+
+@if (dialogShowMode != Dialog.ShowMode.None)
+{
+    <Dialog AutoShow="dialogShowMode">
+        <h1>Confirm</h1>
+        <h3>Are you sure you want to remove @selectedDriver.EmailAddress ?</h3>
+        <button @onclick="CloseDialog">No</button>
+        <button @onclick="RemoveDriverFromVehicle">Yes</button>
+        <p style="color: red;">@removalErrorMessage</p>
+    </Dialog>
+}
+@code {
+    [Parameter, EditorRequired] public List<DriverFullDto> Items { get; set; } = null!;
+    [Parameter, EditorRequired] public string VehicleId { get; set; } = null!;
+
+    Dialog.ShowMode dialogShowMode = Dialog.ShowMode.None;
+    string mailToAddress(string emailAddress) => $"mailto:{emailAddress}";
+    const string optionRemove = "Remove";
+    string[] driverOptions = new string[]
+    {
+        optionRemove
+    };
+    DriverFullDto selectedDriver = null!;
+    string removalErrorMessage = null!;
+
+    void CloseDialog() => dialogShowMode = Dialog.ShowMode.None;
+
+    void OptionSelected(string? option, DriverFullDto driver)
+    {
+        if (option == optionRemove)
+        {
+            selectedDriver = driver;
+            dialogShowMode = Dialog.ShowMode.ShowModal;
+        }
+    }
+
+    async Task RemoveDriverFromVehicle()
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"/api/Vehicle/{VehicleId}/drivers/{selectedDriver.EmailAddress}");
+            if (response.IsSuccessStatusCode)
+            {
+                dialogShowMode = Dialog.ShowMode.None;
+                Items.Remove(selectedDriver);
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                removalErrorMessage = "Driver is not connected to this vehicle.";
+            }
+            else
+            {
+                removalErrorMessage = "Failed to remove driver.";
+            }
+        }
+        catch(Exception ex)
+        {
+            Logger.LogError(ex, "Failed to remove driver.");
+            removalErrorMessage = "Failed to remove driver.";
+        }
+    }
+}

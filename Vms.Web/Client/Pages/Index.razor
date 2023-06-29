@@ -4,16 +4,7 @@
 
 <PageTitle>Index</PageTitle>
 
-@if (dialogShowMode != Dialog.ShowMode.None)
-{
-    <Dialog @ref="dialog" AutoShow="dialogShowMode">
-        <h1>Confirm</h1>
-        <h3>@message</h3>
-        <p>Are you sure you want to remove this driver from the vehicle?</p>
-        <button @onclick="Close">Cancel</button>
-    </Dialog>
-}
-<button @onclick="Show">Show</button>
+<TestDialog Id="1" StrList="StrList" />
 @* <button @onclick="() => dialog.ShowModal()">Show Modal</button> *@
 
 <section>
@@ -98,21 +89,11 @@
 </section>
 
 @code {
-    Dialog.ShowMode dialogShowMode = Dialog.ShowMode.None;
+    List<string> StrList = new()
+    {
+        "One", "Two"
+    };
 
-    void Show()
-    {
-        dialogShowMode = Dialog.ShowMode.ShowModal;
-        message = System.Security.Cryptography.RandomNumberGenerator.GetHexString(10);
-        //await dialog.Show();
-    }
-    void Close()
-    {
-        //await dialog.Close();
-        dialogShowMode = Dialog.ShowMode.None;
-    }
-    Dialog dialog = null!;
-    string message = System.Security.Cryptography.RandomNumberGenerator.GetHexString(10);
     void SignOut()
     {
         Navigation.NavigateToLogout("authentication/logout");

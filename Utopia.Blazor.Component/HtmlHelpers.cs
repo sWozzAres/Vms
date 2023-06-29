@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace Utopia.Blazor.Component.Helpers;
+﻿namespace Utopia.Blazor.Component.Helpers;
 
 public static class HtmlHelpers
 {

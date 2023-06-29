@@ -107,36 +107,7 @@
                     }
                 </TabPage>
                 <TabPage Text="Related">
-                    <RelatedList TypeName="Drivers" Items="vehicle.Drivers" Context="driver">
-                        <IconContent>
-                            <div class="entity-svg-person">
-                                <svg viewBox="0 0 320 512">
-                                    <use xlink:href="icons/solid.svg#person" />
-                                </svg>
-                            </div>
-                        </IconContent>
-                        <Buttons>
-                            <button onclick="NewDriver">New</button>
-                        </Buttons>
-                        <ItemTemplate>
-                            <article>
-                                <div class="header">
-                                    <h1><a href="/driver/view/@driver.EmailAddress">@driver.FullName</a></h1>
-                                    <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right" OnSelectCallback="(val) => DriverOptionSelected(val, driver.EmailAddress)">
-                                        @* <svg viewBox="0 0 448 512">
-                                            <use xlink:href="icons/solid.svg#user" />
-                                        </svg> *@
-                                    </MenuButton>
-                                </div>
-                                <dl>
-                                    <dt>Email:</dt>
-                                    <dd><a href="@mailToAddress(driver.EmailAddress)">@driver.EmailAddress</a></dd>
-                                    <dt>Mobile:</dt>
-                                    <dd>@driver.MobileNumber</dd>
-                                </dl>
-                            </article>
-                        </ItemTemplate>
-                    </RelatedList>
+                    <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" />
                 </TabPage>
             </TabControl>
         }
@@ -152,16 +123,10 @@
     VehicleMakeListModel[]? makes;
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
-    string mailToAddress(string emailAddress) => $"mailto:{emailAddress}";
-    string[] driverOptions = new string[]
-    {
-        "Delete"
-    };
+    
+    
 
-    void DriverOptionSelected(string? command, string emailAddress)
-    {
-        Logger.LogInformation("{index} {emailAddress}", command, emailAddress);
-    }
+    
     async Task<VehicleDto?> LoadVehicle()
     {
         return vehicle is null ? null : vehicle.ToDto();

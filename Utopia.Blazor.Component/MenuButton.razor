@@ -42,7 +42,7 @@
     [EditorRequired, Parameter]
     public string[] Items { get; set; } = null!;
 
-    [EditorRequired, Parameter]
+    [Parameter]
     public RenderFragment ChildContent { get; set; } = null!;
 
     public enum Alignment { Left, Right };
