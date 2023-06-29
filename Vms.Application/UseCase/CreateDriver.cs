@@ -25,7 +25,7 @@ public class CreateDriver
     {
         public Driver CreateDriver(CreateDriverRequest request)
         {
-            var driver = new Driver(request.Salutation, request.FirstName, request.MiddleNames, request.LastName,
+            var driver = new Driver(request.CompanyCode, request.Salutation, request.FirstName, request.MiddleNames, request.LastName,
                 request.EmailAddress, request.MobileNumber, request.HomeLocation);
 
             context.DbContext.Drivers.Add(driver);
@@ -37,13 +37,15 @@ public class CreateDriver
 
         void AddDriver(Driver driver)
         {
-            var driverVehicleLink = new DriverVehicle() { EmailAddress = driver.EmailAddress, VehicleId = self.Id };
+            var driverVehicleLink = new DriverVehicle(driver.CompanyCode, self.Id, driver.EmailAddress);
             context.DbContext.DriverVehicles.Add(driverVehicleLink);
         }
     }
 }
 
-public record CreateDriverRequest(Guid VehicleId,
+public record CreateDriverRequest(
+    string CompanyCode,
+    Guid VehicleId,
     string? Salutation,
     string? FirstName,
     string? MiddleNames,

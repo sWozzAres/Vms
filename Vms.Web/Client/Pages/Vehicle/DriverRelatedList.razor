@@ -1,5 +1,6 @@
-﻿@inject ILogger<DriverRelatedList> Logger
-@inject HttpClient Http
+﻿@using System.Diagnostics.CodeAnalysis;
+@inject ILogger<DriverRelatedList> Logger
+@inject ServerApiHttpClient Api
 
 <RelatedList TypeName="Drivers" Items="Items" Context="driver">
     <IconContent>
@@ -10,7 +11,7 @@
         </div>
     </IconContent>
     <Buttons>
-        <button onclick="NewDriver">New</button>
+        <button @onclick="() => addDriverDialogVisible = true">New</button>
     </Buttons>
     <ItemTemplate>
         <article>
@@ -39,10 +40,44 @@
         <p style="color: red;">@removalErrorMessage</p>
     </Dialog>
 }
+
+@if (addDriverDialogVisible)
+{
+    <ListSelector OnGetItems="Api.GetDriversShortAsync" OnSelected="CloseDriverSearchDialog" OnClose="() => addDriverDialogVisible = false">
+        <TableHeader>
+            <th>Name</th>
+            <th>Email</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>@context.FullName</td>
+            <td>@context.EmailAddress</td>
+        </RowTemplate>
+    </ListSelector>
+}
+
 @code {
     [Parameter, EditorRequired] public List<DriverFullDto> Items { get; set; } = null!;
     [Parameter, EditorRequired] public string VehicleId { get; set; } = null!;
 
+    #region AddDriver Dialog
+    bool addDriverDialogVisible = false;
+
+    async Task CloseDriverSearchDialog(DriverShortDto item)
+    {
+        Logger.LogInformation("{email} {name}", item.EmailAddress, item.FullName);
+        var response = await Api.AddDriverToVehicle(VehicleId, item.EmailAddress);
+        if (response.IsSuccessStatusCode)
+        {
+            var driver = await Api.GetDriverFullAsync(item.EmailAddress);
+            if (driver is not null)
+            {
+                Items.Insert(0, driver);
+            }
+        }
+        addDriverDialogVisible = false;
+        StateHasChanged();
+    }
+    #endregion
     Dialog.ShowMode dialogShowMode = Dialog.ShowMode.None;
     string mailToAddress(string emailAddress) => $"mailto:{emailAddress}";
     const string optionRemove = "Remove";
@@ -68,7 +103,7 @@
     {
         try
         {
-            var response = await Http.DeleteAsync($"/api/Vehicle/{VehicleId}/drivers/{selectedDriver.EmailAddress}");
+            var response = await Api.RemoveDriverFromVehicle(VehicleId, selectedDriver.EmailAddress);
             if (response.IsSuccessStatusCode)
             {
                 dialogShowMode = Dialog.ShowMode.None;
@@ -83,7 +118,7 @@
                 removalErrorMessage = "Failed to remove driver.";
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to remove driver.");
             removalErrorMessage = "Failed to remove driver.";

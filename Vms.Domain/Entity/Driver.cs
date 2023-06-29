@@ -7,6 +7,7 @@ namespace Vms.Domain.Entity
 {
     public partial class Driver
     {
+        public string CompanyCode { get; set; } = null!;
         public string? Salutation { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleNames { get; set; }
@@ -14,11 +15,12 @@ namespace Vms.Domain.Entity
         public string EmailAddress { get; set; } = null!;
         public string MobileNumber { get; set; } = null!;
         public Geometry HomeLocation { get; set; } = null!;
-
+        public virtual Company CompanyCodeNavigation { get; set; } = null!;
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
 
-        public Driver(string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
+        public Driver(string companyCode, string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
         {
+            CompanyCode = companyCode;
             Salutation = salutation;
             FirstName = firstName;
             MiddleNames = middleNames;
@@ -36,11 +38,19 @@ namespace Vms.Domain.Entity
 
     public partial class DriverVehicle
     {
+        public string CompanyCode { get; set; } = null!;
+
         public Guid VehicleId { get; set; }
         public string EmailAddress { get; set; } = null!;
 
         public virtual Driver EmailAddressNavigation { get; set; } = null!;
         public virtual Vehicle Vehicle { get; set; } = null!;
+        public DriverVehicle(string companyCode, Guid vehicleId, string emailAddress)
+        {
+            CompanyCode = companyCode;
+            VehicleId = vehicleId;
+            EmailAddress = emailAddress;
+        }
     }
 }
 
@@ -50,10 +60,14 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Driver> entity)
         {
-            entity.HasKey(e => e.EmailAddress)
+            entity.HasKey(e => new { e.CompanyCode, e.EmailAddress })
                     .HasName("PK_Driver");
 
             entity.ToTable("Driver");
+
+            entity.Property(e => e.CompanyCode)
+                .HasMaxLength(10)
+                .IsFixedLength();
 
             entity.Property(e => e.EmailAddress)
                 .HasMaxLength(128)
@@ -78,13 +92,23 @@ namespace Vms.Domain.Entity.Configuration
             entity.Property(e => e.Salutation)
                 .HasMaxLength(5)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Drivers)
+                //.HasPrincipalKey(p => p.Code)
+                .HasForeignKey(d => d.CompanyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Driver_Company");
         }
     }
     public class DriverVehicleEntityTypeConfiguration : IEntityTypeConfiguration<DriverVehicle>
     {
         public void Configure(EntityTypeBuilder<DriverVehicle> entity)
         {
-            entity.HasKey(e => new { e.EmailAddress, e.VehicleId });
+            entity.HasKey(e => new { e.CompanyCode, e.EmailAddress, e.VehicleId });
+
+            entity.Property(e => e.CompanyCode)
+                .HasMaxLength(10)
+                .IsFixedLength();
 
             entity.Property(e => e.EmailAddress)
                 .HasMaxLength(128)
@@ -92,12 +116,14 @@ namespace Vms.Domain.Entity.Configuration
 
             entity.HasOne(d => d.EmailAddressNavigation)
                 .WithMany(p => p.DriverVehicles)
-                .HasForeignKey(d => d.EmailAddress)
+                .HasForeignKey(d => new { d.CompanyCode, d.EmailAddress })
+                
                 .HasConstraintName("FK_DriverVehicles_Driver");
 
             entity.HasOne(d => d.Vehicle)
                 .WithMany(p => p.DriverVehicles)
-                .HasForeignKey(d => d.VehicleId)
+                .HasForeignKey(d => new { d.CompanyCode, d.VehicleId })
+                .HasPrincipalKey(d => new { d.CompanyCode, d.Id })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DriverVehicles_Vehicle");
         }

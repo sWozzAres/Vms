@@ -158,13 +158,15 @@
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
 
+        Http.DefaultRequestHeaders.Accept.Clear();
         makes = await Http.GetFromJsonAsync<VehicleMakeListModel[]>("/api/VehicleMake/All");
         if (makes is not null)
         {
             makeOptions = SelectOption<string?>.WithPrompt("Make",
                 makes.Select(m => new SelectOption<string?>(m.Make, m.Make)));
         }
-
+        
+        Http.DefaultRequestHeaders.Accept.Clear();
         Http.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.vehiclefull"));
         vehicle = await Http.GetFromJsonAsync<VehicleFullDto>($"/api/Vehicle/{Id}");
     }

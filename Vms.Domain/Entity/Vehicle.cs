@@ -96,6 +96,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.ToTable("Vehicle");
             builder.HasKey(e => e.Id);
             //builder.Property(e => e.Id).UseHiLo("VehicleIds");
+            builder.HasAlternateKey(e => new { e.CompanyCode, e.Id });
 
             builder.Ignore(e => e.Vrm);
 

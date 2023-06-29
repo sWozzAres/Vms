@@ -90,6 +90,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Driver", b =>
                 {
+                    b.Property<string>("CompanyCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
                     b.Property<string>("EmailAddress")
                         .HasMaxLength(128)
                         .IsUnicode(false)
@@ -126,7 +131,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsUnicode(false)
                         .HasColumnType("varchar(5)");
 
-                    b.HasKey("EmailAddress")
+                    b.HasKey("CompanyCode", "EmailAddress")
                         .HasName("PK_Driver");
 
                     b.ToTable("Driver", (string)null);
@@ -134,6 +139,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.DriverVehicle", b =>
                 {
+                    b.Property<string>("CompanyCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
                     b.Property<string>("EmailAddress")
                         .HasMaxLength(128)
                         .IsUnicode(false)
@@ -142,9 +152,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("EmailAddress", "VehicleId");
+                    b.HasKey("CompanyCode", "EmailAddress", "VehicleId");
 
-                    b.HasIndex("VehicleId");
+                    b.HasIndex("CompanyCode", "VehicleId");
 
                     b.ToTable("DriverVehicles");
                 });
@@ -403,18 +413,30 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Network");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.Driver", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.Company", "CompanyCodeNavigation")
+                        .WithMany("Drivers")
+                        .HasForeignKey("CompanyCode")
+                        .IsRequired()
+                        .HasConstraintName("FK_Driver_Company");
+
+                    b.Navigation("CompanyCodeNavigation");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.DriverVehicle", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Driver", "EmailAddressNavigation")
                         .WithMany("DriverVehicles")
-                        .HasForeignKey("EmailAddress")
+                        .HasForeignKey("CompanyCode", "EmailAddress")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_DriverVehicles_Driver");
 
                     b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
                         .WithMany("DriverVehicles")
-                        .HasForeignKey("VehicleId")
+                        .HasForeignKey("CompanyCode", "VehicleId")
+                        .HasPrincipalKey("CompanyCode", "Id")
                         .IsRequired()
                         .HasConstraintName("FK_DriverVehicles_Vehicle");
 
@@ -781,6 +803,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
                     b.Navigation("Customers");
+
+                    b.Navigation("Drivers");
 
                     b.Navigation("Fleets");
 

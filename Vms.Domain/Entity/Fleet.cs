@@ -9,7 +9,6 @@ namespace Vms.Domain.Entity
 
         public string Code { get; set; } = null!;
 
-
         public string Name { get; set; } = null!;
 
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
@@ -26,23 +25,23 @@ namespace Vms.Domain.Entity.Configuration
 {
     public class FleetEntityTypeConfiguration : IEntityTypeConfiguration<Fleet>
     {
-        public void Configure(EntityTypeBuilder<Fleet> builder)
+        public void Configure(EntityTypeBuilder<Fleet> entity)
         {
-            builder.ToTable("Fleet");
+            entity.ToTable("Fleet");
 
-            builder.HasKey(e => new { e.CompanyCode, e.Code });
+            entity.HasKey(e => new { e.CompanyCode, e.Code });
 
-            builder.Property(e => e.Code)
+            entity.Property(e => e.Code)
                 .HasMaxLength(10)
                 .IsFixedLength();
-            builder.Property(e => e.CompanyCode)
+            entity.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
                 .IsFixedLength();
-            builder.Property(e => e.Name)
+            entity.Property(e => e.Name)
                 .HasMaxLength(32)
                 .IsUnicode(false);
 
-            builder.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Fleets)
+            entity.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Fleets)
                 //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)

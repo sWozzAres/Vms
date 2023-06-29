@@ -52,6 +52,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Utopia.Blazor.Application\Utopia.Blazor.Application.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
 		<ProjectReference Include="..\Shared\Vms.Web.Shared.csproj" />
 	</ItemGroup>

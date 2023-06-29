@@ -19,18 +19,18 @@ public class CreateVehicle
     {
         public Vehicle CreateVehicle(CreateVehicleRequest request)
         {
-            var vehicle = Vehicle.Create(self.Code, 
+            var vehicle = Vehicle.Create(self.Code,
                 request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.HomeLocation,
                 request.CustomerCode, request.FleetCode);
-            
+
             context.DbContext.Vehicles.Add(vehicle);
-            
+
             return vehicle;
         }
     }
 }
 
-public record CreateVehicleRequest(string CompanyCode, 
+public record CreateVehicleRequest(string CompanyCode,
     string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly MotDue,
     Address HomeLocation,
     string? CustomerCode = null, string? FleetCode = null);

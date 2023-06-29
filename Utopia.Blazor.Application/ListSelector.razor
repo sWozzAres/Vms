@@ -1,0 +1,88 @@
+﻿@typeparam TItem where TItem : class
+
+<Dialog AutoShow="Dialog.ShowMode.ShowModal">
+    <div class="search-wrapper">
+        <input type="text" @bind-value="searchValue" />
+        <button @onclick="Search">Search</button>
+    </div>
+    <table class="search-results">
+        <thead>
+            <tr>
+                <th></th>
+                @TableHeader
+            </tr>
+        </thead>
+        <tbody>
+            @for (int index = 0; index < items.Count(); index++)
+            {
+                var idx = index;
+                var item = items.ElementAt(index);
+                <tr>
+                    <td><input checked="@isSelected(idx)" @onclick="() => SelectItem(idx)" type="checkbox" /></td>
+                    @RowTemplate(item)
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="buttons-wrapper">
+        <button @onclick="CloseDialog">Close</button>
+        <button @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+    </div>
+</Dialog>
+
+@code {
+    public delegate Task<List<TItem>?> GetItems(string filter);
+    [Parameter, EditorRequired] public GetItems OnGetItems { get; set; } = null!;
+
+    public delegate Task Selected(TItem item);
+    [Parameter, EditorRequired] public Selected OnSelected { get; set; } = null!;
+    public delegate void Close();
+    [Parameter, EditorRequired] public Close OnClose { get; set; } = null!;
+
+    [Parameter, EditorRequired] public RenderFragment TableHeader { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<TItem> RowTemplate { get; set; } = null!;
+
+    void SelectItem(int index) => selectedIndex = selectedIndex == index ? -1 : index;
+    int selectedIndex = -1;
+    bool isSelected(int index) => index == selectedIndex;
+    List<TItem> items = new();
+    void CloseDialog() => OnClose();
+    async Task OkDialog() => await OnSelected(items.ElementAt(selectedIndex));
+    bool isOkButtonDisabled => selectedIndex == -1;
+
+    string searchValue = string.Empty;
+    async Task Search()
+    {
+        items = await OnGetItems(searchValue) ?? Enumerable.Empty<TItem>().ToList();
+        selectedIndex = -1;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (OnGetItems is null)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(OnGetItems)}' callback to load the items.");
+        }
+
+        if (OnSelected is null)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(OnSelected)}' callback.");
+        }
+        if (OnClose is null)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(OnClose)}' callback.");
+        }
+
+        if (TableHeader is null)
+        {
+            throw new InvalidOperationException($"You must specify a '{nameof(TableHeader)}' render fragment.");
+        }
+
+        if (RowTemplate is null)
+        {
+            throw new InvalidOperationException($"You must specify a '{nameof(RowTemplate)}' render fragment.");
+        }
+    }
+}

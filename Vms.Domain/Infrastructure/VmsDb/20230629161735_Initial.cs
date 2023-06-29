@@ -25,23 +25,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Driver",
-                columns: table => new
-                {
-                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
-                    Salutation = table.Column<string>(type: "varchar(5)", unicode: false, maxLength: 5, nullable: true),
-                    FirstName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
-                    MiddleNames = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: true),
-                    LastName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
-                    MobileNumber = table.Column<string>(type: "varchar(12)", unicode: false, maxLength: 12, nullable: false),
-                    HomeLocation = table.Column<Geometry>(type: "geography", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Driver", x => x.EmailAddress);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Supplier",
                 columns: table => new
                 {
@@ -83,6 +66,29 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     table.PrimaryKey("PK_Customer", x => new { x.CompanyCode, x.Code });
                     table.ForeignKey(
                         name: "FK_Customer_Company",
+                        column: x => x.CompanyCode,
+                        principalTable: "Company",
+                        principalColumn: "Code");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Driver",
+                columns: table => new
+                {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
+                    Salutation = table.Column<string>(type: "varchar(5)", unicode: false, maxLength: 5, nullable: true),
+                    FirstName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
+                    MiddleNames = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: true),
+                    LastName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
+                    MobileNumber = table.Column<string>(type: "varchar(12)", unicode: false, maxLength: 12, nullable: false),
+                    HomeLocation = table.Column<Geometry>(type: "geography", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Driver", x => new { x.CompanyCode, x.EmailAddress });
+                    table.ForeignKey(
+                        name: "FK_Driver_Company",
                         column: x => x.CompanyCode,
                         principalTable: "Company",
                         principalColumn: "Code");
@@ -256,6 +262,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Vehicle", x => x.Id);
+                    table.UniqueConstraint("AK_Vehicle_CompanyCode_Id", x => new { x.CompanyCode, x.Id });
                     table.ForeignKey(
                         name: "FK_Vehicle_Company",
                         column: x => x.CompanyCode,
@@ -282,23 +289,24 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "DriverVehicles",
                 columns: table => new
                 {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DriverVehicles", x => new { x.EmailAddress, x.VehicleId });
+                    table.PrimaryKey("PK_DriverVehicles", x => new { x.CompanyCode, x.EmailAddress, x.VehicleId });
                     table.ForeignKey(
                         name: "FK_DriverVehicles_Driver",
-                        column: x => x.EmailAddress,
+                        columns: x => new { x.CompanyCode, x.EmailAddress },
                         principalTable: "Driver",
-                        principalColumn: "EmailAddress",
+                        principalColumns: new[] { "CompanyCode", "EmailAddress" },
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DriverVehicles_Vehicle",
-                        column: x => x.VehicleId,
+                        columns: x => new { x.CompanyCode, x.VehicleId },
                         principalTable: "Vehicle",
-                        principalColumn: "Id");
+                        principalColumns: new[] { "CompanyCode", "Id" });
                 });
 
             migrationBuilder.CreateTable(
@@ -444,9 +452,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: new[] { "CompanyCode", "CustomerCode" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DriverVehicles_VehicleId",
+                name: "IX_DriverVehicles_CompanyCode_VehicleId",
                 table: "DriverVehicles",
-                column: "VehicleId");
+                columns: new[] { "CompanyCode", "VehicleId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FleetNetwork_CompanyCode_NetworkCode",

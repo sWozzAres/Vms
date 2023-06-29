@@ -55,24 +55,34 @@ public class VehicleController : ControllerBase
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
     }
+
     [HttpDelete]
     [Route("{id}/drivers/{emailAddress}")]
     [ProducesResponseType((int)HttpStatusCode.Accepted)]
-    public async Task<IActionResult> RemoveDriverFromVehicle(
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> RemoveDriverFromVehicleAsync(
         Guid id, string emailAddress,
         [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
+        => await new Application.UseCase.RemoveDriverFromVehicle(context)
+                .RemoveAsync(id, emailAddress, cancellationToken) ? Accepted() : NotFound();
+
+    [HttpPost]
+    [Route("{id}/drivers")]
+    public async Task<IActionResult> AddDriverToVehicle(
+        Guid id, 
+        [FromBody] string emailAddress,
+        [FromServices] VmsDbContext context,
+        CancellationToken cancellationToken)
     {
-        var entry = await context.DriverVehicles.FindAsync(new object[] { emailAddress, id }, cancellationToken);
-        if (entry is null)
-        {
-            return NotFound();
-        }
+        throw new NotImplementedException();
 
-        context.DriverVehicles.Remove(entry);
-        await context.SaveChangesAsync();
+        //var dv = new DriverVehicle() { VehicleId = id, EmailAddress = emailAddress };
+        //context.DriverVehicles.Add(dv);
 
-        return Accepted();
+        //await context.SaveChangesAsync(cancellationToken);
+
+        //return Ok();
     }
 
     [HttpPut]

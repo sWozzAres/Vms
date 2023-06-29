@@ -1,16 +1,14 @@
 ﻿@page "/"
 @inject NavigationManager Navigation
+@inject ILogger<Index> Logger
 @using System.ComponentModel.DataAnnotations;
 
 <PageTitle>Index</PageTitle>
 
-<TestDialog Id="1" StrList="StrList" />
-@* <button @onclick="() => dialog.ShowModal()">Show Modal</button> *@
-
 <section>
     <h1>Home</h1>
     <button @onclick="SignOut">Sign out</button>
-    
+
     <TabControl Title="Danish Composers">
         <TabPage Text="Maria Ahlefeldt">
             <p>
@@ -89,11 +87,6 @@
 </section>
 
 @code {
-    List<string> StrList = new()
-    {
-        "One", "Two"
-    };
-
     void SignOut()
     {
         Navigation.NavigateToLogout("authentication/logout");

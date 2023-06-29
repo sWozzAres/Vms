@@ -18,6 +18,7 @@ namespace Vms.Domain.Entity
         internal List<Network> Networks { get; private set; } = new();
 
         internal List<Vehicle> Vehicles { get; private set; } = new();
+        internal List<Driver> Drivers { get; private set; } = new();
 
         private Company() { }
         internal Company(string code, string name) => (Code, Name) = (code, name);

@@ -202,7 +202,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
 
             var driver = await new CreateDriver(_context)
-                .CreateAsync(new CreateDriverRequest(vehicle.Id,
+                .CreateAsync(new CreateDriverRequest(company.Code,
+                    vehicle.Id,
                     driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName, 
                     driverInfo.EmailAddress, driverInfo.MobileNumber,
                     driverInfo.HomeLocation));
