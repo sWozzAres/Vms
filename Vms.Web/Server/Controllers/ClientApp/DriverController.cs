@@ -13,40 +13,35 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class DriverController : ControllerBase
+public class DriverController(VmsDbContext context) : ControllerBase
 {
+    readonly VmsDbContext _context = context;
+
     [HttpGet]
     [Route("{filter}")]
     [AcceptHeader("application/vnd.drivershort")]
     [ProducesResponseType(typeof(DriverShortDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDriversShort(string filter,
-        [FromServices] VmsDbContext context,
-        CancellationToken cancellationToken)
-    {
-        var drivers = await context.Drivers.AsNoTracking()
+    public async Task<IActionResult> GetDriversShort(string filter, CancellationToken cancellationToken)
+        => Ok(await _context.Drivers.AsNoTracking()
                 .Where(d => d.LastName.StartsWith(filter))
-                .Select(d=>new DriverShortDto(d.EmailAddress, d.FullName()))
-                .ToListAsync(cancellationToken);
+                .Select(d => new DriverShortDto(d.Id, d.CompanyCode, d.EmailAddress, d.FullName, d.MobileNumber))
+                .ToListAsync(cancellationToken));
 
-        return Ok(drivers);
-    }
     [HttpGet]
-    [Route("{emailAddress}")]
-    [AcceptHeader("application/vnd.driverfull")]
-    [ProducesResponseType(typeof(DriverFullDto), StatusCodes.Status200OK)]
+    [Route("{id:guid}")]
+    [AcceptHeader("application/vnd.drivershort")]
+    [ProducesResponseType(typeof(DriverShortDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetDriverShort(string emailAddress,
-        [FromServices] VmsDbContext context,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDriverShort(Guid id, CancellationToken cancellationToken)
     {
-        var driver = await context.Drivers.AsNoTracking()
-            .FirstOrDefaultAsync(d => d.EmailAddress == emailAddress, cancellationToken);
-            
+        var driver = await _context.Drivers.AsNoTracking()
+            .SingleOrDefaultAsync(d => d.Id == id, cancellationToken);
+
         if (driver is null)
         {
             return NotFound();
         }
 
-        return Ok(new DriverFullDto(driver.EmailAddress, driver.FullName(), driver.MobileNumber));
+        return Ok(new DriverShortDto(driver.Id, driver.CompanyCode, driver.EmailAddress, driver.FullName, driver.MobileNumber));
     }
 }

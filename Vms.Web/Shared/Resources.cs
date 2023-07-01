@@ -1,10 +1,10 @@
 ﻿namespace Vms.Web.Shared;
 
-public record DriverFullDto(string EmailAddress, string FullName, string MobileNumber);
-public record DriverShortDto(string EmailAddress, string FullName);
+public record DriverShortDto(Guid Id, string companyCode, string EmailAddress, string FullName, string MobileNumber);
+
 public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Make, string Model, string? ChassisNumber,
-    DateOnly DateFirstRegistered, AddressFullDto Address, CustomerSummaryResource? Customer,
-    FleetSummaryResource? Fleet, List<DriverFullDto> Drivers)
+    DateOnly DateFirstRegistered, AddressFullDto Address, CustomerShortDto? Customer,
+    FleetShortDto? Fleet, List<DriverShortDto> Drivers)
 { 
     public VehicleDto ToDto()
         => new()
@@ -33,7 +33,7 @@ public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Mak
         };
 }
 
-public record CustomerSummaryResource(string Code, string Name);
-public record FleetSummaryResource(string Code, string Name);
+public record CustomerShortDto(string Code, string Name);
+public record FleetShortDto(string Code, string Name);
 public record AddressFullDto(string Street, string Locality, string Town, string Postcode, GeometryFullDto Location);
 public record GeometryFullDto(double Latitude, double Longitude);

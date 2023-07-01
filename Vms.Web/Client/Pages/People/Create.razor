@@ -69,7 +69,7 @@
 @code {
     public Person person = new() {Name = "x"};
 
-    public SelectOption<int?>[] statusOptions = new SelectOption<int?>[]
+    public List<SelectOption<int?>> statusOptions = new()
     {
         new (null, "-- Select Status --"),
         new (0, "Active"),

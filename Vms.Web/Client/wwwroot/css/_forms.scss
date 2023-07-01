@@ -6,8 +6,7 @@ form.edit-form {
     label {
         font-size: smaller;
     }
-
-   /* input:disabled, .combo-input.disabled {
+    /* input:disabled, .combo-input.disabled {
         background-color: rgba(239, 239, 239, 0.3);
         color: rgb(84, 84, 84);
         border: 0;
@@ -15,10 +14,10 @@ form.edit-form {
 
     > fieldset.form-grid:disabled {
         input, .combo-input {
-        color: red;
-        background-color: #ffffff;
-        color: rgb(84, 84, 84);
-        border: 1px solid #ffffff;
+            color: red;
+            background-color: #ffffff;
+            color: rgb(84, 84, 84);
+            border: 1px solid #ffffff;
         }
     }
 
@@ -95,13 +94,12 @@ form.edit-form {
         /*.validation-message-holder {
             grid-column-start: 2;
         }*/
+    }
 
-
-        .buttons {
-            margin-top: 1em;
-            grid-row: auto;
-            grid-column: 1 / -1;
-            text-align: start;
-        }
+    .buttons {
+        margin-top: 1em;
+        /*grid-row: auto;
+            grid-column: 1 / -1;*/
+        text-align: start;
     }
 }

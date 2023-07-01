@@ -103,7 +103,7 @@
     public LoadItems OnLoad { get; set; } = default!;
 
     [EditorRequired, Parameter]
-    public SelectOption<int?>[] Lists { get; set; } = null!;
+    public List<SelectOption<int?>> Lists { get; set; } = null!;
 
     int? selectedList = 0;
     private bool listDropdownHidden = true;

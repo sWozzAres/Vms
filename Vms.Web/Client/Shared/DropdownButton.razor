@@ -69,7 +69,7 @@
     {
         Logger.LogInformation("OnInitialized()");
         objRef = DotNetObjectReference.Create(this);
-        Id = Helpers.GetRandomHtmlId();
+        Id = HtmlHelpers.GetRandomHtmlId();
         SelectedValue = 1;
 
         var classNameAddition = InputAttributes?.Where(ia => ia.Key == "class").Select(k => k.Value);

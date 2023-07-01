@@ -1,45 +1,20 @@
-﻿@inject IJSRuntime JS
-@inject ILogger<SelectOnlyCombobox> Logger
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
+using System.Xml.Linq;
+using Utopia.Blazor.Component.Helpers;
 
-@implements IAsyncDisposable
+namespace Utopia.Blazor.Component;
 
-<label id="@id" class="@labelClassName">@Label</label>
-<div @ref="comboEl" class="@comboClassName">
+public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposable
+{
+    [Inject]
+    public IJSRuntime JS { get; set; } = null!;
+    [Inject]
+    public ILogger<SelectOnlyCombobox<TValue>> Logger { get; set; } = null!;
 
-    <div id="@comboInputId" @ref="comboInputEl" class="@comboInputClassName" role="combobox" tabindex="@comboInputTabIndex"
-         aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeItemId"
-    @onblur="onComboInputBlur" @onclick="onComboInputClick">
-        <span>@selectItems[selectedIndex].Name</span>
-        <svg viewBox="0 0 512 512">
-            <use xlink:href="icons/solid.svg#chevron-down" />
-        </svg>
-    </div>
-
-    <div id="@comboMenuId" @ref="comboMenuEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1"
-    @onmousedown="() => onComboMenuMouseDown()">
-
-        @for (int index = 0; index < selectItems.Count; index++)
-        {
-            var idx = index;
-            var item = selectItems[idx];
-
-            var isSelected = selectedIndex == idx;
-            var className2 = activeIndex == idx ? "combo-option option-current" : "combo-option";
-
-            <div id="@item.Id" role="option" class="@className2" aria-selected="@isSelected.ToHtml()"
-            @onclick="async () => await onComboMenuClick(idx)" @onclick:stopPropagation>
-                <svg viewBox="0 0 448 512">
-                    <use xlink:href="icons/solid.svg#check" />
-                </svg>
-                <span>@item.Name</span>
-            </div>
-        }
-    </div>
-</div>
-
-@code {
     [EditorRequired, Parameter]
-    public SelectOption[] Items { get; set; } = null!;
+    public List<SelectOption<TValue>> Items { get; set; } = null!;
 
     [EditorRequired, Parameter]
     public string Label { get; set; } = null!;
@@ -50,13 +25,13 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> InputAttributes { get; set; } = null!;
 
-    [CascadingParameter(Name ="IsDisabled")]
+    [CascadingParameter(Name = "IsDisabled")]
     public bool IsDisabled { get; set; }
 
     [Parameter]
-    public int? SelectedValue { get; set; }
+    public TValue? SelectedValue { get; set; } = default;
     [Parameter]
-    public EventCallback<int?> SelectedValueChanged { get; set; }
+    public EventCallback<TValue> SelectedValueChanged { get; set; }
 
     Dictionary<int, SelectItem> selectItems { get; set; } = new();
 
@@ -81,7 +56,7 @@
     private IJSObjectReference? _jsModule;
     private IJSObjectReference? _jsEventDisposable;
 
-    DotNetObjectReference<SelectOnlyCombobox>? objRef;
+    DotNetObjectReference<SelectOnlyCombobox<TValue>>? objRef;
 
     // state
     int activeIndex;
@@ -104,6 +79,9 @@
 
     async Task selectOption(int index)
     {
+        if (selectedIndex == index)
+            return;
+
         selectedIndex = index;
         Logger.LogInformation("Selected index {index}.", index);
 
@@ -123,12 +101,13 @@
 
         if (open)
         {
-            await selectOption(activeIndex);
+            //await selectOption(activeIndex);
             await updateMenuState(false, false);
         }
     }
 
-    async Task onComboInputClick() {
+    async Task onComboInputClick()
+    {
         if (IsDisabled)
             return;
 
@@ -143,8 +122,9 @@
     {
         Logger.LogInformation("OnComboMenuClick('{index}')", index);
         onOptionChange(index);
-        await selectOption(index);
+
         await updateMenuState(false);
+        await selectOption(index);
     }
     void onComboMenuMouseDown()
     {
@@ -222,7 +202,7 @@
         }
     }
 
-    public enum SelectAction
+    public enum SelectAction : int
     {
         Close = 0,
         CloseSelect = 1,
@@ -246,9 +226,11 @@
     }
 
     [JSInvokable]
-    public void onOptionChangeJS(SelectAction action)
+    public void onOptionChangeJS(int actionInt)
     {
-        Logger.LogInformation("onOptionChangeJS({action})", action);
+        Logger.LogInformation("onOptionChangeJS({action})", actionInt);
+
+        SelectAction action = (SelectAction)actionInt;
         onOptionChange(getUpdatedIndex(activeIndex, selectItems.Count - 1, action));
         StateHasChanged();
 
@@ -292,7 +274,7 @@
 
     protected override void OnInitialized()
     {
-        id = Helpers.GetRandomHtmlId();
+        id = HtmlHelpers.GetRandomHtmlId();
         comboInputId = $"{id}-combo";
         comboMenuId = $"{id}-listbox";
         objRef = DotNetObjectReference.Create(this);
@@ -327,19 +309,20 @@
             throw new InvalidOperationException($"You must bind the '{nameof(selectedIndex)}' parameter.");
         }
 
-        if (Items.Length == 0)
+        if (Items.Count() == 0)
         {
             throw new InvalidOperationException("No items specified.");
         }
 
         selectItems.Clear();
-        for (int index = 0; index < Items.Length; index++)
+        for (int index = 0; index < Items.Count(); index++)
         {
             selectItems.Add(index, new SelectItem(Items[index], itemId(index)));
         }
 
         // check initial SelectedValue value exists, if not default to 0
-        KeyValuePair<int, SelectItem>? foundEntry = selectItems.FirstOrDefault(entry => entry.Value.Value == SelectedValue);
+        KeyValuePair<int, SelectItem>? foundEntry =
+            selectItems.FirstOrDefault(entry => EqualityComparer<TValue>.Default.Equals(entry.Value.Value, SelectedValue));
         selectedIndex = foundEntry.HasValue ? foundEntry.Value.Key : 0;
         activeIndex = selectedIndex;
     }
@@ -348,7 +331,7 @@
     {
         if (firstRender)
         {
-            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/SelectOnlyCombobox.razor.js");
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/SelectOnlyCombobox.razor.js");
             _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("init", comboInputEl, objRef);
 
             // if (!await JS.InvokeAsync<bool>("selectOnlyCombobox.installOnComboKeyDown", comboInputId, objRef))
@@ -383,10 +366,10 @@
 
     private class SelectItem
     {
-        public int? Value { get; set; }
+        public TValue? Value { get; set; }
         public string Name { get; private set; }
         public string Id { get; private set; }
 
-        public SelectItem(SelectOption option, string id) => (Value, Name, Id) = (option.Value, option.Name, id);
+        public SelectItem(SelectOption<TValue> option, string id) => (Value, Name, Id) = (option.Value, option.Name, id);
     }
 }

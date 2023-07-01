@@ -1,0 +1,8 @@
+﻿@typeparam TValue
+@inherits InputBase<TValue>
+
+<input type="hidden" @bind="CurrentValue" />
+<SelectOnlyCombobox TValue="TValue" Items="@Options" Label="@LabelText"
+    @bind-SelectedValue="CurrentValue" class="form-combo">
+</SelectOnlyCombobox>
+

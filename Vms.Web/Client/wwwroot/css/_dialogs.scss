@@ -1,0 +1,63 @@
+﻿dialog.create-dialog
+{
+    > h1 {
+
+    }
+
+    > .edit-form {
+
+        > .buttons {
+
+        }
+    }
+}
+
+dialog.list-selector {
+    width: clamp(10%, 70ch, 90%);
+    /*height: clamp(10%, 60ch, 90%);*/
+    min-block-size: 30vh;
+    max-block-size: min(80vh, 100%);
+    max-block-size: min(80dvb, 100%);
+    display: grid;
+    padding: 0;
+    overflow: hidden;
+
+    > .dialog-container {
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        align-items: start;
+        max-block-size: 80vh;
+        max-block-size: 80dvb;
+        padding: 1em;
+
+        > .search-wrapper {
+            display: flex;
+            column-gap: 1em;
+            background-color: #ffffff;
+            padding: 0 0 1em 0;
+
+            > input {
+                flex-grow: 1;
+            }
+        }
+
+        > .search-results {
+            overflow-y: auto;
+            max-block-size: 100%; /* safari */
+            overscroll-behavior-y: contain;
+
+            th {
+                text-align: left;
+            }
+
+            td {
+                padding: 5px;
+            }
+        }
+
+        > .buttons-wrapper {
+            padding: 1em 0 0 0;
+            background-color: #ffffff;
+        }
+    }
+}

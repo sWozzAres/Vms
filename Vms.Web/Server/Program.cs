@@ -13,6 +13,7 @@ using Vms.Web.Server.Extensions;
 using Vms.Web.Server;
 using Microsoft.Extensions.Options;
 using Vms.Domain.Infrastructure.Seed;
+using Vms.Web.Server.Middleware;
 
 const string AppName = "Vms.Web.Server";
 
@@ -44,7 +45,8 @@ builder.Services.AddDbContext<VmsDbContext>(options =>
                     sqlOptions.UseNetTopologySuite();
                     sqlOptions.UseDateOnlyTimeOnly();
                     sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    sqlOptions.EnableRetryOnFailure();
                 }), ServiceLifetime.Scoped
             );
 
@@ -68,6 +70,8 @@ app.MigrateDbContext<VmsDbContext>((context, services) =>
         .Wait();
 });
 UserProvider.InMigration = false;
+
+//app.UseMiddleware<VmsDomainExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -113,6 +117,8 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
             ctx.Request.Path = "/ClientApp" + ctx.Request.Path;
             return nxt();
         });
+
+        clientApp.UseMiddleware<TransactionMiddleware>();
 
         clientApp.UseBlazorFrameworkFiles("/ClientApp");
         clientApp.UseStaticFiles();

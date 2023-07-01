@@ -1,6 +1,6 @@
-﻿namespace Vms.Web.Client;
+﻿namespace Vms.Web.Client.Helpers;
 
-public static class Helpers
+public static class HtmlHelpers
 {
     private static Random random = new();
     public static string GetRandomHtmlId(int length = 10)

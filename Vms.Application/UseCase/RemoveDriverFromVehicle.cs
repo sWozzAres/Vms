@@ -1,32 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Vms.Application.UseCase;
+﻿namespace Vms.Application.UseCase;
 
 public class RemoveDriverFromVehicle
 {
     readonly VmsDbContext DbContext;
+    VehicleRole? Vehicle;
 
     public RemoveDriverFromVehicle(VmsDbContext dbContext)
         => DbContext = dbContext;
 
-    public async Task<bool> RemoveAsync(Guid id, string emailAddress, CancellationToken cancellationToken = default)
+    public async Task<bool> RemoveAsync(Guid id, Guid driverId, CancellationToken cancellationToken = default)
     {
-        var entry = await DbContext.DriverVehicles.FindAsync(new object[] { emailAddress, id }, cancellationToken);
-        if (entry is null)
+        // load vehicle - ensures we have access
+        Vehicle = new(await DbContext.Vehicles.FindAsync(id, cancellationToken)
+            ?? throw new VmsDomainException("Vehicle not found."), this);
+
+        if (!await Vehicle.RemoveDriverAsync(driverId, cancellationToken))
         {
             return false;
         }
-
-        DbContext.DriverVehicles.Remove(entry);
-        await DbContext.SaveChangesAsync(cancellationToken);
+        
+        //await DbContext.SaveChangesAsync(cancellationToken);
 
         return true;
     }
-}
 
-//public record RemoveDriverFromVehicle(bool Result)
+    class VehicleRole(Vehicle self, RemoveDriverFromVehicle context)
+    {
+        public async Task<bool> RemoveDriverAsync(Guid driverId, CancellationToken cancellationToken)
+        {
+            var entry = await context.DbContext.DriverVehicles
+                .FindAsync(new object[] { self.CompanyCode, driverId, self.Id }, cancellationToken);
+            if (entry is null)
+            {
+                return false;
+            }
+
+            context.DbContext.DriverVehicles.Remove(entry);
+            return true;
+        }
+    }
+}

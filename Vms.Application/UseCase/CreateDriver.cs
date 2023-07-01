@@ -18,28 +18,35 @@ public class CreateDriver
         Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
 
-        return Vehicle.CreateDriver(request);
+        var driver = await Vehicle.CreateDriverAsync(request, cancellationToken);
+
+        //await DbContext.SaveChangesAsync(cancellationToken);
+
+        return driver;
     }
 
-    public class VehicleRole(Vehicle self, CreateDriver context)
+    class VehicleRole(Vehicle self, CreateDriver context)
     {
-        public Driver CreateDriver(CreateDriverRequest request)
+        public async Task<Driver> CreateDriverAsync(CreateDriverRequest request, CancellationToken cancellationToken)
         {
             var driver = new Driver(request.CompanyCode, request.Salutation, request.FirstName, request.MiddleNames, request.LastName,
                 request.EmailAddress, request.MobileNumber, request.HomeLocation);
 
             context.DbContext.Drivers.Add(driver);
 
-            AddDriver(driver);
+            await new AddDriverToVehicle(context.DbContext)
+                .AddAsync(self.Id, driver.Id, cancellationToken);
+
+            //AddDriver(driver);
 
             return driver;
         }
 
-        void AddDriver(Driver driver)
-        {
-            var driverVehicleLink = new DriverVehicle(driver.CompanyCode, self.Id, driver.EmailAddress);
-            context.DbContext.DriverVehicles.Add(driverVehicleLink);
-        }
+        //void AddDriver(Driver driver)
+        //{
+        //    var driverVehicleLink = new DriverVehicle(driver.CompanyCode, driver.Id, self.Id);
+        //    context.DbContext.DriverVehicles.Add(driverVehicleLink);
+        //}
     }
 }
 

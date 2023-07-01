@@ -1,25 +1,23 @@
-﻿using System.IO;
-using Vms.Web.Shared;
+﻿namespace Vms.Web.Shared;
 
-namespace Vms.Web.Shared;
-
+public record AddDriverToVehicleDto(Guid Id);
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 
 public partial class VehicleDto : ICopyable<VehicleDto>
 {
-    [Required, StringLength(10)]
-    public string CompanyCode { get; set; } = string.Empty;
     public Guid Id { get; set; }
+    [Required, StringLength(10)]
+    public string? CompanyCode { get; set; } = string.Empty;
     [Required, StringLength(12)]
     public string Vrm { get; set; } = string.Empty;
     [Required, StringLength(30)]
-    public string Make { get; set; } = string.Empty;
+    public string? Make { get; set; } = string.Empty;
     [Required, StringLength(50)]
-    public string Model { get; set; } = string.Empty;
+    public string? Model { get; set; } = string.Empty;
     [StringLength(18)]
     public string? ChassisNumber { get; set; }
     public DateOnly DateFirstRegistered { get; set; }
-    public AddressDto Address { get; set; } = new("", "", "", "", new(0, 0));
+    public AddressDto Address { get; set; } = new();//"", "", "", "", new(0, 0));
     [StringLength(10)]
     public string? CustomerCode { get; set; }
     [StringLength(10)]
@@ -66,7 +64,7 @@ public partial class AddressDto : ICopyable<AddressDto>
     public string Town { get; set; } = string.Empty;
     [StringLength(8)]
     public string Postcode { get; set; } = string.Empty;
-    public GeometryDto Location { get; set; } = new(0, 0);
+    public GeometryDto Location { get; set; } = new();// (0, 0);
     public AddressDto() { }
     public AddressDto(string street, string locality, string town, string postcode, GeometryDto location)
     {
@@ -89,7 +87,9 @@ public partial class AddressDto : ICopyable<AddressDto>
 
 public partial class GeometryDto : ICopyable<GeometryDto>
 {
+    [Range(-90, 90)]
     public double Latitude { get; set; }
+    [Range(-180, 180)]
     public double Longitude { get; set; }
     public GeometryDto() { }
     public GeometryDto(double latitude, double longitude)

@@ -7,6 +7,7 @@ namespace Vms.Domain.Entity
 {
     public partial class Driver
     {
+        public Guid Id { get; set; }
         public string CompanyCode { get; set; } = null!;
         public string? Salutation { get; set; }
         public string? FirstName { get; set; }
@@ -20,6 +21,7 @@ namespace Vms.Domain.Entity
 
         public Driver(string companyCode, string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
         {
+            Id = Guid.NewGuid();
             CompanyCode = companyCode;
             Salutation = salutation;
             FirstName = firstName;
@@ -29,11 +31,9 @@ namespace Vms.Domain.Entity
             MobileNumber = mobileNumber ?? throw new ArgumentNullException(nameof(mobileNumber));
             HomeLocation = homeLocation ?? throw new ArgumentNullException(nameof(homeLocation));
         }
-        public string FullName() 
-        {
-            string?[] names = { Salutation, FirstName, MiddleNames, LastName };
-            return string.Join(" ", names.Where(x=>!string.IsNullOrEmpty(x)));
-        }
+        public string FullName
+            => string.Join(" ", new string?[]{ Salutation, FirstName, MiddleNames, LastName }
+                .Where(x=>!string.IsNullOrEmpty(x)));
     }
 
     public partial class DriverVehicle
@@ -41,15 +41,16 @@ namespace Vms.Domain.Entity
         public string CompanyCode { get; set; } = null!;
 
         public Guid VehicleId { get; set; }
-        public string EmailAddress { get; set; } = null!;
+        
+        public Guid DriverId { get; set; }
 
-        public virtual Driver EmailAddressNavigation { get; set; } = null!;
+        public virtual Driver Driver { get; set; } = null!;
         public virtual Vehicle Vehicle { get; set; } = null!;
-        public DriverVehicle(string companyCode, Guid vehicleId, string emailAddress)
+        public DriverVehicle(string companyCode, Guid driverId, Guid vehicleId)
         {
             CompanyCode = companyCode;
+            DriverId = driverId; 
             VehicleId = vehicleId;
-            EmailAddress = emailAddress;
         }
     }
 }
@@ -60,8 +61,9 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Driver> entity)
         {
-            entity.HasKey(e => new { e.CompanyCode, e.EmailAddress })
-                    .HasName("PK_Driver");
+            entity.HasKey(e => e.Id);
+            entity.HasAlternateKey(e => new { e.CompanyCode, e.Id });
+            entity.HasAlternateKey(e => new { e.CompanyCode, e.EmailAddress });
 
             entity.ToTable("Driver");
 
@@ -104,20 +106,20 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<DriverVehicle> entity)
         {
-            entity.HasKey(e => new { e.CompanyCode, e.EmailAddress, e.VehicleId });
+            entity.HasKey(e => new { e.CompanyCode, e.DriverId, e.VehicleId });
 
             entity.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
                 .IsFixedLength();
 
-            entity.Property(e => e.EmailAddress)
-                .HasMaxLength(128)
-                .IsUnicode(false);
+            //entity.Property(e => e.EmailAddress)
+            //    .HasMaxLength(128)
+            //    .IsUnicode(false);
 
-            entity.HasOne(d => d.EmailAddressNavigation)
+            entity.HasOne(d => d.Driver)
                 .WithMany(p => p.DriverVehicles)
-                .HasForeignKey(d => new { d.CompanyCode, d.EmailAddress })
-                
+                .HasForeignKey(d => new { d.CompanyCode, d.DriverId })
+                .HasPrincipalKey(d => new { d.CompanyCode, d.Id })
                 .HasConstraintName("FK_DriverVehicles_Driver");
 
             entity.HasOne(d => d.Vehicle)

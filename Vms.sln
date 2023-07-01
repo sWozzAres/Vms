@@ -58,7 +58,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeGen", "CodeGen\CodeGen.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{7714D80C-0A02-4510-A466-2014B5A8EF2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utopia.Blazor.Application", "Utopia.Blazor.Application\Utopia.Blazor.Application.csproj", "{432D0979-7EAF-4830-8E39-EA09493AEE8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utopia.Blazor.Application", "Utopia.Blazor.Application\Utopia.Blazor.Application.csproj", "{432D0979-7EAF-4830-8E39-EA09493AEE8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

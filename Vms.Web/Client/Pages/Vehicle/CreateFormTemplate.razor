@@ -1,0 +1,27 @@
+﻿@inject ILogger<CreateFormTemplate<TModel>> Logger
+
+@typeparam TModel where TModel : class, new()
+
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
+    @ChildContent
+</EditForm>
+
+@code {
+    public delegate Task Submit(TModel model);
+    [Parameter, EditorRequired] public Submit OnSubmit { get; set; } = null!;
+
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    public TModel Model { get; set; } = null!;
+
+    async Task HandleValidSubmit()
+    {
+        await OnSubmit(Model);
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        
+        //TODO check params
+    }
+}

@@ -12,10 +12,14 @@ public class CreateFleet
         Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        return Company.CreateFleet(request.Code, request.Name);
+        var fleet = Company.CreateFleet(request.Code, request.Name);
+
+        //await DbContext.SaveChangesAsync(cancellationToken); 
+        
+        return fleet;
     }
 
-    public class CompanyRole(Company self, CreateFleet context)
+    class CompanyRole(Company self, CreateFleet context)
     {
         public Fleet CreateFleet(string code, string name)
         {

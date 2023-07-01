@@ -59,7 +59,7 @@ namespace Vms.Domain.Entity
             get => VehicleVrm.Vrm;
             set => VehicleVrm.Vrm = value;
         }
-        public void AssignToCustomer(string customerCode) => CustomerCode = customerCode;
+        internal void AssignToCustomer(string customerCode) => CustomerCode = customerCode;
         public void AssignToFleet(string fleetCode) => FleetCode = fleetCode;
         public void UpdateModel(string make, string model)
         {

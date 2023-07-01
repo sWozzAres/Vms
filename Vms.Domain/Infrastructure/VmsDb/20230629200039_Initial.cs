@@ -75,18 +75,21 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Driver",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
                     Salutation = table.Column<string>(type: "varchar(5)", unicode: false, maxLength: 5, nullable: true),
                     FirstName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
                     MiddleNames = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: true),
                     LastName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
+                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
                     MobileNumber = table.Column<string>(type: "varchar(12)", unicode: false, maxLength: 12, nullable: false),
                     HomeLocation = table.Column<Geometry>(type: "geography", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Driver", x => new { x.CompanyCode, x.EmailAddress });
+                    table.PrimaryKey("PK_Driver", x => x.Id);
+                    table.UniqueConstraint("AK_Driver_CompanyCode_EmailAddress", x => new { x.CompanyCode, x.EmailAddress });
+                    table.UniqueConstraint("AK_Driver_CompanyCode_Id", x => new { x.CompanyCode, x.Id });
                     table.ForeignKey(
                         name: "FK_Driver_Company",
                         column: x => x.CompanyCode,
@@ -291,16 +294,16 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false)
+                    DriverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DriverVehicles", x => new { x.CompanyCode, x.EmailAddress, x.VehicleId });
+                    table.PrimaryKey("PK_DriverVehicles", x => new { x.CompanyCode, x.DriverId, x.VehicleId });
                     table.ForeignKey(
                         name: "FK_DriverVehicles_Driver",
-                        columns: x => new { x.CompanyCode, x.EmailAddress },
+                        columns: x => new { x.CompanyCode, x.DriverId },
                         principalTable: "Driver",
-                        principalColumns: new[] { "CompanyCode", "EmailAddress" },
+                        principalColumns: new[] { "CompanyCode", "Id" },
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DriverVehicles_Vehicle",

@@ -43,7 +43,7 @@
 
 @if (addDriverDialogVisible)
 {
-    <ListSelector OnGetItems="Api.GetDriversShortAsync" OnSelected="CloseDriverSearchDialog" OnClose="() => addDriverDialogVisible = false">
+    <ListSelector Title="Find Driver" OnGetItems="Api.GetDriversShortAsync" OnSelected="DriverSearchDialogSelect" OnClose="DriverSearchDialogClose">
         <TableHeader>
             <th>Name</th>
             <th>Email</th>
@@ -56,19 +56,24 @@
 }
 
 @code {
-    [Parameter, EditorRequired] public List<DriverFullDto> Items { get; set; } = null!;
-    [Parameter, EditorRequired] public string VehicleId { get; set; } = null!;
+    [Parameter, EditorRequired] public List<DriverShortDto> Items { get; set; } = null!;
+    [Parameter, EditorRequired] public Guid VehicleId { get; set; }
 
     #region AddDriver Dialog
     bool addDriverDialogVisible = false;
 
-    async Task CloseDriverSearchDialog(DriverShortDto item)
+    void DriverSearchDialogClose()
+    {
+        addDriverDialogVisible = false;
+        StateHasChanged();
+    }
+    async Task DriverSearchDialogSelect(DriverShortDto item)
     {
         Logger.LogInformation("{email} {name}", item.EmailAddress, item.FullName);
-        var response = await Api.AddDriverToVehicle(VehicleId, item.EmailAddress);
+        var response = await Api.AddDriverToVehicle(VehicleId, item.Id);
         if (response.IsSuccessStatusCode)
         {
-            var driver = await Api.GetDriverFullAsync(item.EmailAddress);
+            var driver = await Api.GetDriverShortAsync(item.Id);
             if (driver is not null)
             {
                 Items.Insert(0, driver);
@@ -85,12 +90,12 @@
     {
         optionRemove
     };
-    DriverFullDto selectedDriver = null!;
+    DriverShortDto selectedDriver = null!;
     string removalErrorMessage = null!;
 
     void CloseDialog() => dialogShowMode = Dialog.ShowMode.None;
 
-    void OptionSelected(string? option, DriverFullDto driver)
+    void OptionSelected(string? option, DriverShortDto driver)
     {
         if (option == optionRemove)
         {
@@ -103,7 +108,7 @@
     {
         try
         {
-            var response = await Api.RemoveDriverFromVehicle(VehicleId, selectedDriver.EmailAddress);
+            var response = await Api.RemoveDriverFromVehicle(VehicleId, selectedDriver.Id);
             if (response.IsSuccessStatusCode)
             {
                 dialogShowMode = Dialog.ShowMode.None;

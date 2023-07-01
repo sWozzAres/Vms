@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using Polly;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
 using Vms.Web.Server;
@@ -8,7 +10,7 @@ namespace Vms.Domain.Infrastructure.Seed;
 
 public interface IVmsDbContextSeeder
 {
-    Task<int> SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings);
+    Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings);
 }
 
 public class VmsDbContextSeeder : IVmsDbContextSeeder
@@ -57,20 +59,48 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     static readonly Random rnd = new();
 
-    public async Task<int> SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
+
+    public async Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
     {
         if (_context.Companies.Any())
-            return 0;
+        {
+            _logger.LogInformation("Seeding skipped. The database already contains data.");
+            return;
+        }
 
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                await SeedData();
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        });
+    }
+
+    public async Task SeedData()
+    {
         List<CompanyInfo> companies = new();
-        foreach(var ci in Enumerable.Range(1, 5))
+        foreach (var ci in Enumerable.Range(1, 5))
         {
             string code = $"TEST{ci:D3}";
             string name = $"Company #{ci}";
             var company = new CreateCompany(_context)
                 .Create(new CreateCompanyRequest(code, name));
 
-            foreach(var fi in Enumerable.Range(1, 50))
+            foreach (var fi in Enumerable.Range(1, 50))
             {
                 string fleetCode = $"FL{ci:D3}{fi:D2}";
                 string fleetName = $"Fleet #{fi:D2} Company #{ci:D3}";
@@ -97,8 +127,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
             }
         }
-        
-        SeedSuppliers();
+
+        await SeedSuppliers();
 
         // generate make / model data
         var makes = MakeNames.Select(name =>
@@ -151,14 +181,6 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             string GenerateEmailAddress(string firstName, string lastName) => $"{firstName.ToLower()}.{lastName.ToLower()}{DateTime.Now.Year - 20 - rnd.Next(30)}@nowhere.com";
         }
 
-        //await _context.Drivers.AddRangeAsync(drivers);
-
-        //if (!_context.VehicleMakes.Any())
-        //{
-
-        //    await _context.VehicleMakes.AddRangeAsync(makes.Select(x => new VehicleMake(x.Make)));
-        //}
-
         IEnumerable<(string Make, string Model)> flattenedMakeModel = from make in makes
                                                                       from model in make.Models
                                                                       select (make.Make, model.Model);
@@ -172,7 +194,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         //    await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
         //}
 
-        var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x=>x.Entity).ToList();
+        var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
 
         foreach (var driverInfo in GetDrivers())
         {
@@ -204,10 +226,10 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             var driver = await new CreateDriver(_context)
                 .CreateAsync(new CreateDriverRequest(company.Code,
                     vehicle.Id,
-                    driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName, 
+                    driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName,
                     driverInfo.EmailAddress, driverInfo.MobileNumber,
                     driverInfo.HomeLocation));
-            
+
 
             char RandomLetter() => letters[rnd.Next(0, letters.Length)];
 
@@ -223,16 +245,14 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             }
         }
 
-        await _context.SaveChangesAsync();
 
-        return 0;
 
-        void SeedSuppliers()
+        async Task SeedSuppliers()
         {
             foreach (var i in Enumerable.Range(1, 100))
             {
-                var supplier = new CreateSupplier(_context)
-                    .Create(new CreateSupplierRequest(
+                var supplier = await new CreateSupplier(_context)
+                    .CreateAsync(new CreateSupplierRequest(
                         $"SUP{i:D4}",
                         $"Supplier #{i}",
                         new Address("", "", "", "", RandomPoint()),
@@ -271,7 +291,7 @@ public class CompanyInfo(string code, string name)
     public string Code { get; set; } = code;
     public string Name { get; set; } = name;
     public List<FleetInfo> Fleets { get; set; } = new();
-    public List<CompanyInfo> Companies{ get; set; } = new();
+    public List<CompanyInfo> Companies { get; set; } = new();
 }
 
 public class FleetInfo(string code, string name)

@@ -7,11 +7,13 @@ public class CreateMake
     public CreateMake(VmsDbContext dbContext)
        => DbContext = dbContext;
 
-    public VehicleMake Create(CreateMakeRequest request)
+    public VehicleMake Create(CreateMakeRequest request, CancellationToken cancellationToken = default)
     {
         var make = new VehicleMake(request.Make);
         DbContext.Add(make);
 
+        //await DbContext.SaveChangesAsync(cancellationToken);
+        
         return make;
     }
 }

@@ -21,7 +21,7 @@
                 <div class="list-dropdown-holder">
                     <h2>
                         <SelectOnlyCombobox Items="listOptions" Label="List" LabelHidden="true"
-                            @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
+                                            @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
                     </h2>
                 </div>
             </div>
@@ -34,7 +34,7 @@
         <div class="list-info">
             <div class="list-description">
                 <Paginator State="pagination">
-                    
+
                 </Paginator>
             </div>
             <div class="list-info-buttons">
@@ -84,7 +84,7 @@
 
     async Task Refresh() => await grid.RefreshDataAsync();
 
-    SelectOption<int?>[] listOptions = new SelectOption<int?>[]
+    List<SelectOption<int?>> listOptions = new()
     {
         new (0, "All Companies"),
         new (1, "Recently Viewed"),

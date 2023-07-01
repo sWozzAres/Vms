@@ -1,13 +1,14 @@
 ﻿@inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<dialog @ref="dialogEl">
+<dialog @ref="dialogEl" class="@ClassName">
     @ChildContent
 </dialog>
 
 @code {
     [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
     //[Parameter, EditorRequired] public string Message { get; set; } = null!;
+    [Parameter] public string ClassName { get; set; } = null!;
 
     public enum ShowMode { None, Show, ShowModal };
     [Parameter] public ShowMode AutoShow { get; set; } = ShowMode.None;

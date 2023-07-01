@@ -7,10 +7,12 @@ public class CreateSupplier
     public CreateSupplier(VmsDbContext dbContext)
        => DbContext = dbContext;
 
-    public Supplier Create(CreateSupplierRequest request)
+    public async Task<Supplier> CreateAsync(CreateSupplierRequest request, CancellationToken cancellationToken = default)
     {
         var supplier = new Supplier(request.Code, request.Name, request.Address, request.IsIndependant);
         DbContext.Add(supplier);
+
+        //await DbContext.SaveChangesAsync(cancellationToken);
 
         return supplier;
     }

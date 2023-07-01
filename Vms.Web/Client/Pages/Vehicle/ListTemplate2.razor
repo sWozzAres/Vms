@@ -65,11 +65,11 @@
 </div>
 
 @code {
-    [Parameter, EditorRequired] public SelectOption<int?>[] Options { get; set; } = null!;
+    [Parameter, EditorRequired] public List<SelectOption<int?>> Options { get; set; } = null!;
     [Parameter, EditorRequired] public string ApiUrl { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
-    [Parameter, EditorRequired] public RenderFragment? GridColumns { get; set; }
+    [Parameter, EditorRequired] public RenderFragment GridColumns { get; set; } = null!;
 
     GridItemsProvider<TGridItem> itemsProvider { get; set; } = null!;
     PaginationState pagination = new() { ItemsPerPage = 10 };
@@ -81,6 +81,12 @@
 
     protected override void OnInitialized()
     {
+        ArgumentNullException.ThrowIfNull(Options);
+        ArgumentNullException.ThrowIfNull(ApiUrl);
+        ArgumentNullException.ThrowIfNull(IconContent);
+        ArgumentNullException.ThrowIfNull(Buttons);
+        ArgumentNullException.ThrowIfNull(GridColumns);
+
         itemsProvider = async req =>
         {
             try

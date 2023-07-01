@@ -14,10 +14,14 @@ public class CreateModel
         Make = new(await DbContext.VehicleMakes.FindAsync(request.Make, cancellationToken)
             ?? throw new VmsDomainException("Make not found."), this);
 
-        return Make.CreateModel(request.Model);
+        var model = Make.CreateModel(request.Model);
+
+        //await DbContext.SaveChangesAsync(cancellationToken);
+
+        return model;
     }
 
-    public class MakeRole(VehicleMake self, CreateModel context)
+    class MakeRole(VehicleMake self, CreateModel context)
     {
         public VehicleModel CreateModel(string model)
         {

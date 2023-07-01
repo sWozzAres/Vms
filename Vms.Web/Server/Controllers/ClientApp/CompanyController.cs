@@ -15,13 +15,24 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Produces("application/json")]
 public class CompanyController : ControllerBase
 {
-    private readonly ILogger<CompanyController> _logger;
-
-    public CompanyController(ILogger<CompanyController> logger)
+    readonly ILogger<CompanyController> _logger;
+    readonly VmsDbContext _context;
+    public CompanyController(ILogger<CompanyController> logger, VmsDbContext context)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
+        _context = context;
     }
 
+    [HttpGet]
+    [AcceptHeader("application/vnd.short")]  
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
+    {
+        var result = await _context.Companies
+            .Select(c => new CompanyListModel(c.Code, c.Name))
+            .ToListAsync(cancellationToken);
+
+        return Ok(result);
+    }
     //[HttpGet]
     //[Route("")]
     //[ProducesResponseType(typeof(IEnumerable<CompanyListModel>), StatusCodes.Status200OK)]

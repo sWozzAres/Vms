@@ -1,10 +1,9 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using Polly;
+using Vms.Application.UseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
@@ -15,25 +14,20 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class VehicleController : ControllerBase
+public class VehicleController(ILogger<VehicleController> logger, VmsDbContext context) : ControllerBase
 {
-    private readonly ILogger<CompanyController> _logger;
-
-    public VehicleController(ILogger<CompanyController> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    readonly ILogger<VehicleController> _logger = logger;
+    readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicle(Guid id,
-        [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
     {
-        var vehicle = await context.Vehicles.AsNoTracking()
-                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+        var vehicle = await _context.Vehicles.AsNoTracking()
+                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
 
@@ -44,69 +38,102 @@ public class VehicleController : ControllerBase
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicleFull(Guid id,
-        [FromServices] VmsDbContext context,
         CancellationToken cancellationToken)
     {
-        var vehicle = await context.Vehicles.AsNoTracking()
+        var vehicle = await _context.Vehicles.AsNoTracking()
                 .Include(v => v.C)
                 .Include(v => v.Fleet)
-                .Include(v => v.DriverVehicles).ThenInclude(dv => dv.EmailAddressNavigation)
+                .Include(v => v.DriverVehicles).ThenInclude(dv => dv.Driver)
                 .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
     }
 
+    [HttpGet]
+    //[Route("{list}/{start}/{take}")]
+    [ProducesResponseType(typeof(ListResult<VehicleListDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetVehicles(int list, int start, int take, CancellationToken cancellationToken)
+    {
+        int totalCount = await context.Vehicles.CountAsync();
+
+        var result = await context.Vehicles
+            .Skip(start)
+            .Take(take)
+            .Select(x => new VehicleListDto(x.Id, x.CompanyCode, x.Vrm, x.Make, x.Model))
+            .ToListAsync(cancellationToken);
+
+        return Ok(new ListResult<VehicleListDto>(totalCount, result));
+    }
+
     [HttpDelete]
-    [Route("{id}/drivers/{emailAddress}")]
+    [Route("{id}/drivers/{driverId}")]
     [ProducesResponseType((int)HttpStatusCode.Accepted)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> RemoveDriverFromVehicleAsync(
-        Guid id, string emailAddress,
-        [FromServices] VmsDbContext context,
+    public async Task<IActionResult> RemoveDriverFromVehicle(
+        Guid id, Guid driverId,
         CancellationToken cancellationToken)
-        => await new Application.UseCase.RemoveDriverFromVehicle(context)
-                .RemoveAsync(id, emailAddress, cancellationToken) ? Accepted() : NotFound();
+        => await new RemoveDriverFromVehicle(_context)
+                .RemoveAsync(id, driverId, cancellationToken) ? Accepted() : NotFound();
 
     [HttpPost]
     [Route("{id}/drivers")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddDriverToVehicle(
-        Guid id, 
-        [FromBody] string emailAddress,
-        [FromServices] VmsDbContext context,
+        Guid id,
+        [FromBody] AddDriverToVehicleDto driver,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await new AddDriverToVehicle(_context)
+            .AddAsync(id, driver.Id, cancellationToken);
+        return Ok();
+    }
 
-        //var dv = new DriverVehicle() { VehicleId = id, EmailAddress = emailAddress };
-        //context.DriverVehicles.Add(dv);
+    [HttpPost]
+    public async Task<IActionResult> CreateVehicle(
+        [FromBody] VehicleDto vehicleDto,
+        CancellationToken cancellationToken)
+    {
+        var request = new CreateVehicleRequest(vehicleDto.CompanyCode, vehicleDto.Vrm, 
+            vehicleDto.Make, vehicleDto.Model,
+            vehicleDto.DateFirstRegistered, vehicleDto.DateFirstRegistered,
+            new Address(vehicleDto.Address.Street,
+                  vehicleDto.Address.Locality,
+                  vehicleDto.Address.Town,
+                  vehicleDto.Address.Postcode,
+                  new Point(vehicleDto.Address.Location.Longitude, vehicleDto.Address.Location.Latitude) { SRID = 4326 }),
+            null, null);
 
-        //await context.SaveChangesAsync(cancellationToken);
 
-        //return Ok();
+        var vehicle = await new CreateVehicle(_context)
+            .CreateAsync(request, cancellationToken);
+
+        //await _context.SaveChangesAsync(cancellationToken);
+
+        return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle.ToDto());
     }
 
     [HttpPut]
     [Route("{id}")]
-    [ActionName("PutAsync")]
+    [ActionName("Put")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
-    public async Task<IActionResult> PutAsync([FromRoute] Guid id,
-        [FromServices] VmsDbContext context,
+    public async Task<IActionResult> Put([FromRoute] Guid id,
         [FromBody] VehicleDto request,
         CancellationToken cancellationToken)
     {
-        if(request.Id != id)
+        if (request.Id != id)
         {
             return BadRequest();
         }
-        
+
         _logger.LogInformation("Put vehicle, id {id}.", id);
 
-        var vehicle = await context.Vehicles.FindAsync(id, cancellationToken);
+        var vehicle = await _context.Vehicles.FindAsync(id, cancellationToken);
         if (vehicle is null)
         {
             return NotFound();
@@ -115,12 +142,12 @@ public class VehicleController : ControllerBase
         vehicle.Vrm = request.Vrm;
         vehicle.UpdateModel(request.Make, request.Model);
 
-        
-        if (context.Entry(vehicle).State == EntityState.Modified || context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
+
+        if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
         {
             try
             {
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -144,8 +171,8 @@ public class VehicleController : ControllerBase
 }
 public static partial class DomainExtensions
 {
-    public static DriverFullDto ToFullDto(this Driver driver)
-        => new(driver.EmailAddress, driver.FullName(), driver.MobileNumber);
+    public static DriverShortDto ToShortDto(this Driver driver)
+        => new(driver.Id, driver.CompanyCode, driver.EmailAddress, driver.FullName, driver.MobileNumber);
 
     public static VehicleFullDto ToFullDto(this Vehicle vehicle)
     => new(
@@ -157,11 +184,11 @@ public static partial class DomainExtensions
             vehicle.ChassisNumber,
             vehicle.DateFirstRegistered,
             vehicle.Address.ToFullDto(),
-            vehicle.C is null ? null : new CustomerSummaryResource(vehicle.C.Code, vehicle.C.Name),
-            vehicle.Fleet is null ? null : new FleetSummaryResource(vehicle.Fleet.Code, vehicle.Fleet.Name),
-            vehicle.DriverVehicles.Select(x=>x.EmailAddressNavigation.ToFullDto()).ToList()
+            vehicle.C is null ? null : new CustomerShortDto(vehicle.C.Code, vehicle.C.Name),
+            vehicle.Fleet is null ? null : new FleetShortDto(vehicle.Fleet.Code, vehicle.Fleet.Name),
+            vehicle.DriverVehicles.Select(x => x.Driver.ToShortDto()).ToList()
             );
-    
+
 
     public static AddressFullDto ToFullDto(this Address address)
         => new(address.Street, address.Locality, address.Town, address.Postcode, address.Location.ToFullDto());

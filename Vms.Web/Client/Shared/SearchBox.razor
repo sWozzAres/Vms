@@ -156,7 +156,7 @@
     #region Lifecycle events
     protected override async Task OnInitializedAsync()
     {
-        inputId = Helpers.GetRandomHtmlId();
+        inputId = HtmlHelpers.GetRandomHtmlId();
         objRef = DotNetObjectReference.Create(this);
         await SearchHistory.InitializeAsync();
     }

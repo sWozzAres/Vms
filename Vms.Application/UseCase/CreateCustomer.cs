@@ -14,10 +14,14 @@ public class CreateCustomer
         Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        return Company.CreateCustomer(request.Code, request.Name);
+        var company = Company.CreateCustomer(request.Code, request.Name);
+
+        //await DbContext.SaveChangesAsync(cancellationToken);
+
+        return company;
     }
 
-    public class CompanyRole(Company self, CreateCustomer context)
+    class CompanyRole(Company self, CreateCustomer context)
     {
         public Customer CreateCustomer(string code, string name)
         {

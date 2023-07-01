@@ -12,6 +12,8 @@ public class CreateCompany
         var company = new Company(request.Code, request.Name);
         DbContext.Add(company);
 
+        //await DbContext.SaveChangesAsync(cancellationToken);
+
         return company;
     }
 }

@@ -1,3 +1,4 @@
 ﻿namespace Vms.Web.Shared;
 
-public record VehicleMakeListModel(string Make);
+public record VehicleMakeShortListModel(string Make);
+public record VehicleModelShortListModel(string Model);

@@ -12,10 +12,14 @@ public class CreateNetwork
         Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        return Company.CreateNetwork(request.Code, request.Name);
+        var network = Company.CreateNetwork(request.Code, request.Name);
+
+        //await DbContext.SaveChangesAsync(cancellationToken);
+
+        return network;
     }
 
-    public class CompanyRole(Company self, CreateNetwork context)
+    class CompanyRole(Company self, CreateNetwork context)
     {
         public Network CreateNetwork(string code, string name)
         {

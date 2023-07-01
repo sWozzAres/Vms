@@ -95,7 +95,7 @@
     int? SelectedValue { get; set; }
     private string selectedItem = string.Empty;
 
-    private SelectOption<int?>[] items = new SelectOption<int?>[]
+    private List<SelectOption<int?>> items = new ()
     {
         new (null, "--Choose a Fruit--"),
         new (1, "Apple"),

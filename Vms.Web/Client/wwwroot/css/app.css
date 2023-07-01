@@ -245,10 +245,10 @@ h5 + h6 {
 form.edit-form {
   font-size: 1rem;
   /* input:disabled, .combo-input.disabled {
-       background-color: rgba(239, 239, 239, 0.3);
-       color: rgb(84, 84, 84);
-       border: 0;
-   }*/
+      background-color: rgba(239, 239, 239, 0.3);
+      color: rgb(84, 84, 84);
+      border: 0;
+  }*/
 }
 form.edit-form label {
   font-size: smaller;
@@ -320,10 +320,10 @@ form.edit-form > fieldset.form-grid .validation-message {
   margin-bottom: 0.5em;
   color: red;
 }
-form.edit-form > fieldset.form-grid .buttons {
+form.edit-form .buttons {
   margin-top: 1em;
-  grid-row: auto;
-  grid-column: 1/-1;
+  /*grid-row: auto;
+      grid-column: 1 / -1;*/
   text-align: start;
 }
 
@@ -630,6 +630,49 @@ form.edit-form > fieldset.form-grid .buttons {
     }
 }
 */
+dialog.list-selector {
+  width: clamp(10%, 70ch, 90%);
+  /*height: clamp(10%, 60ch, 90%);*/
+  min-block-size: 30vh;
+  max-block-size: min(80vh, 100%);
+  max-block-size: min(80dvb, 100%);
+  display: grid;
+  padding: 0;
+  overflow: hidden;
+}
+dialog.list-selector > .dialog-container {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  align-items: start;
+  max-block-size: 80vh;
+  max-block-size: 80dvb;
+  padding: 1em;
+}
+dialog.list-selector > .dialog-container > .search-wrapper {
+  display: flex;
+  column-gap: 1em;
+  background-color: #ffffff;
+  padding: 0 0 1em 0;
+}
+dialog.list-selector > .dialog-container > .search-wrapper > input {
+  flex-grow: 1;
+}
+dialog.list-selector > .dialog-container > .search-results {
+  overflow-y: auto;
+  max-block-size: 100%; /* safari */
+  overscroll-behavior-y: contain;
+}
+dialog.list-selector > .dialog-container > .search-results th {
+  text-align: left;
+}
+dialog.list-selector > .dialog-container > .search-results td {
+  padding: 5px;
+}
+dialog.list-selector > .dialog-container > .buttons-wrapper {
+  padding: 1em 0 0 0;
+  background-color: #ffffff;
+}
+
 .hidden {
   visibility: hidden;
 }

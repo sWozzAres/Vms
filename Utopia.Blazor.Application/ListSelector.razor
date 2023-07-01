@@ -1,36 +1,42 @@
 ﻿@typeparam TItem where TItem : class
 
-<Dialog AutoShow="Dialog.ShowMode.ShowModal">
-    <div class="search-wrapper">
-        <input type="text" @bind-value="searchValue" />
-        <button @onclick="Search">Search</button>
-    </div>
-    <table class="search-results">
-        <thead>
-            <tr>
-                <th></th>
-                @TableHeader
-            </tr>
-        </thead>
-        <tbody>
-            @for (int index = 0; index < items.Count(); index++)
-            {
-                var idx = index;
-                var item = items.ElementAt(index);
-                <tr>
-                    <td><input checked="@isSelected(idx)" @onclick="() => SelectItem(idx)" type="checkbox" /></td>
-                    @RowTemplate(item)
-                </tr>
-            }
-        </tbody>
-    </table>
-    <div class="buttons-wrapper">
-        <button @onclick="CloseDialog">Close</button>
-        <button @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector">
+    <div class="dialog-container">
+        <h1>@Title</h1>
+        <form class="search-wrapper" @onsubmit="Search">
+            <input type="text" @bind-value="searchValue" />
+            <button type="submit" @onclick="Search" >Search</button>
+        </form>
+        <div class="search-results">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        @TableHeader
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int index = 0; index < items.Count(); index++)
+                    {
+                        var idx = index;
+                        var item = items.ElementAt(index);
+                        <tr>
+                            <td><input checked="@isSelected(idx)" @onclick="() => SelectItem(idx)" type="checkbox" /></td>
+                            @RowTemplate(item)
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="buttons-wrapper">
+            <button @onclick="CloseDialog">Close</button>
+            <button @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+        </div>
     </div>
 </Dialog>
 
 @code {
+    [Parameter, EditorRequired] public string Title { get; set; } = null!;
     public delegate Task<List<TItem>?> GetItems(string filter);
     [Parameter, EditorRequired] public GetItems OnGetItems { get; set; } = null!;
 
@@ -60,6 +66,11 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+        if (Title is null)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(Title)}'.");
+        }
 
         if (OnGetItems is null)
         {

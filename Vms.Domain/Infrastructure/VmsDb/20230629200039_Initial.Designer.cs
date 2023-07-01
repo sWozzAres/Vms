@@ -13,7 +13,7 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230629161735_Initial")]
+    [Migration("20230629200039_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -93,12 +93,18 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Driver", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CompanyCode")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
                     b.Property<string>("EmailAddress")
+                        .IsRequired()
                         .HasMaxLength(128)
                         .IsUnicode(false)
                         .HasColumnType("varchar(128)");
@@ -134,8 +140,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsUnicode(false)
                         .HasColumnType("varchar(5)");
 
-                    b.HasKey("CompanyCode", "EmailAddress")
-                        .HasName("PK_Driver");
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("CompanyCode", "EmailAddress");
 
                     b.ToTable("Driver", (string)null);
                 });
@@ -147,15 +154,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
-                    b.Property<string>("EmailAddress")
-                        .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)");
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CompanyCode", "EmailAddress", "VehicleId");
+                    b.HasKey("CompanyCode", "DriverId", "VehicleId");
 
                     b.HasIndex("CompanyCode", "VehicleId");
 
@@ -429,9 +434,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.DriverVehicle", b =>
                 {
-                    b.HasOne("Vms.Domain.Entity.Driver", "EmailAddressNavigation")
+                    b.HasOne("Vms.Domain.Entity.Driver", "Driver")
                         .WithMany("DriverVehicles")
-                        .HasForeignKey("CompanyCode", "EmailAddress")
+                        .HasForeignKey("CompanyCode", "DriverId")
+                        .HasPrincipalKey("CompanyCode", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_DriverVehicles_Driver");
@@ -443,7 +449,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_DriverVehicles_Vehicle");
 
-                    b.Navigation("EmailAddressNavigation");
+                    b.Navigation("Driver");
 
                     b.Navigation("Vehicle");
                 });

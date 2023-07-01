@@ -1,5 +1,5 @@
-﻿@page "/vehicle/view/{id}"
-@inject HttpClient Http
+﻿@page "/vehicle/view/{id:guid}"
+@inject ServerApiHttpClient Http
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
@@ -50,19 +50,21 @@
                 <TabPage Text="Details">
                     @if (makes is not null)
                     {
-                        <EditFormTemplate @ref="editForm" Id="@Id" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
+                        <EditFormTemplate TModel="VehicleDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
                             <DataAnnotationsValidator />
 
                             <div class="form-section">
+                                <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
+                                <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
+
                                 <label for="vrm">Vrm</label>
                                 <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
                                 <ValidationMessage For="@(() => editForm.Model.Vrm)" />
 
-                                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Status" @bind-Value="editForm.Model.Make" />
+                                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
                                 <ValidationMessage For="@(() => editForm.Model.Make)" />
 
-                                <label for="model">Model</label>
-                                <InputText id="model" @bind-Value="editForm.Model.Model" />
+                                <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
                                 <ValidationMessage For="@(() => editForm.Model.Model)" />
 
                                 <label for="chassis">Chassis Number</label>
@@ -116,20 +118,27 @@
 
 
 @code {
-    [Parameter] public string Id { get; set; } = null!;
+    [Parameter] public Guid Id { get; set; }
 
     EditFormTemplate<VehicleDto> editForm = null!;
-    SelectOption<string?>[] makeOptions = null!;
-    VehicleMakeListModel[]? makes;
+    List<SelectOption<string?>> makeOptions = null!;
+    List<SelectOption<string?>> modelOptions = null!;
+    List<SelectOption<string?>> companyOptions = null!;
+    VehicleMakeShortListModel[]? makes;
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
-    
-    
 
-    
+    async Task OnMakeChanged()
+    {
+        modelOptions = UIOptions.BuildModelOptions(editForm.Model.Make is null 
+            ? null 
+            : await Http.GetModelsShortAsync(editForm.Model.Make));
+        editForm.Model.Model = null;
+    }
+
     async Task<VehicleDto?> LoadVehicle()
     {
-        return vehicle is null ? null : vehicle.ToDto();
+        return await Task.FromResult(vehicle is null ? null : vehicle.ToDto());
     }
 
     async Task Follow()
@@ -158,17 +167,28 @@
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
 
-        Http.DefaultRequestHeaders.Accept.Clear();
-        makes = await Http.GetFromJsonAsync<VehicleMakeListModel[]>("/api/VehicleMake/All");
-        if (makes is not null)
+        var companies = Http.GetCompaniesShortAsync();
+        var makes = Http.GetMakesShortAsync();
+
+        if (vehicle.Make is not null)
         {
-            makeOptions = SelectOption<string?>.WithPrompt("Make",
-                makes.Select(m => new SelectOption<string?>(m.Make, m.Make)));
+            var models = Http.GetModelsShortAsync(vehicle.Make);
+
+            await Task.WhenAll(companies, makes, models);
+
+            modelOptions = UIOptions.BuildModelOptions(models.Result);
         }
-        
-        Http.DefaultRequestHeaders.Accept.Clear();
-        Http.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.vehiclefull"));
-        vehicle = await Http.GetFromJsonAsync<VehicleFullDto>($"/api/Vehicle/{Id}");
+        else
+        {
+            await Task.WhenAll(companies, makes);
+
+            modelOptions = UIOptions.BuildModelOptions(null);
+        }
+
+        companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
+        makeOptions = UIOptions.BuildMakeOptions(makes.Result);
+
+        vehicle = await Http.GetVehicleFull(Id);
     }
     protected override void OnParametersSet()
     {

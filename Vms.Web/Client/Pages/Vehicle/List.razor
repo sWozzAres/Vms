@@ -13,7 +13,7 @@
         </div>
     </IconContent>
     <Buttons>
-        <button onclick="@(() => NavigationManager.NavigateTo("/vehicle/create"))">New</button>
+        <button @onclick="() => isCreating = true">New</button>
         <button>Import</button>
         <button>Add to Campaign</button>
     </Buttons>
@@ -27,11 +27,18 @@
     </GridColumns>
 </ListTemplate2>
 
+@if (isCreating)
+{
+    <Create OnClose="() => isCreating = false"/>
+}
+
 @code {
-    SelectOption<int?>[] listOptions = new SelectOption<int?>[]
+    List<SelectOption<int?>> listOptions = new()
     {
         new (0, "All Vehicles"),
         new (1, "Recently Viewed"),
         new (2, "Pinned"),
     };
+
+    bool isCreating;
 }

@@ -47,7 +47,9 @@ public class UserProvider : IUserProvider
     public string TenantId => _tenantId;
     public UserProvider(IHttpContextAccessor context)
     {
-        _userId = InMigration ? "" : context.HttpContext?.User.UserId() ?? throw new InvalidOperationException("Failed to retrieve user id.");
-        _tenantId = InMigration ? "*" : context.HttpContext?.User.TenantId() ?? throw new InvalidOperationException("Failed to retrieve tenant id.");
+        //_userId = InMigration ? "" : context.HttpContext?.User.UserId() ?? throw new InvalidOperationException("Failed to retrieve user id.");
+        //_tenantId = InMigration ? "*" : context.HttpContext?.User.TenantId() ?? throw new InvalidOperationException("Failed to retrieve tenant id.");
+        _userId = context.HttpContext?.User.UserId() ?? "";
+        _tenantId = context.HttpContext?.User.TenantId() ?? "";
     }
 }
