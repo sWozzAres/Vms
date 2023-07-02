@@ -1,5 +1,4 @@
-﻿
-dialog.create-dialog {
+﻿dialog.create-dialog {
     padding: 0;
     border: none;
     border-radius: var(--border-radius);
@@ -7,43 +6,32 @@ dialog.create-dialog {
     /*width: clamp(40ch, 70ch, 70ch);*/
     width: calc(100% - 2em);
     max-width: calc(1024px - 2em);
-    min-block-size: 30vh;
-    max-block-size: min(90vh, 100%);
-    /*max-block-size: min(80dvb, 100%);*/
-    display: grid;
-    overflow: hidden;
 
-    
 
     .dialog-container {
-        display: grid;
-        grid-template-rows: auto 1fr auto;
-        max-block-size: 90vh;
-    }
 
-    .dialog-header {
-        padding: 0.5em;
-        background: #ffffff;
-        text-align: center;
-        border-bottom: 2px solid var(--border-color);
 
-        h1 {
-            margin: 0
+        .dialog-header {
+            padding: 0.5em;
+            background: #ffffff;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+
+            h1 {
+                margin: 0
+            }
         }
-    }
 
-    .dialog-content {
-        padding: 1em;
-        background: #fafafa;
-        overflow-y: auto;
-        max-block-size: 100%; /* safari */
-        overscroll-behavior-y: contain;
-    }
+        .dialog-content {
+            padding: 1em;
+            background: #fafafa;
+        }
 
-    .dialog-footer {
-        padding: 1em;
-        background: #f2f3f8;
-        border-top: 2px solid var(--border-color);
+        .dialog-footer {
+            padding: 1em;
+            background: #f2f3f8;
+            border-top: 2px solid var(--border-color);
+        }
     }
 }
 
@@ -60,47 +48,53 @@ dialog.create-dialog {
 dialog.list-selector {
     width: clamp(10%, 70ch, 90%);
     /*height: clamp(10%, 60ch, 90%);*/
-    min-block-size: 30vh;
-    max-block-size: min(80vh, 100%);
-    max-block-size: min(80dvb, 100%);
-    display: grid;
     padding: 0;
-    overflow: hidden;
 
-    > .dialog-container {
-        display: grid;
-        grid-template-rows: auto auto 1fr auto;
+    .dialog-container {
         align-items: start;
-        max-block-size: 80vh;
-        max-block-size: 80dvb;
         padding: 1em;
 
-        > .search-wrapper {
-            display: flex;
-            column-gap: 1em;
-            background-color: #ffffff;
-            padding: 0 0 1em 0;
+        .dialog-header {
+            .search-wrapper {
+                display: flex;
+                column-gap: 1em;
+                background-color: #ffffff;
+                padding: 0 0 1em 0;
 
-            > input {
-                flex-grow: 1;
+                > input {
+                    flex-grow: 1;
+                }
             }
         }
 
-        > .search-results {
+        .dialog-content {
             overflow-y: auto;
             max-block-size: 100%; /* safari */
             overscroll-behavior-y: contain;
+            /*table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            thead {
+                background-color: #f2f3f8;
+            }
+
+            tr {
+                border-bottom: 1px solid #f2f3f8;
+            }
 
             th {
                 text-align: left;
             }
-
-            td {
-                padding: 5px;
+*/
+            th, td {
+                padding: 8px;
+                cursor: pointer;
             }
         }
 
-        > .buttons-wrapper {
+        .dialog-footer {
             padding: 1em 0 0 0;
             background-color: #ffffff;
         }

@@ -1,13 +1,15 @@
 ﻿@typeparam TItem where TItem : class
 
-<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector">
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector scroll-content">
     <div class="dialog-container">
+        <div class="dialog-header">
         <h1>@Title</h1>
         <form class="search-wrapper" @onsubmit="Search">
             <input type="text" @bind-value="searchValue" />
             <button type="submit" @onclick="Search" >Search</button>
         </form>
-        <div class="search-results">
+        </div>
+        <div class="dialog-content">
             <table>
                 <thead>
                     <tr>
@@ -20,15 +22,15 @@
                     {
                         var idx = index;
                         var item = items.ElementAt(index);
-                        <tr>
-                            <td><input checked="@isSelected(idx)" @onclick="() => SelectItem(idx)" type="checkbox" /></td>
+                        <tr @onclick="() => SelectItem(idx)">
+                            <td><input checked="@isSelected(idx)"  type="checkbox" /></td>
                             @RowTemplate(item)
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-        <div class="buttons-wrapper">
+        <div class="dialog-footer">
             <button @onclick="CloseDialog">Close</button>
             <button @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
         </div>

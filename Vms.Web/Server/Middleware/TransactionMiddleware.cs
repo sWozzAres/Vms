@@ -44,7 +44,8 @@ public class TransactionMiddleware
                     {
                         _logger.LogInformation("----- Rollback transaction {TransactionId}", transaction.TransactionId);
                         await transaction.RollbackAsync();
-                        return false;
+                        throw;
+                        //return false;
                     }
                 }
             });

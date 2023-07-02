@@ -17,7 +17,7 @@
 }
 else if (Model is not null)
 {
-    <EditForm EditContext="@editContext" OnSubmit="HandleSubmit" class="edit-form">
+    <EditForm EditContext="@editContext" OnSubmit="HandleSubmit" class="edit-form fullresponse">
         <fieldset disabled="@isDisabled" class="form-grid">
             <CascadingValue Value="isDisabled" Name="IsDisabled">
                 @ChildContent

@@ -1,25 +1,21 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Vms.Domain.Exceptions;
+using Vms.Web.Server.Middleware;
 
 namespace Vms.Web.Server;
 
-public class VmsDomainExceptionMiddleware
+public class VmsDomainExceptionMiddleware(RequestDelegate next, ILogger<VmsDomainExceptionMiddleware> logger)
 {
-    readonly RequestDelegate _next;
-
-    public VmsDomainExceptionMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (VmsDomainException ex)
         {
+            logger.LogError("VmsDomainException handler {exception}", ex);
             context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(
@@ -28,6 +24,7 @@ public class VmsDomainExceptionMiddleware
         }
         catch (Exception ex)
         {
+            logger.LogError("VmsDomainException handler {exception}", ex);
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(

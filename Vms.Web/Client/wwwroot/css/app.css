@@ -242,18 +242,11 @@ h5 + h6 {
 /*#app {
     background-color: cornflowerblue;
 }*/
-@media (min-width: 70ch) {
-  form.full fieldset.form-grid .form-section {
-    grid-column: span 1;
-  }
-}
-@media (min-width: 1500px) {
-  form.full fieldset.form-grid .form-section {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 0.5em 1em;
-    grid-auto-rows: min-content;
-  }
+input, select, textarea {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  line-height: 1.5;
 }
 
 form.edit-form {
@@ -298,12 +291,6 @@ form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid selec
   grid-column: 2;
   grid-row: auto;
 }
-form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
-  padding: 0.375rem 0.75rem;
-  border: 1px solid black;
-  border-radius: 0.25rem;
-  line-height: 1.5;
-}
 form.edit-form fieldset.form-grid input:not([type=checkbox]), form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   width: 100%;
 }
@@ -325,6 +312,41 @@ form.edit-form .buttons {
   margin-top: 1em;
   /*grid-row: auto;
       grid-column: 1 / -1;*/
+  text-align: start;
+}
+
+@media (min-width: 70ch) {
+  form.fullresponse fieldset.form-grid .form-section {
+    grid-column: span 1;
+  }
+}
+@media (min-width: 1500px) {
+  form.fullresponse fieldset.form-grid .form-section {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 0.5em 1em;
+    grid-auto-rows: min-content;
+  }
+}
+
+table {
+  background-color: #ffffff;
+  width: 100%;
+  border-collapse: collapse;
+}
+table > thead > tr, table tr {
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+}
+table > thead > tr > th, table > tbody > tr > td {
+  padding: 10px !important;
+}
+table thead {
+  background-color: #fafaf9;
+  text-transform: uppercase;
+  color: #504d4b;
+}
+table thead th {
   text-align: start;
 }
 
@@ -476,26 +498,6 @@ form.edit-form .buttons {
 .list-data .col-title {
   padding: 0 !important;
 }
-.list-data table {
-  background-color: #ffffff;
-  width: 100%;
-  border-collapse: collapse;
-}
-.list-data table > thead > tr, .list-data table tr {
-  border-top: 1px solid #dee2e6;
-  border-bottom: 1px solid #dee2e6;
-}
-.list-data table > thead > tr > th, .list-data table > tbody > tr > td {
-  padding: 10px !important;
-}
-.list-data table thead {
-  background-color: #fafaf9;
-  text-transform: uppercase;
-  color: #504d4b;
-}
-.list-data table thead th {
-  text-align: start;
-}
 
 .combo.header-combo {
   width: 100%;
@@ -639,34 +641,21 @@ dialog.create-dialog {
   /*width: clamp(40ch, 70ch, 70ch);*/
   width: calc(100% - 2em);
   max-width: calc(1024px - 2em);
-  min-block-size: 30vh;
-  max-block-size: min(90vh, 100%);
-  /*max-block-size: min(80dvb, 100%);*/
-  display: grid;
-  overflow: hidden;
 }
-dialog.create-dialog .dialog-container {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  max-block-size: 90vh;
-}
-dialog.create-dialog .dialog-header {
+dialog.create-dialog .dialog-container .dialog-header {
   padding: 0.5em;
   background: #ffffff;
   text-align: center;
   border-bottom: 2px solid var(--border-color);
 }
-dialog.create-dialog .dialog-header h1 {
+dialog.create-dialog .dialog-container .dialog-header h1 {
   margin: 0;
 }
-dialog.create-dialog .dialog-content {
+dialog.create-dialog .dialog-container .dialog-content {
   padding: 1em;
   background: #fafafa;
-  overflow-y: auto;
-  max-block-size: 100%; /* safari */
-  overscroll-behavior-y: contain;
 }
-dialog.create-dialog .dialog-footer {
+dialog.create-dialog .dialog-container .dialog-footer {
   padding: 1em;
   background: #f2f3f8;
   border-top: 2px solid var(--border-color);
@@ -683,42 +672,48 @@ dialog.create-dialog .dialog-footer {
 dialog.list-selector {
   width: clamp(10%, 70ch, 90%);
   /*height: clamp(10%, 60ch, 90%);*/
-  min-block-size: 30vh;
-  max-block-size: min(80vh, 100%);
-  max-block-size: min(80dvb, 100%);
-  display: grid;
   padding: 0;
-  overflow: hidden;
 }
-dialog.list-selector > .dialog-container {
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
+dialog.list-selector .dialog-container {
   align-items: start;
-  max-block-size: 80vh;
-  max-block-size: 80dvb;
   padding: 1em;
 }
-dialog.list-selector > .dialog-container > .search-wrapper {
+dialog.list-selector .dialog-container .dialog-header .search-wrapper {
   display: flex;
   column-gap: 1em;
   background-color: #ffffff;
   padding: 0 0 1em 0;
 }
-dialog.list-selector > .dialog-container > .search-wrapper > input {
+dialog.list-selector .dialog-container .dialog-header .search-wrapper > input {
   flex-grow: 1;
 }
-dialog.list-selector > .dialog-container > .search-results {
+dialog.list-selector .dialog-container .dialog-content {
   overflow-y: auto;
   max-block-size: 100%; /* safari */
   overscroll-behavior-y: contain;
+  /*table {
+                  border-collapse: collapse;
+                  width: 100%;
+              }
+
+              thead {
+                  background-color: #f2f3f8;
+              }
+
+              tr {
+                  border-bottom: 1px solid #f2f3f8;
+              }
+
+              th {
+                  text-align: left;
+              }
+  */
 }
-dialog.list-selector > .dialog-container > .search-results th {
-  text-align: left;
+dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector .dialog-container .dialog-content td {
+  padding: 8px;
+  cursor: pointer;
 }
-dialog.list-selector > .dialog-container > .search-results td {
-  padding: 5px;
-}
-dialog.list-selector > .dialog-container > .buttons-wrapper {
+dialog.list-selector .dialog-container .dialog-footer {
   padding: 1em 0 0 0;
   background-color: #ffffff;
 }
