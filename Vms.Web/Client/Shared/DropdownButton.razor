@@ -45,7 +45,7 @@
     public string Id { get; set; } = null!;
     public int SelectedValue { get; set; }
 
-    bool domNodeFocused = false;
+    //bool domNodeFocused = false;
     bool isOpen = false;
     int bgHook = 0;
 
@@ -210,13 +210,13 @@
 
     private void onFocusin()
     {
-        domNodeFocused = true;
+        //domNodeFocused = true;
         Logger.LogInformation("onFocusin()");
     }
 
     private void onFocusout()
     {
-        domNodeFocused = false;
+        //domNodeFocused = false;
         Logger.LogInformation("onFocusout()");
     }
 

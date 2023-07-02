@@ -1,13 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿namespace Vms.Application.UseCase;
 
-namespace Vms.Application.UseCase;
-
-public class CreateCustomer
+public class CreateCustomer(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
-    public CreateCustomer(VmsDbContext dbContext)
-       => DbContext = dbContext;
 
     public async Task<Customer> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
     {

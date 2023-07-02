@@ -31,7 +31,7 @@ export function init(element, objRef) {
         switch (action) {
             case SelectActions.Last:
             case SelectActions.First:
-                objRef.invokeMethodAsync("updateMenuStateJS", true);
+                objRef.invokeMethodAsync("UpdateMenuStateJS", true);
 
             // intentional fallthrough
             case SelectActions.Next:
@@ -39,30 +39,30 @@ export function init(element, objRef) {
             case SelectActions.PageUp:
             case SelectActions.PageDown:
                 event.preventDefault();
-                objRef.invokeMethodAsync("onOptionChangeJS", action).then(() => {
+                objRef.invokeMethodAsync("OnOptionChangeJS", action).then(() => {
                     scrollActiveItemIntoView(element.getAttribute('aria-activedescendant'));
                 });
                 return;
 
             case SelectActions.CloseSelect:
                 event.preventDefault();
-                objRef.invokeMethodAsync("selectOptionJS");
+                objRef.invokeMethodAsync("SelectOptionJS");
 
             // intentional fallthrough
             case SelectActions.Close:
                 event.preventDefault();
-                objRef.invokeMethodAsync("updateMenuStateJS", false);
+                objRef.invokeMethodAsync("UpdateMenuStateJS", false);
                 return;
 
             case SelectActions.Type:
-                objRef.invokeMethodAsync("onComboTypeJS", key).then(activeId => {
+                objRef.invokeMethodAsync("OnComboTypeJS", key).then(activeId => {
                     scrollActiveItemIntoView(activeId);
                 });
                 return;
 
             case SelectActions.Open:
                 event.preventDefault();
-                objRef.invokeMethodAsync("updateMenuStateJS", true).then(() => {
+                objRef.invokeMethodAsync("UpdateMenuStateJS", true).then(() => {
                     scrollActiveItemIntoView(element.getAttribute('aria-activedescendant'));
                 });
                 return;

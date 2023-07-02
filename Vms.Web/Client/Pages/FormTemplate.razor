@@ -16,8 +16,6 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    bool shouldRender;
-    //protected override bool ShouldRender() => shouldRender;
     bool inEdit;
     TModel? originalModel;
     string buttonText => inEdit ? "Cancel" : "Edit";

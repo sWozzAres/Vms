@@ -54,7 +54,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [ProducesResponseType(typeof(ListResult<VehicleListDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetVehicles(int list, int start, int take, CancellationToken cancellationToken)
     {
-        int totalCount = await context.Vehicles.CountAsync();
+        int totalCount = await context.Vehicles.CountAsync(cancellationToken);
 
         var result = await context.Vehicles
             .Skip(start)
@@ -94,8 +94,8 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         [FromBody] VehicleDto vehicleDto,
         CancellationToken cancellationToken)
     {
-        var request = new CreateVehicleRequest(vehicleDto.CompanyCode, vehicleDto.Vrm, 
-            vehicleDto.Make, vehicleDto.Model,
+        var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm, 
+            vehicleDto.Make!, vehicleDto.Model!,
             vehicleDto.DateFirstRegistered, vehicleDto.DateFirstRegistered,
             new Address(vehicleDto.Address.Street,
                   vehicleDto.Address.Locality,
@@ -140,7 +140,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         }
 
         vehicle.Vrm = request.Vrm;
-        vehicle.UpdateModel(request.Make, request.Model);
+        vehicle.UpdateModel(request.Make!, request.Model!);
 
 
         if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)

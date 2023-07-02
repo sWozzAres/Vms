@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Utopia.Blazor.Component;
 
 namespace Utopia.Blazor.Component;
 
@@ -15,7 +14,7 @@ public partial class InputSelectOnlyCombobox<TValue>
     [Parameter]
     public List<SelectOption<TValue>> Options { get; set; } = null!;
 
-    [Parameter] public string ParsingErrorMessage { get; set; } = "The {0} field must be a number.";
+    [Parameter] public string ParsingErrorMessage { get; set; } = "The {0} field is not valid.";
 
     protected override bool TryParseValueFromString(string? value,
     [MaybeNullWhen(false)] out TValue result,
@@ -28,7 +27,8 @@ public partial class InputSelectOnlyCombobox<TValue>
         }
         else
         {
-            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, DisplayName ?? FieldIdentifier.FieldName);
+            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, 
+                DisplayName ?? FieldIdentifier.FieldName);
             return false;
         }
     }

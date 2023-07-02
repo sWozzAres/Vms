@@ -1,13 +1,58 @@
-﻿dialog.create-dialog
-{
-    > h1 {
+﻿
+dialog.create-dialog {
+    padding: 0;
+    border: none;
+    border-radius: var(--border-radius);
+    /*max-inline-size: 60ch;*/
+    /*width: clamp(40ch, 70ch, 70ch);*/
+    width: calc(100% - 2em);
+    max-width: calc(1024px - 2em);
+    min-block-size: 30vh;
+    max-block-size: min(90vh, 100%);
+    /*max-block-size: min(80dvb, 100%);*/
+    display: grid;
+    overflow: hidden;
 
+    
+
+    .dialog-container {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        max-block-size: 90vh;
     }
 
-    > .edit-form {
+    .dialog-header {
+        padding: 0.5em;
+        background: #ffffff;
+        text-align: center;
+        border-bottom: 2px solid var(--border-color);
 
-        > .buttons {
+        h1 {
+            margin: 0
+        }
+    }
 
+    .dialog-content {
+        padding: 1em;
+        background: #fafafa;
+        overflow-y: auto;
+        max-block-size: 100%; /* safari */
+        overscroll-behavior-y: contain;
+    }
+
+    .dialog-footer {
+        padding: 1em;
+        background: #f2f3f8;
+        border-top: 2px solid var(--border-color);
+    }
+}
+
+@media (min-width: 1024px) {
+    dialog.create-dialog {
+        width: calc(1024px - 2em);
+
+        .form-section {
+            grid-column: span 1 !important;
         }
     }
 }

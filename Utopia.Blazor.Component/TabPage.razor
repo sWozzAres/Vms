@@ -5,14 +5,9 @@
 </div>
 
 @code {
-    [CascadingParameter]
-    private TabControl Parent { get; set; }
-
-    [Parameter]
-    public string Text { get; set; }
-
-    [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    [CascadingParameter] TabControl Parent { get; set; } = null!;
+    [Parameter] public string Text { get; set; } = null!;
+    [Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
     string Id => $"{Parent.Id}-tabpanel-{Index}";
     public int Index { get; set; }
@@ -23,9 +18,9 @@
     {
         Logger.LogInformation("OnInitialized() {index}", Index);
 
-        if (Parent == null)
-            throw new ArgumentNullException(nameof(Parent), "TabPage must exist within a TabControl");
-        base.OnInitialized();
+        ArgumentNullException.ThrowIfNull(Parent);
+        ArgumentNullException.ThrowIfNull(Text);
+        ArgumentNullException.ThrowIfNull(ChildContent);
 
         Index = Parent.AddPage(this);
     }

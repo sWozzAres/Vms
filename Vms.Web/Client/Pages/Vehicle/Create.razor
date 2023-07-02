@@ -9,68 +9,84 @@
 @if (isLoaded)
 {
     <Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="create-dialog">
-        <h1>Create Vehicle</h1>
-        <EditForm Model="vehicle" OnValidSubmit="HandleValidSubmit" class="edit-form">
-            <DataAnnotationsValidator />
-            <fieldset class="form-grid">
-                <div class="form-section">
-                    <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="vehicle.CompanyCode" />
-                    <ValidationMessage For="@(() => vehicle.CompanyCode)" />
 
-                    <label for="vrm">Vrm</label>
-                    <InputText id="vrm" @bind-Value="vehicle.Vrm" />
-                    <ValidationMessage For="@(() => vehicle.Vrm)" />
+        <EditForm Model="vehicle" OnValidSubmit="HandleValidSubmit" class="edit-form dialog-container">
 
-                    <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="vehicle.Make" @bind-Value:after="OnMakeChanged" />
-                    <ValidationMessage For="@(() => vehicle.Make)" />
-
-                    <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="vehicle.Model" />
-                    <ValidationMessage For="@(() => vehicle.Model)" />
-                    
-                    <label for="chassis">Chassis Number</label>
-                    <InputText id="chassis" @bind-Value="vehicle.ChassisNumber" />
-                    <ValidationMessage For="@(() => vehicle.ChassisNumber)" />
-
-                    <label for="datereg">First Registered</label>
-                    <InputDate id="datereg" @bind-Value="vehicle.DateFirstRegistered" />
-                    <ValidationMessage For="@(() => vehicle.DateFirstRegistered)" />
-                </div>
-                <div class="form-section">
-                    <fieldset>
-                        <legend>Address</legend>
-
-                        <label for="street">Street</label>
-                        <InputText id="street" @bind-Value="vehicle.Address.Street" />
-                        <ValidationMessage For="@(() => vehicle.Address.Street)" />
-
-                        <label for="locality">Locality</label>
-                        <InputText id="locality" @bind-Value="vehicle.Address.Locality" />
-                        <ValidationMessage For="@(() => vehicle.Address.Locality)" />
-
-                        <label for="town">Town</label>
-                        <InputText id="town" @bind-Value="vehicle.Address.Town" />
-                        <ValidationMessage For="@(() => vehicle.Address.Town)" />
-
-                        <label for="postcode">Postcode</label>
-                        <InputText id="postcode" @bind-Value="vehicle.Address.Postcode" />
-                        <ValidationMessage For="@(() => vehicle.Address.Postcode)" />
-
-                        <label for="latitude">Latitude</label>
-                        <InputNumber id="latitude" @bind-Value="vehicle.Address.Location.Latitude" />
-                        <ValidationMessage For="@(() => vehicle.Address.Location.Latitude)" />
-
-                        <label for="longitude">Longitude</label>
-                        <InputNumber id="longitude" @bind-Value="vehicle.Address.Location.Longitude" />
-                        <ValidationMessage For="@(() => vehicle.Address.Location.Longitude)" />
-                    </fieldset>
-                </div>
-            </fieldset>
-            <div class="buttons">
-                <button type="button" @onclick="OnClose">Close</button>
-                <button type="submit" @onclick="()=> createMode = CreateMode.Create">Create</button>
-                <button type="submit" @onclick="() => createMode = CreateMode.CreateAndNew">Create & New</button>
+            <div class="dialog-header">
+                <h1>Create Vehicle</h1>
             </div>
+            <div class="dialog-content">
+
+                <DataAnnotationsValidator />
+                <fieldset class="form-grid" disabled="@isPosting">
+                    <div class="form-section">
+                        <fieldset>
+                            <legend>Detail</legend>
+                            <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="vehicle.CompanyCode" />
+                            <ValidationMessage For="@(() => vehicle.CompanyCode)" />
+
+                            <label for="vrm">Vrm</label>
+                            <InputText id="vrm" @bind-Value="vehicle.Vrm" />
+                            <ValidationMessage For="@(() => vehicle.Vrm)" />
+
+                            <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="vehicle.Make" @bind-Value:after="OnMakeChanged" />
+                            <ValidationMessage For="@(() => vehicle.Make)" />
+
+                            <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="vehicle.Model" />
+                            <ValidationMessage For="@(() => vehicle.Model)" />
+
+                            <label for="chassis">Chassis Number</label>
+                            <InputText id="chassis" @bind-Value="vehicle.ChassisNumber" />
+                            <ValidationMessage For="@(() => vehicle.ChassisNumber)" />
+
+                            <label for="datereg">First Registered</label>
+                            <InputDate id="datereg" @bind-Value="vehicle.DateFirstRegistered" />
+                            <ValidationMessage For="@(() => vehicle.DateFirstRegistered)" />
+                        </fieldset>
+                    </div>
+                    <div class="form-section">
+                        <fieldset>
+                            <legend>Address</legend>
+
+                            <label for="street">Street</label>
+                            <InputText id="street" @bind-Value="vehicle.Address.Street" />
+                            <ValidationMessage For="@(() => vehicle.Address.Street)" />
+
+                            <label for="locality">Locality</label>
+                            <InputText id="locality" @bind-Value="vehicle.Address.Locality" />
+                            <ValidationMessage For="@(() => vehicle.Address.Locality)" />
+
+                            <label for="town">Town</label>
+                            <InputText id="town" @bind-Value="vehicle.Address.Town" />
+                            <ValidationMessage For="@(() => vehicle.Address.Town)" />
+
+                            <label for="postcode">Postcode</label>
+                            <InputText id="postcode" @bind-Value="vehicle.Address.Postcode" />
+                            <ValidationMessage For="@(() => vehicle.Address.Postcode)" />
+
+                            <label for="latitude">Latitude</label>
+                            <InputNumber id="latitude" @bind-Value="vehicle.Address.Location.Latitude" />
+                            <ValidationMessage For="@(() => vehicle.Address.Location.Latitude)" />
+
+                            <label for="longitude">Longitude</label>
+                            <InputNumber id="longitude" @bind-Value="vehicle.Address.Location.Longitude" />
+                            <ValidationMessage For="@(() => vehicle.Address.Location.Longitude)" />
+                        </fieldset>
+                    </div>
+                </fieldset>
+
+
+
+            </div>
+            <div class="buttons dialog-footer">
+                <button type="button" disabled="@isPosting" @onclick="OnClose">Close</button>
+                <button type="submit" disabled="@isPosting" @onclick="()=> createMode = CreateMode.Create">Create</button>
+                <button type="submit" disabled="@isPosting" @onclick="() => createMode = CreateMode.CreateAndNew">Create & New</button>
+            </div>
+
         </EditForm>
+
+
     </Dialog>
 }
 @code {
@@ -150,4 +166,3 @@
     }
 }
 
-        

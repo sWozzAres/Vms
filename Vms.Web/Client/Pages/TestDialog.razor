@@ -10,8 +10,8 @@
 <button @onclick="Show">Show</button>
 
 @code {
-    [Parameter]public string Id { get; set; }
-    [Parameter] public List<string> StrList { get; set; }
+    [Parameter] public string Id { get; set; } = null!;
+    [Parameter] public List<string> StrList { get; set; } = null!;
 
     Dialog.ShowMode dialogShowMode = Dialog.ShowMode.None;
 

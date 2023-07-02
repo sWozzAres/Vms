@@ -1,29 +1,29 @@
 ﻿@typeparam TValue
-<label id="@id" class="@labelClassName" for="@comboInputId">@Label</label>
-<div @ref="comboEl" class="@comboClassName">
+<label id="@id" class="@LabelClassName" for="@comboInputId">@Label</label>
+<div class="@ComboClassName">
 
-    <div id="@comboInputId" @ref="comboInputEl" class="@comboInputClassName" role="combobox" tabindex="@comboInputTabIndex"
-         aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@activeItemId"
-    @onblur="onComboInputBlur" @onclick="onComboInputClick">
-        <span>@selectItems[selectedIndex].Name</span>
+    <div id="@comboInputId" @ref="comboInputEl" class="@ComboInputClassName" role="combobox" tabindex="@ComboInputTabIndex"
+         aria-controls="listbox1" aria-expanded="@open.ToHtml()" aria-haspopup="listbox" aria-labelledby="@id" aria-activedescendant="@ActiveItemId"
+    @onblur="OnComboInputBlur" @onclick="OnComboInputClick">
+        <span>@SelectItems[selectedIndex].Name</span>
         <svg viewBox="0 0 512 512">
             <use xlink:href="icons/solid.svg#chevron-down" />
         </svg>
     </div>
 
-    <div id="@comboMenuId" @ref="comboMenuEl" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1"
-    @onmousedown="() => onComboMenuMouseDown()">
+    <div id="@comboMenuId" class="combo-menu" role="listbox" aria-labelledby="@id" tabindex="-1"
+    @onmousedown="() => OnComboMenuMouseDown()">
 
-        @for (int index = 0; index < selectItems.Count; index++)
+        @for (int index = 0; index < SelectItems.Count; index++)
         {
             var idx = index;
-            var item = selectItems[idx];
+            var item = SelectItems[idx];
 
             var isSelected = selectedIndex == idx;
             var className2 = activeIndex == idx ? "combo-option option-current" : "combo-option";
 
             <div id="@item.Id" role="option" class="@className2" aria-selected="@isSelected.ToHtml()"
-            @onclick="async () => await onComboMenuClick(idx)" @onclick:stopPropagation>
+            @onclick="async () => await OnComboMenuClick(idx)" @onclick:stopPropagation>
                 <svg viewBox="0 0 448 512">
                     <use xlink:href="icons/solid.svg#check" />
                 </svg>

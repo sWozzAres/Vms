@@ -242,6 +242,20 @@ h5 + h6 {
 /*#app {
     background-color: cornflowerblue;
 }*/
+@media (min-width: 70ch) {
+  form.full fieldset.form-grid .form-section {
+    grid-column: span 1;
+  }
+}
+@media (min-width: 1500px) {
+  form.full fieldset.form-grid .form-section {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 0.5em 1em;
+    grid-auto-rows: min-content;
+  }
+}
+
 form.edit-form {
   font-size: 1rem;
   /* input:disabled, .combo-input.disabled {
@@ -253,13 +267,13 @@ form.edit-form {
 form.edit-form label {
   font-size: smaller;
 }
-form.edit-form > fieldset.form-grid:disabled input, form.edit-form > fieldset.form-grid:disabled .combo-input {
+form.edit-form fieldset.form-grid:disabled input, form.edit-form fieldset.form-grid:disabled .combo-input {
   color: red;
   background-color: #ffffff;
   color: rgb(84, 84, 84);
   border: 1px solid #ffffff;
 }
-form.edit-form > fieldset.form-grid {
+form.edit-form fieldset.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 0.5em 1em;
@@ -267,55 +281,42 @@ form.edit-form > fieldset.form-grid {
       grid-column-start: 2;
   }*/
 }
-form.edit-form > fieldset.form-grid .form-section {
+form.edit-form fieldset.form-grid .form-section {
   grid-column: span 2;
 }
-form.edit-form > fieldset.form-grid fieldset legend {
+form.edit-form fieldset.form-grid fieldset legend {
   background-color: var(--form-legend-background-color);
   width: 100%;
   padding: 0.5em;
 }
-@media (min-width: 1024px) {
-  form.edit-form > fieldset.form-grid .form-section {
-    grid-column: span 1;
-  }
-}
-@media (min-width: 1500px) {
-  form.edit-form > fieldset.form-grid .form-section {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 0.5em 1em;
-    grid-auto-rows: min-content;
-  }
-}
-form.edit-form > fieldset.form-grid label {
+form.edit-form fieldset.form-grid label {
   grid-column: 1;
   grid-row: auto;
   align-self: center;
 }
-form.edit-form > fieldset.form-grid input, form.edit-form > fieldset.form-grid select, form.edit-form > fieldset.form-grid textarea {
+form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   grid-column: 2;
   grid-row: auto;
 }
-form.edit-form > fieldset.form-grid input, form.edit-form > fieldset.form-grid select, form.edit-form > fieldset.form-grid textarea {
+form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   padding: 0.375rem 0.75rem;
   border: 1px solid black;
   border-radius: 0.25rem;
   line-height: 1.5;
 }
-form.edit-form > fieldset.form-grid input:not([type=checkbox]), form.edit-form > fieldset.form-grid select, form.edit-form > fieldset.form-grid textarea {
+form.edit-form fieldset.form-grid input:not([type=checkbox]), form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   width: 100%;
 }
-form.edit-form > fieldset.form-grid input[type=checkbox] {
+form.edit-form fieldset.form-grid input[type=checkbox] {
   width: 1em;
   height: 1em;
 }
-form.edit-form > fieldset.form-grid input[type=radio] {
+form.edit-form fieldset.form-grid input[type=radio] {
   border-radius: 50%;
   width: 1em;
   height: 1em;
 }
-form.edit-form > fieldset.form-grid .validation-message {
+form.edit-form fieldset.form-grid .validation-message {
   grid-column-start: 2;
   margin-bottom: 0.5em;
   color: red;
@@ -630,6 +631,55 @@ form.edit-form .buttons {
     }
 }
 */
+dialog.create-dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius);
+  /*max-inline-size: 60ch;*/
+  /*width: clamp(40ch, 70ch, 70ch);*/
+  width: calc(100% - 2em);
+  max-width: calc(1024px - 2em);
+  min-block-size: 30vh;
+  max-block-size: min(90vh, 100%);
+  /*max-block-size: min(80dvb, 100%);*/
+  display: grid;
+  overflow: hidden;
+}
+dialog.create-dialog .dialog-container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  max-block-size: 90vh;
+}
+dialog.create-dialog .dialog-header {
+  padding: 0.5em;
+  background: #ffffff;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+}
+dialog.create-dialog .dialog-header h1 {
+  margin: 0;
+}
+dialog.create-dialog .dialog-content {
+  padding: 1em;
+  background: #fafafa;
+  overflow-y: auto;
+  max-block-size: 100%; /* safari */
+  overscroll-behavior-y: contain;
+}
+dialog.create-dialog .dialog-footer {
+  padding: 1em;
+  background: #f2f3f8;
+  border-top: 2px solid var(--border-color);
+}
+
+@media (min-width: 1024px) {
+  dialog.create-dialog {
+    width: calc(1024px - 2em);
+  }
+  dialog.create-dialog .form-section {
+    grid-column: span 1 !important;
+  }
+}
 dialog.list-selector {
   width: clamp(10%, 70ch, 90%);
   /*height: clamp(10%, 60ch, 90%);*/

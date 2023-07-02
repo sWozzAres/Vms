@@ -48,7 +48,7 @@
         {
             <TabControl Title="Vehicle Tabs" TitleVisible="false">
                 <TabPage Text="Details">
-                    @if (makes is not null)
+                    @if (isLoaded)
                     {
                         <EditFormTemplate TModel="VehicleDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
                             <DataAnnotationsValidator />
@@ -124,7 +124,7 @@
     List<SelectOption<string?>> makeOptions = null!;
     List<SelectOption<string?>> modelOptions = null!;
     List<SelectOption<string?>> companyOptions = null!;
-    VehicleMakeShortListModel[]? makes;
+    bool isLoaded;
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
 
@@ -167,6 +167,8 @@
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
 
+        vehicle = await Http.GetVehicleFull(Id);
+
         var companies = Http.GetCompaniesShortAsync();
         var makes = Http.GetMakesShortAsync();
 
@@ -187,8 +189,8 @@
 
         companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
         makeOptions = UIOptions.BuildMakeOptions(makes.Result);
-
-        vehicle = await Http.GetVehicleFull(Id);
+        
+        isLoaded = true;
     }
     protected override void OnParametersSet()
     {

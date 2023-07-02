@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using System.Xml.Linq;
 using Utopia.Blazor.Component.Helpers;
 
 namespace Utopia.Blazor.Component;
@@ -33,15 +32,15 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     [Parameter]
     public EventCallback<TValue> SelectedValueChanged { get; set; }
 
-    Dictionary<int, SelectItem> selectItems { get; set; } = new();
+    Dictionary<int, SelectItem> SelectItems { get; set; } = new();
 
     string classNameAddition = "";
-    string labelClassName => string.Join(" ", LabelHidden ? "combo-label hidden" : "combo-label", classNameAddition);
-    string comboClassName => string.Join(" ", open ? "combo open" : "combo", classNameAddition);
-    string comboInputClassName => IsDisabled ? "combo-input disabled" : "combo-input";
-    string comboInputTabIndex => IsDisabled ? "-1" : "0";
-    string activeItemId => open ? itemId(activeIndex) : string.Empty;
-    string itemId(int i) => $"{id}-{i}";
+    string LabelClassName => string.Join(" ", LabelHidden ? "combo-label hidden" : "combo-label", classNameAddition);
+    string ComboClassName => string.Join(" ", open ? "combo open" : "combo", classNameAddition);
+    string ComboInputClassName => IsDisabled ? "combo-input disabled" : "combo-input";
+    string ComboInputTabIndex => IsDisabled ? "-1" : "0";
+    string ActiveItemId => open ? ItemId(activeIndex) : string.Empty;
+    string ItemId(int i) => $"{id}-{i}";
 
     // ids
     string id = null!;
@@ -50,9 +49,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     int selectedIndex;
 
     // element references
-    ElementReference comboEl;
     ElementReference comboInputEl;
-    ElementReference comboMenuEl;
     private IJSObjectReference? _jsModule;
     private IJSObjectReference? _jsEventDisposable;
 
@@ -66,7 +63,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
 
     Timer? timer;
 
-    async Task updateMenuState(bool shouldOpen, bool callFocus = true)
+    async Task UpdateMenuState(bool shouldOpen, bool callFocus = true)
     {
         if (shouldOpen == open)
             return;
@@ -77,7 +74,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
             await comboInputEl.FocusAsync();
     }
 
-    async Task selectOption(int index)
+    async Task SelectOption(int index)
     {
         if (selectedIndex == index)
             return;
@@ -85,12 +82,12 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
         selectedIndex = index;
         Logger.LogInformation("Selected index {index}.", index);
 
-        SelectedValue = selectItems[selectedIndex].Value;
+        SelectedValue = SelectItems[selectedIndex].Value;
         await SelectedValueChanged.InvokeAsync(SelectedValue);
     }
 
     #region ComboInput events
-    async Task onComboInputBlur()
+    async Task OnComboInputBlur()
     {
         Logger.LogInformation("onComboInputBlur() {ignoreBlur}", ignoreBlur);
         if (ignoreBlur)
@@ -102,38 +99,38 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
         if (open)
         {
             //await selectOption(activeIndex);
-            await updateMenuState(false, false);
+            await UpdateMenuState(false, false);
         }
     }
 
-    async Task onComboInputClick()
+    async Task OnComboInputClick()
     {
         if (IsDisabled)
             return;
 
-        await updateMenuState(!open, false);
+        await UpdateMenuState(!open, false);
     }
     #endregion
 
-    void onOptionChange(int index) => activeIndex = index;
+    void OnOptionChange(int index) => activeIndex = index;
 
     #region ComboMenu events
-    async Task onComboMenuClick(int index)
+    async Task OnComboMenuClick(int index)
     {
         Logger.LogInformation("OnComboMenuClick('{index}')", index);
-        onOptionChange(index);
+        OnOptionChange(index);
 
-        await updateMenuState(false);
-        await selectOption(index);
+        await UpdateMenuState(false);
+        await SelectOption(index);
     }
-    void onComboMenuMouseDown()
+    void OnComboMenuMouseDown()
     {
         Logger.LogInformation("onComboMenuMouseDown()");
         ignoreBlur = true;
     }
     #endregion
 
-    string getSearchString(string key)
+    string GetSearchString(string key)
     {
         Logger.LogInformation("getSearchString({key})", key);
 
@@ -157,7 +154,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
         }
         else if (key.Length == 1)
         {
-            searchString = searchString + key[0];
+            searchString += key[0];
         }
 
         Logger.LogInformation("SearchString '{searchString}'", searchString);
@@ -165,19 +162,19 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
         return searchString;
     }
 
-    async Task<string> onComboType(string key)
+    async Task<string> OnComboType(string key)
     {
-        await updateMenuState(true);
+        await UpdateMenuState(true);
 
-        var searchString1 = getSearchString(key);
+        var searchString1 = GetSearchString(key);
         var searchIndex = getIndexByLetter(searchString1, activeIndex + 1);
         if (searchIndex >= 0)
         {
             Logger.LogInformation("Found index {index}.", searchIndex);
 
-            onOptionChange(searchIndex);
+            OnOptionChange(searchIndex);
 
-            return itemId(searchIndex);
+            return ItemId(searchIndex);
         }
         else
         {
@@ -191,8 +188,8 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
 
         int getIndexByLetter(string ss, int index)
         {
-            var orderedOptions = selectItems.Where(item => item.Key >= index)
-                .Concat(selectItems.Where(item => item.Key < index));
+            var orderedOptions = SelectItems.Where(item => item.Key >= index)
+                .Concat(SelectItems.Where(item => item.Key < index));
 
             Logger.LogInformation("orderedOptions {o}", orderedOptions.Select(x => x.Value.Name));
 
@@ -218,57 +215,50 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     };
 
     [JSInvokable]
-    public async Task<string> onComboTypeJS(string key)
+    public async Task<string> OnComboTypeJS(string key)
     {
-        var result = await onComboType(key);
+        var result = await OnComboType(key);
         StateHasChanged();
         return result;
     }
 
     [JSInvokable]
-    public void onOptionChangeJS(int actionInt)
+    public void OnOptionChangeJS(int actionInt)
     {
         Logger.LogInformation("onOptionChangeJS({action})", actionInt);
 
         SelectAction action = (SelectAction)actionInt;
-        onOptionChange(getUpdatedIndex(activeIndex, selectItems.Count - 1, action));
+        OnOptionChange(getUpdatedIndex(activeIndex, SelectItems.Count - 1, action));
         StateHasChanged();
 
-        int getUpdatedIndex(int currentIndex, int maxIndex, SelectAction action)
+        static int getUpdatedIndex(int currentIndex, int maxIndex, SelectAction action)
         {
             const int pageSize = 10; // used for pageup/pagedown
 
-            switch (action)
+            return action switch
             {
-                case SelectAction.First:
-                    return 0;
-                case SelectAction.Last:
-                    return maxIndex;
-                case SelectAction.Previous:
-                    return Math.Max(0, currentIndex - 1);
-                case SelectAction.Next:
-                    return Math.Min(maxIndex, currentIndex + 1);
-                case SelectAction.PageUp:
-                    return Math.Max(0, currentIndex - pageSize);
-                case SelectAction.PageDown:
-                    return Math.Min(maxIndex, currentIndex + pageSize);
-                default:
-                    return currentIndex;
-            }
+                SelectAction.First => 0,
+                SelectAction.Last => maxIndex,
+                SelectAction.Previous => Math.Max(0, currentIndex - 1),
+                SelectAction.Next => Math.Min(maxIndex, currentIndex + 1),
+                SelectAction.PageUp => Math.Max(0, currentIndex - pageSize),
+                SelectAction.PageDown => Math.Min(maxIndex, currentIndex + pageSize),
+                _ => currentIndex,
+            };
         }
     }
 
     [JSInvokable]
-    public async Task selectOptionJS()
+    public async Task SelectOptionJS()
     {
-        await selectOption(activeIndex);
+        await SelectOption(activeIndex);
         StateHasChanged();
     }
 
     [JSInvokable]
-    public async Task updateMenuStateJS(bool toOpen)
+    public async Task UpdateMenuStateJS(bool toOpen)
     {
-        await updateMenuState(toOpen);
+        await UpdateMenuState(toOpen);
         StateHasChanged();
     }
 
@@ -281,7 +271,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
 
         if (InputAttributes is not null && InputAttributes.TryGetValue("class", out var o))
         {
-            if (o is not null && o is string)
+            if (o is not null and string)
                 classNameAddition = (string)o;
             else
                 Logger.LogWarning("'class' parameter is invalid.");
@@ -309,20 +299,20 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
             throw new InvalidOperationException($"You must bind the '{nameof(selectedIndex)}' parameter.");
         }
 
-        if (Items.Count() == 0)
+        if (Items.Count == 0)
         {
             throw new InvalidOperationException("No items specified.");
         }
 
-        selectItems.Clear();
-        for (int index = 0; index < Items.Count(); index++)
+        SelectItems.Clear();
+        for (int index = 0; index < Items.Count; index++)
         {
-            selectItems.Add(index, new SelectItem(Items[index], itemId(index)));
+            SelectItems.Add(index, new SelectItem(Items[index], ItemId(index)));
         }
 
         // check initial SelectedValue value exists, if not default to 0
         KeyValuePair<int, SelectItem>? foundEntry =
-            selectItems.FirstOrDefault(entry => EqualityComparer<TValue>.Default.Equals(entry.Value.Value, SelectedValue));
+            SelectItems.FirstOrDefault(entry => EqualityComparer<TValue>.Default.Equals(entry.Value.Value, SelectedValue));
         selectedIndex = foundEntry.HasValue ? foundEntry.Value.Key : 0;
         activeIndex = selectedIndex;
     }

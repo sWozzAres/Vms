@@ -27,6 +27,7 @@
 	  <Content Remove="Pages\Company\View.razor" />
 	  <Content Remove="Pages\People\Create.razor" />
 	  <Content Remove="Pages\People\View.razor" />
+	  <Content Remove="Shared\ListTemplate.razor" />
 	  <Content Remove="Shared\SelectOnlyCombobox.razor" />
 	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
 	</ItemGroup>

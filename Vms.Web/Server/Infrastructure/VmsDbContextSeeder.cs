@@ -251,13 +251,15 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         {
             foreach (var i in Enumerable.Range(1, 100))
             {
-                var supplier = await new CreateSupplier(_context)
-                    .CreateAsync(new CreateSupplierRequest(
+                var supplier = new CreateSupplier(_context)
+                    .Create(new CreateSupplierRequest(
                         $"SUP{i:D4}",
                         $"Supplier #{i}",
                         new Address("", "", "", "", RandomPoint()),
                         true));
             }
+
+            await Task.CompletedTask;
         }
     }
 }

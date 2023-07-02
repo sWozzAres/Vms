@@ -1,11 +1,8 @@
 ﻿namespace Vms.Application.UseCase;
 
-public class CreateCompany
+public class CreateCompany(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
-
-    public CreateCompany(VmsDbContext dbContext)
-       => DbContext = dbContext;
+    readonly VmsDbContext DbContext = dbContext;
 
     public Company Create(CreateCompanyRequest request)
     {
