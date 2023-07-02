@@ -21,26 +21,28 @@
     <HeaderContent>
         @if (vehicle is not null)
         {
-            <div class="namevalue">
-                <span class="name">Vrm</span>
-                <span class="value">@vehicle.Vrm</span>
-            </div>
-            <div class="namevalue">
-                <span class="name">Make</span>
-                <span class="value">@vehicle.Make</span>
-            </div>
-            <div class="namevalue">
-                <span class="name">Model</span>
-                <span class="value">@vehicle.Model</span>
-            </div>
-            <div class="namevalue">
-                <span class="name">Customer</span>
-                <span class="value">@vehicle.Customer?.Name</span>
-            </div>
-            <div class="namevalue">
-                <span class="name">Fleet</span>
-                <span class="value">@vehicle.Fleet?.Name</span>
-            </div>
+            <dl>
+                <div class="namevalue">
+                    <dt>Vrm</dt>
+                    <dd>@vehicle.Vrm</dd>
+                </div>
+                <div class="namevalue">
+                    <dt>Make</dt>
+                    <dd>@vehicle.Make</dd>
+                </div>
+                <div class="namevalue">
+                    <dt>Model</dt>
+                    <dd>@vehicle.Model</dd>
+                </div>
+                <div class="namevalue">
+                    <dt>Customer</dt>
+                    <dd>@vehicle.Customer?.Name</dd>
+                </div>
+                <div class="namevalue">
+                    <dt>Fleet</dt>
+                    <dd>@vehicle.Fleet?.Name</dd>
+                </div>
+            </dl>
         }
     </HeaderContent>
     <ChildContent>
@@ -130,8 +132,8 @@
 
     async Task OnMakeChanged()
     {
-        modelOptions = UIOptions.BuildModelOptions(editForm.Model.Make is null 
-            ? null 
+        modelOptions = UIOptions.BuildModelOptions(editForm.Model.Make is null
+            ? null
             : await Http.GetModelsShortAsync(editForm.Model.Make));
         editForm.Model.Model = null;
     }
@@ -189,7 +191,7 @@
 
         companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
         makeOptions = UIOptions.BuildMakeOptions(makes.Result);
-        
+
         isLoaded = true;
     }
     protected override void OnParametersSet()

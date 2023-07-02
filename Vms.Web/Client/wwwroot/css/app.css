@@ -242,7 +242,7 @@ h5 + h6 {
 /*#app {
     background-color: cornflowerblue;
 }*/
-input, select, textarea {
+input, select, textarea, .combo-input {
   padding: 0.375rem 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: 0.25rem;
@@ -257,19 +257,25 @@ form.edit-form {
       border: 0;
   }*/
 }
-form.edit-form label {
-  font-size: smaller;
-}
 form.edit-form fieldset.form-grid:disabled input, form.edit-form fieldset.form-grid:disabled .combo-input {
-  color: red;
   background-color: #ffffff;
   color: rgb(84, 84, 84);
   border: 1px solid #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  font-weight: bolder;
+}
+form.edit-form fieldset.form-grid:disabled .combo-input span {
+  border-right-color: #ffffff;
+}
+form.edit-form fieldset.form-grid:disabled .combo-input svg {
+  visibility: hidden;
 }
 form.edit-form fieldset.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 0.5em 1em;
+  line-height: 1.8;
   /*.validation-message-holder {
       grid-column-start: 2;
   }*/
@@ -286,10 +292,17 @@ form.edit-form fieldset.form-grid label {
   grid-column: 1;
   grid-row: auto;
   align-self: center;
+  margin: 0.5em 0 0.5em 0;
+  font-size: smaller;
 }
 form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   grid-column: 2;
   grid-row: auto;
+}
+form.edit-form fieldset.form-grid .validation-message {
+  grid-column-start: 2;
+  margin-bottom: 0.5em;
+  color: red;
 }
 form.edit-form fieldset.form-grid input:not([type=checkbox]), form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   width: 100%;
@@ -302,11 +315,6 @@ form.edit-form fieldset.form-grid input[type=radio] {
   border-radius: 50%;
   width: 1em;
   height: 1em;
-}
-form.edit-form fieldset.form-grid .validation-message {
-  grid-column-start: 2;
-  margin-bottom: 0.5em;
-  color: red;
 }
 form.edit-form .buttons {
   margin-top: 1em;
@@ -322,6 +330,13 @@ form.edit-form .buttons {
 }
 @media (min-width: 1500px) {
   form.fullresponse fieldset.form-grid .form-section {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 0.5em 1em;
+    grid-auto-rows: min-content;
+  }
+  form.fullresponse fieldset.form-grid .form-section fieldset {
+    grid-column: span 2;
     display: grid;
     grid-template-columns: auto 1fr;
     grid-gap: 0.5em 1em;
@@ -450,20 +465,29 @@ table thead th {
 }
 
 .view-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+.view-header dl {
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 2em;
   padding: 1em;
-  background-color: #ffffff;
-  border-bottom: 1px solid var(--border-color);
 }
-.view-header .namevalue {
+.view-header dl .namevalue {
   display: flex;
   flex-direction: column;
+  line-height: 1.5;
 }
-.view-header .namevalue .name {
+.view-header dl .namevalue dt {
   font-size: smaller;
 }
+.view-header dl .namevalue dd {
+  margin: 0;
+  font-weight: bolder;
+}
+
 .list-info {
   display: flex;
   align-items: baseline;
@@ -523,9 +547,9 @@ table thead th {
   display: flex;
   column-gap: 0.5em;
   background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.75);
+  /*border: 1px solid rgb(0 0 0 / 75%);
   border-radius: 4px;
-  padding: 0.5em;
+  padding: 0.5em;*/
   text-align: left;
   width: 100%;
 }
@@ -534,10 +558,11 @@ table thead th {
 }
 .combo.form-combo .combo-input span {
   flex-grow: 1;
+  padding-right: 0.5em;
+  border-right: 1px solid black;
 }
 .combo.form-combo .combo-input svg {
-  padding-left: 0.5em;
-  border-left: 1px solid black;
+  align-self: center;
 }
 .combo.form-combo .combo-menu {
   margin-top: var(--outline-size);
@@ -641,24 +666,29 @@ dialog.create-dialog {
   /*width: clamp(40ch, 70ch, 70ch);*/
   width: calc(100% - 2em);
   max-width: calc(1024px - 2em);
+  background: #fafafa;
 }
 dialog.create-dialog .dialog-container .dialog-header {
   padding: 0.5em;
   background: #ffffff;
   text-align: center;
   border-bottom: 2px solid var(--border-color);
+  display: flex;
+  justify-content: center;
 }
 dialog.create-dialog .dialog-container .dialog-header h1 {
-  margin: 0;
+  /*margin: 0*/
 }
 dialog.create-dialog .dialog-container .dialog-content {
   padding: 1em;
-  background: #fafafa;
 }
 dialog.create-dialog .dialog-container .dialog-footer {
   padding: 1em;
   background: #f2f3f8;
   border-top: 2px solid var(--border-color);
+  display: flex;
+  justify-content: end;
+  column-gap: 0.5em;
 }
 
 @media (min-width: 1024px) {
@@ -671,7 +701,7 @@ dialog.create-dialog .dialog-container .dialog-footer {
 }
 dialog.list-selector {
   width: clamp(10%, 70ch, 90%);
-  /*height: clamp(10%, 60ch, 90%);*/
+  /*height: 60ch;*/ /*clamp(90%, 60ch, 60ch);*/
   padding: 0;
 }
 dialog.list-selector .dialog-container {
@@ -688,9 +718,6 @@ dialog.list-selector .dialog-container .dialog-header .search-wrapper > input {
   flex-grow: 1;
 }
 dialog.list-selector .dialog-container .dialog-content {
-  overflow-y: auto;
-  max-block-size: 100%; /* safari */
-  overscroll-behavior-y: contain;
   /*table {
                   border-collapse: collapse;
                   width: 100%;

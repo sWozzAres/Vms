@@ -122,22 +122,29 @@
 }
 
 .view-header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2em;
-    padding: 1em;
     background-color: #ffffff;
     border-bottom: 1px solid var(--border-color);
 
-    .namevalue {
+    dl {
+        margin: 0;
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 2em;
+        padding: 1em;
+        
+        .namevalue {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
 
-        .name {
-            font-size: smaller;
-        }
+            dt {
+                font-size: smaller;
+            }
 
-        .value {
+            dd {
+                margin: 0;
+                font-weight: bolder;
+            }
         }
     }
 }
@@ -183,6 +190,4 @@
     .col-title {
         padding: 0 !important;
     }
-
-    
 }

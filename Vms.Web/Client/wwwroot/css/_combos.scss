@@ -30,9 +30,9 @@
         display: flex;
         column-gap: 0.5em;
         background-color: #ffffff;
-        border: 1px solid rgb(0 0 0 / 75%);
+        /*border: 1px solid rgb(0 0 0 / 75%);
         border-radius: 4px;
-        padding: 0.5em;
+        padding: 0.5em;*/
         text-align: left;
         width: 100%;
 
@@ -42,11 +42,12 @@
 
         span {
             flex-grow: 1;
+            padding-right: 0.5em;
+            border-right: 1px solid black;
         }
 
         svg {
-            padding-left: 0.5em;
-            border-left: 1px solid black;
+            align-self: center;
         }
     }
 

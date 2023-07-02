@@ -6,7 +6,7 @@
     /*width: clamp(40ch, 70ch, 70ch);*/
     width: calc(100% - 2em);
     max-width: calc(1024px - 2em);
-
+    background: #fafafa;
 
     .dialog-container {
 
@@ -16,21 +16,25 @@
             background: #ffffff;
             text-align: center;
             border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: center;
 
             h1 {
-                margin: 0
+                /*margin: 0*/
             }
         }
 
         .dialog-content {
             padding: 1em;
-            background: #fafafa;
         }
 
         .dialog-footer {
             padding: 1em;
             background: #f2f3f8;
             border-top: 2px solid var(--border-color);
+            display: flex;
+            justify-content: end;
+            column-gap: 0.5em;
         }
     }
 }
@@ -47,7 +51,7 @@
 
 dialog.list-selector {
     width: clamp(10%, 70ch, 90%);
-    /*height: clamp(10%, 60ch, 90%);*/
+    /*height: 60ch;*//*clamp(90%, 60ch, 60ch);*/
     padding: 0;
 
     .dialog-container {
@@ -68,9 +72,7 @@ dialog.list-selector {
         }
 
         .dialog-content {
-            overflow-y: auto;
-            max-block-size: 100%; /* safari */
-            overscroll-behavior-y: contain;
+            
             /*table {
                 border-collapse: collapse;
                 width: 100%;

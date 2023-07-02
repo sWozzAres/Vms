@@ -38,6 +38,7 @@
     display: flex;
     column-gap: 1em;
     cursor: pointer;
+    align-items: center;
 }
 
     .combo-option:hover {
