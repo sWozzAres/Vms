@@ -16,22 +16,62 @@ public class ServerApiHttpClient
         this.http = http;
     }
 
+    public async Task<List<CustomerShortDto>?> GetCustomersShortAsync(string filter)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.short"));
+        return await http.GetFromJsonAsync<List<CustomerShortDto>>($"/api/customer/{filter}");
+    }
+    public async Task<CustomerShortDto> GetCustomerShortAsync(string companyCode, string code)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.short"));
+        return await http.GetFromJsonAsync<CustomerShortDto>($"/api/company/{companyCode}/customer/{code}")
+            ?? throw new InvalidOperationException("Failed to get customer.");
+    }
+
+    public async Task<HttpResponseMessage> AssignCustomerToVehicle(Guid vehicleId, string code)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        var response = await http.PostAsJsonAsync($"/api/Vehicle/{vehicleId}/customer", new AssignCustomerToVehicleDto(code));
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException("Failed to assign customer.");
+        }
+        return response;
+    }
+    public async Task<HttpResponseMessage> RemoveCustomerFromVehicle(Guid vehicleId)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        var response = await http.DeleteAsync($"/api/Vehicle/{vehicleId}/customer");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(response.ReasonPhrase);
+        }
+        return response;
+    }
+
     public async Task<List<DriverShortDto>?> GetDriversShortAsync(string filter)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.drivershort"));
+        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.short"));
         return await http.GetFromJsonAsync<List<DriverShortDto>>($"/api/driver/{filter}");
     }
     public async Task<DriverShortDto?> GetDriverShortAsync(Guid id)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.drivershort"));
+        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.short"));
         return await http.GetFromJsonAsync<DriverShortDto>($"/api/driver/{id}");
     }
     public async Task<HttpResponseMessage> RemoveDriverFromVehicle(Guid vehicleId, Guid driverId)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.DeleteAsync($"/api/Vehicle/{vehicleId}/drivers/{driverId}");
+        var response = await http.DeleteAsync($"/api/Vehicle/{vehicleId}/drivers/{driverId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException("Failed to remove driver.");
+        }
+        return response;
     }
     public async Task<HttpResponseMessage> AddDriverToVehicle(Guid vehicleId, Guid driverId)
     {

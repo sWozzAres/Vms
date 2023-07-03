@@ -19,7 +19,7 @@ public class DriverController(VmsDbContext context) : ControllerBase
 
     [HttpGet]
     [Route("{filter}")]
-    [AcceptHeader("application/vnd.drivershort")]
+    [AcceptHeader("application/vnd.short")]
     [ProducesResponseType(typeof(DriverShortDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDriversShort(string filter, CancellationToken cancellationToken)
         => Ok(await _context.Drivers.AsNoTracking()
@@ -29,7 +29,7 @@ public class DriverController(VmsDbContext context) : ControllerBase
 
     [HttpGet]
     [Route("{id:guid}")]
-    [AcceptHeader("application/vnd.drivershort")]
+    [AcceptHeader("application/vnd.short")]
     [ProducesResponseType(typeof(DriverShortDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetDriverShort(Guid id, CancellationToken cancellationToken)

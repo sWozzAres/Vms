@@ -36,7 +36,7 @@
                 </div>
                 <div class="namevalue">
                     <dt>Customer</dt>
-                    <dd>@vehicle.Customer?.Name</dd>
+                    <dd><a href="">@vehicle.Customer?.Name</a></dd>
                 </div>
                 <div class="namevalue">
                     <dt>Fleet</dt>
@@ -111,7 +111,8 @@
                     }
                 </TabPage>
                 <TabPage Text="Related">
-                    <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" />
+                    <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="Reload" />
+                    <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="Reload" />
                 </TabPage>
             </TabControl>
         }
@@ -129,6 +130,11 @@
     bool isLoaded;
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
+
+    async Task Reload()
+    {
+        vehicle = await Http.GetVehicleFull(Id);
+    }
 
     async Task OnMakeChanged()
     {

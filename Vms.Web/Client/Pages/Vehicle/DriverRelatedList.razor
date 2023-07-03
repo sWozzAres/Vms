@@ -11,7 +11,7 @@
         </div>
     </IconContent>
     <Buttons>
-        <button @onclick="() => addDriverDialogVisible = true">New</button>
+        <button @onclick="() => addDriverDialogActive = true">New</button>
     </Buttons>
     <ItemTemplate>
         <article>
@@ -30,9 +30,9 @@
     </ItemTemplate>
 </RelatedList>
 
-@if (dialogShowMode != Dialog.ShowMode.None)
+@if (removeDriverDialogActive)
 {
-    <Dialog AutoShow="dialogShowMode">
+    <Dialog AutoShow="Dialog.ShowMode.ShowModal">
         <div class="dialog-container">
             <div class="dialog-header">
                 <h1>Confirm</h1>
@@ -41,22 +41,25 @@
                 <p>Are you sure you want to remove @selectedDriver.FullName ?</p>
             </div>
             <div class="dialog-footer">
-                <button @onclick="CloseDialog">No</button>
-                <button type="submit" @onclick="RemoveDriverFromVehicle">Yes</button>
-                <p style="color: red;">@removalErrorMessage</p>
+                <div class="dialog-controls">
+                    <button @onclick="() => removeDriverDialogActive = false">No</button>
+                    <button type="submit" @onclick="RemoveDriverFromVehicle">Yes</button>
+                </div>
+                @if (removeErrorMessage is not null)
+                {
+                    <p class="error">@removeErrorMessage</p>
+                }
             </div>
         </div>
     </Dialog>
 }
 
-@if (addDriverDialogVisible)
+@if (addDriverDialogActive)
 {
-    @* OnSelected="DriverSearchDialogSelect"  *@
-
     <ListSelector TItem="DriverShortDto" Title="Find Driver"
                   OnSelected="DriverSearchDialogSelect"
                   OnGetItems="Api.GetDriversShortAsync"
-                  OnClose="DriverSearchDialogClose">
+                  OnClose="() => addDriverDialogActive = false">
         <TableHeader>
             <th>Name</th>
             <th>Email</th>
@@ -71,49 +74,46 @@
 @code {
     [Parameter, EditorRequired] public List<DriverShortDto> Items { get; set; } = null!;
     [Parameter, EditorRequired] public Guid VehicleId { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnChanged { get; set; }
 
     #region AddDriver Dialog
-    bool addDriverDialogVisible = false;
+    bool addDriverDialogActive;
+    bool removeDriverDialogActive;
 
-    void DriverSearchDialogClose()
-    {
-        addDriverDialogVisible = false;
-        StateHasChanged();
-    }
+    // void DriverSearchDialogClose()
+    // {
+    //     addDriverDialogActive = false;
+    //     StateHasChanged();
+    // }
     public async Task DriverSearchDialogSelect(DriverShortDto item)
     {
-        Logger.LogInformation("{email} {name}", item.EmailAddress, item.FullName);
-        var response = await Api.AddDriverToVehicle(VehicleId, item.Id);
-        if (response.IsSuccessStatusCode)
-        {
-            var driver = await Api.GetDriverShortAsync(item.Id);
-            if (driver is not null)
-            {
-                Items.Insert(0, driver);
-            }
-        }
-        addDriverDialogVisible = false;
+        await Api.AddDriverToVehicle(VehicleId, item.Id);
+        // if (response.IsSuccessStatusCode)
+        // {
+        //     var driver = await Api.GetDriverShortAsync(item.Id);
+        //     if (driver is not null)
+        //     {
+        //         Items.Insert(0, driver);
+        //     }
+        // }
+        await OnChanged.InvokeAsync();
+        addDriverDialogActive = false;
         //StateHasChanged();
     }
     #endregion
-    Dialog.ShowMode dialogShowMode = Dialog.ShowMode.None;
+
     string mailToAddress(string emailAddress) => $"mailto:{emailAddress}";
-    const string optionRemove = "Remove";
-    string[] driverOptions = new string[]
-    {
-        optionRemove
-    };
     DriverShortDto selectedDriver = null!;
-    string removalErrorMessage = null!;
+    string removeErrorMessage = null!;
 
-    void CloseDialog() => dialogShowMode = Dialog.ShowMode.None;
-
+    const string optionRemove = "Remove";
+    string[] driverOptions = new string[] { optionRemove };
     void OptionSelected(string? option, DriverShortDto driver)
     {
         if (option == optionRemove)
         {
             selectedDriver = driver;
-            dialogShowMode = Dialog.ShowMode.ShowModal;
+            removeDriverDialogActive = true;
         }
     }
 
@@ -121,25 +121,34 @@
     {
         try
         {
-            var response = await Api.RemoveDriverFromVehicle(VehicleId, selectedDriver.Id);
-            if (response.IsSuccessStatusCode)
+            await Api.RemoveDriverFromVehicle(VehicleId, selectedDriver.Id);
+
+            if (OnChanged.HasDelegate)
             {
-                dialogShowMode = Dialog.ShowMode.None;
-                Items.Remove(selectedDriver);
+                await OnChanged.InvokeAsync();
             }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                removalErrorMessage = "Driver is not connected to this vehicle.";
-            }
-            else
-            {
-                removalErrorMessage = "Failed to remove driver.";
-            }
+
+            removeDriverDialogActive = false;
+
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     dialogShowMode = Dialog.ShowMode.None;
+            //     Items.Remove(selectedDriver);
+            // }
+            // else if (response.StatusCode == HttpStatusCode.NotFound)
+            // {
+            //     removalErrorMessage = "Driver is not connected to this vehicle.";
+            // }
+            // else
+            // {
+            //     removalErrorMessage = "Failed to remove driver.";
+            // }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to remove driver.");
-            removalErrorMessage = "Failed to remove driver.";
+            removeErrorMessage = "Failed to remove driver.";
+            Logger.LogError(ex, removeErrorMessage);
+
         }
     }
 }

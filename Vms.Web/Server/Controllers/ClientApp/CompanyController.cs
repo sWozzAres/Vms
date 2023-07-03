@@ -24,6 +24,24 @@ public class CompanyController : ControllerBase
     }
 
     [HttpGet]
+    [Route("{companyCode}/customer/{code}")]
+    [AcceptHeader("application/vnd.short")]
+    [ProducesResponseType(typeof(CustomerShortDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetCustomerShort(string companyCode, string code, CancellationToken cancellationToken)
+    {
+        var customer = await _context.Customers.AsNoTracking()
+            .SingleOrDefaultAsync(d => d.CompanyCode == companyCode && d.Code == code, cancellationToken);
+
+        if (customer is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new CustomerShortDto(customer.CompanyCode, customer.Code, customer.Name));
+    }
+
+    [HttpGet]
     [AcceptHeader("application/vnd.short")]  
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {

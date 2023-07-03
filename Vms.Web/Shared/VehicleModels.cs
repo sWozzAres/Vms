@@ -1,5 +1,6 @@
 ﻿namespace Vms.Web.Shared;
 
+public record AssignCustomerToVehicleDto(string CustomerCode);
 public record AddDriverToVehicleDto(Guid Id);
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 

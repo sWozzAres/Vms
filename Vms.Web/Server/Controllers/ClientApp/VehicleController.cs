@@ -78,7 +78,6 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [HttpPost]
     [Route("{id}/drivers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddDriverToVehicle(
         Guid id,
         [FromBody] AddDriverToVehicleDto driver,
@@ -86,6 +85,31 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         await new AddDriverToVehicle(_context)
             .AddAsync(id, driver.Id, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{id}/customer")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> AssignCustomerToVehicle(
+        Guid id,
+        [FromBody] AssignCustomerToVehicleDto customer,
+        CancellationToken cancellationToken)
+    {
+        await new AssignCustomerToVehicle(_context)
+            .AssignAsync(id, customer.CustomerCode, cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("{id}/customer")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemoveCustomerFromVehicle(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await new RemoveCustomerFromVehicle(_context)
+            .RemoveAsync(id, cancellationToken);
         return Ok();
     }
 
@@ -184,7 +208,7 @@ public static partial class DomainExtensions
             vehicle.ChassisNumber,
             vehicle.DateFirstRegistered,
             vehicle.Address.ToFullDto(),
-            vehicle.C is null ? null : new CustomerShortDto(vehicle.C.Code, vehicle.C.Name),
+            vehicle.C is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.C.Code, vehicle.C.Name),
             vehicle.Fleet is null ? null : new FleetShortDto(vehicle.Fleet.Code, vehicle.Fleet.Name),
             vehicle.DriverVehicles.Select(x => x.Driver.ToShortDto()).ToList()
             );

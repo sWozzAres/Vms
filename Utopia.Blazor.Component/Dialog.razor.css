@@ -7,6 +7,10 @@ dialog {
 
 ::deep .dialog-header {
     padding: 1em;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1em;
+    text-align: center;
+    justify-content: center;
 }
 
 ::deep .dialog-content {
@@ -17,9 +21,16 @@ dialog {
     padding: 1em;
     border-top: 2px solid var(--border-color);
     margin-top: 1em;
+    
+}
+
+::deep .dialog-controls {
     display: flex;
     justify-content: end;
     column-gap: 0.5em;
+}
+::deep .error {
+    color: red;
 }
 
 dialog.scroll-content {

@@ -1,0 +1,127 @@
+﻿@using System.Diagnostics.CodeAnalysis;
+@inject ILogger<CustomerRelated> Logger
+@inject ServerApiHttpClient Api
+
+<RelatedItem TypeName="Customer" Item="Customer" Context="customer">
+    <IconContent>
+        <div class="entity-svg-customer">
+            <svg viewBox="0 0 612 512">
+                <use xlink:href="icons/solid.svg#landmark" />
+            </svg>
+        </div>
+    </IconContent>
+    <Buttons>
+        <button @onclick="() => addCustomerDialogActive = true">Change</button>
+    </Buttons>
+    <ItemTemplate>
+        <article>
+            <div class="content-header">
+                <h1><a href="/customer/view/@customer!.Code">@customer!.Name</a></h1>
+                <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right"
+                            OnSelectCallback="(val) => OptionSelected(val, customer)" />
+            </div>
+            <dl>
+                <dt>Code:</dt>
+                <dd>@customer.Code</dd>
+            </dl>
+        </article>
+    </ItemTemplate>
+</RelatedItem>
+
+@if (removeCustomerDialogActive)
+{
+    <Dialog AutoShow="Dialog.ShowMode.ShowModal">
+        <div class="dialog-container">
+            <div class="dialog-header">
+                <h1>Confirm</h1>
+            </div>
+            <div class="dialog-content">
+                <p>Are you sure you want to remove @selectedCustomer.Name ?</p>
+            </div>
+            <div class="dialog-footer">
+                <div class="dialog-controls">
+                    <button @onclick="() => removeCustomerDialogActive = false">No</button>
+                    <button type="submit" @onclick="RemoveCustomerFromVehicle">Yes</button>
+                </div>
+                @if (removeErrorMessage is not null)
+                {
+                    <p class="error">@removeErrorMessage</p>
+                }
+            </div>
+        </div>
+    </Dialog>
+}
+
+@if (addCustomerDialogActive)
+{
+    <ListSelector TItem="CustomerShortDto" Title="Find Customer"
+                  OnSelected="CustomerSearchDialogSelect"
+                  OnGetItems="Api.GetCustomersShortAsync"
+                  OnClose="() => addCustomerDialogActive = false">
+        <TableHeader>
+            <th>Code</th>
+            <th>Name</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>@context.Code</td>
+            <td>@context.Name</td>
+        </RowTemplate>
+    </ListSelector>
+}
+
+@code {
+    [Parameter, EditorRequired] public CustomerShortDto? Customer { get; set; } = null!;
+    [Parameter, EditorRequired] public Guid VehicleId { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnChanged { get; set; }
+
+    bool addCustomerDialogActive = false;
+    bool removeCustomerDialogActive = false;
+    CustomerShortDto selectedCustomer = null!;
+    string removeErrorMessage = null!;
+
+    const string optionRemove = "Remove";
+    string[] driverOptions = new string[] { optionRemove };
+    void OptionSelected(string option, CustomerShortDto customer)
+    {
+        if (option == optionRemove)
+        {
+            selectedCustomer = customer;
+            removeCustomerDialogActive = true;
+        }
+    }
+
+    async Task CustomerSearchDialogSelect(CustomerShortDto item)
+    {
+        await Api.AssignCustomerToVehicle(VehicleId, item.Code);
+
+        await OnChanged.InvokeAsync();
+
+        addCustomerDialogActive = false;
+    }
+
+    async Task RemoveCustomerFromVehicle()
+    {
+        try
+        {
+            await Api.RemoveCustomerFromVehicle(VehicleId);
+
+            if (OnChanged.HasDelegate)
+            {
+                await OnChanged.InvokeAsync();
+            }
+
+            removeCustomerDialogActive = false;
+        }
+        catch (Exception ex)
+        {
+            removeErrorMessage = "An error occurred while trying to remove the customer.";
+            Logger.LogError(ex, removeErrorMessage);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(VehicleId);
+        if (!OnChanged.HasDelegate) throw new ArgumentNullException(nameof(OnChanged));
+    }
+}

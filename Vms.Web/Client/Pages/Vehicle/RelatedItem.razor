@@ -1,0 +1,26 @@
+﻿@typeparam TItem where TItem : class
+<div class="related-list">
+    <div class="header">
+        <div class="icon">
+            @IconContent
+        </div>
+        <span class="title">@TypeName</span>
+        <div class="buttons btn-group">
+            @Buttons
+        </div>
+    </div>
+    <div class="content">
+        @if (Item is not null)
+        {
+            @ItemTemplate(Item)
+        }
+    </div>
+</div>
+@code {
+    [Parameter, EditorRequired] public string TypeName { get; set; } = null!;
+    [Parameter, EditorRequired] public TItem? Item { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<TItem> ItemTemplate { get; set; } = null!;
+
+}

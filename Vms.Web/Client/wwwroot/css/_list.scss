@@ -4,6 +4,8 @@
 .related-list {
     background: #f2f3f8;
     padding: 1em;
+    margin: 1em 0 1em 0;
+    border-radius: var(--border-radius);
 
     .header {
         display: flex;
@@ -107,6 +109,7 @@
             display: flex;
             align-items: flex-end;
             column-gap: 0.5em;
+            font-weight: 500;
 
             button {
                 padding-inline: 0.2em;

@@ -33,7 +33,7 @@ public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Mak
         };
 }
 
-public record CustomerShortDto(string Code, string Name);
+public record CustomerShortDto(string CompanyCode, string Code, string Name);
 public record FleetShortDto(string Code, string Name);
 public record AddressFullDto(string Street, string Locality, string Town, string Postcode, GeometryFullDto Location);
 public record GeometryFullDto(double Latitude, double Longitude);

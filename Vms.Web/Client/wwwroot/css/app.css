@@ -367,6 +367,8 @@ table thead th {
 .related-list {
   background: #f2f3f8;
   padding: 1em;
+  margin: 1em 0 1em 0;
+  border-radius: var(--border-radius);
 }
 .related-list .header {
   display: flex;
@@ -453,6 +455,7 @@ table thead th {
   display: flex;
   align-items: flex-end;
   column-gap: 0.5em;
+  font-weight: 500;
 }
 .page-header .info h2 button {
   padding-inline: 0.2em;
@@ -582,6 +585,10 @@ table thead th {
   background: #a094ed;
 }
 
+.entity-svg-customer {
+  background: purple;
+}
+
 .tabs {
   padding: 0.5em;
   background-color: #ffffff;
@@ -660,16 +667,13 @@ table thead th {
 dialog.create-dialog {
   /*max-inline-size: 60ch;*/
   /*width: clamp(40ch, 70ch, 70ch);*/
+  min-block-size: min(70ch, 90vh);
   width: calc(100% - 2em);
   max-width: calc(1024px - 2em);
   background: #fafafa;
 }
 dialog.create-dialog .dialog-container .dialog-header {
   background: #ffffff;
-  text-align: center;
-  border-bottom: 2px solid var(--border-color);
-  display: flex;
-  justify-content: center;
 }
 dialog.create-dialog .dialog-container .dialog-header h1 {
   margin: 0;
@@ -689,17 +693,18 @@ dialog.create-dialog .dialog-container .dialog-footer {
 dialog.list-selector {
   width: clamp(10%, 70ch, 90%);
   /*height: 60ch;*/ /*clamp(90%, 60ch, 60ch);*/
+  min-block-size: min(70ch, 90vh);
 }
 dialog.list-selector .dialog-container {
   align-items: start;
 }
-dialog.list-selector .dialog-container .dialog-header .search-wrapper {
+dialog.list-selector .dialog-container .dialog-content .search-wrapper {
   display: flex;
   column-gap: 1em;
   background-color: #ffffff;
   padding: 0 0 1em 0;
 }
-dialog.list-selector .dialog-container .dialog-header .search-wrapper > input {
+dialog.list-selector .dialog-container .dialog-content .search-wrapper > input {
   flex-grow: 1;
 }
 dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector .dialog-container .dialog-content td {
