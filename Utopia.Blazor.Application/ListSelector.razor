@@ -3,11 +3,11 @@
 <Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector scroll-content">
     <div class="dialog-container">
         <div class="dialog-header">
-        <h1>@Title</h1>
-        <form class="search-wrapper" @onsubmit="Search">
-            <input type="text" @bind-value="searchValue" />
-            <button type="submit">Search</button>
-        </form>
+            <h1>@Title</h1>
+            <form class="search-wrapper" @onsubmit="Search">
+                <input type="text" @bind-value="searchValue" />
+                <button type="submit">Find</button>
+            </form>
         </div>
         <div class="dialog-content">
             <table>
@@ -23,7 +23,7 @@
                         var idx = index;
                         var item = items.ElementAt(index);
                         <tr @onclick="() => SelectItem(idx)">
-                            <td><input checked="@isSelected(idx)"  type="checkbox" /></td>
+                            <td><input checked="@isSelected(idx)" type="checkbox" /></td>
                             @RowTemplate(item)
                         </tr>
                     }
@@ -32,18 +32,21 @@
         </div>
         <div class="dialog-footer">
             <button @onclick="CloseDialog">Close</button>
-            <button @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+            <button type="submit" @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
         </div>
     </div>
 </Dialog>
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = null!;
+
     public delegate Task<List<TItem>?> GetItems(string filter);
     [Parameter, EditorRequired] public GetItems OnGetItems { get; set; } = null!;
 
-    public delegate Task Selected(TItem item);
-    [Parameter, EditorRequired] public Selected OnSelected { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<TItem> OnSelected { get; set; }
+
+    // public delegate Task Selected(TItem item);
+    // [Parameter, EditorRequired] public Selected OnSelected { get; set; } = null!;
     public delegate void Close();
     [Parameter, EditorRequired] public Close OnClose { get; set; } = null!;
 
@@ -55,7 +58,7 @@
     bool isSelected(int index) => index == selectedIndex;
     List<TItem> items = new();
     void CloseDialog() => OnClose();
-    async Task OkDialog() => await OnSelected(items.ElementAt(selectedIndex));
+    async Task OkDialog() => await OnSelected.InvokeAsync(items.ElementAt(selectedIndex));// await OnSelected(items.ElementAt(selectedIndex));
     bool isOkButtonDisabled => selectedIndex == -1;
 
     string searchValue = string.Empty;
@@ -79,7 +82,7 @@
             throw new InvalidOperationException($"You must specify the '{nameof(OnGetItems)}' callback to load the items.");
         }
 
-        if (OnSelected is null)
+        if (!OnSelected.HasDelegate)
         {
             throw new InvalidOperationException($"You must specify the '{nameof(OnSelected)}' callback.");
         }

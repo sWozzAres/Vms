@@ -60,13 +60,11 @@
 }
 
 html, body {
-  /*font-family: system-ui, sans-serif;*/
-  /*font-family: 'Open Sans', sans-serif;
-
-  font-family: 'Work Sans', sans-serif;*/
   font-family: "Roboto", sans-serif;
+  /*font-family: 'Work Sans', sans-serif;*/
   background-color: var(--bg);
   /*color: color-contrast(var(--bg));*/
+  font-weight: 400;
   color: black;
 }
 @media (prefers-color-scheme: dark) {
@@ -144,8 +142,8 @@ li {
 h1, h2, h3, h4, h5, h6 {
   page-break-after: avoid;
   page-break-inside: avoid;
-  font: 100% sans-serif; /* Reset all font styling to clear out UA styles */
-  font-family: inherit; /* Inherit the font family. */
+  font: 100% sans-serif;
+  font-family: inherit;
   line-height: 1.2; /* Keep wrapped headings compact */
   hyphens: manual; /* Hyphenated headings look weird */
 }
@@ -171,7 +169,7 @@ h3 {
 }
 
 h4 {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 h5 {
@@ -182,14 +180,13 @@ h6 {
   font-variant: small-caps;
 }
 
-dt {
-  font-weight: normal;
+/*dt {
+    font-weight: normal;
 }
 
 dl {
-  font-weight: bold;
-}
-
+    font-weight: bold;
+}*/
 /** Subheadings ***************************************************************/
 h1 + h2,
 #subtitle {
@@ -247,6 +244,7 @@ input, select, textarea, .combo-input {
   border: 1px solid var(--border-color);
   border-radius: 0.25rem;
   line-height: 1.5;
+  font-weight: 500;
 }
 
 form.edit-form {
@@ -263,7 +261,6 @@ form.edit-form fieldset.form-grid:disabled input, form.edit-form fieldset.form-g
   border: 1px solid #ffffff;
   border-bottom: 1px solid var(--border-color);
   border-radius: 0;
-  font-weight: bolder;
 }
 form.edit-form fieldset.form-grid:disabled .combo-input span {
   border-right-color: #ffffff;
@@ -275,7 +272,7 @@ form.edit-form fieldset.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 0.5em 1em;
-  line-height: 1.8;
+  line-height: 1.5;
   /*.validation-message-holder {
       grid-column-start: 2;
   }*/
@@ -286,14 +283,15 @@ form.edit-form fieldset.form-grid .form-section {
 form.edit-form fieldset.form-grid fieldset legend {
   background-color: var(--form-legend-background-color);
   width: 100%;
-  padding: 0.5em;
+  padding: 0.25em;
 }
 form.edit-form fieldset.form-grid label {
   grid-column: 1;
   grid-row: auto;
   align-self: center;
   margin: 0.5em 0 0.5em 0;
-  font-size: smaller;
+  font-size: 80%;
+  font-weight: 400;
 }
 form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   grid-column: 2;
@@ -323,7 +321,7 @@ form.edit-form .buttons {
   text-align: start;
 }
 
-@media (min-width: 70ch) {
+@media (min-width: 80ch) {
   form.fullresponse fieldset.form-grid .form-section {
     grid-column: span 1;
   }
@@ -363,6 +361,7 @@ table thead {
 }
 table thead th {
   text-align: start;
+  border: 1px solid var(--border-color);
 }
 
 .related-list {
@@ -388,7 +387,7 @@ table thead th {
 }
 .related-list .header .title {
   flex-grow: 1;
-  font-weight: bold;
+  font-weight: 600;
 }
 .related-list .content {
   display: flex;
@@ -485,7 +484,7 @@ table thead th {
 }
 .view-header dl .namevalue dd {
   margin: 0;
-  font-weight: bolder;
+  font-weight: 600;
 }
 
 .list-info {
@@ -599,7 +598,7 @@ table thead th {
   text-transform: uppercase;
 }
 .tabs [role=tab][aria-selected=true] {
-  font-weight: bold;
+  font-weight: 600;
   border-bottom-color: var(--tabs-highlight);
 }
 
@@ -659,9 +658,6 @@ table thead th {
 }
 */
 dialog.create-dialog {
-  padding: 0;
-  border: none;
-  border-radius: var(--border-radius);
   /*max-inline-size: 60ch;*/
   /*width: clamp(40ch, 70ch, 70ch);*/
   width: calc(100% - 2em);
@@ -669,7 +665,6 @@ dialog.create-dialog {
   background: #fafafa;
 }
 dialog.create-dialog .dialog-container .dialog-header {
-  padding: 0.5em;
   background: #ffffff;
   text-align: center;
   border-bottom: 2px solid var(--border-color);
@@ -677,18 +672,10 @@ dialog.create-dialog .dialog-container .dialog-header {
   justify-content: center;
 }
 dialog.create-dialog .dialog-container .dialog-header h1 {
-  /*margin: 0*/
-}
-dialog.create-dialog .dialog-container .dialog-content {
-  padding: 1em;
+  margin: 0;
 }
 dialog.create-dialog .dialog-container .dialog-footer {
-  padding: 1em;
   background: #f2f3f8;
-  border-top: 2px solid var(--border-color);
-  display: flex;
-  justify-content: end;
-  column-gap: 0.5em;
 }
 
 @media (min-width: 1024px) {
@@ -702,11 +689,9 @@ dialog.create-dialog .dialog-container .dialog-footer {
 dialog.list-selector {
   width: clamp(10%, 70ch, 90%);
   /*height: 60ch;*/ /*clamp(90%, 60ch, 60ch);*/
-  padding: 0;
 }
 dialog.list-selector .dialog-container {
   align-items: start;
-  padding: 1em;
 }
 dialog.list-selector .dialog-container .dialog-header .search-wrapper {
   display: flex;
@@ -717,31 +702,11 @@ dialog.list-selector .dialog-container .dialog-header .search-wrapper {
 dialog.list-selector .dialog-container .dialog-header .search-wrapper > input {
   flex-grow: 1;
 }
-dialog.list-selector .dialog-container .dialog-content {
-  /*table {
-                  border-collapse: collapse;
-                  width: 100%;
-              }
-
-              thead {
-                  background-color: #f2f3f8;
-              }
-
-              tr {
-                  border-bottom: 1px solid #f2f3f8;
-              }
-
-              th {
-                  text-align: left;
-              }
-  */
-}
 dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector .dialog-container .dialog-content td {
   padding: 8px;
   cursor: pointer;
 }
 dialog.list-selector .dialog-container .dialog-footer {
-  padding: 1em 0 0 0;
   background-color: #ffffff;
 }
 

@@ -5,14 +5,11 @@
 }
 
 html, body {
-    /*font-family: system-ui, sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;
-    
-    font-family: 'Work Sans', sans-serif;*/
     font-family: 'Roboto', sans-serif;
+    /*font-family: 'Work Sans', sans-serif;*/
     background-color: var(--bg);
     /*color: color-contrast(var(--bg));*/
-
+    font-weight: 400;
     color: black;
 
     @media (prefers-color-scheme: dark) {
@@ -94,8 +91,8 @@ li {
 h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
     page-break-inside: avoid;
-    font: 100% sans-serif; /* Reset all font styling to clear out UA styles */
-    font-family: inherit; /* Inherit the font family. */
+    font: 100% sans-serif; 
+    font-family: inherit; 
     line-height: 1.2; /* Keep wrapped headings compact */
     hyphens: manual; /* Hyphenated headings look weird */
 }
@@ -121,7 +118,7 @@ h3 {
 }
 
 h4 {
-    font-weight: bold;
+    font-weight: 600;
 }
 
 h5 {
@@ -132,13 +129,13 @@ h6 {
     font-variant: small-caps;
 }
 
-dt {
+/*dt {
     font-weight: normal;
 }
 
 dl {
     font-weight: bold;
-}
+}*/
 /** Subheadings ***************************************************************/
 
 h1 + h2,

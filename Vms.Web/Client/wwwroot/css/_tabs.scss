@@ -19,7 +19,7 @@
     }
 
     [role="tab"][aria-selected="true"] {
-        font-weight: bold;
+        font-weight: 600;
         border-bottom-color: var(--tabs-highlight);
     }
 }
