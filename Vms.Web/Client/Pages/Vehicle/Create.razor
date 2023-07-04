@@ -41,6 +41,10 @@
                             <label for="datereg">First Registered</label>
                             <InputDate id="datereg" @bind-Value="vehicle.DateFirstRegistered" />
                             <ValidationMessage For="@(() => vehicle.DateFirstRegistered)" />
+
+                            <label for="motdue">MOT Due</label>
+                            <InputDate id="motdue" @bind-Value="vehicle.MotDue" />
+                            <ValidationMessage For="@(() => vehicle.MotDue)" />
                         </fieldset>
                     </div>
                     <div class="form-section">
@@ -161,7 +165,7 @@
         companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
         makeOptions = UIOptions.BuildMakeOptions(makes.Result);
 
-        await Task.Delay(1000);
+        await Task.Delay(3000);
         isLoaded = true;
     }
 }

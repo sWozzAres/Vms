@@ -1,6 +1,6 @@
 ﻿namespace Vms.Web.Shared;
-
 public record AssignCustomerToVehicleDto(string CustomerCode);
+public record AssignFleetToVehicleDto(string FleetCode);
 public record AddDriverToVehicleDto(Guid Id);
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 
@@ -18,6 +18,7 @@ public partial class VehicleDto : ICopyable<VehicleDto>
     [StringLength(18)]
     public string? ChassisNumber { get; set; }
     public DateOnly DateFirstRegistered { get; set; }
+    public DateOnly MotDue { get; set; }
     public AddressDto Address { get; set; } = new();//"", "", "", "", new(0, 0));
     [StringLength(10)]
     public string? CustomerCode { get; set; }

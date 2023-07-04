@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using NetTopologySuite.Geometries;
-using System.Runtime.Serialization;
-using Microsoft.VisualBasic.FileIO;
 
 namespace Vms.Domain.Entity
 {
@@ -19,24 +14,26 @@ namespace Vms.Domain.Entity
         public Address Address { get; private set; } = null!;
         public string? CustomerCode { get; private set; }
         public string? FleetCode { get; private set; }
-
+        //public ICollection<VehicleMot> Mots { get; set; } = new List<VehicleMot>();
+        public VehicleMot Mot { get; set; } = null!;
         public virtual Customer? C { get; set; }
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
         public virtual Fleet? Fleet { get; set; }
-        public virtual VehicleMot Mot { get; set; } = null!;
         public virtual VehicleVrm VehicleVrm { get; set; } = null!;
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
         private Vehicle() { }
-        private Vehicle(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
+        private Vehicle(string companyCode, string vrm, string make, string model,
+            DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
             Make = make;
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
-            Mot = new VehicleMot(motDue);
+            Mot = new VehicleMot(Id, motDue);
+            //MotDue = motDue;
             VehicleVrm = new VehicleVrm(vrm);
             Address = new(homeLocation.Street, homeLocation.Locality, homeLocation.Town, homeLocation.Postcode, homeLocation.Location.Copy());
         }
@@ -62,6 +59,7 @@ namespace Vms.Domain.Entity
         internal void AssignToCustomer(string customerCode) => CustomerCode = customerCode;
         internal void RemoveCustomer() => CustomerCode = null;
         public void AssignToFleet(string fleetCode) => FleetCode = fleetCode;
+        internal void RemoveFleet() => FleetCode = null;
         public void UpdateModel(string make, string model)
         {
             Make = make;
@@ -72,17 +70,19 @@ namespace Vms.Domain.Entity
     public partial class VehicleMot
     {
         public Guid VehicleId { get; private set; }
-        public DateOnly Due { get; private set; }
-        public virtual Vehicle Vehicle { get; private set; } = null!;
+        public DateOnly Due { get; set; }
+        internal Vehicle Vehicle { get; set; } = null!;
+        //public Guid? ServiceBookingId { get; set; }
+        //public ServiceBooking? ServiceBooking { get; set; } = null!;
         private VehicleMot() { }
-        public VehicleMot(DateOnly due) => Due = due;
+        internal VehicleMot(Guid vehicleId, DateOnly due) => (VehicleId, Due) = (vehicleId, due);
     }
 
     public partial class VehicleVrm
     {
         public Guid VehicleId { get; private set; }
         public string Vrm { get; internal set; } = null!;
-        public virtual Vehicle Vehicle { get; private set; } = null!;
+        public Vehicle Vehicle { get; private set; } = null!;
         private VehicleVrm() { }
         public VehicleVrm(string vrm) => Vrm = vrm;
     }
@@ -90,6 +90,17 @@ namespace Vms.Domain.Entity
 
 namespace Vms.Domain.Entity.Configuration
 {
+    //public class VehicleMotEntityConfiguration : IEntityTypeConfiguration<VehicleMot>
+    //{
+    //    public void Configure(EntityTypeBuilder<VehicleMot> builder)
+    //    {
+    //        builder.ToTable("VehicleMot");
+
+    //        builder.HasKey(e => new { e.VehicleId, e.Due });
+    //        builder.HasAlternateKey(e => e.VehicleId);
+    //    }
+    //}
+
     public class VehicleEntityTypeConfiguration : IEntityTypeConfiguration<Vehicle>
     {
         public void Configure(EntityTypeBuilder<Vehicle> builder)
@@ -165,6 +176,10 @@ namespace Vms.Domain.Entity.Configuration
 
             builder.HasMany(d => d.ServiceBookings).WithOne(p => p.Vehicle);
 
+            //builder.HasMany(d => d.Mots)
+            //    .WithOne(m => m.Vehicle)
+            //    .HasForeignKey(d => d.VehicleId)
+            //    .HasPrincipalKey(m => m.Id);
             builder.OwnsOne(d => d.Mot, x =>
             {
                 x.ToTable("VehicleMot");
@@ -172,6 +187,7 @@ namespace Vms.Domain.Entity.Configuration
                     .HasForeignKey(d => d.VehicleId)
                     .HasConstraintName("FK_Vehicle_VehicleMot");
             });
+
             builder.OwnsOne(d => d.VehicleVrm, x =>
             {
                 x.ToTable("VehicleVrm", tb => tb.IsTemporal(ttb =>

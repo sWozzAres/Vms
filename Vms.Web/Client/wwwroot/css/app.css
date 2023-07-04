@@ -2,8 +2,10 @@
 @import "_buttons.custom.css";
 @import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
 :root {
+  --table-header-background-color: #ffffff;
+  --table-header-color: #42444c;
   --form-legend-background-color: #f3f2f2;
-  --page-header-background-color: #f3f2f2;
+  --page-header-background-color: #f7f9fb;
   --tabs-highlight: rgb(0 132 255);
   --outline-size: 5px;
   --bg-light: #ffffff;
@@ -43,16 +45,17 @@
   --header-background-color: rgb(244,242,242);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--bg-dark);
-    --header-bg: var(--header-bg-dark);
-    --header-color: var(--header-color-dark);
-    --heading-text: var(--heading-text-dark);
-    --sidebar-bg: var(--sidebar-bg-dark);
-    --section-bg: var(--section-bg-dark);
-  }
+/*@media(prefers-color-scheme: dark) {
+    :root {
+        --bg: var(--bg-dark);
+        --header-bg: var(--header-bg-dark);
+        --header-color: var(--header-color-dark);
+        --heading-text: var(--heading-text-dark);
+        --sidebar-bg: var(--sidebar-bg-dark);
+        --section-bg: var(--section-bg-dark);
+    }
 }
+*/
 *,
 *::before,
 *::after {
@@ -355,9 +358,12 @@ table > thead > tr > th, table > tbody > tr > td {
   padding: 10px !important;
 }
 table thead {
-  background-color: #fafaf9;
+  background-color: var(--table-header-background-color);
   text-transform: uppercase;
-  color: #504d4b;
+  color: var(--table-header-color);
+}
+table thead .col-title {
+  font-weight: 500 !important;
 }
 table thead th {
   text-align: start;
@@ -366,58 +372,76 @@ table thead th {
 
 .related-list {
   background: #f2f3f8;
+}
+
+.related-item {
+  background: #ffffff;
+}
+.related-item .content > p {
+  font-style: italic;
+  margin: 0;
+}
+
+.related-section {
   padding: 1em;
   margin: 1em 0 1em 0;
   border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
 }
-.related-list .header {
+.related-section .header {
   display: flex;
   align-items: center;
   gap: 1em;
 }
-.related-list .header .icon {
+.related-section .header .icon {
   display: flex;
   align-items: center;
 }
-.related-list .header .icon div {
+.related-section .header .icon div {
   padding: 0.5em;
   border-radius: 5px;
 }
-.related-list .header .icon div > svg {
+.related-section .header .icon div > svg {
   height: 1em;
   fill: white;
 }
-.related-list .header .title {
+.related-section .header .buttons button {
+  color: var(--a-visited-text);
+}
+.related-section .header > h1 {
+  font-size: 100%;
   flex-grow: 1;
   font-weight: 600;
 }
-.related-list .content {
+.related-section .content {
   display: flex;
   flex-wrap: wrap;
   gap: 1em;
 }
-.related-list .content article {
+.related-section .content article {
   display: inline;
   font-size: smaller;
   width: 50ch;
 }
-.related-list .content article .content-header {
+.related-section .content article .content-header {
   display: flex;
 }
-.related-list .content article .content-header h1 {
+.related-section .content article .content-header h1 {
   flex-grow: 1;
 }
-.related-list .content article h1 {
+.related-section .content article h1 {
   font-size: 120%;
   margin: 0;
 }
-.related-list .content article dl {
+.related-section .content article dl {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 1em;
+  margin: 0.5em 0 0 0;
 }
-.related-list .content article dd {
+.related-section .content article dd {
   margin: 0;
+  font-weight: 500;
 }
 
 .page-header {
@@ -426,6 +450,7 @@ table thead th {
   flex-wrap: wrap;
   background-color: var(--page-header-background-color);
   padding: 0.5em;
+  border-bottom: 2px solid var(--border-color);
 }
 .page-header .icon {
   display: flex;
@@ -465,6 +490,9 @@ table thead th {
   justify-items: flex-end;
   align-self: end;
 }
+.page-header .buttons button {
+  color: var(--a-visited-text);
+}
 
 .view-header {
   background-color: #ffffff;
@@ -487,7 +515,7 @@ table thead th {
 }
 .view-header dl .namevalue dd {
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .list-info {
@@ -587,6 +615,14 @@ table thead th {
 
 .entity-svg-customer {
   background: purple;
+}
+
+.entity-svg-fleet {
+  background: #4a3fad;
+}
+
+.entity-svg-servicebooking {
+  background: #cc2974;
 }
 
 .tabs {
@@ -715,6 +751,10 @@ dialog.list-selector .dialog-container .dialog-footer {
   background-color: #ffffff;
 }
 
+.page {
+  padding: 1em;
+}
+
 .hidden {
   visibility: hidden;
 }
@@ -830,60 +870,70 @@ h1:focus {
     flex-direction: column;
     flex-grow: 1;
 }*/
-.view-card {
-  padding: 0;
-  margin: 0;
-  background-color: #fafaf9;
-}
-.view-card .view-header {
-  padding: 1em;
-  display: flex;
-  flex-direction: column;
-  background-color: #f3f2f2;
-  gap: 1em;
-}
-.view-card .view-header .view-control {
-  display: flex;
-  gap: 1em;
-  flex-wrap: wrap;
-}
-.view-card .view-header .view-control .view-icon {
-  display: flex;
-  align-items: center;
-}
-.view-card .view-header .view-control .view-icon div {
-  padding: 0.5em;
-  border-radius: 5px;
-}
-.view-card .view-header .view-control .view-icon div > svg {
-  height: 2em;
-  fill: white;
-}
-.view-card .view-header .view-control .view-info {
-  flex-grow: 1;
-}
-.view-card .view-header .view-control .view-info h1 {
-  font-size: small;
-  margin: 0;
-  text-transform: uppercase;
-}
-.view-card .view-header .view-control .view-info h2 {
-  margin: 0;
-  display: flex;
-  align-items: flex-end;
-  column-gap: 0.5em;
-}
-.view-card .view-header .view-control .view-info h2 button {
-  padding-inline: 0.2em;
-  padding-block: 0;
-}
-.view-card .view-header .view-control .view-buttons {
-  justify-items: flex-end;
-}
-.view-card .view-content {
-  padding: 1em;
-}
+/*.view-card {
+    padding: 0;
+    margin: 0;
+    background-color: #fafaf9;
 
+    .view-header {
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        background-color: #f3f2f2;
+        gap: 1em;
+
+        .view-control {
+            display: flex;
+            gap: 1em;
+            flex-wrap: wrap;
+
+            .view-icon {
+                display: flex;
+                align-items: center;
+
+                div {
+                    padding: 0.5em;
+                    border-radius: 5px;
+
+                    > svg {
+                        height: 2em;
+                        fill: white;
+                    }
+                }
+            }
+
+            .view-info {
+                flex-grow: 1;
+
+                h1 {
+                    font-size: small;
+                    margin: 0;
+                    text-transform: uppercase;
+                }
+
+                h2 {
+                    margin: 0;
+                    display: flex;
+                    align-items: flex-end;
+                    column-gap: 0.5em;
+
+                    button {
+                        padding-inline: 0.2em;
+                        padding-block: 0;
+                    }
+                }
+            }
+
+            .view-buttons {
+                justify-items: flex-end;
+            }
+        }
+    }
+
+    .view-content {
+        padding: 1em;
+    }
+}*/
 .mydropdown {
   background-color: red;
   margin: 0;

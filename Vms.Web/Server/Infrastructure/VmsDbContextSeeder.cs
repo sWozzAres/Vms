@@ -62,6 +62,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     public async Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
     {
+        _logger.LogInformation("Seeding database.");
+
         if (_context.Companies.Any())
         {
             _logger.LogInformation("Seeding skipped. The database already contains data.");
@@ -82,8 +84,9 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("Failed to seed database {ex}.", ex);
                 await transaction.RollbackAsync();
                 return false;
             }
@@ -92,6 +95,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     public async Task SeedData()
     {
+
         List<CompanyInfo> companies = new();
         foreach (var ci in Enumerable.Range(1, 5))
         {

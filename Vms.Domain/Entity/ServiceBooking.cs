@@ -7,19 +7,23 @@ namespace Vms.Domain.Entity
 
     public class ServiceBooking
     {
+        public string CompanyCode { get; set; } = null!;
         public Guid Id { get; private set; }
         public Guid VehicleId { get; set; }
-        public DateOnly PreferredDate1 { get; set; }
+        public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
         public DateOnly? MotDue { get; set; }
+        //public VehicleMot? VehicleMot { get; set; }
         public ServiceBookingSupplier? Supplier { get; private set; }
 
         public ServiceBookingStatus Status { get; private set; }
         public virtual Vehicle Vehicle { get; set; } = null!;
         private ServiceBooking() { }
-        public ServiceBooking(Guid vehicleId, DateOnly preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
+        public ServiceBooking(string companyCode, Guid vehicleId,
+            DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
         {
+            CompanyCode = companyCode;
             Id = Guid.NewGuid();
             VehicleId = vehicleId;
             PreferredDate1 = preferredDate1;
@@ -42,7 +46,7 @@ namespace Vms.Domain.Entity
         public virtual ServiceBooking ServiceBooking { get; private set; } = null!;
         public virtual Supplier Supplier { get; private set; } = null!;
         private ServiceBookingSupplier() { }
-        public ServiceBookingSupplier(Guid serviceBookingId, string supplierCode) 
+        public ServiceBookingSupplier(Guid serviceBookingId, string supplierCode)
             => (ServiceBookingId, SupplierCode) = (serviceBookingId, supplierCode);
     }
 }
@@ -55,6 +59,22 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.ToTable("ServiceBooking");
             builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.CompanyCode)
+                .HasMaxLength(10)
+                .IsFixedLength();
+
+            builder.HasOne(e => e.Vehicle)
+                .WithMany(v => v.ServiceBookings)
+                .HasForeignKey(e => new { e.CompanyCode, e.VehicleId })
+                .HasPrincipalKey(v => new { v.CompanyCode, v.Id })
+                .HasConstraintName("FK_ServiceBookings_Vehicle");
+
+            //builder.HasOne(e => e.VehicleMot)
+            //    .WithOne(m => m.ServiceBooking)
+            //    .HasForeignKey<ServiceBooking>(e => new { e.VehicleId, e.MotDue })
+            //    .HasPrincipalKey<VehicleMot>(m => new { m.VehicleId, m.Due })
+            //    .IsRequired(false);
 
             builder.OwnsOne(d => d.Supplier, x =>
             {

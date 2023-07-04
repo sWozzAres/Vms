@@ -20,6 +20,21 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpGet]
+    [Route("{id}/servicebookings")]
+    [AcceptHeader("application/vnd.full")]
+    public async Task<IActionResult> GetServiceBookingsFull(Guid id,
+        CancellationToken cancellationToken)
+    {
+        var serviceBookings = await _context.ServiceBookings.AsNoTracking()
+                .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
+                .Where(v => v.VehicleId == id)
+                .Select(v => v.ToFullDto())
+                .ToListAsync(cancellationToken);
+
+        return Ok(serviceBookings);
+    }
+
+    [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -44,7 +59,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
                 .Include(v => v.C)
                 .Include(v => v.Fleet)
                 .Include(v => v.DriverVehicles).ThenInclude(dv => dv.Driver)
-                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
     }
@@ -114,13 +129,40 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     }
 
     [HttpPost]
+    [Route("{id}/fleet")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> AssignFleetToVehicle(
+        Guid id,
+        [FromBody] AssignFleetToVehicleDto fleet,
+        CancellationToken cancellationToken)
+    {
+        await new AssignFleetToVehicle(_context)
+            .AssignAsync(id, fleet.FleetCode, cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("{id}/fleet")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemoveFleetFromVehicle(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await new RemoveFleetFromVehicle(_context)
+            .RemoveAsync(id, cancellationToken);
+        return Ok();
+    }
+
+    
+
+    [HttpPost]
     public async Task<IActionResult> CreateVehicle(
         [FromBody] VehicleDto vehicleDto,
         CancellationToken cancellationToken)
     {
         var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm, 
             vehicleDto.Make!, vehicleDto.Model!,
-            vehicleDto.DateFirstRegistered, vehicleDto.DateFirstRegistered,
+            vehicleDto.DateFirstRegistered, vehicleDto.MotDue,
             new Address(vehicleDto.Address.Street,
                   vehicleDto.Address.Locality,
                   vehicleDto.Address.Town,
@@ -165,7 +207,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         vehicle.Vrm = request.Vrm;
         vehicle.UpdateModel(request.Make!, request.Model!);
-
+        vehicle.Mot.Due = request.MotDue;
 
         if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
         {
@@ -207,9 +249,10 @@ public static partial class DomainExtensions
             vehicle.Model,
             vehicle.ChassisNumber,
             vehicle.DateFirstRegistered,
+            vehicle.Mot.Due,
             vehicle.Address.ToFullDto(),
             vehicle.C is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.C.Code, vehicle.C.Name),
-            vehicle.Fleet is null ? null : new FleetShortDto(vehicle.Fleet.Code, vehicle.Fleet.Name),
+            vehicle.Fleet is null ? null : new FleetShortDto(vehicle.CompanyCode, vehicle.Fleet.Code, vehicle.Fleet.Name),
             vehicle.DriverVehicles.Select(x => x.Driver.ToShortDto()).ToList()
             );
 

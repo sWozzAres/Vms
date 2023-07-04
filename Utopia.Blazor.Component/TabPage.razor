@@ -1,8 +1,10 @@
 ﻿@inject ILogger<TabPage> Logger
 
-<div id="@Id" role="tabpanel" aria-labelledby="tab-@Index" class="@className">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div id="@Id" role="tabpanel" aria-labelledby="tab-@Index" class="@className">
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
     [CascadingParameter] TabControl Parent { get; set; } = null!;
@@ -27,7 +29,7 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        Logger.LogInformation("SetParametersAsync() {index}",Index);
+        Logger.LogInformation("SetParametersAsync() {index}", Index);
         await base.SetParametersAsync(parameters);
         //await Task.Delay(1000);
     }

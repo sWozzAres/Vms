@@ -1,15 +1,15 @@
-﻿@page "/vehicle/view/{id:guid}"
+﻿@page "/servicebooking/view/{id:guid}"
 @inject ServerApiHttpClient Http
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
 <PageTitle>Vehicle</PageTitle>
 
-<ViewTemplate TypeName = "Vehicle" Title="@Title">
+<ViewTemplate TypeName="Service Booking" Title="@Title">
     <IconContent>
-        <div class="entity-svg-vehicle">
-            <svg viewBox="0 0 512 512">
-                <use xlink:href="icons/solid.svg#car" />
+        <div class="entity-svg-servicebooking">
+            <svg viewBox="0 0 448 512">
+                <use xlink:href="icons/solid.svg#book" />
             </svg>
         </div>
     </IconContent>
@@ -17,40 +17,32 @@
         <button onclick="Follow">Follow</button>
     </Buttons>
     <HeaderContent>
-        @if (vehicle is not null)
+        @if (serviceBooking is not null)
         {
             <dl>
                 <div class="namevalue">
                     <dt>Vrm</dt>
-                    <dd>@vehicle.Vrm</dd>
+                    <dd>@serviceBooking.Vrm</dd>
                 </div>
                 <div class="namevalue">
                     <dt>Make</dt>
-                    <dd>@vehicle.Make</dd>
+                    <dd>@serviceBooking.Make</dd>
                 </div>
                 <div class="namevalue">
                     <dt>Model</dt>
-                    <dd>@vehicle.Model</dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Customer</dt>
-                    <dd><a href="">@vehicle.Customer?.Name</a></dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Fleet</dt>
-                    <dd><a href="">@vehicle.Fleet?.Name</a></dd>
+                    <dd>@serviceBooking.Model</dd>
                 </div>
             </dl>
         }
     </HeaderContent>
     <ChildContent>
-        @if (vehicle is not null)
+        @if (serviceBooking is not null)
         {
             <TabControl Title="Vehicle Tabs" TitleVisible="false">
                 <TabPage Text="Details">
                     @if (isLoaded)
                     {
-                        <EditFormTemplate TModel="VehicleDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
+                        @* <EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
                             <DataAnnotationsValidator />
 
                             <div class="form-section">
@@ -109,16 +101,11 @@
                                     <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
                                 </fieldset>
                             </div>
-                        </EditFormTemplate>
+                        </EditFormTemplate> *@
                     }
                 </TabPage>
-                <TabPage Text="Related">
-                    <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="Reload" />
-                    <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="Reload" />
-                    <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="Reload" />
-                </TabPage>
-                <TabPage Text="Work">
-                    <WorkList Id="Id"/>
+                <TabPage Text="Events">
+                    <p>TODO</p>
                 </TabPage>
             </TabControl>
         }
@@ -129,38 +116,23 @@
 @code {
     [Parameter] public Guid Id { get; set; }
 
-    EditFormTemplate<VehicleDto> editForm = null!;
-    List<SelectOption<string?>> makeOptions = null!;
-    List<SelectOption<string?>> modelOptions = null!;
-    List<SelectOption<string?>> companyOptions = null!;
+    EditFormTemplate<ServiceBookingDto> editForm = null!;
+    
     bool isLoaded;
-    VehicleFullDto? vehicle;
-    string Title => vehicle is null ? "" : vehicle.Vrm;
+    ServiceBookingFullDto? serviceBooking;
+    string Title => serviceBooking is null ? "" : serviceBooking.Id.ToString();
 
     async Task Reload()
     {
-        vehicle = await Http.GetVehicleFull(Id);
+        serviceBooking = await Http.GetServiceBookingFull(Id);
     }
 
-    async Task OnMakeChanged()
+    async Task<ServiceBookingDto?> LoadVehicle()
     {
-        modelOptions = UIOptions.BuildModelOptions(editForm.Model.Make is null
-            ? null
-            : await Http.GetModelsShortAsync(editForm.Model.Make));
-        editForm.Model.Model = null;
-    }
-
-    async Task<VehicleDto?> LoadVehicle()
-    {
-        return await Task.FromResult(vehicle is null ? null : vehicle.ToDto());
+        return await Task.FromResult(serviceBooking is null ? null : serviceBooking.ToDto());
     }
 
     async Task Follow()
-    {
-        await Task.CompletedTask;
-    }
-
-    async Task NewDriver()
     {
         await Task.CompletedTask;
     }
@@ -181,28 +153,7 @@
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
 
-        vehicle = await Http.GetVehicleFull(Id);
-
-        var companies = Http.GetCompaniesShortAsync();
-        var makes = Http.GetMakesShortAsync();
-
-        if (vehicle.Make is not null)
-        {
-            var models = Http.GetModelsShortAsync(vehicle.Make);
-
-            await Task.WhenAll(companies, makes, models);
-
-            modelOptions = UIOptions.BuildModelOptions(models.Result);
-        }
-        else
-        {
-            await Task.WhenAll(companies, makes);
-
-            modelOptions = UIOptions.BuildModelOptions(null);
-        }
-
-        companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
-        makeOptions = UIOptions.BuildMakeOptions(makes.Result);
+        serviceBooking = await Http.GetServiceBookingFull(Id);
 
         isLoaded = true;
     }

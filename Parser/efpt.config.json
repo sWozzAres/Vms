@@ -1,0 +1,109 @@
+﻿{
+   "CodeGenerationMode": 3,
+   "ContextClassName": "Vms.DataContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Parser",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "Tables": [
+      {
+         "Name": "[dbo].[Company]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Customer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CustomerNetwork]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Driver]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DriverVehicles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Fleet]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FleetNetwork]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Network]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[NetworkSupplier]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ServiceBooking]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ServiceBookingSupplier]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Supplier]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SupplierFranchise]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Vehicle]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VehicleMake]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VehicleModel]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VehicleMot]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VehicleVrm]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "skylake\\sql2019.Vms.Data.dbo",
+   "UncountableWords": null,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UseSchemaFolders": false,
+   "UseSpatial": false,
+   "UseT4": false
+}

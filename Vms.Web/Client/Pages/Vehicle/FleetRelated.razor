@@ -1,20 +1,20 @@
 ﻿@using System.Diagnostics.CodeAnalysis;
-@inject ILogger<CustomerRelated> Logger
+@inject ILogger<FleetRelated> Logger
 @inject ServerApiHttpClient Api
 
-<RelatedItem TypeName="Customer" Item="Customer" Context="customer">
+<RelatedItem TypeName="Fleet" Item="Fleet" Context="customer">
     <IconContent>
-        <div class="entity-svg-customer">
-            <svg viewBox="0 0 512 512">
-                <use xlink:href="icons/solid.svg#landmark" />
+        <div class="entity-svg-fleet">
+            <svg viewBox="0 0 448 512">
+                <use xlink:href="icons/solid.svg#flag-checkered" />
             </svg>
         </div>
     </IconContent>
     <Buttons>
-        <button @onclick="() => addCustomerDialogActive = true">Change</button>
+        <button @onclick="() => addFleetDialogActive = true">Change</button>
     </Buttons>
     <ItemTemplate>
-        
+     
             <div class="content-header">
                 <h1><a href="/customer/view/@customer!.Code">@customer!.Name</a></h1>
                 <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right"
@@ -24,11 +24,11 @@
                 <dt>Code:</dt>
                 <dd>@customer.Code</dd>
             </dl>
-        
+  
     </ItemTemplate>
 </RelatedItem>
 
-@if (removeCustomerDialogActive)
+@if (removeFleetDialogActive)
 {
     <Dialog AutoShow="Dialog.ShowMode.ShowModal">
         <div class="dialog-container">
@@ -36,12 +36,12 @@
                 <h1>Confirm</h1>
             </div>
             <div class="dialog-content">
-                <p>Are you sure you want to remove @selectedCustomer.Name ?</p>
+                <p>Are you sure you want to remove @selectedFleet.Name ?</p>
             </div>
             <div class="dialog-footer">
                 <div class="dialog-controls">
-                    <button @onclick="() => removeCustomerDialogActive = false">No</button>
-                    <button type="submit" @onclick="RemoveCustomerFromVehicle">Yes</button>
+                    <button @onclick="() => removeFleetDialogActive = false">No</button>
+                    <button type="submit" @onclick="RemoveFleetFromVehicle">Yes</button>
                 </div>
                 @if (removeErrorMessage is not null)
                 {
@@ -52,12 +52,12 @@
     </Dialog>
 }
 
-@if (addCustomerDialogActive)
+@if (addFleetDialogActive)
 {
-    <ListSelector TItem="CustomerShortDto" Title="Find Customer"
-                  OnSelected="CustomerSearchDialogSelect"
-                  OnGetItems="Api.GetCustomersShortAsync"
-                  OnClose="() => addCustomerDialogActive = false">
+    <ListSelector TItem="FleetShortDto" Title="Find Fleet"
+                  OnSelected="FleetSearchDialogSelect"
+                  OnGetItems="Api.GetFleetsShortAsync"
+                  OnClose="() => addFleetDialogActive = false">
         <TableHeader>
             <th>Code</th>
             <th>Name</th>
@@ -70,47 +70,47 @@
 }
 
 @code {
-    [Parameter, EditorRequired] public CustomerShortDto? Customer { get; set; } = null!;
+    [Parameter, EditorRequired] public FleetShortDto? Fleet { get; set; } = null!;
     [Parameter, EditorRequired] public Guid VehicleId { get; set; }
     [Parameter, EditorRequired] public EventCallback OnChanged { get; set; }
 
-    bool addCustomerDialogActive = false;
-    bool removeCustomerDialogActive = false;
-    CustomerShortDto selectedCustomer = null!;
+    bool addFleetDialogActive = false;
+    bool removeFleetDialogActive = false;
+    FleetShortDto selectedFleet = null!;
     string removeErrorMessage = null!;
 
     const string optionRemove = "Remove";
     string[] driverOptions = new string[] { optionRemove };
-    void OptionSelected(string option, CustomerShortDto customer)
+    void OptionSelected(string option, FleetShortDto customer)
     {
         if (option == optionRemove)
         {
-            selectedCustomer = customer;
-            removeCustomerDialogActive = true;
+            selectedFleet = customer;
+            removeFleetDialogActive = true;
         }
     }
 
-    async Task CustomerSearchDialogSelect(CustomerShortDto item)
+    async Task FleetSearchDialogSelect(FleetShortDto item)
     {
-        await Api.AssignCustomerToVehicle(VehicleId, item.Code);
+        await Api.AssignFleetToVehicle(VehicleId, item.Code);
 
         await OnChanged.InvokeAsync();
 
-        addCustomerDialogActive = false;
+        addFleetDialogActive = false;
     }
 
-    async Task RemoveCustomerFromVehicle()
+    async Task RemoveFleetFromVehicle()
     {
         try
         {
-            await Api.RemoveCustomerFromVehicle(VehicleId);
+            await Api.RemoveFleetFromVehicle(VehicleId);
 
             if (OnChanged.HasDelegate)
             {
                 await OnChanged.InvokeAsync();
             }
 
-            removeCustomerDialogActive = false;
+            removeFleetDialogActive = false;
         }
         catch (Exception ex)
         {

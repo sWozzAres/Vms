@@ -28,6 +28,7 @@ public class CreateServiceBooking
         public async Task<ServiceBooking> CreateBooking(CreateBookingRequest request, CancellationToken cancellationToken)
         {
             var booking = new ServiceBooking(
+                self.CompanyCode,
                 self.Id,
                 request.PreferredDate1,
                 request.PreferredDate2,
@@ -37,17 +38,19 @@ public class CreateServiceBooking
 
             context.DbContext.ServiceBookings.Add(booking);
 
-            var assigned = await new AssignSupplierUseCase(context.DbContext, new SupplierLocator(context.DbContext))
-                .Assign(new(booking.Id), cancellationToken);
+            //var assigned = await new AssignSupplierUseCase(context.DbContext, new SupplierLocator(context.DbContext))
+            //    .Assign(new(booking.Id), cancellationToken);
+            
+            //TODO
 
-            return booking;
+            return await Task.FromResult(booking);
         }
     }
 }
 
 public record CreateBookingRequest(
     Guid VehicleId,
-    DateOnly PreferredDate1,
+    DateOnly? PreferredDate1,
     DateOnly? PreferredDate2,
     DateOnly? PreferredDate3,
     bool IncludeMot

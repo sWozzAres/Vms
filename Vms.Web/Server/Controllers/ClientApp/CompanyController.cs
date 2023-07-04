@@ -42,6 +42,24 @@ public class CompanyController : ControllerBase
     }
 
     [HttpGet]
+    [Route("{companyCode}/fleet/{code}")]
+    [AcceptHeader("application/vnd.short")]
+    [ProducesResponseType(typeof(FleetShortDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetFleetShort(string companyCode, string code, CancellationToken cancellationToken)
+    {
+        var fleet = await _context.Fleets.AsNoTracking()
+            .SingleOrDefaultAsync(d => d.CompanyCode == companyCode && d.Code == code, cancellationToken);
+
+        if (fleet is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new FleetShortDto(fleet.CompanyCode, fleet.Code, fleet.Name));
+    }
+
+    [HttpGet]
     [AcceptHeader("application/vnd.short")]  
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {

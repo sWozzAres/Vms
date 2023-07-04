@@ -3,7 +3,7 @@
 public record DriverShortDto(Guid Id, string companyCode, string EmailAddress, string FullName, string MobileNumber);
 
 public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Make, string Model, string? ChassisNumber,
-    DateOnly DateFirstRegistered, AddressFullDto Address, CustomerShortDto? Customer,
+    DateOnly DateFirstRegistered, DateOnly MotDue, AddressFullDto Address, CustomerShortDto? Customer,
     FleetShortDto? Fleet, List<DriverShortDto> Drivers)
 { 
     public VehicleDto ToDto()
@@ -16,6 +16,7 @@ public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Mak
             Model = Model,
             ChassisNumber = ChassisNumber,
             DateFirstRegistered = DateFirstRegistered,
+            MotDue = MotDue,
             Address = new AddressDto()
             {
                 Street = Address.Street,
@@ -34,6 +35,6 @@ public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Mak
 }
 
 public record CustomerShortDto(string CompanyCode, string Code, string Name);
-public record FleetShortDto(string Code, string Name);
+public record FleetShortDto(string CompanyCode, string Code, string Name);
 public record AddressFullDto(string Street, string Locality, string Town, string Postcode, GeometryFullDto Location);
 public record GeometryFullDto(double Latitude, double Longitude);

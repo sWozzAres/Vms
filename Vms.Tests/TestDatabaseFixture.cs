@@ -40,7 +40,7 @@ public class TestDatabaseFixture : IAsyncLifetime
 
                     using var transaction = await context.BeginTransactionAsync() ?? throw new InvalidOperationException("Transaction cannot begin.");
 
-                    var company = await new CreateCompany(context).CreateAsync(new("TEST001", "Test Company"));
+                    var company = new CreateCompany(context).Create(new("TEST001", "Test Company"));
 
                     var customer1 = await new CreateCustomer(context).CreateAsync(new(company.Code, "CUS001", "Customer #1"));
                     var customer2 = await new CreateCustomer(context).CreateAsync(new(company.Code, "CUS002", "Customer #2"));

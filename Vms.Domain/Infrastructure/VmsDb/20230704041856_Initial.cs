@@ -317,8 +317,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PreferredDate1 = table.Column<DateOnly>(type: "date", nullable: false),
+                    PreferredDate1 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate3 = table.Column<DateOnly>(type: "date", nullable: true),
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
@@ -328,10 +329,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     table.PrimaryKey("PK_ServiceBooking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ServiceBooking_Vehicle_VehicleId",
-                        column: x => x.VehicleId,
+                        name: "FK_ServiceBookings_Vehicle",
+                        columns: x => new { x.CompanyCode, x.VehicleId },
                         principalTable: "Vehicle",
-                        principalColumn: "Id",
+                        principalColumns: new[] { "CompanyCode", "Id" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -470,9 +471,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 column: "SupplierCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceBooking_VehicleId",
+                name: "IX_ServiceBooking_CompanyCode_VehicleId",
                 table: "ServiceBooking",
-                column: "VehicleId");
+                columns: new[] { "CompanyCode", "VehicleId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceBookingSupplier_SupplierCode",

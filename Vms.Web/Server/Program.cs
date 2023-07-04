@@ -39,16 +39,19 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("VmsDbConnection"),
-                sqlOptions =>
-                {
-                    sqlOptions.UseNetTopologySuite();
-                    sqlOptions.UseDateOnlyTimeOnly();
-                    sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                    //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    sqlOptions.EnableRetryOnFailure();
-                }), ServiceLifetime.Scoped
-            );
+{
+    options.EnableSensitiveDataLogging();
+
+    options.UseSqlServer(builder.Configuration.GetConnectionString("VmsDbConnection"), sqlOptions =>
+    {
+        sqlOptions.UseNetTopologySuite();
+        sqlOptions.UseDateOnlyTimeOnly();
+        sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+        //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+        sqlOptions.EnableRetryOnFailure();
+    });
+
+}, ServiceLifetime.Scoped);
 
 builder.Services.AddApplicationSecurity();
 

@@ -1,0 +1,111 @@
+﻿@inject ServerApiHttpClient Http
+@inject NavigationManager NavigationManager
+@inject ILogger<WorkList> Logger;
+
+<button @onclick="NewServiceBooking">New</button>
+
+@if (serviceBookings is not null)
+{
+    foreach (var serviceBooking in serviceBookings)
+    {
+        <RelatedItem TypeName="Service Booking" Item="serviceBooking" Context="sb">
+            <IconContent>
+                <div class="entity-svg-servicebooking">
+                    <svg viewBox="0 0 448 512">
+                        <use xlink:href="icons/solid.svg#book" />
+                    </svg>
+                </div>
+            </IconContent>
+            <Buttons>
+                <button>Open</button>
+            </Buttons>
+            <ItemTemplate>
+
+                <div class="content-header">
+                    <h1><a href="/servicebooking/view/@sb.Id">@sb.Id</a></h1>
+                    @* <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right"
+                                OnSelectCallback="(val) => OptionSelected(val, customer)" /> *@
+                </div>
+                <dl>
+                    <dt>Id:</dt>
+                    <dd>@sb.Id</dd>
+                </dl>
+
+            </ItemTemplate>
+        </RelatedItem>
+    }
+}
+
+@code {
+    [CascadingParameter] TabControl TabControl { get; set; } = null!;
+    [CascadingParameter] TabPage TabPage { get; set; } = null!;
+
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+
+    bool IsActive => TabControl.ActivePage == TabPage;
+    List<ServiceBookingFullDto>? serviceBookings;
+
+    async Task NewServiceBooking()
+    {
+        var serviceBooking = await Http.CreateServiceBooking(Id);
+        NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
+    }
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("OnInitialized()");
+        if (Id == Guid.Empty) throw new InvalidOperationException($"You must supply the '{nameof(Id)}' parameter.");
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        Logger.LogInformation("SetParametersAsync()");
+        await base.SetParametersAsync(parameters);
+        //await Task.Delay(1000);
+    }
+    // protected override void OnInitialized()
+    // {
+    //     Logger.LogInformation("OnInitialized()");
+    //     base.OnInitialized();
+    // }
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync()");
+        await base.OnInitializedAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnParametersSet()
+    {
+        Logger.LogInformation("OnParametersSet()");
+        base.OnParametersSet();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        Logger.LogInformation("OnParametersSetAsync()");
+        await base.OnParametersSetAsync();
+        //await Task.Delay(1000);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+        base.OnAfterRender(firstRender);
+
+
+
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+        //await Task.Delay(1000);
+
+        Logger.LogWarning(IsActive ? "Active" : "Inactive");
+
+        if (serviceBookings is null && IsActive)
+        {
+            serviceBookings = await Http.GetServiceBookingsFullForVehicleAsync(Id);
+            StateHasChanged();
+        }
+    }
+}

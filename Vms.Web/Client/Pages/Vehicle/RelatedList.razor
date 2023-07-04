@@ -1,10 +1,10 @@
 ﻿@typeparam TItem
-<div class="related-list">
+<section class="related-section related-list">
     <div class="header">
         <div class="icon">
             @IconContent
         </div>
-        <span class="title">@TypeName (@Items.Count())</span>
+        <h1>@TypeName (@Items.Count())</h1>
         <div class="buttons btn-group">
             @Buttons
         </div>
@@ -12,10 +12,12 @@
     <div class="content">
         @foreach(var item in Items)
         {
+            <article>
             @ItemTemplate(item)
+            </article>
         }
     </div>
-</div>
+</section>
 @code {
     [Parameter, EditorRequired] public string TypeName { get; set; } = null!;
     [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = null!;

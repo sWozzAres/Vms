@@ -1,10 +1,10 @@
 ﻿@typeparam TItem where TItem : class
-<div class="related-list">
+<section class="related-section related-item">
     <div class="header">
         <div class="icon">
             @IconContent
         </div>
-        <span class="title">@TypeName</span>
+        <h1>@TypeName</h1>
         <div class="buttons btn-group">
             @Buttons
         </div>
@@ -12,10 +12,16 @@
     <div class="content">
         @if (Item is not null)
         {
-            @ItemTemplate(Item)
+            <article>
+                @ItemTemplate(Item)
+            </article>
+        }
+        else
+        {
+            <p>@TypeName has not been set.</p>
         }
     </div>
-</div>
+</section>
 @code {
     [Parameter, EditorRequired] public string TypeName { get; set; } = null!;
     [Parameter, EditorRequired] public TItem? Item { get; set; } = null!;

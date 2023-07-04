@@ -258,10 +258,16 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CompanyCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
                     b.Property<DateOnly?>("MotDue")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("PreferredDate1")
+                    b.Property<DateOnly?>("PreferredDate1")
                         .HasColumnType("date");
 
                     b.Property<DateOnly?>("PreferredDate2")
@@ -278,7 +284,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VehicleId");
+                    b.HasIndex("CompanyCode", "VehicleId");
 
                     b.ToTable("ServiceBooking", (string)null);
                 });
@@ -515,9 +521,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
                         .WithMany("ServiceBookings")
-                        .HasForeignKey("VehicleId")
+                        .HasForeignKey("CompanyCode", "VehicleId")
+                        .HasPrincipalKey("CompanyCode", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_ServiceBookings_Vehicle");
 
                     b.OwnsOne("Vms.Domain.Entity.ServiceBookingSupplier", "Supplier", b1 =>
                         {
