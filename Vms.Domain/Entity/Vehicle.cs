@@ -11,7 +11,7 @@ namespace Vms.Domain.Entity
         public string Model { get; private set; } = null!;
         public string? ChassisNumber { get; private set; }
         public DateOnly DateFirstRegistered { get; private set; }
-        public Address Address { get; private set; } = null!;
+        public Address Address { get; set; } = null!;
         public string? CustomerCode { get; private set; }
         public string? FleetCode { get; private set; }
         //public ICollection<VehicleMot> Mots { get; set; } = new List<VehicleMot>();

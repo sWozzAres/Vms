@@ -22,7 +22,7 @@
             <dl>
                 <div class="namevalue">
                     <dt>Vrm</dt>
-                    <dd>@serviceBooking.Vrm</dd>
+                    <dd><a href="/vehicle/view/@serviceBooking.VehicleId">@serviceBooking.Vrm</a></dd>
                 </div>
                 <div class="namevalue">
                     <dt>Make</dt>
@@ -38,15 +38,26 @@
     <ChildContent>
         @if (serviceBooking is not null)
         {
+            <TaskView ServiceBooking="serviceBooking"/>
             <TabControl Title="Vehicle Tabs" TitleVisible="false">
                 <TabPage Text="Details">
                     @if (isLoaded)
                     {
-                        @* <EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
+                        <EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/ServiceBooking" OnLoad="LoadServiceBooking">
                             <DataAnnotationsValidator />
 
                             <div class="form-section">
-                                <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
+                                <label for="preferreddate1">Preferred Date 1</label>
+                                <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
+                                <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
+                                    <label for="preferreddate2">Preferred Date 2</label>
+                                <InputDate id="preferreddate2" @bind-Value="editForm.Model.PreferredDate2" />
+                                <ValidationMessage For="@(() => editForm.Model.PreferredDate2)" />
+                                    <label for="preferreddate3">Preferred Date 3</label>
+                                <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
+                                <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
+
+                                @* <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
                                 <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
 
                                 <label for="vrm">Vrm</label>
@@ -63,17 +74,17 @@
                                 <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
                                 <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
 
-                                <label for="datereg">First Registered</label>
-                                <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
-                                <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
+                                <label for="preferreddate1">Preferred Date 1</label>
+                                <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
+                                <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
 
                                 <label for="motdue">MOT Due</label>
                                 <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
-                                <ValidationMessage For="@(() => editForm.Model.MotDue)" />
+                                <ValidationMessage For="@(() => editForm.Model.MotDue)" /> *@
 
                             </div>
                             <div class="form-section">
-                                <fieldset>
+                                @* <fieldset>
                                     <legend>Address</legend>
 
                                     <label for="street">Street</label>
@@ -99,9 +110,9 @@
                                     <label for="longitude">Longitude</label>
                                     <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
                                     <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-                                </fieldset>
+                                </fieldset> *@
                             </div>
-                        </EditFormTemplate> *@
+                        </EditFormTemplate>
                     }
                 </TabPage>
                 <TabPage Text="Events">
@@ -127,7 +138,7 @@
         serviceBooking = await Http.GetServiceBookingFull(Id);
     }
 
-    async Task<ServiceBookingDto?> LoadVehicle()
+    async Task<ServiceBookingDto?> LoadServiceBooking()
     {
         return await Task.FromResult(serviceBooking is null ? null : serviceBooking.ToDto());
     }

@@ -27,6 +27,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         var serviceBookings = await _context.ServiceBookings.AsNoTracking()
                 .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
+                .Include(s=>s.Supplier).ThenInclude(s=>s.Supplier)
                 .Where(v => v.VehicleId == id)
                 .Select(v => v.ToFullDto())
                 .ToListAsync(cancellationToken);
@@ -208,6 +209,8 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         vehicle.Vrm = request.Vrm;
         vehicle.UpdateModel(request.Make!, request.Model!);
         vehicle.Mot.Due = request.MotDue;
+        vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
+            new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326});
 
         if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
         {

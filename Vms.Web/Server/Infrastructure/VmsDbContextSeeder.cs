@@ -64,12 +64,6 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     {
         _logger.LogInformation("Seeding database.");
 
-        if (_context.Companies.Any())
-        {
-            _logger.LogInformation("Seeding skipped. The database already contains data.");
-            return;
-        }
-
         var strategy = _context.Database.CreateExecutionStrategy();
 
         await strategy.ExecuteAsync(async () =>
@@ -77,7 +71,17 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             using var transaction = _context.Database.BeginTransaction();
             try
             {
-                await SeedData();
+                if (!_context.Companies.Any())
+                {
+                    _logger.LogInformation("Seeding main data.");
+                    await SeedData();
+                }
+
+                if (!_context.Suppliers.Any())
+                {
+                    _logger.LogInformation("Seeding suppliers.");
+                    await SeedSuppliers();
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -132,7 +136,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             }
         }
 
-        await SeedSuppliers();
+        //await SeedSuppliers();
 
         // generate make / model data
         var makes = MakeNames.Select(name =>
@@ -248,23 +252,51 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 return $"{RandomLetter()}{RandomLetter()}{firstRegistered.Year - 2000 + add:D2}{RandomLetter()}{RandomLetter()}{RandomLetter()}";
             }
         }
+    }
 
+    async Task SeedSuppliers()
+    {
+        var s1 = new CreateSupplier(_context)
+                .Create(new CreateSupplierRequest(
+                    "TSTSUP01",
+                    "Thrupp Tyre Co Ltd",
+                    new Address("Unit 12 Griffin Mill", "London Rd", "STROUD", "GL52AZ", new Point(-2.204244578769126, 51.73021720095717) { SRID = 4326 }), true));
 
+        var s2 = new CreateSupplier(_context)
+                .Create(new CreateSupplierRequest(
+                    "TSTSUP02",
+                    "Warwick Car Co",
+                    new Address("Fromeside Ind Est", "Doctor Newtons Way", "STROUD", "GL53JX", new Point(-2.217698852580117, 51.74259678708762) { SRID = 4326 }), true));
 
-        async Task SeedSuppliers()
+        var s3 = new CreateSupplier(_context)
+                .Create(new CreateSupplierRequest(
+                    "TSTSUP03",
+                    "Blake Services Stroud Ltd",
+                    new Address("Hopes Mill Business Centre", "", "STROUD", "GL52SE", new Point(-2.197510975726595, 51.72249258962455) { SRID = 4326 }), true));
+
+        var s4 = new CreateSupplier(_context)
+                .Create(new CreateSupplierRequest(
+                    "TSTSUP04",
+                    "Lansdown Road Motors Ltd",
+                    new Address("Lansdown Rd", "", "STROUD", "GL51BW", new Point(-2.210593551187789, 51.74831757007313) { SRID = 4326 }), true));
+
+        var s5 = new CreateSupplier(_context)
+                .Create(new CreateSupplierRequest(
+                    "TSTSUP05",
+                    "Kwik Fit - Dursley",
+                    new Address("Draycott Business Park", "Cam", "Dursley", "GL115DQ", new Point(-2.210593551187789, 51.74831757007313) { SRID = 4326 }), true));
+
+        foreach (var i in Enumerable.Range(1, 100))
         {
-            foreach (var i in Enumerable.Range(1, 100))
-            {
-                var supplier = new CreateSupplier(_context)
-                    .Create(new CreateSupplierRequest(
-                        $"SUP{i:D4}",
-                        $"Supplier #{i}",
-                        new Address("", "", "", "", RandomPoint()),
-                        true));
-            }
-
-            await Task.CompletedTask;
+            var supplier = new CreateSupplier(_context)
+                .Create(new CreateSupplierRequest(
+                    $"SUP{i:D4}",
+                    $"Supplier #{i}",
+                    new Address("", "", "", "", RandomPoint()),
+                    true));
         }
+
+        await Task.CompletedTask;
     }
 }
 

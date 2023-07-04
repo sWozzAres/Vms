@@ -24,7 +24,8 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 
 public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
     string Vrm, string Make, string Model,
-    DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3)
+    DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3,
+    SupplierShortDto? Supplier)
 {
     public ServiceBookingDto ToDto()
         => new()

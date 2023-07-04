@@ -50,6 +50,6 @@ public class UserProvider : IUserProvider
         //_userId = InMigration ? "" : context.HttpContext?.User.UserId() ?? throw new InvalidOperationException("Failed to retrieve user id.");
         //_tenantId = InMigration ? "*" : context.HttpContext?.User.TenantId() ?? throw new InvalidOperationException("Failed to retrieve tenant id.");
         _userId = context.HttpContext?.User.UserId() ?? "";
-        _tenantId = context.HttpContext?.User.TenantId() ?? "";
+        _tenantId = InMigration ? "*" : context.HttpContext?.User.TenantId() ?? "";
     }
 }

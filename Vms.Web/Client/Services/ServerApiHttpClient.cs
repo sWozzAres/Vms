@@ -31,6 +31,13 @@ public class ServerApiHttpClient
         }
     }
 
+    public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.short"));
+        return await http.GetFromJsonAsync<List<SupplierLocatorDto>>($"/api/servicebooking/{id}/suppliers");
+    }
+
     public async Task<ServiceBookingFullDto> GetServiceBookingFull(Guid id)
     {
         http.DefaultRequestHeaders.Accept.Clear();

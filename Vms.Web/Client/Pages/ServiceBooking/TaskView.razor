@@ -1,0 +1,47 @@
+﻿@inject ServerApiHttpClient Api
+
+<div class="taskview">
+    @if (ServiceBooking.Supplier is null)
+    {
+        <button @onclick="() => assignSupplierDialogActive = true">Assign Supplier</button>
+    }
+</div>
+
+@if (assignSupplierDialogActive)
+{
+    <SupplierSelector TItem="SupplierLocatorDto" Id="ServiceBooking.Id"
+                      OnSelected="CustomerSearchDialogSelect"
+                      OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
+                      OnClose="() => assignSupplierDialogActive = false">
+        <TableHeader>
+            <th>Distance</th>
+            <th>Code</th>
+            <th>Name</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>@context.DistanceInMiles.ToString("0.00")</td>
+            <td>@context.Code</td>
+            <td>@context.Name</td>
+        </RowTemplate>
+    </SupplierSelector>
+}
+
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+
+    bool assignSupplierDialogActive;
+
+    async Task CustomerSearchDialogSelect(SupplierLocatorDto item)
+    {
+        //await Api.AssignCustomerToVehicle(VehicleId, item.Code);
+
+        //await OnChanged.InvokeAsync();
+
+        assignSupplierDialogActive = false;
+    }
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+    }
+}
