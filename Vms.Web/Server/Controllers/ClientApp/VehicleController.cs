@@ -212,30 +212,32 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
             new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326});
 
-        if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
-        {
-            try
-            {
-                await _context.SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                _logger.LogInformation("Concurrency violation while modifying vehicle, id '{id}'.", id);
+        return Ok(vehicle.ToDto());
 
-                //if (rowVersion is not null)
-                //    return StatusCode(StatusCodes.Status412PreconditionFailed);
+        //if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
+        //{
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync(cancellationToken);
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        _logger.LogInformation("Concurrency violation while modifying vehicle, id '{id}'.", id);
 
-                //TODO retry?
-                return Problem();
-            }
+        //        //if (rowVersion is not null)
+        //        //    return StatusCode(StatusCodes.Status412PreconditionFailed);
 
-            //HttpContext.SetETag(product.RowVersion);
+        //        //TODO retry?
+        //        return Problem();
+        //    }
 
-            return Ok(vehicle.ToDto());
-        }
+        //    //HttpContext.SetETag(product.RowVersion);
 
-        // return NoContent to signify no changes
-        return NoContent();
+           
+        //}
+
+        //// return NoContent to signify no changes
+        //return NoContent();
     }
 }
 public static partial class DomainExtensions

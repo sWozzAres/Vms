@@ -6,7 +6,18 @@ input, select, textarea, .combo-input {
     font-weight: 500;
 }
 
+.details {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    
+    .task {
+        
+    }
+}
+
 form.edit-form {
+    
+
     font-size: 1rem;
     /* input:disabled, .combo-input.disabled {
         background-color: rgba(239, 239, 239, 0.3);
@@ -34,6 +45,7 @@ form.edit-form {
     }
 
     fieldset.form-grid {
+        container-type: inline-size;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-gap: 0.5em 1em;
@@ -100,13 +112,19 @@ form.edit-form {
 
 form.fullresponse {
     fieldset.form-grid {
-        @media (min-width: 80ch) {
+        @container (width >= 80ch) {
             .form-section {
                 grid-column: span 1;
             }
         }
 
-        @media (min-width: 1500px) {
+        /*@media (min-width: 80ch) {
+            .form-section {
+                grid-column: span 1;
+            }
+        }
+
+        @media (min-width: 160ch) {
             .form-section {
                 display: grid;
                 grid-template-columns: auto 1fr;
@@ -121,6 +139,6 @@ form.fullresponse {
                     grid-auto-rows: min-content;
                 }
             }
-        }
+        }*/
     }
 }

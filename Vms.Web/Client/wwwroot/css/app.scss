@@ -13,6 +13,19 @@
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.retry-load {
+    display: grid;
+    place-content: center;
+    background: #ffffff;
+
+    p {color:red;}
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
 .page {
     padding: 1em;
 }

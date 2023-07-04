@@ -5,137 +5,95 @@
 
 <PageTitle>Vehicle</PageTitle>
 
-<ViewTemplate TypeName="Service Booking" Title="@Title">
-    <IconContent>
-        <div class="entity-svg-servicebooking">
-            <svg viewBox="0 0 448 512">
-                <use xlink:href="icons/solid.svg#book" />
-            </svg>
-        </div>
-    </IconContent>
-    <Buttons>
-        <button onclick="Follow">Follow</button>
-    </Buttons>
-    <HeaderContent>
-        @if (serviceBooking is not null)
-        {
-            <dl>
-                <div class="namevalue">
-                    <dt>Vrm</dt>
-                    <dd><a href="/vehicle/view/@serviceBooking.VehicleId">@serviceBooking.Vrm</a></dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Make</dt>
-                    <dd>@serviceBooking.Make</dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Model</dt>
-                    <dd>@serviceBooking.Model</dd>
-                </div>
-            </dl>
-        }
-    </HeaderContent>
-    <ChildContent>
-        @if (serviceBooking is not null)
-        {
-            <TaskView ServiceBooking="serviceBooking"/>
-            <TabControl Title="Vehicle Tabs" TitleVisible="false">
-                <TabPage Text="Details">
-                    @if (isLoaded)
-                    {
-                        <EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/ServiceBooking" OnLoad="LoadServiceBooking">
-                            <DataAnnotationsValidator />
+@if (loadingException is not null)
+{
+    <RetryLoad Exception="loadingException" OnReload="Reload" />
+}
+else
+{
+    <ViewTemplate TypeName="Service Booking" Title="@Title">
+        <IconContent>
+            <div class="entity-svg-servicebooking">
+                <svg viewBox="0 0 448 512">
+                    <use xlink:href="icons/solid.svg#book" />
+                </svg>
+            </div>
+        </IconContent>
+        <Buttons>
+            <button onclick="Follow">Follow</button>
+        </Buttons>
+        <HeaderContent>
+            @if (serviceBooking is not null)
+            {
+                <dl>
+                    <div class="namevalue">
+                        <dt>Vrm</dt>
+                        <dd><a href="/vehicle/view/@serviceBooking.VehicleId">@serviceBooking.Vrm</a></dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Make</dt>
+                        <dd>@serviceBooking.Make</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Model</dt>
+                        <dd>@serviceBooking.Model</dd>
+                    </div>
+                </dl>
+            }
+        </HeaderContent>
+        <ChildContent>
+            @if (serviceBooking is not null)
+            {
+                <TaskView ServiceBooking="serviceBooking" />
+                <button @onclick="() => displayTask = !displayTask">Click me!</button>
+                <TabControl Title="Vehicle Tabs" TitleVisible="false">
+                    <TabPage Text="Details">
 
-                            <div class="form-section">
-                                <label for="preferreddate1">Preferred Date 1</label>
-                                <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
-                                <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
-                                    <label for="preferreddate2">Preferred Date 2</label>
-                                <InputDate id="preferreddate2" @bind-Value="editForm.Model.PreferredDate2" />
-                                <ValidationMessage For="@(() => editForm.Model.PreferredDate2)" />
-                                    <label for="preferreddate3">Preferred Date 3</label>
-                                <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
-                                <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
-
-                                @* <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
-                                <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
-
-                                <label for="vrm">Vrm</label>
-                                <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
-                                <ValidationMessage For="@(() => editForm.Model.Vrm)" />
-
-                                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
-                                <ValidationMessage For="@(() => editForm.Model.Make)" />
-
-                                <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
-                                <ValidationMessage For="@(() => editForm.Model.Model)" />
-
-                                <label for="chassis">Chassis Number</label>
-                                <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
-                                <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
-
-                                <label for="preferreddate1">Preferred Date 1</label>
-                                <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
-                                <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
-
-                                <label for="motdue">MOT Due</label>
-                                <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
-                                <ValidationMessage For="@(() => editForm.Model.MotDue)" /> *@
-
+                        <div class="details">
+                            <Edit Id="@Id.ToString()" OnReload="LoadServiceBooking" />
+                            <div class="task">
+                                @if (displayTask)
+                                {
+                                    <h1>Task goes here</h1>
+                                }
                             </div>
-                            <div class="form-section">
-                                @* <fieldset>
-                                    <legend>Address</legend>
+                        </div>
 
-                                    <label for="street">Street</label>
-                                    <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
-
-                                    <label for="locality">Locality</label>
-                                    <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
-
-                                    <label for="town">Town</label>
-                                    <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
-
-                                    <label for="postcode">Postcode</label>
-                                    <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
-
-                                    <label for="latitude">Latitude</label>
-                                    <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
-
-                                    <label for="longitude">Longitude</label>
-                                    <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-                                </fieldset> *@
-                            </div>
-                        </EditFormTemplate>
-                    }
-                </TabPage>
-                <TabPage Text="Events">
-                    <p>TODO</p>
-                </TabPage>
-            </TabControl>
-        }
-    </ChildContent>
-</ViewTemplate>
-
+                    </TabPage>
+                    <TabPage Text="Events">
+                        <p>TODO</p>
+                    </TabPage>
+                </TabControl>
+            }
+        </ChildContent>
+    </ViewTemplate>
+}
 
 @code {
     [Parameter] public Guid Id { get; set; }
 
-    EditFormTemplate<ServiceBookingDto> editForm = null!;
-    
-    bool isLoaded;
+    bool displayTask;
+    Exception? loadingException;
+
     ServiceBookingFullDto? serviceBooking;
     string Title => serviceBooking is null ? "" : serviceBooking.Id.ToString();
 
     async Task Reload()
     {
-        serviceBooking = await Http.GetServiceBookingFull(Id);
+        loadingException = null;
+        try
+        {
+            serviceBooking = await Http.GetServiceBookingFull(Id);
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed.");
+            loadingException = ex;
+        }
     }
 
     async Task<ServiceBookingDto?> LoadServiceBooking()
@@ -164,9 +122,9 @@
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
 
-        serviceBooking = await Http.GetServiceBookingFull(Id);
+        await Reload();
 
-        isLoaded = true;
+
     }
     protected override void OnParametersSet()
     {

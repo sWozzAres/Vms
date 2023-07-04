@@ -1,0 +1,83 @@
+﻿<EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id" ApiUrl="/api/ServiceBooking" OnLoad="OnReload">
+    <DataAnnotationsValidator />
+
+    <div class="form-section">
+        <label for="preferreddate1">Preferred Date 1</label>
+        <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
+        <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
+        <label for="preferreddate2">Preferred Date 2</label>
+        <InputDate id="preferreddate2" @bind-Value="editForm.Model.PreferredDate2" />
+        <ValidationMessage For="@(() => editForm.Model.PreferredDate2)" />
+        <label for="preferreddate3">Preferred Date 3</label>
+        <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
+        <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
+
+        @* <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
+        <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
+
+        <label for="vrm">Vrm</label>
+        <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
+        <ValidationMessage For="@(() => editForm.Model.Vrm)" />
+
+        <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
+        <ValidationMessage For="@(() => editForm.Model.Make)" />
+
+        <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
+        <ValidationMessage For="@(() => editForm.Model.Model)" />
+
+        <label for="chassis">Chassis Number</label>
+        <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
+        <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
+
+        <label for="preferreddate1">Preferred Date 1</label>
+        <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
+        <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
+
+        <label for="motdue">MOT Due</label>
+        <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
+        <ValidationMessage For="@(() => editForm.Model.MotDue)" /> *@
+
+    </div>
+    <div class="form-section">
+        @* <fieldset>
+        <legend>Address</legend>
+
+        <label for="street">Street</label>
+        <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+        <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+
+        <label for="locality">Locality</label>
+        <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+        <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+
+        <label for="town">Town</label>
+        <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+        <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+
+        <label for="postcode">Postcode</label>
+        <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+        <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+
+        <label for="latitude">Latitude</label>
+        <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+        <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+
+        <label for="longitude">Longitude</label>
+        <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+        <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
+        </fieldset> *@
+    </div>
+</EditFormTemplate>
+
+@code {
+    [Parameter, EditorRequired] public string Id { get; set; } = null!;
+    [Parameter, EditorRequired] public EditFormTemplate<ServiceBookingDto>.LoadModel OnReload { get; set; } = null!;
+
+    EditFormTemplate<ServiceBookingDto> editForm = null!;
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(Id);
+        ArgumentNullException.ThrowIfNull(OnReload);
+    }
+}
