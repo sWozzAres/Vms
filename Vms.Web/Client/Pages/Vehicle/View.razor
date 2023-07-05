@@ -1,158 +1,100 @@
 ﻿@page "/vehicle/view/{id:guid}"
+@using System.Diagnostics;
 @inject ServerApiHttpClient Http
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
 <PageTitle>Vehicle</PageTitle>
 
-<ViewTemplate TypeName = "Vehicle" Title="@Title">
-    <IconContent>
-        <div class="entity-svg-vehicle">
-            <svg viewBox="0 0 512 512">
-                <use xlink:href="icons/solid.svg#car" />
-            </svg>
-        </div>
-    </IconContent>
-    <Buttons>
-        <button onclick="Follow">Follow</button>
-    </Buttons>
-    <HeaderContent>
-        @if (vehicle is not null)
-        {
-            <dl>
-                <div class="namevalue">
-                    <dt>Vrm</dt>
-                    <dd>@vehicle.Vrm</dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Make</dt>
-                    <dd>@vehicle.Make</dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Model</dt>
-                    <dd>@vehicle.Model</dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Customer</dt>
-                    <dd><a href="">@vehicle.Customer?.Name</a></dd>
-                </div>
-                <div class="namevalue">
-                    <dt>Fleet</dt>
-                    <dd><a href="">@vehicle.Fleet?.Name</a></dd>
-                </div>
-            </dl>
-        }
-    </HeaderContent>
-    <ChildContent>
-        @if (vehicle is not null)
-        {
-            <TabControl Title="Vehicle Tabs" TitleVisible="false">
-                <TabPage Text="Details">
-                    @if (isLoaded)
-                    {
-                        <EditFormTemplate TModel="VehicleDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="LoadVehicle">
-                            <DataAnnotationsValidator />
-
-                            <div class="form-section">
-                                <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
-                                <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
-
-                                <label for="vrm">Vrm</label>
-                                <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
-                                <ValidationMessage For="@(() => editForm.Model.Vrm)" />
-
-                                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
-                                <ValidationMessage For="@(() => editForm.Model.Make)" />
-
-                                <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
-                                <ValidationMessage For="@(() => editForm.Model.Model)" />
-
-                                <label for="chassis">Chassis Number</label>
-                                <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
-                                <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
-
-                                <label for="datereg">First Registered</label>
-                                <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
-                                <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
-
-                                <label for="motdue">MOT Due</label>
-                                <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
-                                <ValidationMessage For="@(() => editForm.Model.MotDue)" />
-
-                            </div>
-                            <div class="form-section">
-                                <fieldset>
-                                    <legend>Address</legend>
-
-                                    <label for="street">Street</label>
-                                    <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
-
-                                    <label for="locality">Locality</label>
-                                    <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
-
-                                    <label for="town">Town</label>
-                                    <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
-
-                                    <label for="postcode">Postcode</label>
-                                    <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
-
-                                    <label for="latitude">Latitude</label>
-                                    <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
-
-                                    <label for="longitude">Longitude</label>
-                                    <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-                                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-                                </fieldset>
-                            </div>
-                        </EditFormTemplate>
-                    }
-                </TabPage>
-                <TabPage Text="Related">
-                    <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="Reload" />
-                    <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="Reload" />
-                    <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="Reload" />
-                </TabPage>
-                <TabPage Text="Work">
-                    <WorkList Id="Id"/>
-                </TabPage>
-            </TabControl>
-        }
-    </ChildContent>
-</ViewTemplate>
-
+@if (loadingException is not null)
+{
+    <RetryLoad Exception="loadingException" OnRetry="Load" />
+}
+else
+{
+    <ViewTemplate TypeName="Vehicle" Title="@Title">
+        <IconContent>
+            <div class="entity-svg-vehicle">
+                <svg viewBox="0 0 512 512">
+                    <use xlink:href="icons/solid.svg#car" />
+                </svg>
+            </div>
+        </IconContent>
+        <Buttons>
+            <button onclick="Follow">Follow</button>
+        </Buttons>
+        <HeaderContent>
+            @if (vehicle is not null)
+            {
+                <dl>
+                    <div class="namevalue">
+                        <dt>Vrm</dt>
+                        <dd>@vehicle.Vrm</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Make</dt>
+                        <dd>@vehicle.Make</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Model</dt>
+                        <dd>@vehicle.Model</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Customer</dt>
+                        <dd><a href="">@vehicle.Customer?.Name</a></dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Fleet</dt>
+                        <dd><a href="">@vehicle.Fleet?.Name</a></dd>
+                    </div>
+                </dl>
+            }
+        </HeaderContent>
+        <ChildContent>
+            @if (vehicle is not null)
+            {
+                <TabControl Title="Vehicle Tabs" TitleVisible="false">
+                    <TabPage Text="Details">
+                            <Edit Id="@Id.ToString()" OnLoad="async () => await Task.FromResult(vehicle.ToDto())" />
+                    </TabPage>
+                    <TabPage Text="Related">
+                        <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="Load" />
+                        <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="Load" />
+                        <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="Load" />
+                    </TabPage>
+                    <TabPage Text="Work">
+                        <WorkList Id="Id" />
+                    </TabPage>
+                </TabControl>
+            }
+        </ChildContent>
+    </ViewTemplate>
+}
 
 @code {
-    [Parameter] public Guid Id { get; set; }
+    [Parameter, EditorRequired] public Guid Id { get; set; }
 
+    Exception? loadingException;
     EditFormTemplate<VehicleDto> editForm = null!;
-    List<SelectOption<string?>> makeOptions = null!;
-    List<SelectOption<string?>> modelOptions = null!;
-    List<SelectOption<string?>> companyOptions = null!;
-    bool isLoaded;
+    
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
 
-    async Task Reload()
+    async Task Load()
     {
-        vehicle = await Http.GetVehicleFull(Id);
-    }
-
-    async Task OnMakeChanged()
-    {
-        modelOptions = UIOptions.BuildModelOptions(editForm.Model.Make is null
-            ? null
-            : await Http.GetModelsShortAsync(editForm.Model.Make));
-        editForm.Model.Model = null;
-    }
-
-    async Task<VehicleDto?> LoadVehicle()
-    {
-        return await Task.FromResult(vehicle is null ? null : vehicle.ToDto());
+        try
+        {
+            vehicle = await Http.GetVehicleFullAsync(Id);
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load service booking.");
+            loadingException = ex;
+        }
     }
 
     async Task Follow()
@@ -180,31 +122,10 @@
     {
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
+        
+        ArgumentNullException.ThrowIfNull(Id);
 
-        vehicle = await Http.GetVehicleFull(Id);
-
-        var companies = Http.GetCompaniesShortAsync();
-        var makes = Http.GetMakesShortAsync();
-
-        if (vehicle.Make is not null)
-        {
-            var models = Http.GetModelsShortAsync(vehicle.Make);
-
-            await Task.WhenAll(companies, makes, models);
-
-            modelOptions = UIOptions.BuildModelOptions(models.Result);
-        }
-        else
-        {
-            await Task.WhenAll(companies, makes);
-
-            modelOptions = UIOptions.BuildModelOptions(null);
-        }
-
-        companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
-        makeOptions = UIOptions.BuildMakeOptions(makes.Result);
-
-        isLoaded = true;
+        await Load();
     }
     protected override void OnParametersSet()
     {

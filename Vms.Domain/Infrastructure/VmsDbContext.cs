@@ -26,7 +26,8 @@ public class VmsDbContext : DbContext
     public DbSet<VehicleVrm> VehicleVrms => Set<VehicleVrm>();
     public DbSet<VehicleMake> VehicleMakes => Set<VehicleMake>();
     public DbSet<VehicleModel> VehicleModels => Set<VehicleModel>();
-
+    public DbSet<RefusalReason> RefusalReasons => Set<RefusalReason>();
+    public DbSet<RescheduleReason> RescheduleReasons => Set<RescheduleReason>();
     protected readonly IUserProvider _userProvider;
     ILogger<VmsDbContext> _logger;
     public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : base(options)
@@ -50,12 +51,18 @@ public class VmsDbContext : DbContext
         //if (!string.IsNullOrEmpty(_userProvider.TenantId))
         //if (_userProvider.TenantId != "*")
         {
+            modelBuilder.Entity<RefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<RescheduleReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<ServiceBooking>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<Driver>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<DriverVehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<Company>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.Code == _userProvider.TenantId);
             modelBuilder.Entity<Customer>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<CustomerNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<Network>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<NetworkSupplier>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<Fleet>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+            modelBuilder.Entity<FleetNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<Vehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         }
     }

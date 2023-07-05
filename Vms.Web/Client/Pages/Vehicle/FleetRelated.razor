@@ -92,7 +92,7 @@
 
     async Task FleetSearchDialogSelect(FleetShortDto item)
     {
-        await Api.AssignFleetToVehicle(VehicleId, item.Code);
+        await Api.AssignFleetToVehicleAsync(VehicleId, item.Code);
 
         await OnChanged.InvokeAsync();
 
@@ -103,7 +103,7 @@
     {
         try
         {
-            await Api.RemoveFleetFromVehicle(VehicleId);
+            await Api.RemoveFleetFromVehicleAsync(VehicleId);
 
             if (OnChanged.HasDelegate)
             {

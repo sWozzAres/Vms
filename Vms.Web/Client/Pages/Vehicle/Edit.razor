@@ -1,0 +1,120 @@
+﻿@inject ServerApiHttpClient Api
+
+<EditFormTemplate TModel="VehicleDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="OnLoad">
+    <DataAnnotationsValidator />
+    @if (isLoaded)
+    {
+        <div class="form-section">
+            <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
+            <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
+
+            <label for="vrm">Vrm</label>
+            <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
+            <ValidationMessage For="@(() => editForm.Model.Vrm)" />
+
+            <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
+            <ValidationMessage For="@(() => editForm.Model.Make)" />
+
+            <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
+            <ValidationMessage For="@(() => editForm.Model.Model)" />
+
+            <label for="chassis">Chassis Number</label>
+            <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
+            <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
+
+            <label for="datereg">First Registered</label>
+            <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
+            <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
+
+            <label for="motdue">MOT Due</label>
+            <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
+            <ValidationMessage For="@(() => editForm.Model.MotDue)" />
+
+        </div>
+        <div class="form-section">
+            <fieldset>
+                <legend>Address</legend>
+
+                <label for="street">Street</label>
+                <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+
+                <label for="locality">Locality</label>
+                <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+
+                <label for="town">Town</label>
+                <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+
+                <label for="postcode">Postcode</label>
+                <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+
+                <label for="latitude">Latitude</label>
+                <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+
+                <label for="longitude">Longitude</label>
+                <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+                <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
+            </fieldset>
+        </div>
+    }
+</EditFormTemplate>
+
+@code {
+    [Parameter, EditorRequired] public string Id { get; set; } = null!;
+    [Parameter, EditorRequired] public EditFormTemplate<VehicleDto>.LoadModel OnLoad { get; set; } = null!;
+
+    EditFormTemplate<VehicleDto> editForm = null!;
+
+    List<SelectOption<string?>> makeOptions = null!;
+    List<SelectOption<string?>> modelOptions = null!;
+    List<SelectOption<string?>> companyOptions = null!;
+    bool isLoaded;
+
+    async Task OnMakeChanged()
+    {
+        modelOptions = UIOptions.BuildModelOptions(editForm.Model.Make is null
+            ? null
+            : await Api.GetModelsShortAsync(editForm.Model.Make));
+        editForm.Model.Model = null;
+    }
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(Id);
+        ArgumentNullException.ThrowIfNull(OnLoad);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var companies = Api.GetCompaniesShortAsync();
+            var makes = Api.GetMakesShortAsync();
+
+            if (editForm.Model.Make is not null)
+            {
+                var models = Api.GetModelsShortAsync(editForm.Model.Make);
+
+                await Task.WhenAll(companies, makes, models);
+
+                modelOptions = UIOptions.BuildModelOptions(models.Result);
+            }
+            else
+            {
+                await Task.WhenAll(companies, makes);
+
+                modelOptions = UIOptions.BuildModelOptions(null);
+            }
+
+            companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
+            makeOptions = UIOptions.BuildMakeOptions(makes.Result);
+
+            isLoaded = true;
+            StateHasChanged();
+        }
+    }
+}

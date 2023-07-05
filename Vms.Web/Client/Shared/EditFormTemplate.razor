@@ -31,7 +31,7 @@ else if (Model is not null)
 }
 
 @code {
-    public delegate Task<TModel?> LoadModel();
+    public delegate Task<TModel> LoadModel();
 
     [Parameter, EditorRequired] public LoadModel OnLoad { get; set; } = null!;
 
@@ -149,7 +149,7 @@ else if (Model is not null)
         await base.OnInitializedAsync();
         try
         {
-            Model = await OnLoad() ?? throw new InvalidOperationException("Failed to load.");
+            Model = await OnLoad();// ?? throw new InvalidOperationException("Failed to load.");
             editContext = new EditContext(Model);
             messageStore = new ValidationMessageStore(editContext);
         }

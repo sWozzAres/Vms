@@ -1,4 +1,4 @@
-﻿<EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id" ApiUrl="/api/ServiceBooking" OnLoad="OnReload">
+﻿<EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id" ApiUrl="/api/ServiceBooking" OnLoad="OnLoad">
     <DataAnnotationsValidator />
 
     <div class="form-section">
@@ -71,13 +71,13 @@
 
 @code {
     [Parameter, EditorRequired] public string Id { get; set; } = null!;
-    [Parameter, EditorRequired] public EditFormTemplate<ServiceBookingDto>.LoadModel OnReload { get; set; } = null!;
+    [Parameter, EditorRequired] public EditFormTemplate<ServiceBookingDto>.LoadModel OnLoad { get; set; } = null!;
 
     EditFormTemplate<ServiceBookingDto> editForm = null!;
 
     protected override void OnInitialized()
     {
         ArgumentNullException.ThrowIfNull(Id);
-        ArgumentNullException.ThrowIfNull(OnReload);
+        ArgumentNullException.ThrowIfNull(OnLoad);
     }
 }

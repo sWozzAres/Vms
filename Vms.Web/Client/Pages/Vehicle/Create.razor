@@ -125,7 +125,7 @@
         isPosting = true;
         try
         {
-            var response = await Http.CreateVehicle(vehicle);
+            var response = await Http.CreateVehicleAsync(vehicle);
             switch (createMode)
             {
                 case CreateMode.Create:

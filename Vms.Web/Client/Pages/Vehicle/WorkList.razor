@@ -47,7 +47,7 @@
 
     async Task NewServiceBooking()
     {
-        var serviceBooking = await Http.CreateServiceBooking(Id);
+        var serviceBooking = await Http.CreateServiceBookingAsync(Id);
         NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
     }
 
@@ -104,7 +104,7 @@
 
         if (serviceBookings is null && IsActive)
         {
-            serviceBookings = await Http.GetServiceBookingsFullForVehicleAsync(Id);
+            serviceBookings = await Http.GetServiceBookingsForVehicleFullAsync(Id);
             StateHasChanged();
         }
     }

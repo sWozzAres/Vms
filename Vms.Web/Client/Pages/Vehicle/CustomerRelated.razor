@@ -92,7 +92,7 @@
 
     async Task CustomerSearchDialogSelect(CustomerShortDto item)
     {
-        await Api.AssignCustomerToVehicle(VehicleId, item.Code);
+        await Api.AssignCustomerToVehicleAsync(VehicleId, item.Code);
 
         await OnChanged.InvokeAsync();
 
@@ -103,7 +103,7 @@
     {
         try
         {
-            await Api.RemoveCustomerFromVehicle(VehicleId);
+            await Api.RemoveCustomerFromVehicleAsync(VehicleId);
 
             if (OnChanged.HasDelegate)
             {

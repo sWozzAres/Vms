@@ -87,7 +87,7 @@
     // }
     public async Task DriverSearchDialogSelect(DriverShortDto item)
     {
-        await Api.AddDriverToVehicle(VehicleId, item.Id);
+        await Api.AddDriverToVehicleAsync(VehicleId, item.Id);
         // if (response.IsSuccessStatusCode)
         // {
         //     var driver = await Api.GetDriverShortAsync(item.Id);
@@ -121,7 +121,7 @@
     {
         try
         {
-            await Api.RemoveDriverFromVehicle(VehicleId, selectedDriver.Id);
+            await Api.RemoveDriverFromVehicleAsync(VehicleId, selectedDriver.Id);
 
             if (OnChanged.HasDelegate)
             {

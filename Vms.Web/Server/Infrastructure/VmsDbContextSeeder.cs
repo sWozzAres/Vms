@@ -83,6 +83,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     await SeedSuppliers();
                 }
 
+                SeedLists();
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -250,6 +252,35 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     : 50;
 
                 return $"{RandomLetter()}{RandomLetter()}{firstRegistered.Year - 2000 + add:D2}{RandomLetter()}{RandomLetter()}{RandomLetter()}";
+            }
+        }
+    }
+
+    void SeedLists()
+    {
+        var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
+
+        if (!_context.RefusalReasons.Any())
+        {
+            foreach (var company in allCompanies)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var refusalReason = new RefusalReason(company.Code, $"CODE{i:D2}", $"Refusal reason #{i}");
+                    _context.RefusalReasons.Add(refusalReason);
+                }
+            }
+        }
+
+        if (!_context.RescheduleReasons.Any())
+        {
+            foreach (var company in allCompanies)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var rescheduleReason = new RescheduleReason(company.Code, $"CODE{i:D2}", $"Reschedule reason #{i}");
+                    _context.RescheduleReasons.Add(rescheduleReason);
+                }
             }
         }
     }
