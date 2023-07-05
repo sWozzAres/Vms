@@ -1,0 +1,42 @@
+﻿.task-form {
+    background: #b2eccb;
+    border-color: green;
+    padding: 1em;
+
+    h1 {
+        margin: 0;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        row-gap: 1em;
+
+        .option {
+            display: flex;
+            flex-direction: column;
+
+
+            .option-select {
+                display: flex;
+                flex-direction: row;
+                column-gap: 1em;
+
+                label {
+                    font-size: initial;
+                    font-weight: 500;
+                }
+            }
+
+            .option-data {
+                display: flex;
+                flex-direction: column;
+                margin-left: 2em;
+            }
+        }
+
+        .buttons {
+            margin-top: 1em;
+        }
+    }
+}

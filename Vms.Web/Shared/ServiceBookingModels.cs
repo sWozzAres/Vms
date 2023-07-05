@@ -1,5 +1,28 @@
 ﻿namespace Vms.Web.Shared;
 
+public class TaskBookSupplierDto 
+{
+    public enum TaskResult { None, Booked, Refused, Rescheduled }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Booked), nameof(TaskResult.Refused), 
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+    
+    [Required]
+    public DateOnly BookedDate { get; set; }
+    
+    [Required]
+    public string? RefusalReason { get; set; } = null!;
+    
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled)]
+    public string? RescheduleReason { get; set; } = null!;
+    public DateOnly RescheduleDate { get; set; }
+    public string RescheduleTime { get; set; } = null!;
+
+    public string? Callee { get; set; } = null!;
+}
+
 public record CreateServiceBookingDto(Guid VehicleId);
 public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 {

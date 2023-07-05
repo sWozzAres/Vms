@@ -6,33 +6,44 @@ input, select, textarea, .combo-input {
     font-weight: 500;
 }
 
+
+
 .details {
     display: grid;
     grid-template-columns: 1fr auto;
     
+
     .task {
-        
+    }
+}
+
+form {
+    label {
+        margin: 0.5em 0 0.5em 0;
+        font-size: 80%;
+        font-weight: 400;
+    }
+
+    .validation-message {
+        margin-bottom: 0.5em;
+        color: red;
     }
 }
 
 form.edit-form {
-    
-
     font-size: 1rem;
     /* input:disabled, .combo-input.disabled {
         background-color: rgba(239, 239, 239, 0.3);
         color: rgb(84, 84, 84);
         border: 0;
     }*/
-
-    fieldset.form-grid:disabled {
+    /*fieldset.form-grid:disabled {
         input, .combo-input {
             background-color: #ffffff;
             color: rgb(84, 84, 84);
             border: 1px solid #ffffff;
             border-bottom: 1px solid var(--border-color);
             border-radius: 0;
-            
         }
 
         .combo-input {
@@ -40,9 +51,11 @@ form.edit-form {
                 border-right-color: #ffffff;
             }
 
-            svg { visibility:hidden}
+            svg {
+                visibility: hidden
+            }
         }
-    }
+    }*/
 
     fieldset.form-grid {
         container-type: inline-size;
@@ -67,9 +80,7 @@ form.edit-form {
             grid-column: 1;
             grid-row: auto;
             align-self: center;
-            margin: 0.5em 0 0.5em 0;
-            font-size: 80%;
-            font-weight: 400;
+            
         }
 
         input, select, textarea {
@@ -79,8 +90,6 @@ form.edit-form {
 
         .validation-message {
             grid-column-start: 2;
-            margin-bottom: 0.5em;
-            color: red;
         }
 
         input:not([type='checkbox']), select, textarea {
@@ -110,6 +119,28 @@ form.edit-form {
     }
 }
 
+fieldset:disabled {
+    input, .combo-input {
+        background-color: #ffffff;
+        color: rgb(84, 84, 84);
+        border: 1px solid #ffffff;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+    }
+
+    .combo.form-combo {
+        .combo-input {
+            span {
+                border-right-color: #ffffff;
+            }
+
+            svg {
+                visibility: hidden
+            }
+        }
+    }
+}
+
 form.fullresponse {
     fieldset.form-grid {
         @container (width >= 80ch) {
@@ -117,7 +148,6 @@ form.fullresponse {
                 grid-column: span 1;
             }
         }
-
         /*@media (min-width: 80ch) {
             .form-section {
                 grid-column: span 1;

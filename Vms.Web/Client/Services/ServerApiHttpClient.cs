@@ -36,6 +36,18 @@ public class ServerApiHttpClient(HttpClient http)
     }
 
     #region /api/company
+    public async Task<List<RefusalReasonDto>> GetRefusalReasons(string companyCode)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<RefusalReasonDto>>($"/api/company/{companyCode}/refusalreasons")
+            ?? throw new InvalidOperationException("Failed to get refusal reasons.");
+    }
+    public async Task<List<RescheduleReasonDto>> GetRescheduleReasons(string companyCode)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<RescheduleReasonDto>>($"/api/company/{companyCode}/reschedulereasons")
+            ?? throw new InvalidOperationException("Failed to get reschedule reasons.");
+    }
     public async Task<List<CompanyListModel>> GetCompaniesShortAsync()
     {
         ClearAndAddAcceptHeaders("application/vnd.short");

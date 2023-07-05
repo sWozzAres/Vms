@@ -1,0 +1,119 @@
+﻿@inject ServerApiHttpClient Api
+
+<section class="task-form">
+    <h1>Book Supplier</h1>
+    @if (isLoaded)
+    {
+        <EditForm Model="model" OnValidSubmit="ValidSubmit">
+            <DataAnnotationsValidator/>
+            
+            <ValidationMessage For="@(() => model.Result)" />
+            <InputRadioGroup @bind-Value="model.Result">
+
+                <div class="option">
+                    <div class="option-select">
+                        <InputRadio id="booked" Value="TaskBookSupplierDto.TaskResult.Booked" />
+                        <label for="booked">Booked</label>
+                    </div>
+                    <fieldset class="option-data" disabled="@OptionBookedDisabled">
+                        <label for="bookeddate">Date</label>
+                        <InputDate id="bookeddate" @bind-Value="model.BookedDate" />
+                        <ValidationMessage For="@(() => model.BookedDate)" />
+                    </fieldset>
+                </div>
+
+                <div class="option">
+                    <div class="option-select">
+                        <InputRadio id="refused" Value="TaskBookSupplierDto.TaskResult.Refused" />
+                        <label for="refused">Refused</label>
+                    </div>
+                    <fieldset class="option-data" disabled="@OptionRefusedDisabled">
+                        <CascadingValue Value="OptionRefusedDisabled" Name="IsDisabled">
+                            <InputSelectOnlyCombobox Options="@refusalReasonOptions" LabelText="Reason" @bind-Value="model.RefusalReason" />
+                            <ValidationMessage For="@(() => model.RefusalReason)" />
+                        </CascadingValue>
+                    </fieldset>
+                </div>
+
+                <div class="option">
+                    <div class="option-select">
+                        <InputRadio id="rescheduled" Value="TaskBookSupplierDto.TaskResult.Rescheduled" />
+                        <label for="rescheduled">Reschedule</label>
+
+
+                    </div>
+                    <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
+                        <CascadingValue Value="OptionRescheduledDisabled" Name="IsDisabled">
+                            <label for="rescheduletime">Date</label>
+                            <InputDate id="rescheduletime" @bind-Value="model.RescheduleDate" />
+                            <ValidationMessage For="@(() => model.RescheduleDate)" />
+
+                            <label for="rescheduletime">Time</label>
+                            <InputText id="rescheduletime" @bind-Value="model.RescheduleTime" />
+                            <ValidationMessage For="@(() => model.RescheduleTime)" />
+
+                            <InputSelectOnlyCombobox Options="@rescheduleReasonOptions" LabelText="Reason" @bind-Value="model.RescheduleReason" />
+                            <ValidationMessage For="@(() => model.RescheduleReason)" />
+                        </CascadingValue>
+                    </fieldset>
+                </div>
+
+            </InputRadioGroup>
+
+            <div class="option">
+                <label for="callee">Callee</label>
+                <InputText id="callee" @bind-Value="model.Callee" />
+                <ValidationMessage For="@(() => model.Callee)" />
+            </div>
+
+            <div class="buttons">
+                <button type="button" @onclick="OnClose">Cancel</button>
+                <button type="submit">Ok</button>
+            </div>
+        </EditForm>
+    }
+</section>
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
+
+    TaskBookSupplierDto model = new()
+        {
+            BookedDate = DateOnly.FromDateTime(DateTime.Today),
+            RescheduleDate = DateOnly.FromDateTime(DateTime.Today),
+            RescheduleTime = DateTime.Now.ToShortTimeString()
+        };
+
+    List<SelectOption<string?>> refusalReasonOptions = null!;
+    List<SelectOption<string?>> rescheduleReasonOptions = null!;
+    bool isLoaded;
+
+    bool OptionBookedDisabled => model.Result != TaskBookSupplierDto.TaskResult.Booked;
+    bool OptionRefusedDisabled => model.Result != TaskBookSupplierDto.TaskResult.Refused;
+    bool OptionRescheduledDisabled => model.Result != TaskBookSupplierDto.TaskResult.Rescheduled;
+
+    async void Submit()
+    {
+        
+    }
+    async Task ValidSubmit()
+    {
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
+
+        var refusalReasons = Api.GetRefusalReasons(ServiceBooking.CompanyCode);
+        var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
+
+        await Task.WhenAll(refusalReasons, rescheduleReasons);
+
+        refusalReasonOptions = UIOptions.BuildRefusalReasonOptions(refusalReasons.Result);
+        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+
+        isLoaded = true;
+    }
+}

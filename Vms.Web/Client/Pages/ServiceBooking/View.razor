@@ -46,24 +46,27 @@ else
             {
                 <TaskView ServiceBooking="serviceBooking" />
                 <button @onclick="() => displayTask = !displayTask">Click me!</button>
-                <TabControl Title="Vehicle Tabs" TitleVisible="false">
-                    <TabPage Text="Details">
+                <div class="details">
+                    <TabControl Title="Vehicle Tabs" TitleVisible="false">
+                        <TabPage Text="Details">
 
-                        <div class="details">
+
                             <Edit Id="@Id.ToString()" OnLoad="async () => await Task.FromResult(serviceBooking.ToDto())" />
-                            <div class="task">
-                                @if (displayTask)
-                                {
-                                    <h1>Task goes here</h1>
-                                }
-                            </div>
-                        </div>
 
-                    </TabPage>
-                    <TabPage Text="Events">
-                        <p>TODO</p>
-                    </TabPage>
-                </TabControl>
+
+
+                        </TabPage>
+                        <TabPage Text="Events">
+                            <p>TODO</p>
+                        </TabPage>
+                    </TabControl>
+                    <div class="task">
+                        @if (displayTask)
+                        {
+                            <TaskBookSupplier ServiceBooking="serviceBooking" OnClose="() => displayTask = false" />
+                        }
+                    </div>
+                </div>
             }
         </ChildContent>
     </ViewTemplate>
@@ -93,7 +96,7 @@ else
             loadingException = ex;
         }
     }
-    
+
     async Task Follow()
     {
         await Task.CompletedTask;

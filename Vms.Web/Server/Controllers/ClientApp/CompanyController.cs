@@ -24,6 +24,23 @@ public class CompanyController : ControllerBase
     }
 
     [HttpGet]
+    [Route("{companyCode}/refusalreasons")]
+    public async Task<IActionResult> GetRefusalReasons(string companyCode, CancellationToken cancellationToken)
+        => Ok(await _context.RefusalReasons
+            .Where(r=>r.CompanyCode == companyCode)
+            .Select(r=>new RefusalReasonDto(r.Code, r.Name))
+            .ToListAsync(cancellationToken));
+
+    [HttpGet]
+    [Route("{companyCode}/reschedulereasons")]
+    public async Task<IActionResult> GetRescheduleReasons(string companyCode, CancellationToken cancellationToken)
+        => Ok(await _context.RescheduleReasons
+            .Where(r => r.CompanyCode == companyCode)
+            .Select(r => new RescheduleReasonDto(r.Code, r.Name))
+            .ToListAsync(cancellationToken));
+
+
+    [HttpGet]
     [Route("{companyCode}/customer/{code}")]
     [AcceptHeader("application/vnd.short")]
     [ProducesResponseType(typeof(CustomerShortDto), StatusCodes.Status200OK)]
