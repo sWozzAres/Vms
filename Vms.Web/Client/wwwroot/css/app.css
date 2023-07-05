@@ -791,9 +791,10 @@ dialog.list-selector .dialog-container .dialog-footer {
 }
 
 .task-form {
-  background: #b2eccb;
-  border-color: green;
+  background: hsl(130deg, 50%, 70%);
+  border: 2px solid green;
   padding: 1em;
+  width: 50ch;
 }
 .task-form h1 {
   margin: 0;

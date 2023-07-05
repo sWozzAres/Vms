@@ -5,22 +5,27 @@ public class TaskBookSupplierDto
     public enum TaskResult { None, Booked, Refused, Rescheduled }
 
     [Required]
-    [Range(typeof(TaskResult), nameof(TaskResult.Booked), nameof(TaskResult.Refused), 
+    [Range(typeof(TaskResult), nameof(TaskResult.Booked), nameof(TaskResult.Rescheduled), 
         ErrorMessage = "You must select an option.")]
     public TaskResult Result { get; set; }
-    
-    [Required]
-    public DateOnly BookedDate { get; set; }
-    
-    [Required]
-    public string? RefusalReason { get; set; } = null!;
-    
-    [RequiredIf(nameof(Result), TaskResult.Rescheduled)]
-    public string? RescheduleReason { get; set; } = null!;
-    public DateOnly RescheduleDate { get; set; }
-    public string RescheduleTime { get; set; } = null!;
 
-    public string? Callee { get; set; } = null!;
+    [RequiredIf(nameof(Result), TaskResult.Booked, ErrorMessage = "The Booked Date is required.")]
+    public DateOnly? BookedDate { get; set; }
+    
+    [RequiredIf(nameof(Result), TaskResult.Refused, ErrorMessage = "The Refusal Reason is required.")]
+    public string? RefusalReason { get; set; }
+    
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+    
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    [RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9])$", ErrorMessage = "Invalid time.")]
+    public string? RescheduleTime { get; set; }
+    
+    public string? Callee { get; set; }
 }
 
 public record CreateServiceBookingDto(Guid VehicleId);

@@ -6,7 +6,7 @@
     {
         <EditForm Model="model" OnValidSubmit="ValidSubmit">
             <DataAnnotationsValidator/>
-            
+
             <ValidationMessage For="@(() => model.Result)" />
             <InputRadioGroup @bind-Value="model.Result">
 
@@ -94,11 +94,12 @@
 
     async void Submit()
     {
-        
+
     }
     async Task ValidSubmit()
     {
-        await Task.CompletedTask;
+        var response = await Api.BookSupplier(ServiceBooking.Id, model);
+        
     }
 
     protected override async Task OnInitializedAsync()

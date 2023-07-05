@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Vms.Domain.Entity
 {
-    public enum ServiceBookingStatus { None, Assigned };
+    public enum ServiceBookingStatus { None, Assign, Book, Confirm };
 
     public class ServiceBooking
     {
@@ -14,11 +14,14 @@ namespace Vms.Domain.Entity
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
         public DateOnly? MotDue { get; set; }
+        public string? SupplierCode { get; internal set; }
+        public Supplier? Supplier { get; private set; }
+        public DateOnly? BookedDate { get; internal set; }
         //public VehicleMot? VehicleMot { get; set; }
-        public ServiceBookingSupplier? Supplier { get; private set; }
-
-        public ServiceBookingStatus Status { get; private set; }
-        public virtual Vehicle Vehicle { get; set; } = null!;
+        //public ServiceBookingSupplier? Supplier { get; private set; }
+        public DateTime? RescheduleTime { get; internal set; }
+        public ServiceBookingStatus Status { get; internal set; }
+        public Vehicle Vehicle { get; set; } = null!;
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
             DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
@@ -32,23 +35,48 @@ namespace Vms.Domain.Entity
             MotDue = motDue;
             Status = ServiceBookingStatus.None;
         }
-        public void ChangeStatus(ServiceBookingStatus status) => Status = status;
-        public void AssignSupplier(string supplierCode)
-        {
-            Supplier = new ServiceBookingSupplier(Id, supplierCode);
-        }
+        //public void ChangeStatus(ServiceBookingStatus status) => Status = status;
+        //public void AssignSupplier(string supplierCode)
+        //{
+        //    SupplierCode = supplierCode;
+        //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
+        //}
+        //public void UnassignSupplier()
+        //{
+        //    SupplierCode = null;
+        //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
+        //}
+        //public void BookSupplier(DateOnly bookedDate)
+        //{
+        //    BookedDate = bookedDate;
+        //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
+        //}
+        //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
     }
 
-    public class ServiceBookingSupplier
-    {
-        public Guid ServiceBookingId { get; private set; }
-        public string SupplierCode { get; private set; } = null!;
-        public virtual ServiceBooking ServiceBooking { get; private set; } = null!;
-        public virtual Supplier Supplier { get; private set; } = null!;
-        private ServiceBookingSupplier() { }
-        public ServiceBookingSupplier(Guid serviceBookingId, string supplierCode)
-            => (ServiceBookingId, SupplierCode) = (serviceBookingId, supplierCode);
-    }
+    //public class ServiceBookingSupplier
+    //{
+    //    public Guid ServiceBookingId { get; private set; }
+    //    public string? SupplierCode { get; private set; } = null!;
+    //    public DateOnly? BookedDate { get; set; }
+        
+    //    public virtual ServiceBooking ServiceBooking { get; private set; } = null!;
+    //    public virtual Supplier Supplier { get; private set; } = null!;
+    //    private ServiceBookingSupplier() { }
+    //    public ServiceBookingSupplier(Guid serviceBookingId, string supplierCode)
+    //        => (ServiceBookingId, SupplierCode) = (serviceBookingId, supplierCode);
+    //}
+
+    //public class ServiceBookingRefusal
+    //{
+    //    public string CompanyCode { get; set; } = null!;
+    //    public Guid ServiceBookingId { get; set; }
+    //    public ServiceBooking ServiceBooking { get; set; } = null!;
+    //    public string SupplierCode { get; set; } = null!;
+    //    public Supplier Supplier { get; set; } = null!;
+    //    public string RefusalReasonCode { get; set; } = null!;
+    //    public RefusalReason RefusalReason { get; set; } = null!;
+    //}
 }
 
 namespace Vms.Domain.Entity.Configuration
@@ -64,6 +92,10 @@ namespace Vms.Domain.Entity.Configuration
                 .HasMaxLength(10)
                 .IsFixedLength();
 
+            builder.Property(e => e.SupplierCode).HasMaxLength(8);
+            builder.HasOne(e => e.Supplier)
+                .WithMany();
+
             builder.HasOne(e => e.Vehicle)
                 .WithMany(v => v.ServiceBookings)
                 .HasForeignKey(e => new { e.CompanyCode, e.VehicleId })
@@ -76,24 +108,27 @@ namespace Vms.Domain.Entity.Configuration
             //    .HasPrincipalKey<VehicleMot>(m => new { m.VehicleId, m.Due })
             //    .IsRequired(false);
 
-            builder.OwnsOne(d => d.Supplier, x =>
-            {
-                x.ToTable("ServiceBookingSupplier", tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("ServiceBookingSupplierHistory");
-                    ttb
-                        .HasPeriodStart("ValidFrom")
-                        .HasColumnName("ValidFrom");
-                    ttb
-                        .HasPeriodEnd("ValidTo")
-                        .HasColumnName("ValidTo");
-                }));
+            //builder.OwnsOne(d => d.Supplier, x =>
+            //{
+            //    x.ToTable("ServiceBookingSupplier", tb => tb.IsTemporal(ttb =>
+            //    {
+            //        ttb.UseHistoryTable("ServiceBookingSupplierHistory");
+            //        ttb
+            //            .HasPeriodStart("ValidFrom")
+            //            .HasColumnName("ValidFrom");
+            //        ttb
+            //            .HasPeriodEnd("ValidTo")
+            //            .HasColumnName("ValidTo");
+            //    }));
 
-                x.WithOwner(d => d.ServiceBooking)
-                    .HasForeignKey(d => d.ServiceBookingId);
+            //    x.Property(s => s.RefusalReasonCode).HasMaxLength(10);
+            //    x.Property(s => s.RefusalReasonName).HasMaxLength(32);
 
-                x.HasOne(d => d.Supplier).WithMany().HasForeignKey(d => d.SupplierCode);
-            });
+            //    x.WithOwner(d => d.ServiceBooking)
+            //        .HasForeignKey(d => d.ServiceBookingId);
+
+            //    x.HasOne(d => d.Supplier).WithMany().HasForeignKey(d => d.SupplierCode);
+            //});
         }
     }
 }

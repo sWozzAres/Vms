@@ -27,7 +27,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         var serviceBookings = await _context.ServiceBookings.AsNoTracking()
                 .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
-                .Include(s=>s.Supplier).ThenInclude(s=>s.Supplier)
+                .Include(s=>s.Supplier)
                 .Where(v => v.VehicleId == id)
                 .Select(v => v.ToFullDto())
                 .ToListAsync(cancellationToken);

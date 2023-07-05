@@ -94,6 +94,11 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
     #region /api/servicebooking
+    public async Task<HttpResponseMessage> BookSupplier(Guid id, TaskBookSupplierDto request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request);
+    }
     public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id)
     {
         ClearAndAddAcceptHeaders("application/vnd.short");

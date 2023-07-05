@@ -13,7 +13,7 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230704041856_Initial")]
+    [Migration("20230705185305_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -255,11 +255,60 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("NetworkSupplier", (string)null);
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.RefusalReason", b =>
+                {
+                    b.Property<string>("CompanyCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(32)");
+
+                    b.HasKey("CompanyCode", "Code");
+
+                    b.ToTable("RefusalReasons", (string)null);
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.RescheduleReason", b =>
+                {
+                    b.Property<string>("CompanyCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(32)");
+
+                    b.HasKey("CompanyCode", "Code");
+
+                    b.ToTable("RescheduleReasons", (string)null);
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBooking", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("BookedDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
@@ -282,10 +331,16 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("SupplierCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SupplierCode");
 
                     b.HasIndex("CompanyCode", "VehicleId");
 
@@ -520,8 +575,34 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.RefusalReason", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.Company", "Company")
+                        .WithMany("RefusalReasons")
+                        .HasForeignKey("CompanyCode")
+                        .IsRequired()
+                        .HasConstraintName("FK_RefusalReason_Company");
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.RescheduleReason", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.Company", "Company")
+                        .WithMany("RescheduleReasons")
+                        .HasForeignKey("CompanyCode")
+                        .IsRequired()
+                        .HasConstraintName("FK_RescheduleReason_Company");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBooking", b =>
                 {
+                    b.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierCode");
+
                     b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
                         .WithMany("ServiceBookings")
                         .HasForeignKey("CompanyCode", "VehicleId")
@@ -529,56 +610,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ServiceBookings_Vehicle");
-
-                    b.OwnsOne("Vms.Domain.Entity.ServiceBookingSupplier", "Supplier", b1 =>
-                        {
-                            b1.Property<Guid>("ServiceBookingId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("SupplierCode")
-                                .IsRequired()
-                                .HasColumnType("varchar(8)");
-
-                            b1.Property<DateTime>("ValidFrom")
-                                .ValueGeneratedOnAddOrUpdate()
-                                .HasColumnType("datetime2")
-                                .HasColumnName("ValidFrom");
-
-                            b1.Property<DateTime>("ValidTo")
-                                .ValueGeneratedOnAddOrUpdate()
-                                .HasColumnType("datetime2")
-                                .HasColumnName("ValidTo");
-
-                            b1.HasKey("ServiceBookingId");
-
-                            b1.HasIndex("SupplierCode");
-
-                            b1.ToTable("ServiceBookingSupplier", (string)null);
-
-                            b1.ToTable(tb => tb.IsTemporal(ttb =>
-                                    {
-                                        ttb.UseHistoryTable("ServiceBookingSupplierHistory");
-                                        ttb
-                                            .HasPeriodStart("ValidFrom")
-                                            .HasColumnName("ValidFrom");
-                                        ttb
-                                            .HasPeriodEnd("ValidTo")
-                                            .HasColumnName("ValidTo");
-                                    }));
-
-                            b1.WithOwner("ServiceBooking")
-                                .HasForeignKey("ServiceBookingId");
-
-                            b1.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
-                                .WithMany()
-                                .HasForeignKey("SupplierCode")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b1.Navigation("ServiceBooking");
-
-                            b1.Navigation("Supplier");
-                        });
 
                     b.Navigation("Supplier");
 
@@ -826,6 +857,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Fleets");
 
                     b.Navigation("Networks");
+
+                    b.Navigation("RefusalReasons");
+
+                    b.Navigation("RescheduleReasons");
 
                     b.Navigation("Vehicles");
                 });

@@ -57,7 +57,7 @@ public class ServiceBookingTests //: IClassFixture<TestDatabaseFixture>
         //var assign = await new AssignSupplier(context, new SupplierLocator(context)).Assign(aRequest);
 
 
-        Assert.Equal("SUP002", serviceBooking.Supplier?.SupplierCode);
+        Assert.Equal("SUP002", serviceBooking.SupplierCode);
 
         //await context.SaveChangesAsync();
     }

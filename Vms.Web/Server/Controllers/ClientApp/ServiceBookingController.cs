@@ -8,6 +8,7 @@ using Polly;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
+using Vms.Web.Server.Helpers;
 using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
@@ -20,6 +21,28 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 {
     readonly ILogger<ServiceBookingController> _logger = logger;
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
+    [HttpPost]
+    [Route("{id}/booksupplier")]
+    public async Task<IActionResult> BookSupplier(Guid id,
+        [FromBody] TaskBookSupplierDto request,
+        CancellationToken cancellationToken)
+    {
+        switch (request.Result)
+        {
+            case TaskBookSupplierDto.TaskResult.Booked:
+                await new BookSupplier(_context).BookAsync(id, request.BookedDate!.Value, cancellationToken);
+                break;
+            case TaskBookSupplierDto.TaskResult.Refused:
+                await new BookSupplier(_context).RefuseAsync(id, request.RefusalReason!, cancellationToken);
+                break;
+            case TaskBookSupplierDto.TaskResult.Rescheduled:
+                await new BookSupplier(_context).RescheduleAsync(id, Helper.FromDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
+                break;
+        }
+        
+        return Ok();
+    }
 
     [HttpGet]
     [Route("{id}/suppliers")]
@@ -79,7 +102,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     {
         var serviceBooking = await _context.ServiceBookings.AsNoTracking()
             .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
-            .Include(s => s.Supplier).ThenInclude(s => s.Supplier)
+            .Include(s => s.Supplier)
             .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToFullDto());
@@ -138,7 +161,7 @@ public static partial class DomainExtensions
             serviceBooking.PreferredDate1,
             serviceBooking.PreferredDate2,
             serviceBooking.PreferredDate3,
-            serviceBooking.Supplier?.Supplier.ToSupplierShortDto()
+            serviceBooking.Supplier?.ToSupplierShortDto()
         );
     }
 

@@ -29,7 +29,7 @@ public class AssignSupplierUseCase : IAssignSupplierUseCase
                 return false;
             }
 
-            self.AssignSupplier(list.First().Code);
+            self.SupplierCode =list.First().Code;
             return true;
         }
     }
