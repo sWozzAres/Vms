@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Vms.Domain.Exceptions;
 
 namespace Vms.Domain.Entity
 {
@@ -46,11 +47,15 @@ namespace Vms.Domain.Entity
         //    SupplierCode = null;
         //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
         //}
-        //public void BookSupplier(DateOnly bookedDate)
-        //{
-        //    BookedDate = bookedDate;
-        //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
-        //}
+        public void Book(DateOnly bookedDate)
+        {
+            if (SupplierCode is null)
+                throw new VmsDomainException("Service Booking is not assigned.");
+
+            RescheduleTime = null;
+            BookedDate = bookedDate;
+            Status = ServiceBookingStatus.Confirm;
+        }
         //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
     }
 

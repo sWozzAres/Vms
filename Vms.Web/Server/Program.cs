@@ -14,6 +14,7 @@ using Vms.Web.Server;
 using Microsoft.Extensions.Options;
 using Vms.Domain.Infrastructure.Seed;
 using Vms.Web.Server.Middleware;
+using Vms.DomainApplication.Services;
 
 const string AppName = "Vms.Web.Server";
 
@@ -36,7 +37,9 @@ Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IUserProvider, UserProvider>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {

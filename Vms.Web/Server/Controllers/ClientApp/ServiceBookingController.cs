@@ -8,6 +8,7 @@ using Polly;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
+using Vms.DomainApplication.Services;
 using Vms.Web.Server.Helpers;
 using Vms.Web.Shared;
 
@@ -26,18 +27,19 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/booksupplier")]
     public async Task<IActionResult> BookSupplier(Guid id,
         [FromBody] TaskBookSupplierDto request,
+        [FromServices] IEmailSender emailSender,
         CancellationToken cancellationToken)
     {
         switch (request.Result)
         {
             case TaskBookSupplierDto.TaskResult.Booked:
-                await new BookSupplier(_context).BookAsync(id, request.BookedDate!.Value, cancellationToken);
+                await new BookSupplier(_context, emailSender).BookAsync(id, request.BookedDate!.Value, cancellationToken);
                 break;
             case TaskBookSupplierDto.TaskResult.Refused:
-                await new BookSupplier(_context).RefuseAsync(id, request.RefusalReason!, cancellationToken);
+                await new BookSupplier(_context, emailSender).RefuseAsync(id, request.RefusalReason!, cancellationToken);
                 break;
             case TaskBookSupplierDto.TaskResult.Rescheduled:
-                await new BookSupplier(_context).RescheduleAsync(id, Helper.FromDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
+                await new BookSupplier(_context, emailSender).RescheduleAsync(id, Helper.CombineDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
                 break;
         }
         

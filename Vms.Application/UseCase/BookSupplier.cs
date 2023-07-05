@@ -6,18 +6,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Utilities;
+using Vms.DomainApplication.Services;
 
 namespace Vms.Application.UseCase;
 
-public class BookSupplier(VmsDbContext context)
+public class BookSupplier(VmsDbContext context, IEmailSender emailSender)
 {
-    readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+    readonly VmsDbContext DBContext = context ?? throw new ArgumentNullException(nameof(context));
+    readonly IEmailSender EmailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
+
     ServiceBookingRole? ServiceBooking;
 
     public async Task BookAsync(Guid id, DateOnly bookedDate, CancellationToken cancellationToken)
     {
         ServiceBooking = await Load(id, cancellationToken);
-        ServiceBooking.Book(bookedDate);
+        await ServiceBooking.BookAsync(bookedDate, cancellationToken);
     }
 
     public async Task RefuseAsync(Guid id, string code, CancellationToken cancellationToken)
@@ -33,19 +36,27 @@ public class BookSupplier(VmsDbContext context)
     }
 
     async Task<ServiceBookingRole> Load(Guid id, CancellationToken cancellationToken) 
-        => new(await _context.ServiceBookings.FindAsync(id, cancellationToken)
+        => new(await DBContext.ServiceBookings.FindAsync(id, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
     class ServiceBookingRole(ServiceBooking self, BookSupplier context)
     {
-        public void Book(DateOnly bookedDate)
+        public async Task BookAsync(DateOnly bookedDate, CancellationToken cancellationToken)
         {
-            if (self.SupplierCode is null)
-                throw new VmsDomainException("Service Booking is not assigned.");
+            self.Book(bookedDate);
 
-            self.RescheduleTime = null;
-            self.BookedDate = bookedDate;
-            self.Status = ServiceBookingStatus.Confirm;
+            var supplier = await context.DBContext.Suppliers.FindAsync(self.SupplierCode, cancellationToken)
+                ?? throw new VmsDomainException("Failed to load supplier.");
+            
+            var drivers = await context.DBContext.DriverVehicles
+                .Include(d => d.Driver)
+                .Where(d => d.VehicleId == self.VehicleId)
+                .Select(dv => dv.Driver)
+                .ToListAsync(cancellationToken);
+
+            var recipients = string.Join(";", drivers.Select(d => d.EmailAddress));
+            context.EmailSender.Send(recipients, "Your service is booked", 
+                $"Your service is booked with {supplier.Name} on {bookedDate}.");
         }
 
         public async Task Refuse(string code, CancellationToken cancellationToken)
@@ -54,7 +65,7 @@ public class BookSupplier(VmsDbContext context)
                 throw new VmsDomainException("Service Booking is not assigned.");
 
             // TODO
-            var rr = await context._context.RefusalReasons.FindAsync(new[] { self.CompanyCode, code }, cancellationToken);
+            var rr = await context.DBContext.RefusalReasons.FindAsync(new[] { self.CompanyCode, code }, cancellationToken);
             if (rr is null)
             {
                 throw new InvalidOperationException("Failed to load refusal reason.");

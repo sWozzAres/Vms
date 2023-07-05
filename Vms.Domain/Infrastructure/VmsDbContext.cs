@@ -28,6 +28,7 @@ public class VmsDbContext : DbContext
     public DbSet<VehicleModel> VehicleModels => Set<VehicleModel>();
     public DbSet<RefusalReason> RefusalReasons => Set<RefusalReason>();
     public DbSet<RescheduleReason> RescheduleReasons => Set<RescheduleReason>();
+    public DbSet<Email> Emails => Set<Email>();
     protected readonly IUserProvider _userProvider;
     ILogger<VmsDbContext> _logger;
     public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : base(options)
