@@ -1,7 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
 <div class="taskview">
-    @if (ServiceBooking.Supplier is null)
+    @if (ServiceBooking.Supplier is null || true)
     {
         <button @onclick="() => assignSupplierDialogActive = true">Assign Supplier</button>
     }

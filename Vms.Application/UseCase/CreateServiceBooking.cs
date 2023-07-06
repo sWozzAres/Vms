@@ -1,15 +1,18 @@
-﻿using Vms.Application.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Vms.Application.Services;
 
 namespace Vms.Application.UseCase;
 
-public class CreateServiceBooking
+public interface ICreateServiceBooking
 {
-    readonly VmsDbContext DbContext;
-    VehicleRole? Vehicle;
-    //ServiceBooking? Booking;
+    Task<ServiceBooking> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default);
+}
 
-    public CreateServiceBooking(VmsDbContext context)
-        => (DbContext) = (context);
+public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase assignSupplierUseCase) : ICreateServiceBooking
+{
+    readonly VmsDbContext DbContext = context;
+    readonly IAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
+    VehicleRole? Vehicle;
 
     public async Task<ServiceBooking> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
     {
@@ -38,9 +41,16 @@ public class CreateServiceBooking
 
             context.DbContext.ServiceBookings.Add(booking);
 
-            //var assigned = await new AssignSupplierUseCase(context.DbContext, new SupplierLocator(context.DbContext))
-            //    .Assign(new(booking.Id), cancellationToken);
-            
+            if (request.AutoAssign)
+            {
+                var assigned = await context.AssignSupplierUseCase.Assign(new(booking.Id), cancellationToken);
+
+                if (assigned.Success)
+                {
+
+                }
+            }
+
             //TODO
 
             return await Task.FromResult(booking);
@@ -53,5 +63,6 @@ public record CreateBookingRequest(
     DateOnly? PreferredDate1,
     DateOnly? PreferredDate2,
     DateOnly? PreferredDate3,
-    bool IncludeMot
+    bool IncludeMot,
+    bool AutoAssign
 );

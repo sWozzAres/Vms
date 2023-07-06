@@ -2,6 +2,11 @@
 
 namespace Vms.Application.UseCase;
 
+public interface IAssignSupplierUseCase
+{
+    Task<AssignSupplierResponse> Assign(AssignSupplierRequest request, CancellationToken cancellationToken = default);
+}
+
 public class AssignSupplierUseCase : IAssignSupplierUseCase
 {
     readonly VmsDbContext DbContext;
@@ -29,16 +34,12 @@ public class AssignSupplierUseCase : IAssignSupplierUseCase
                 return false;
             }
 
-            self.SupplierCode =list.First().Code;
+            self.SupplierCode = list.First().Code;
             return true;
         }
     }
 }
 
-public interface IAssignSupplierUseCase
-{
-    Task<AssignSupplierResponse> Assign(AssignSupplierRequest request, CancellationToken cancellationToken = default);
-}
 
 public record AssignSupplierRequest(Guid ServiceBookingId);
-public record AssignSupplierResponse(bool success);
+public record AssignSupplierResponse(bool Success);

@@ -56,6 +56,12 @@ namespace Vms.Domain.Entity
             BookedDate = bookedDate;
             Status = ServiceBookingStatus.Confirm;
         }
+        public void Refuse() 
+        {
+            RescheduleTime = null;
+            SupplierCode = null;
+            Status = ServiceBookingStatus.Assign;
+        }
         //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
     }
 

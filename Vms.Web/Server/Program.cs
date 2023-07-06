@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 using Vms.Domain.Infrastructure.Seed;
 using Vms.Web.Server.Middleware;
 using Vms.DomainApplication.Services;
+using Vms.Application.UseCase;
+using Vms.Application.Services;
 
 const string AppName = "Vms.Web.Server";
 
@@ -40,6 +42,10 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IBookSupplier, BookSupplier>();
+builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
+builder.Services.AddScoped<ISupplierLocator, SupplierLocator>();
+builder.Services.AddScoped<IAssignSupplierUseCase, AssignSupplierUseCase>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {

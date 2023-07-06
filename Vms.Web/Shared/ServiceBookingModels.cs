@@ -28,7 +28,7 @@ public class TaskBookSupplierDto
     public string? Callee { get; set; }
 }
 
-public record CreateServiceBookingDto(Guid VehicleId);
+public record CreateServiceBookingDto(Guid VehicleId, bool AutoAssign);
 public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 {
     public Guid Id { get; set; }

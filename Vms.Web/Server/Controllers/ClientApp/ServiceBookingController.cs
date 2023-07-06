@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Polly;
+using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
@@ -27,19 +28,19 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/booksupplier")]
     public async Task<IActionResult> BookSupplier(Guid id,
         [FromBody] TaskBookSupplierDto request,
-        [FromServices] IEmailSender emailSender,
+        [FromServices] IBookSupplier bookSupplier,
         CancellationToken cancellationToken)
     {
         switch (request.Result)
         {
             case TaskBookSupplierDto.TaskResult.Booked:
-                await new BookSupplier(_context, emailSender).BookAsync(id, request.BookedDate!.Value, cancellationToken);
+                await bookSupplier.BookAsync(id, request.BookedDate!.Value, cancellationToken);
                 break;
             case TaskBookSupplierDto.TaskResult.Refused:
-                await new BookSupplier(_context, emailSender).RefuseAsync(id, request.RefusalReason!, cancellationToken);
+                await bookSupplier.RefuseAsync(id, request.RefusalReason!, cancellationToken);
                 break;
             case TaskBookSupplierDto.TaskResult.Rescheduled:
-                await new BookSupplier(_context, emailSender).RescheduleAsync(id, Helper.CombineDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
+                await bookSupplier.RescheduleAsync(id, Helper.CombineDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
                 break;
         }
         
@@ -48,7 +49,9 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
     [HttpGet]
     [Route("{id}/suppliers")]
-    public async Task<IActionResult> GetSuppliers(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSuppliers(Guid id,
+        [FromServices]ISupplierLocator supplierLocator,
+        CancellationToken cancellationToken)
     {
         var serviceBooking = await _context.ServiceBookings.FindAsync(id, cancellationToken);
         if (serviceBooking is null)
@@ -56,17 +59,21 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return NotFound();
         }
 
-        var vehicle = await _context.Vehicles.FindAsync(serviceBooking.VehicleId, cancellationToken);
-        if (vehicle is null)
-        {
-            return NotFound();
-        }
+        var distances = await supplierLocator.GetSuppliers(serviceBooking, cancellationToken);
 
-        var suppliers = await _context.Suppliers.AsNoTracking()
-            //.Where(s => s.Address.Location.Distance(vehicle.Address.Location) > 0)
-            .OrderBy(s => s.Address.Location.Distance(vehicle.Address.Location))
-            .Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Address.Location.Distance(vehicle.Address.Location)))
-            .ToListAsync(cancellationToken);
+        var suppliers = distances.Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Distance));
+
+        //var vehicle = await _context.Vehicles.FindAsync(serviceBooking.VehicleId, cancellationToken);
+        //if (vehicle is null)
+        //{
+        //    return NotFound();
+        //}
+
+        //var suppliers = await _context.Suppliers.AsNoTracking()
+        //    //.Where(s => s.Address.Location.Distance(vehicle.Address.Location) > 0)
+        //    .OrderBy(s => s.Address.Location.Distance(vehicle.Address.Location))
+        //    .Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Address.Location.Distance(vehicle.Address.Location)))
+        //    .ToListAsync(cancellationToken);
 
         return Ok(suppliers);
     }
@@ -74,10 +81,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     public async Task<IActionResult> CreateServiceBooking(
         [FromBody] CreateServiceBookingDto request,
+        [FromServices]IAssignSupplierUseCase assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
-        var serviceBooking = await new CreateServiceBooking(_context)
-            .CreateAsync(new CreateBookingRequest(request.VehicleId, null, null, null, false), cancellationToken);
+        var serviceBooking = await new CreateServiceBooking(_context, assignSupplierUseCase)
+            .CreateAsync(new CreateBookingRequest(request.VehicleId, null, null, null, false, request.AutoAssign), cancellationToken);
+        
         return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
     }
 

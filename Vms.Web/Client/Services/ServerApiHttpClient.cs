@@ -113,7 +113,7 @@ public class ServerApiHttpClient(HttpClient http)
     public async Task<ServiceBookingDto> CreateServiceBookingAsync(Guid vehicleId)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        var request = new CreateServiceBookingDto(vehicleId);
+        var request = new CreateServiceBookingDto(vehicleId, true);
         return await DeserializeOrThrow<ServiceBookingDto>(await http.PostAsJsonAsync("/api/servicebooking", request));
     }
     #endregion
