@@ -1,47 +1,49 @@
 ﻿@inject ServerApiHttpClient Api
 
 <div class="taskview">
-    @if (ServiceBooking.Supplier is null)
-    {
-        <button @onclick="() => assignSupplierDialogActive = true">Assign Supplier</button>
-    }
+    <div class="task-content">
+        The next task is
+        @if (ServiceBooking.Status == 1)
+        {
+            <button @onclick="AssignSupplier">Assign Supplier</button>
+        }
+        else if (ServiceBooking.Status == 2)
+        {
+            <button @onclick="BookSupplier">Book Supplier</button>
+        }
+        else if (ServiceBooking.Status == 3)
+        {
+            <button @onclick="Confirm">Confirm with Driver</button>
+        }
+    </div>
+    <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="OnSelectTask">
+        @* <svg viewBox="0 0 128 512">
+        <use xlink:href="icons/solid.svg#ellipsis-vertical" />
+        </svg> *@
+        Task
+    </MenuButton>
 </div>
 
-@if (assignSupplierDialogActive)
-{
-    <SupplierSelector TItem="SupplierLocatorDto" Id="ServiceBooking.Id"
-                      OnSelected="CustomerSearchDialogSelect"
-                      OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
-                      OnClose="() => assignSupplierDialogActive = false">
-        <TableHeader>
-            <th>Distance</th>
-            <th>Code</th>
-            <th>Name</th>
-        </TableHeader>
-        <RowTemplate>
-            <td>@context.DistanceInMiles.ToString("0.00")</td>
-            <td>@context.Code</td>
-            <td>@context.Name</td>
-        </RowTemplate>
-    </SupplierSelector>
-}
+
 
 @code {
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<string> OnSelectTask { get; set; }
 
-    bool assignSupplierDialogActive;
-
-    async Task CustomerSearchDialogSelect(SupplierLocatorDto item)
+    private string[] items = new string[]
     {
-        //await Api.AssignCustomerToVehicle(VehicleId, item.Code);
+        "Assign Supplier",
+        "Book Supplier",
+    };
+    string selectedItem = string.Empty;
 
-        //await OnChanged.InvokeAsync();
-
-        assignSupplierDialogActive = false;
-    }
+    public async Task AssignSupplier() => await OnSelectTask.InvokeAsync("Assign Supplier");
+    public async Task BookSupplier() => await OnSelectTask.InvokeAsync("Book Supplier");
+    public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm with Driver");
 
     protected override void OnInitialized()
     {
         ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnSelectTask.HasDelegate) throw new ArgumentNullException(nameof(OnSelectTask));
     }
 }

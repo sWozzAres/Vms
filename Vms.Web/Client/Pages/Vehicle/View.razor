@@ -58,8 +58,10 @@ else
                             <Edit Id="@Id.ToString()" OnLoad="async () => await Task.FromResult(vehicle.ToDto())" />
                     </TabPage>
                     <TabPage Text="Related">
+                        <div class="related50">
                         <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="Load" />
                         <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="Load" />
+                        </div>
                         <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="Load" />
                     </TabPage>
                     <TabPage Text="Work">

@@ -135,6 +135,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
                 var customer = await new CreateCustomer(_context)
                     .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
+
+                
             }
         }
 
@@ -229,9 +231,8 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
-                    new Address("", "", "", "", new Point(51.72816804510823, -2.2832425208311116) { SRID = 4326 }),
+                    new Address("", "", "", "", new Point(51.73021720095717, -2.204244578769126) { SRID = 4326 }),
                     null, null));
-
 
             var driver = await new CreateDriver(_context)
                 .CreateAsync(new CreateDriverRequest(company.Code,

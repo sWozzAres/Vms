@@ -60,6 +60,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
                 .Include(v => v.C)
                 .Include(v => v.Fleet)
                 .Include(v => v.DriverVehicles).ThenInclude(dv => dv.Driver)
+                .Include(v=>v.MotEvents.Where(e=>e.IsCurrent))
                 .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
@@ -208,7 +209,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         vehicle.Vrm = request.Vrm;
         vehicle.UpdateModel(request.Make!, request.Model!);
-        vehicle.Mot.Due = request.MotDue;
+        //vehicle.Mot.Due = request.MotDue;
         vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
             new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326});
 
@@ -254,7 +255,8 @@ public static partial class DomainExtensions
             vehicle.Model,
             vehicle.ChassisNumber,
             vehicle.DateFirstRegistered,
-            vehicle.Mot.Due,
+            //vehicle.Mot.Due,
+            vehicle.MotEvents.FirstOrDefault()?.Due,
             vehicle.Address.ToFullDto(),
             vehicle.C is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.C.Code, vehicle.C.Name),
             vehicle.Fleet is null ? null : new FleetShortDto(vehicle.CompanyCode, vehicle.Fleet.Code, vehicle.Fleet.Name),

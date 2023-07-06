@@ -38,14 +38,17 @@ else
                         <dt>Model</dt>
                         <dd>@serviceBooking.Model</dd>
                     </div>
+                    <div class="namevalue">
+                        <dt>Supplier</dt>
+                        <dd><a href="/supplier/view/@serviceBooking.Supplier?.Code">@serviceBooking.Supplier?.Name</a></dd>
+                    </div>
                 </dl>
             }
         </HeaderContent>
         <ChildContent>
             @if (serviceBooking is not null)
             {
-                <TaskView ServiceBooking="serviceBooking" />
-                <button @onclick="() => displayTask = !displayTask">Click me!</button>
+                <TaskView ServiceBooking="serviceBooking" OnSelectTask="SelectTask" />
                 <div class="details">
                     <TabControl Title="Vehicle Tabs" TitleVisible="false">
                         <TabPage Text="Details">
@@ -61,9 +64,9 @@ else
                         </TabPage>
                     </TabControl>
                     <div class="task">
-                        @if (displayTask)
+                        @if (displayTask == "Book Supplier")
                         {
-                            <TaskBookSupplier ServiceBooking="serviceBooking" OnClose="() => displayTask = false" />
+                            <TaskBookSupplier ServiceBooking="serviceBooking" OnClose="() => displayTask = null" />
                         }
                     </div>
                 </div>
@@ -72,13 +75,43 @@ else
     </ViewTemplate>
 }
 
+@if (displayTask == "Assign Supplier")
+{
+    <SupplierSelector TItem="SupplierLocatorDto" Id="Id"
+                      OnSelected="CustomerSearchDialogSelect"
+                      OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
+                      OnClose="() => displayTask = null">
+        <TableHeader>
+            <th>Distance</th>
+            <th>Code</th>
+            <th>Name</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>@context.DistanceInMiles.ToString("0.00")</td>
+            <td>@context.Code</td>
+            <td>@context.Name</td>
+        </RowTemplate>
+    </SupplierSelector>
+}
+
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
-    bool displayTask;
+    string? displayTask;
     Exception? loadingException;
     ServiceBookingFullDto? serviceBooking;
     string Title => serviceBooking is null ? "" : serviceBooking.Id.ToString();
+
+    async Task CustomerSearchDialogSelect(SupplierLocatorDto item)
+    {
+        //await Api.AssignCustomerToVehicle(VehicleId, item.Code);
+
+        //await OnChanged.InvokeAsync();
+
+        displayTask = null;
+    }
+
+    void SelectTask(string name) => displayTask = name;
 
     async Task Load()
     {

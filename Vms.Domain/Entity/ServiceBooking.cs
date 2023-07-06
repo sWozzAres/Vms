@@ -4,7 +4,7 @@ using Vms.Domain.Exceptions;
 
 namespace Vms.Domain.Entity
 {
-    public enum ServiceBookingStatus { None, Assign, Book, Confirm };
+    public enum ServiceBookingStatus : int { None = 0, Assign = 1, Book = 2, Confirm = 3 };
 
     public class ServiceBooking
     {
@@ -23,6 +23,8 @@ namespace Vms.Domain.Entity
         public DateTime? RescheduleTime { get; internal set; }
         public ServiceBookingStatus Status { get; internal set; }
         public Vehicle Vehicle { get; set; } = null!;
+        public Guid? MotEventId { get; set; }
+        public MotEvent? MotEvent { get; set; }
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
             DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
@@ -98,7 +100,7 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.ToTable("ServiceBooking");
             builder.HasKey(e => e.Id);
-
+            
             builder.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
                 .IsFixedLength();

@@ -184,6 +184,7 @@ public static partial class DomainExtensions
             serviceBooking.PreferredDate1,
             serviceBooking.PreferredDate2,
             serviceBooking.PreferredDate3,
+            (int)serviceBooking.Status,
             serviceBooking.Supplier?.ToSupplierShortDto()
         );
     }

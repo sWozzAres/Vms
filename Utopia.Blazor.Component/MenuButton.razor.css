@@ -5,13 +5,13 @@
 
     .menu-button-actions button {
         margin: 0;
-        padding: 6px;
+        /*padding: 6px;*/
         display: flex;
         position: relative;
-        background-color: #ffffff;
+        /*      background-color: #ffffff;
         border: 2px solid var(--button-border-color);
         color: white;
-        border-radius: 5px;
+        border-radius: 5px;*/
     }
 
     .menu-button-actions [role="menu"] {

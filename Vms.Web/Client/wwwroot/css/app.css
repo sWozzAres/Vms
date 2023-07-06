@@ -280,6 +280,13 @@ table thead th {
   margin: 0;
 }
 
+.related50 {
+  display: grid;
+  flex-direction: row;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1em;
+}
+
 .related-section {
   padding: 1em;
   margin: 1em 0 1em 0;
@@ -793,6 +800,15 @@ dialog.list-selector .dialog-container .dialog-footer {
   background-color: #ffffff;
 }
 
+.taskview {
+  display: flex;
+  padding: 5px;
+  background: #ffffff;
+  align-items: center;
+}
+.taskview .task-content {
+  flex-grow: 1;
+}
 .task-form {
   background: var(--task-background-color);
   border: 2px solid var(--border-color);

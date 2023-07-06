@@ -53,6 +53,7 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
     string Vrm, string Make, string Model,
     DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3,
+    int Status,
     SupplierShortDto? Supplier)
 {
     public ServiceBookingDto ToDto()

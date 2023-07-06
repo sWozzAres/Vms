@@ -23,21 +23,27 @@ namespace Vms.Domain.Entity
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
         public virtual VehicleModel M { get; set; } = null!;
         public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
+        public virtual List<MotEvent> MotEvents { get; set; } = new();
         private Vehicle() { }
         private Vehicle(string companyCode, string vrm, string make, string model,
-            DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
+            DateOnly dateFirstRegistered, DateOnly? motDue, Address homeLocation)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
             Make = make;
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
-            Mot = new VehicleMot(Id, motDue);
+            if (motDue.HasValue)
+            {
+                MotEvents.Add(new(CompanyCode, Id, motDue.Value, true));
+            }
+            Mot = new VehicleMot(Id, DateOnly.FromDateTime(DateTime.Today));
             //MotDue = motDue;
             VehicleVrm = new VehicleVrm(vrm);
             Address = new(homeLocation.Street, homeLocation.Locality, homeLocation.Town, homeLocation.Postcode, homeLocation.Location.Copy());
         }
-        public static Vehicle Create(string companyCode, string vrm, string make, string model, DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation,
+        public static Vehicle Create(string companyCode, string vrm, string make, string model, 
+            DateOnly dateFirstRegistered, DateOnly? motDue, Address homeLocation,
             string? customerCode = null, string? fleetCode = null)
         {
             var vehicle = new Vehicle(companyCode, vrm, make, model, dateFirstRegistered, motDue, homeLocation);

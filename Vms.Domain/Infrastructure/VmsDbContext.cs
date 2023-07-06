@@ -29,6 +29,7 @@ public class VmsDbContext : DbContext
     public DbSet<RefusalReason> RefusalReasons => Set<RefusalReason>();
     public DbSet<RescheduleReason> RescheduleReasons => Set<RescheduleReason>();
     public DbSet<Email> Emails => Set<Email>();
+    public DbSet<MotEvent> MotEvents => Set<MotEvent>();
     protected readonly IUserProvider _userProvider;
     ILogger<VmsDbContext> _logger;
     public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : base(options)
@@ -51,7 +52,9 @@ public class VmsDbContext : DbContext
 
         //if (!string.IsNullOrEmpty(_userProvider.TenantId))
         //if (_userProvider.TenantId != "*")
+
         {
+            modelBuilder.Entity<MotEvent>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<RefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<RescheduleReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
             modelBuilder.Entity<ServiceBooking>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);

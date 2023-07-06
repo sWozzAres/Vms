@@ -1,4 +1,18 @@
-﻿.task-form {
+﻿.taskview {
+    display: flex;
+    padding: 5px;
+    background: #ffffff;
+    align-items: center;
+
+    .task-content{
+        flex-grow: 1;
+    }
+
+    .menu-button-actions{
+        
+    }
+}
+.task-form {
     background: var(--task-background-color);
     border: 2px solid var(--border-color);
     padding: 1em;

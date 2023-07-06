@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230706182627_Initial5")]
+    partial class Initial5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,7 +164,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "VehicleId");
 
-                    b.ToTable("DriverVehicles", (string)null);
+                    b.ToTable("DriverVehicles");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Email", b =>
@@ -271,13 +274,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyCode", "ServiceBookingId")
+                        .IsUnique()
+                        .HasFilter("[ServiceBookingId] IS NOT NULL");
+
+                    b.HasIndex("CompanyCode", "VehicleId");
+
                     b.HasIndex("VehicleId", "IsCurrent")
                         .IsUnique()
                         .HasFilter("IsCurrent = 1");
-
-                    b.HasIndex("CompanyCode", "VehicleId", "ServiceBookingId")
-                        .IsUnique()
-                        .HasFilter("[ServiceBookingId] IS NOT NULL");
 
                     b.ToTable("MotEvent", (string)null);
 
@@ -426,6 +431,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("Id");
 
                     b.HasIndex("SupplierCode");
+
+                    b.HasIndex("CompanyCode", "VehicleId");
 
                     b.ToTable("ServiceBooking", (string)null);
                 });
@@ -630,17 +637,17 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.MotEvent", b =>
                 {
+                    b.HasOne("Vms.Domain.Entity.ServiceBooking", "ServiceBooking")
+                        .WithOne("MotEvent")
+                        .HasForeignKey("Vms.Domain.Entity.MotEvent", "CompanyCode", "ServiceBookingId")
+                        .HasPrincipalKey("Vms.Domain.Entity.ServiceBooking", "CompanyCode", "Id");
+
                     b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
                         .WithMany("MotEvents")
                         .HasForeignKey("CompanyCode", "VehicleId")
                         .HasPrincipalKey("CompanyCode", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Vms.Domain.Entity.ServiceBooking", "ServiceBooking")
-                        .WithOne("MotEvent")
-                        .HasForeignKey("Vms.Domain.Entity.MotEvent", "CompanyCode", "VehicleId", "ServiceBookingId")
-                        .HasPrincipalKey("Vms.Domain.Entity.ServiceBooking", "CompanyCode", "VehicleId", "Id");
 
                     b.Navigation("ServiceBooking");
 
@@ -720,7 +727,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.Supplier", b =>
                 {
-                    b.OwnsOne("Vms.Domain.Entity.Supplier.Address#Vms.Domain.Entity.Address", "Address", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.Address", "Address", b1 =>
                         {
                             b1.Property<string>("SupplierCode")
                                 .HasColumnType("varchar(8)");
@@ -755,13 +762,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("SupplierCode");
 
-                            b1.ToTable("Supplier", (string)null);
+                            b1.ToTable("Supplier");
 
                             b1.WithOwner()
                                 .HasForeignKey("SupplierCode");
                         });
 
-                    b.OwnsMany("Vms.Domain.Entity.Supplier.Franchises#Vms.Domain.Entity.SupplierFranchise", "Franchises", b1 =>
+                    b.OwnsMany("Vms.Domain.Entity.SupplierFranchise", "Franchises", b1 =>
                         {
                             b1.Property<string>("SupplierCode")
                                 .HasColumnType("varchar(8)");
@@ -819,7 +826,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_Vehicle_VehicleModel");
 
-                    b.OwnsOne("Vms.Domain.Entity.Vehicle.Address#Vms.Domain.Entity.Address", "Address", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
                                 .HasColumnType("uniqueidentifier");
@@ -854,13 +861,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicle", (string)null);
+                            b1.ToTable("Vehicle");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
                         });
 
-                    b.OwnsOne("Vms.Domain.Entity.Vehicle.Mot#Vms.Domain.Entity.VehicleMot", "Mot", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.VehicleMot", "Mot", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
                                 .HasColumnType("uniqueidentifier");
@@ -879,7 +886,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Navigation("Vehicle");
                         });
 
-                    b.OwnsOne("Vms.Domain.Entity.Vehicle.VehicleVrm#Vms.Domain.Entity.VehicleVrm", "VehicleVrm", b1 =>
+                    b.OwnsOne("Vms.Domain.Entity.VehicleVrm", "VehicleVrm", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
                                 .HasColumnType("uniqueidentifier");
