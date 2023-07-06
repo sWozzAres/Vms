@@ -32,10 +32,13 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IBookSupplier bookSupplier,
         CancellationToken cancellationToken)
     {
-        throw new VmsDomainException("The is a test!");
+        //return BadRequest();
 
+        //throw new VmsDomainException("The is a test!");
+
+        //ModelState.AddModelError("", "A random error");
         //ModelState.AddModelError(nameof(request.Callee), "A callee error!");
-        //return BadRequest(ModelState);
+        ////return BadRequest(ModelState);
         //return UnprocessableEntity(new ValidationProblemDetails(ModelState));
 
         

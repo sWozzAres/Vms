@@ -46,7 +46,7 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
 builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
 builder.Services.AddScoped<ISupplierLocator, SupplierLocator>();
-builder.Services.AddScoped<IAssignSupplierUseCase, AssignSupplierUseCase>();
+builder.Services.AddScoped<IAssignSupplierUseCase, AutomaticallyAssignSupplierUseCase>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {

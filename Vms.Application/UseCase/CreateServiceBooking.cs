@@ -43,9 +43,9 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
 
             if (request.AutoAssign)
             {
-                var assigned = await context.AssignSupplierUseCase.Assign(new(booking.Id), cancellationToken);
+                var assigned = await context.AssignSupplierUseCase.Assign(booking.Id, cancellationToken);
 
-                if (assigned.Success)
+                if (assigned)
                 {
 
                 }
@@ -53,7 +53,7 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
 
             //TODO
 
-            return await Task.FromResult(booking);
+            return booking;
         }
     }
 }

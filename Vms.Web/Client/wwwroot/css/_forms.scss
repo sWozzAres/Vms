@@ -6,7 +6,16 @@ input, select, textarea, .combo-input {
     font-weight: 500;
 }
 
+input[type='checkbox'] {
+    width: 1em;
+    height: 1em;
+}
 
+input[type='radio'] {
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+}
 
 .details {
     display: grid;
@@ -96,16 +105,7 @@ form.edit-form {
             width: 100%;
         }
 
-        input[type='checkbox'] {
-            width: 1em;
-            height: 1em;
-        }
-
-        input[type='radio'] {
-            border-radius: 50%;
-            width: 1em;
-            height: 1em;
-        }
+        
         /*.validation-message-holder {
             grid-column-start: 2;
         }*/

@@ -5,9 +5,9 @@
     @if (isLoaded)
     {
         <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit">
-            <DataAnnotationsValidator @ref="validator"/>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             
-            <ValidationMessage For="@(() => model.Result)" />
             <InputRadioGroup @bind-Value="model.Result">
 
                 <div class="option">
@@ -71,7 +71,7 @@
                 {
                     <div class="error">
                         @errorMessage
-                </div>
+                    </div>
                 }
                 <button type="button" @onclick="OnClose">Cancel</button>
                 <button type="submit">Ok</button>
@@ -93,7 +93,6 @@
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
-    DataAnnotationsValidator validator = null!;
     EditContext editContext = null!;
     ValidationMessageStore messageStore = null!;
     bool OptionBookedDisabled => model.Result != TaskBookSupplierDto.TaskResult.Booked;
@@ -101,10 +100,6 @@
     bool OptionRescheduledDisabled => model.Result != TaskBookSupplierDto.TaskResult.Rescheduled;
     string? errorMessage;
 
-    async void Submit()
-    {
-
-    }
     async Task ValidSubmit()
     {
         errorMessage = null;
@@ -114,16 +109,30 @@
         {
             await OnClose.InvokeAsync();
         }
-        else if (result is PostResponse.BadRequest br)
-        {
-            errorMessage = br.ErrorMessage;
-        }
-        else if (result is PostResponse.UnprocessableEntity ue)
+        else
         {
             messageStore.Clear();
-            foreach (var error in ue.ValidationErrors) {
-                messageStore.Add(editContext.Field(error.Key), error.Value);
+
+            if (result is PostResponse.UnprocessableEntity ue)
+            {
+                foreach (var error in ue.ValidationErrors)
+                {
+                    messageStore.Add(editContext.Field(error.Key), error.Value);
+                }
             }
+            else
+            {
+                if (result is PostResponse.BadRequest br)
+                {
+                    messageStore.Add(editContext.Field(""), br.ErrorMessage);
+                }
+                else// if (result is PostResponse.Failure)
+                {
+                    messageStore.Add(editContext.Field(""), "There was a problem sending your request.");
+                }
+            }
+            
+            editContext.NotifyValidationStateChanged();
         }
     }
 

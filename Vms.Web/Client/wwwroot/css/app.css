@@ -2,6 +2,7 @@
 @import "_buttons.custom.css";
 @import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
 :root {
+  --task-background-color: #f7f9fb;
   --table-header-background-color: #ffffff;
   --table-header-color: #42444c;
   --form-legend-background-color: #f3f2f2;
@@ -506,6 +507,17 @@ input, select, textarea, .combo-input {
   font-weight: 500;
 }
 
+input[type=checkbox] {
+  width: 1em;
+  height: 1em;
+}
+
+input[type=radio] {
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+}
+
 .details {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -579,15 +591,6 @@ form.edit-form fieldset.form-grid .validation-message {
 }
 form.edit-form fieldset.form-grid input:not([type=checkbox]), form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   width: 100%;
-}
-form.edit-form fieldset.form-grid input[type=checkbox] {
-  width: 1em;
-  height: 1em;
-}
-form.edit-form fieldset.form-grid input[type=radio] {
-  border-radius: 50%;
-  width: 1em;
-  height: 1em;
 }
 form.edit-form .buttons {
   margin-top: 1em;
@@ -791,8 +794,8 @@ dialog.list-selector .dialog-container .dialog-footer {
 }
 
 .task-form {
-  background: hsl(130deg, 50%, 70%);
-  border: 2px solid green;
+  background: var(--task-background-color);
+  border: 2px solid var(--border-color);
   padding: 1em;
   width: 50ch;
 }
@@ -812,6 +815,7 @@ dialog.list-selector .dialog-container .dialog-footer {
   display: flex;
   flex-direction: row;
   column-gap: 1em;
+  align-items: center;
 }
 .task-form form .option .option-select label {
   font-size: initial;
@@ -823,6 +827,9 @@ dialog.list-selector .dialog-container .dialog-footer {
   margin-left: 2em;
 }
 .task-form form .buttons {
+  display: flex;
+  justify-content: end;
+  column-gap: 0.5em;
   margin-top: 1em;
 }
 
