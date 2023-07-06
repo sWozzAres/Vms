@@ -17,6 +17,7 @@ using Vms.Web.Server.Middleware;
 using Vms.DomainApplication.Services;
 using Vms.Application.UseCase;
 using Vms.Application.Services;
+using Microsoft.AspNetCore.Mvc;
 
 const string AppName = "Vms.Web.Server";
 
@@ -64,7 +65,23 @@ builder.Services.AddDbContext<VmsDbContext>(options =>
 
 builder.Services.AddApplicationSecurity();
 
-builder.Services.AddControllersWithViews();
+//builder.Services.AddControllersWithViews()
+//    .ConfigureApiBehaviorOptions(options =>
+//    {
+//        options.InvalidModelStateResponseFactory = context =>
+//        {
+//            if (context.HttpContext.Request.Path == "/StarshipValidation")
+//            {
+//                return new BadRequestObjectResult(context.ModelState);
+//            }
+//            else
+//            {
+//                return new BadRequestObjectResult(
+//                    new ValidationProblemDetails(context.ModelState));
+//            }
+//        };
+//    });
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

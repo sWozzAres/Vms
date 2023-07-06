@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -94,10 +95,11 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
     #region /api/servicebooking
-    public async Task<HttpResponseMessage> BookSupplier(Guid id, TaskBookSupplierDto request)
+
+    public async Task<PostResponse> BookSupplier(Guid id, TaskBookSupplierDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request);
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
     }
     public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id)
     {
@@ -206,3 +208,63 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
 }
+
+public abstract class PostResponse(HttpResponseMessage response)
+{
+    public HttpResponseMessage Response { get; private set; } = response;
+
+    public class Success(HttpResponseMessage response) : PostResponse(response)
+    {
+    }
+
+    public class Failure(HttpResponseMessage response) : PostResponse(response)
+    {
+    }
+
+    public class BadRequest : PostResponse
+    {
+        public string ErrorMessage { get; private set; }
+        public BadRequest(HttpResponseMessage response) : base(response)
+        {
+            var result = response.Content.ReadFromJsonAsync<BadRequestResponse>().GetAwaiter().GetResult();
+
+            ErrorMessage = result?.Detail ?? "Unexpected error was returned from the server.";
+        }
+
+        class BadRequestResponse
+        {
+            public string Title { get; set; } = null!;
+            public int Status { get; set; }
+            public string Detail { get; set; } = null!;
+        }
+    }
+
+    public class UnprocessableEntity : PostResponse
+    {
+        public Dictionary<string, List<string>> ValidationErrors { get; private set; }
+        public UnprocessableEntity(HttpResponseMessage response) : base(response)
+        {
+            var ue = response.Content.ReadFromJsonAsync<UnprocessableEntityResponse>().GetAwaiter().GetResult();
+
+            ValidationErrors = ue?.Errors ?? new Dictionary<string, List<string>>();
+        }
+
+        class UnprocessableEntityResponse
+        {
+            public string Title { get; set; } = null!;
+            public int Status { get; set; }
+            public Dictionary<string, List<string>> Errors { get; set; } = null!;
+        }
+    }
+
+
+    public static PostResponse Create(HttpResponseMessage response)
+        => response.StatusCode switch
+        {
+            HttpStatusCode.OK => new Success(response),
+            HttpStatusCode.BadRequest => new BadRequest(response),
+            HttpStatusCode.UnprocessableEntity => new UnprocessableEntity(response),
+            _ => new Failure(response)
+        };
+}
+

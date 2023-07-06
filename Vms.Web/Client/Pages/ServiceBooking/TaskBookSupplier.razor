@@ -4,9 +4,9 @@
     <h1>Book Supplier</h1>
     @if (isLoaded)
     {
-        <EditForm Model="model" OnValidSubmit="ValidSubmit">
-            <DataAnnotationsValidator/>
-
+        <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit">
+            <DataAnnotationsValidator @ref="validator"/>
+            
             <ValidationMessage For="@(() => model.Result)" />
             <InputRadioGroup @bind-Value="model.Result">
 
@@ -67,6 +67,12 @@
             </div>
 
             <div class="buttons">
+                @if (errorMessage is not null)
+                {
+                    <div class="error">
+                        @errorMessage
+                </div>
+                }
                 <button type="button" @onclick="OnClose">Cancel</button>
                 <button type="submit">Ok</button>
             </div>
@@ -87,10 +93,13 @@
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
-
+    DataAnnotationsValidator validator = null!;
+    EditContext editContext = null!;
+    ValidationMessageStore messageStore = null!;
     bool OptionBookedDisabled => model.Result != TaskBookSupplierDto.TaskResult.Booked;
     bool OptionRefusedDisabled => model.Result != TaskBookSupplierDto.TaskResult.Refused;
     bool OptionRescheduledDisabled => model.Result != TaskBookSupplierDto.TaskResult.Rescheduled;
+    string? errorMessage;
 
     async void Submit()
     {
@@ -98,8 +107,24 @@
     }
     async Task ValidSubmit()
     {
-        var response = await Api.BookSupplier(ServiceBooking.Id, model);
-        
+        errorMessage = null;
+
+        var result = await Api.BookSupplier(ServiceBooking.Id, model);
+        if (result is PostResponse.Success)
+        {
+            await OnClose.InvokeAsync();
+        }
+        else if (result is PostResponse.BadRequest br)
+        {
+            errorMessage = br.ErrorMessage;
+        }
+        else if (result is PostResponse.UnprocessableEntity ue)
+        {
+            messageStore.Clear();
+            foreach (var error in ue.ValidationErrors) {
+                messageStore.Add(editContext.Field(error.Key), error.Value);
+            }
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -115,6 +140,8 @@
         refusalReasonOptions = UIOptions.BuildRefusalReasonOptions(refusalReasons.Result);
         rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
 
+        editContext = new(model);
+        messageStore = new(editContext);
         isLoaded = true;
     }
 }

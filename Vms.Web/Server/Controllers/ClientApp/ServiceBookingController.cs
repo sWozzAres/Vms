@@ -8,6 +8,7 @@ using Polly;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
+using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 using Vms.DomainApplication.Services;
 using Vms.Web.Server.Helpers;
@@ -31,6 +32,14 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IBookSupplier bookSupplier,
         CancellationToken cancellationToken)
     {
+        throw new VmsDomainException("The is a test!");
+
+        //ModelState.AddModelError(nameof(request.Callee), "A callee error!");
+        //return BadRequest(ModelState);
+        //return UnprocessableEntity(new ValidationProblemDetails(ModelState));
+
+        
+
         switch (request.Result)
         {
             case TaskBookSupplierDto.TaskResult.Booked:
