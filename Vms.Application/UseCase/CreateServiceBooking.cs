@@ -36,10 +36,17 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
                 request.PreferredDate1,
                 request.PreferredDate2,
                 request.PreferredDate3,
-                request.IncludeMot ? self.Mot.Due : null
+                null//request.IncludeMot ? self.Mot.Due : null
             );
 
             context.DbContext.ServiceBookings.Add(booking);
+
+            if (request.MotId is not null)
+            {
+                var motEntry = await context.DbContext.MotEvents.SingleAsync(m => m.Id == request.MotId);
+                //motEntry.ServiceBookingId = booking.Id;
+                motEntry.ServiceBooking = booking;
+            }
 
             if (request.AutoAssign)
             {
@@ -63,6 +70,6 @@ public record CreateBookingRequest(
     DateOnly? PreferredDate1,
     DateOnly? PreferredDate2,
     DateOnly? PreferredDate3,
-    bool IncludeMot,
+    Guid? MotId,
     bool AutoAssign
 );

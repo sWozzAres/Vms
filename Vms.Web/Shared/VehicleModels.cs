@@ -1,6 +1,9 @@
 ﻿using Vms.Web.Shared.DataAnnotations;
 
 namespace Vms.Web.Shared;
+public record OpenEvents(List<OpenMotEvent> Mots);
+public record OpenMotEvent(Guid Id, DateOnly Due);
+
 public record AssignCustomerToVehicleDto(string CustomerCode);
 public record AssignFleetToVehicleDto(string FleetCode);
 public record AddDriverToVehicleDto(Guid Id);

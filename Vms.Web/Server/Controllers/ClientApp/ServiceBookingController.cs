@@ -109,7 +109,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         var serviceBooking = await new CreateServiceBooking(_context, assignSupplierUseCase)
-            .CreateAsync(new CreateBookingRequest(request.VehicleId, null, null, null, false, request.AutoAssign), cancellationToken);
+            .CreateAsync(new CreateBookingRequest(request.VehicleId, null, null, null, 
+                request.Mot, request.AutoAssign), cancellationToken);
 
         return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
     }

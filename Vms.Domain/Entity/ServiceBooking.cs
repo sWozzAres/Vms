@@ -35,6 +35,8 @@ namespace Vms.Domain.Entity
             PreferredDate1 = preferredDate1;
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
+
+            //TODO remove
             MotDue = motDue;
 
             Status = IsValid switch

@@ -1,0 +1,141 @@
+﻿@inject ServerApiHttpClient Api
+@inject ILogger<NewServiceBooking> Logger
+@inject NavigationManager NavigationManager
+
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector scroll-content">
+    <div class="dialog-container">
+        <div class="dialog-header">
+            <h1>New Service Booking</h1>
+        </div>
+        <div class="dialog-content">
+            @if (loadException is not null)
+            {
+                <RetryLoad Exception="loadException" OnRetry="LoadEvents" />
+            }
+            else 
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Event</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (openEvents is not null)
+                        {
+                            for (int index = 0; index < openEvents.Count(); index++)
+                            {
+                                var idx = index;
+                                var item = openEvents.ElementAt(index);
+                                <tr @onclick="() => SelectItem(idx)">
+                                    <td><input checked="@isSelected(idx)" type="checkbox" /></td>
+                                    <td>@item.TypeString</td>
+                                    <td>@item.Description</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="dialog-footer">
+            <div class="dialog-controls">
+                <button @onclick="CloseDialog" disabled="@formIsDisabled">Close</button>
+                <button type="submit" @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+            </div>
+            @if (okErrorMessage is not null)
+            {
+                <p class="error">@okErrorMessage</p>
+            }
+        </div>
+    </div>
+</Dialog>
+
+@code {
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
+
+    bool formIsDisabled;
+    string? okErrorMessage;
+    Exception? loadException;
+    bool isOkButtonDisabled => openEvents is null ? true : !openEvents.Any(e => e.Selected);
+    List<EventSelect>? openEvents;
+
+    void SelectItem(int index)
+    {
+        var element = openEvents!.ElementAt(index);
+        element.Selected = !element.Selected;
+    }
+
+    bool isSelected(int index) => openEvents!.ElementAt(index).Selected;
+
+    async Task CloseDialog() => await OnClose.InvokeAsync();
+    async Task OkDialog()
+    {
+        formIsDisabled = true;
+        try
+        {
+            var motId = openEvents!.FirstOrDefault(e => e.Type == EventSelectType.Mot && e.Selected)?.Id;
+
+            var request = new CreateServiceBookingDto(Id, false, motId, null, null);
+            var serviceBooking = await Api.CreateServiceBookingAsync(Id, request);
+            NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
+        }
+        catch (VmsDomainException ex)
+        {
+            okErrorMessage = ex.Message;
+            Logger.LogError(ex, okErrorMessage);
+        }
+        catch (Exception ex)
+        {
+            okErrorMessage = "An error occurred while trying to select the item.";
+            Logger.LogError(ex, okErrorMessage);
+        }
+        finally
+        {
+            formIsDisabled = false;
+        }
+    }
+
+    async Task LoadEvents()
+    {
+        loadException = null;
+        openEvents = null;
+        try
+        {
+            var events = await Api.GetOpenEvents(Id);
+            openEvents = new();
+            foreach (var ev in events.Mots)
+            {
+                openEvents.Add(new EventSelect(ev.Id, EventSelectType.Mot, ""));
+            }
+            //TODO service, repair etc
+        }
+        catch (Exception ex)
+        {
+            loadException = ex;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
+        if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
+
+        await LoadEvents();
+    }
+    enum EventSelectType { Mot, Service, Repair }
+    record EventSelect(Guid Id, EventSelectType Type, string Description)
+    {
+        public bool Selected { get; set; }
+        public string TypeString => Type switch
+        {
+            EventSelectType.Mot => "Mot",
+            EventSelectType.Service => "Service",
+            EventSelectType.Repair => "Repair",
+            _ => "Unknown"
+        };
+    }
+}

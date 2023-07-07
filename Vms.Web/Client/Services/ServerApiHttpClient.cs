@@ -126,14 +126,19 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<ServiceBookingFullDto>($"/api/servicebooking/{id}")
             ?? throw new InvalidOperationException("Failed to load service booking.");
     }
-    public async Task<ServiceBookingDto> CreateServiceBookingAsync(Guid vehicleId)
+    public async Task<ServiceBookingDto> CreateServiceBookingAsync(Guid vehicleId, CreateServiceBookingDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        var request = new CreateServiceBookingDto(vehicleId, true);
         return await DeserializeOrThrow<ServiceBookingDto>(await http.PostAsJsonAsync("/api/servicebooking", request));
     }
     #endregion
     #region /api/vehicle
+    public async Task<OpenEvents> GetOpenEvents(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<OpenEvents>($"/api/vehicle/{id}/openevents")
+            ?? throw new InvalidOperationException("Failed to load open events.");
+    }
     public async Task<VehicleFullDto> GetVehicleFullAsync(Guid id)
     {
         ClearAndAddAcceptHeaders("application/vnd.vehiclefull");

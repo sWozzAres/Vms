@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
+using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -18,6 +19,18 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 {
     readonly ILogger<VehicleController> _logger = logger;
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
+    [HttpGet]
+    [Route("{id}/openevents")]
+    public async Task<IActionResult> GetOpenEvents(Guid id, CancellationToken cancellationToken)
+    {
+        var motEvents = await _context.MotEvents
+            .Where(e => e.VehicleId == id && e.ServiceBookingId == null)
+            .Select(e => new OpenMotEvent(e.Id, e.Due))
+            .ToListAsync(cancellationToken);
+
+        return Ok(new OpenEvents(motEvents));
+    }
 
     [HttpGet]
     [Route("{id}/servicebookings")]

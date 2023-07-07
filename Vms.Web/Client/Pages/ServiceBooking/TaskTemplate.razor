@@ -19,8 +19,8 @@
             <button type="submit">Ok</button>
         </div>
     </EditForm>
-
 </section>
+
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = null!;
     public delegate Task<PostResponse> Save(TModel model);

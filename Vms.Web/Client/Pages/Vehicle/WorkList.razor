@@ -24,7 +24,7 @@
                 <div class="content-header">
                     <h1><a href="/servicebooking/view/@sb.Id">@sb.Id</a></h1>
                     @* <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right"
-                                OnSelectCallback="(val) => OptionSelected(val, customer)" /> *@
+            OnSelectCallback="(val) => OptionSelected(val, customer)" /> *@
                 </div>
                 <dl>
                     <dt>Id:</dt>
@@ -36,20 +36,23 @@
     }
 }
 
+@if (createNewServiceBooking)
+{
+    <NewServiceBooking Id="Id" OnClose="() => createNewServiceBooking = false" />
+}
+
 @code {
     [CascadingParameter] TabControl TabControl { get; set; } = null!;
     [CascadingParameter] TabPage TabPage { get; set; } = null!;
 
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
+    bool createNewServiceBooking;
     bool IsActive => TabControl.ActivePage == TabPage;
     List<ServiceBookingFullDto>? serviceBookings;
 
-    async Task NewServiceBooking()
-    {
-        var serviceBooking = await Http.CreateServiceBookingAsync(Id);
-        NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
-    }
+    void NewServiceBooking() => createNewServiceBooking = true;
+    
 
     protected override void OnInitialized()
     {

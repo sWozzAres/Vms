@@ -1,6 +1,6 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierDto" Title="Book Supplier2" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierDto" Title="Book Supplier" OnSave="Save" OnCompleted="OnCompleted">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
