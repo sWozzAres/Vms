@@ -95,11 +95,25 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
     #region /api/servicebooking
-
+    public async Task<PostResponse> SaveServiceBooking(Guid id, ServiceBookingDto request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/edit", request));
+    }
+    public async Task<PostResponse> AssignSupplier(Guid id, TaskAssignSupplierDto request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/assignsupplier", request));
+    }
     public async Task<PostResponse> BookSupplier(Guid id, TaskBookSupplierDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
+    }
+    public async Task<PostResponse> UnbookSupplier(Guid id, TaskUnbookSupplierDto request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/unbooksupplier", request));
     }
     public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id)
     {

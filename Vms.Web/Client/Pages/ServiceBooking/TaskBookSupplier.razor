@@ -73,7 +73,7 @@
                         @errorMessage
                     </div>
                 }
-                <button type="button" @onclick="OnClose">Cancel</button>
+                <button type="button" @onclick="() => OnCompleted.InvokeAsync(false)">Cancel</button>
                 <button type="submit">Ok</button>
             </div>
         </EditForm>
@@ -81,7 +81,8 @@
 </section>
 @code {
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
-    [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+    //[Parameter] public EventCallback OnSave { get; set; }
 
     TaskBookSupplierDto model = new()
         {
@@ -107,7 +108,7 @@
         var result = await Api.BookSupplier(ServiceBooking.Id, model);
         if (result is PostResponse.Success)
         {
-            await OnClose.InvokeAsync();
+            await OnCompleted.InvokeAsync(true);
         }
         else
         {
@@ -139,7 +140,7 @@
     protected override async Task OnInitializedAsync()
     {
         ArgumentNullException.ThrowIfNull(ServiceBooking);
-        if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
         var refusalReasons = Api.GetRefusalReasons(ServiceBooking.CompanyCode);
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);

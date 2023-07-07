@@ -201,7 +201,10 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         _logger.LogInformation("Put vehicle, id {id}.", id);
 
-        var vehicle = await _context.Vehicles.FindAsync(id, cancellationToken);
+        var vehicle = await _context.Vehicles
+            .Include(v => v.MotEvents.Where(e => e.IsCurrent))
+            .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+            //.FindAsync(id, cancellationToken);
         if (vehicle is null)
         {
             return NotFound();
@@ -210,6 +213,22 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         vehicle.Vrm = request.Vrm;
         vehicle.UpdateModel(request.Make!, request.Model!);
         //vehicle.Mot.Due = request.MotDue;
+
+        var mot = vehicle.MotEvents.FirstOrDefault();
+        if (mot is not null)
+        {
+            if (request.MotDue.HasValue)
+                mot.Due = request.MotDue.Value;
+            else
+                _context.MotEvents.Remove(mot);
+        }
+        else
+        {
+            if (request.MotDue.HasValue)
+                //vehicle.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
+                _context.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
+        }
+
         vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
             new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326});
 

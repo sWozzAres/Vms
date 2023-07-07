@@ -1,4 +1,4 @@
-﻿namespace Vms.Web.Shared;
+﻿namespace Vms.Web.Shared.DataAnnotations;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -41,8 +41,8 @@ public class RequiredIfAttribute : ValidationAttribute
 
         if (requiredIfTypeActualValue == null || requiredIfTypeActualValue.Equals(_isValue))
         {
-            return value == null || (value is string stringValue && string.IsNullOrWhiteSpace(stringValue))
-                ? new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.MemberName! }) 
+            return value == null || value is string stringValue && string.IsNullOrWhiteSpace(stringValue)
+                ? new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.MemberName! })
                 : ValidationResult.Success;
         }
 

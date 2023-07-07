@@ -1,30 +1,48 @@
 ﻿namespace Vms.Web.Shared;
 
-public class TaskBookSupplierDto 
+public class TaskUnbookSupplierDto
+{
+    public enum TaskResult { None, Unbooked }
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Unbooked), nameof(TaskResult.Unbooked),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+    
+    [RequiredIf(nameof(Result), TaskResult.Unbooked, ErrorMessage = "You must supply a reason.")]
+    public string? Reason { get; set; }
+}
+
+public class TaskAssignSupplierDto
+{
+    [Required]
+    public string SupplierCode { get; set; } = null!;
+}
+
+public class TaskBookSupplierDto
 {
     public enum TaskResult { None, Booked, Refused, Rescheduled }
 
     [Required]
-    [Range(typeof(TaskResult), nameof(TaskResult.Booked), nameof(TaskResult.Rescheduled), 
+    [Range(typeof(TaskResult), nameof(TaskResult.Booked), nameof(TaskResult.Rescheduled),
         ErrorMessage = "You must select an option.")]
     public TaskResult Result { get; set; }
 
     [RequiredIf(nameof(Result), TaskResult.Booked, ErrorMessage = "The Booked Date is required.")]
     public DateOnly? BookedDate { get; set; }
-    
+
     [RequiredIf(nameof(Result), TaskResult.Refused, ErrorMessage = "The Refusal Reason is required.")]
     public string? RefusalReason { get; set; }
-    
+
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
     public string? RescheduleReason { get; set; }
 
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
     public DateOnly? RescheduleDate { get; set; }
-    
+
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
     [RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9])$", ErrorMessage = "Invalid time.")]
     public string? RescheduleTime { get; set; }
-    
+
     public string? Callee { get; set; }
 }
 
@@ -56,6 +74,15 @@ public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
     int Status,
     SupplierShortDto? Supplier)
 {
+    public string StatusText => Status switch
+    {
+        0 => "None",
+        1 => "Assign",
+        2 => "Book",
+        3 => "Confirm",
+        _ => "Unknown"
+    };
+
     public ServiceBookingDto ToDto()
         => new()
         {
@@ -66,5 +93,4 @@ public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
             PreferredDate2 = PreferredDate2,
             PreferredDate3 = PreferredDate3
         };
-
 }

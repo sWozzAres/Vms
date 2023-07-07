@@ -1,4 +1,4 @@
-﻿<EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" Id="@Id" ApiUrl="/api/ServiceBooking" OnLoad="OnLoad">
+﻿<EditFormTemplate2 TModel="ServiceBookingDto" @ref="editForm" OnLoad="OnLoad" OnSave="OnSave">
     <DataAnnotationsValidator />
 
     <div class="form-section">
@@ -67,17 +67,17 @@
         <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
         </fieldset> *@
     </div>
-</EditFormTemplate>
+</EditFormTemplate2>
 
 @code {
-    [Parameter, EditorRequired] public string Id { get; set; } = null!;
-    [Parameter, EditorRequired] public EditFormTemplate<ServiceBookingDto>.LoadModel OnLoad { get; set; } = null!;
+    [Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.LoadModel OnLoad { get; set; } = null!;
+    [Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.SaveModel OnSave { get; set; } = null!;
 
-    EditFormTemplate<ServiceBookingDto> editForm = null!;
+    EditFormTemplate2<ServiceBookingDto> editForm = null!;
 
     protected override void OnInitialized()
     {
-        ArgumentNullException.ThrowIfNull(Id);
+        ArgumentNullException.ThrowIfNull(OnSave);
         ArgumentNullException.ThrowIfNull(OnLoad);
     }
 }

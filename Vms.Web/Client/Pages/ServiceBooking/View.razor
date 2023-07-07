@@ -7,7 +7,7 @@
 
 @if (loadingException is not null)
 {
-    <RetryLoad Exception="loadingException" OnRetry="Load" />
+    <RetryLoad Exception="loadingException" OnRetry="LoadServiceBooking" />
 }
 else
 {
@@ -26,6 +26,10 @@ else
             @if (serviceBooking is not null)
             {
                 <dl>
+                    <div class="namevalue">
+                        <dt>Status</dt>
+                        <dd>@serviceBooking.StatusText</dd>
+                    </div>
                     <div class="namevalue">
                         <dt>Vrm</dt>
                         <dd><a href="/vehicle/view/@serviceBooking.VehicleId">@serviceBooking.Vrm</a></dd>
@@ -52,12 +56,7 @@ else
                 <div class="details">
                     <TabControl Title="Vehicle Tabs" TitleVisible="false">
                         <TabPage Text="Details">
-
-
-                            <Edit Id="@Id.ToString()" OnLoad="async () => await Task.FromResult(serviceBooking.ToDto())" />
-
-
-
+                            <Edit OnLoad="LoadModel" OnSave="SaveModel" />
                         </TabPage>
                         <TabPage Text="Events">
                             <p>TODO</p>
@@ -66,7 +65,13 @@ else
                     <div class="task">
                         @if (displayTask == "Book Supplier")
                         {
-                            <TaskBookSupplier ServiceBooking="serviceBooking" OnClose="() => displayTask = null" />
+                            <TaskBookSupplier ServiceBooking="serviceBooking"
+                                              OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Unbook Supplier")
+                        {
+                            <TaskUnbookSupplier ServiceBooking="serviceBooking"
+                                                OnCompleted="TaskCompleted" />
                         }
                     </div>
                 </div>
@@ -78,7 +83,7 @@ else
 @if (displayTask == "Assign Supplier")
 {
     <SupplierSelector TItem="SupplierLocatorDto" Id="Id"
-                      OnSelected="CustomerSearchDialogSelect"
+                      OnSelected="SupplierDialogSelect"
                       OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
                       OnClose="() => displayTask = null">
         <TableHeader>
@@ -98,22 +103,69 @@ else
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
     string? displayTask;
+
     Exception? loadingException;
     ServiceBookingFullDto? serviceBooking;
     string Title => serviceBooking is null ? "" : serviceBooking.Id.ToString();
 
-    async Task CustomerSearchDialogSelect(SupplierLocatorDto item)
+    async Task TaskCompleted(bool saved)
     {
-        //await Api.AssignCustomerToVehicle(VehicleId, item.Code);
-
-        //await OnChanged.InvokeAsync();
-
         displayTask = null;
+        if (saved)
+        {
+            await LoadServiceBooking();
+        }
+    }
+
+    async Task SupplierDialogSelect(SupplierLocatorDto item)
+    {
+        var result = await Api.AssignSupplier(Id, new TaskAssignSupplierDto() { SupplierCode = item.Code });
+
+        if (result is PostResponse.Success)
+        {
+            displayTask = null;
+            await LoadServiceBooking();
+        }
+        else
+        {
+            if (result is PostResponse.UnprocessableEntity ue)
+            {
+                //TODO should never happen but it does should we show errors? Probably not.
+                throw new InvalidOperationException("Validation error.");
+            }
+            else
+            {
+                if (result is PostResponse.BadRequest br)
+                {
+                    throw new VmsDomainException(br.ErrorMessage);
+                }
+                else// if (result is PostResponse.Failure)
+                {
+                    throw new InvalidOperationException("There was a problem sending your request.");
+                }
+            }
+        }
     }
 
     void SelectTask(string name) => displayTask = name;
 
-    async Task Load()
+    async Task<PostResponse> SaveModel(ServiceBookingDto model)
+    {
+        var result = await Api.SaveServiceBooking(Id, model);
+        if (result is PostResponse.Success)
+        {
+            await LoadServiceBooking();
+            StateHasChanged();
+        }
+        return result;
+    }
+
+    async Task<ServiceBookingDto> LoadModel()
+    {
+        return await Task.FromResult(serviceBooking!.ToDto());
+    }
+
+    async Task LoadServiceBooking()
     {
         try
         {
@@ -151,7 +203,7 @@ else
         Logger.LogInformation("OnInitializedAsync()");
         await base.OnInitializedAsync();
         ArgumentNullException.ThrowIfNull(Id);
-        await Load();
+        await LoadServiceBooking();
     }
     protected override void OnParametersSet()
     {

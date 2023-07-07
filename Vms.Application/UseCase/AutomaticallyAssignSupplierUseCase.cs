@@ -34,8 +34,42 @@ public class AutomaticallyAssignSupplierUseCase : IAssignSupplierUseCase
                 return false;
             }
 
-            self.SupplierCode = list.First().Code;
+            //self.SupplierCode = list.First().Code;
+            await new AssignSupplierUseCase(context.DbContext)
+                .Assign(self.Id, list.First().Code, cancellationToken);
             return true;
         }
     }
+}
+
+public class AssignSupplierUseCase
+{
+    readonly VmsDbContext DbContext;
+    //ServiceBookingRole? ServiceBooking;
+
+    public AssignSupplierUseCase(VmsDbContext dbContext)
+        => DbContext = dbContext;
+
+    public async Task Assign(Guid id, string supplierCode, CancellationToken cancellationToken = default)
+    {
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+            ?? throw new VmsDomainException("Service Booking not found.");
+
+        if (serviceBooking.Status != ServiceBookingStatus.Assign && serviceBooking.Status != ServiceBookingStatus.Book)
+            throw new VmsDomainException("Service Booking is not in Assign or Book status.");
+
+        serviceBooking.Assign(supplierCode);
+        //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        //    ?? throw new VmsDomainException("Service Booking not found."), this);
+
+        //ServiceBooking.Assign(supplierCode);
+    }
+
+    //class ServiceBookingRole(ServiceBooking self, AssignSupplierUseCase context)
+    //{
+    //    public void Assign(string supplierCode)
+    //    {
+    //        self.Assign(supplierCode);
+    //    }
+    //}
 }

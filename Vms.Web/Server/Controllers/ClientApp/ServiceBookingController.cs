@@ -26,23 +26,35 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpPost]
-    [Route("{id}/booksupplier")]
-    public async Task<IActionResult> BookSupplier(Guid id,
-        [FromBody] TaskBookSupplierDto request,
-        [FromServices] IBookSupplier bookSupplier,
+    [Route("{id}/assignsupplier")]
+    public async Task<IActionResult> AssignSupplier(Guid id,
+        [FromBody] TaskAssignSupplierDto request,
         CancellationToken cancellationToken)
     {
-        //return BadRequest();
+        await new AssignSupplierUseCase(_context)
+                .Assign(id, request.SupplierCode, cancellationToken);
 
-        //throw new VmsDomainException("The is a test!");
+        return Ok();
+    }
 
-        //ModelState.AddModelError("", "A random error");
-        //ModelState.AddModelError(nameof(request.Callee), "A callee error!");
-        ////return BadRequest(ModelState);
-        //return UnprocessableEntity(new ValidationProblemDetails(ModelState));
+    [HttpPost]
+    [Route("{id}/unbooksupplier")]
+    public async Task<IActionResult> UnbookSupplier(Guid id,
+        [FromBody] TaskUnbookSupplierDto request,
+        CancellationToken cancellationToken)
+    {
+        await new UnbookSupplier(_context).UnbookAsync(id, request.Reason!, cancellationToken);
 
-        
+        return Ok();
+    }
 
+    [HttpPost]
+    [Route("{id}/booksupplier")]
+    public async Task<IActionResult> BookSupplier(Guid id,
+    [FromBody] TaskBookSupplierDto request,
+    [FromServices] IBookSupplier bookSupplier,
+    CancellationToken cancellationToken)
+    {
         switch (request.Result)
         {
             case TaskBookSupplierDto.TaskResult.Booked:
@@ -55,14 +67,14 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
                 await bookSupplier.RescheduleAsync(id, Helper.CombineDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
                 break;
         }
-        
+
         return Ok();
     }
 
     [HttpGet]
     [Route("{id}/suppliers")]
     public async Task<IActionResult> GetSuppliers(Guid id,
-        [FromServices]ISupplierLocator supplierLocator,
+        [FromServices] ISupplierLocator supplierLocator,
         CancellationToken cancellationToken)
     {
         var serviceBooking = await _context.ServiceBookings.FindAsync(id, cancellationToken);
@@ -93,12 +105,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     public async Task<IActionResult> CreateServiceBooking(
         [FromBody] CreateServiceBookingDto request,
-        [FromServices]IAssignSupplierUseCase assignSupplierUseCase,
+        [FromServices] IAssignSupplierUseCase assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
         var serviceBooking = await new CreateServiceBooking(_context, assignSupplierUseCase)
             .CreateAsync(new CreateBookingRequest(request.VehicleId, null, null, null, false, request.AutoAssign), cancellationToken);
-        
+
         return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
     }
 
@@ -131,10 +143,9 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToFullDto());
     }
 
-    [HttpPut]
-    [Route("{id}")]
-    [ActionName("Put")]
-    public async Task<IActionResult> Put([FromRoute] Guid id,
+    [HttpPost]
+    [Route("{id}/edit")]
+    public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] ServiceBookingDto request,
         CancellationToken cancellationToken)
     {
@@ -153,7 +164,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         serviceBooking.PreferredDate2 = request.PreferredDate2;
         serviceBooking.PreferredDate3 = request.PreferredDate3;
 
-        return Ok(serviceBooking.ToDto());
+        if (serviceBooking.Status == ServiceBookingStatus.None && serviceBooking.IsValid)
+        {
+            serviceBooking.ChangeStatus(ServiceBookingStatus.Assign);
+        }
+
+        return Ok();
     }
 }
 

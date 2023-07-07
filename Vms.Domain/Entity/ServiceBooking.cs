@@ -21,7 +21,7 @@ namespace Vms.Domain.Entity
         //public VehicleMot? VehicleMot { get; set; }
         //public ServiceBookingSupplier? Supplier { get; private set; }
         public DateTime? RescheduleTime { get; internal set; }
-        public ServiceBookingStatus Status { get; internal set; }
+        public ServiceBookingStatus Status { get; private set; }
         public Vehicle Vehicle { get; set; } = null!;
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
@@ -36,19 +36,34 @@ namespace Vms.Domain.Entity
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
             MotDue = motDue;
-            Status = ServiceBookingStatus.None;
+
+            Status = IsValid switch
+            {
+                true => ServiceBookingStatus.Assign,
+                _ => ServiceBookingStatus.None,
+            };
         }
-        //public void ChangeStatus(ServiceBookingStatus status) => Status = status;
-        //public void AssignSupplier(string supplierCode)
-        //{
-        //    SupplierCode = supplierCode;
-        //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
-        //}
+        public bool IsValid 
+            => PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null;
+        
+        public void ChangeStatus(ServiceBookingStatus status) => Status = status;
+        public void Assign(string supplierCode)
+        {
+            SupplierCode = supplierCode;
+            Status = ServiceBookingStatus.Book;
+            //Supplier = new ServiceBookingSupplier(Id, supplierCode);
+        }
         //public void UnassignSupplier()
         //{
         //    SupplierCode = null;
         //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
         //}
+        public void Unbook()
+        {
+            BookedDate = null!;
+            RescheduleTime = DateTime.Now;
+            ChangeStatus(ServiceBookingStatus.Book);
+        }
         public void Book(DateOnly bookedDate)
         {
             if (SupplierCode is null)
@@ -56,13 +71,13 @@ namespace Vms.Domain.Entity
 
             RescheduleTime = null;
             BookedDate = bookedDate;
-            Status = ServiceBookingStatus.Confirm;
+            ChangeStatus(ServiceBookingStatus.Confirm);
         }
         public void Refuse() 
         {
             RescheduleTime = null;
             SupplierCode = null;
-            Status = ServiceBookingStatus.Assign;
+            ChangeStatus(ServiceBookingStatus.Assign);
         }
         //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
     }

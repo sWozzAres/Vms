@@ -7,9 +7,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\CodeGen\CodeGen.csproj"
-						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\CodeGen\CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
   <ItemGroup>

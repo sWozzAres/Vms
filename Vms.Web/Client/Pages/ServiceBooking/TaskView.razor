@@ -9,10 +9,12 @@
         }
         else if (ServiceBooking.Status == 2)
         {
+            <button @onclick="AssignSupplier">Assign Supplier</button>
             <button @onclick="BookSupplier">Book Supplier</button>
         }
         else if (ServiceBooking.Status == 3)
         {
+            <button @onclick="UnbookSupplier">Unbook</button>
             <button @onclick="Confirm">Confirm with Driver</button>
         }
     </div>
@@ -33,12 +35,14 @@
     private string[] items = new string[]
     {
         "Assign Supplier",
+        "Unbook Supplier",
         "Book Supplier",
     };
     string selectedItem = string.Empty;
 
     public async Task AssignSupplier() => await OnSelectTask.InvokeAsync("Assign Supplier");
     public async Task BookSupplier() => await OnSelectTask.InvokeAsync("Book Supplier");
+    public async Task UnbookSupplier() => await OnSelectTask.InvokeAsync("Unbook Supplier");
     public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm with Driver");
 
     protected override void OnInitialized()
