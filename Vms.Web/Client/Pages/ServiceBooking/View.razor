@@ -106,7 +106,7 @@ else
 
     Exception? loadingException;
     ServiceBookingFullDto? serviceBooking;
-    string Title => serviceBooking is null ? "" : serviceBooking.Id.ToString();
+    string Title => serviceBooking?.Id.ToString() ?? "";
 
     async Task TaskCompleted(bool saved)
     {
