@@ -1,23 +1,20 @@
-using Microsoft.AspNetCore.ResponseCompression;
-using Serilog.Sinks.SystemConsole.Themes;
-using Serilog;
-using Vms.Domain.Services;
-using Vms.Web.Server.Services;
-using Microsoft.EntityFrameworkCore;
-using Vms.Domain.Infrastructure;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
+using Vms.Application.Services;
+using Vms.Application.UseCase;
+using Vms.Domain.Infrastructure;
+using Vms.Domain.Infrastructure.Seed;
+using Vms.Domain.Services;
+using Vms.DomainApplication.Services;
+using Vms.Web.Server;
 using Vms.Web.Server.Configuration;
-using Microsoft.AspNetCore.Authorization;
 using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
-using Vms.Web.Server;
-using Microsoft.Extensions.Options;
-using Vms.Domain.Infrastructure.Seed;
 using Vms.Web.Server.Middleware;
-using Vms.DomainApplication.Services;
-using Vms.Application.UseCase;
-using Vms.Application.Services;
-using Microsoft.AspNetCore.Mvc;
+using Vms.Web.Server.Services;
 
 const string AppName = "Vms.Web.Server";
 

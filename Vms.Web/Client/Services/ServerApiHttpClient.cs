@@ -255,12 +255,13 @@ public abstract class PostResponse(HttpResponseMessage response)
 
     public class UnprocessableEntity : PostResponse
     {
-        public Dictionary<string, List<string>> ValidationErrors { get; private set; }
+        Dictionary<string, List<string>> _validationErrors;
+        public Dictionary<string, List<string>> ValidationErrors => _validationErrors;
         public UnprocessableEntity(HttpResponseMessage response) : base(response)
         {
             var ue = response.Content.ReadFromJsonAsync<UnprocessableEntityResponse>().GetAwaiter().GetResult();
 
-            ValidationErrors = ue?.Errors ?? new Dictionary<string, List<string>>();
+            _validationErrors = ue?.Errors ?? new Dictionary<string, List<string>>();
         }
 
         class UnprocessableEntityResponse

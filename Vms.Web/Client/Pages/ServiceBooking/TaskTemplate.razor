@@ -1,0 +1,83 @@
+﻿@typeparam TModel where TModel : new()
+
+<section class="task-form">
+    <h1>@Title</h1>
+    <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        @ChildContent
+
+        <div class="buttons">
+            @if (errorMessage is not null)
+            {
+                <div class="error">
+                    @errorMessage
+                </div>
+            }
+            <button type="button" @onclick="() => OnCompleted.InvokeAsync(false)">Cancel</button>
+            <button type="submit">Ok</button>
+        </div>
+    </EditForm>
+
+</section>
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = null!;
+    public delegate Task<PostResponse> Save(TModel model);
+    [Parameter, EditorRequired] public Save OnSave { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+
+    public TModel Model = new();
+
+    EditContext editContext = null!;
+    ValidationMessageStore messageStore = null!;
+    string? errorMessage;
+
+    async Task ValidSubmit()
+    {
+        errorMessage = null;
+
+        var result = await OnSave(Model);
+        if (result is PostResponse.Success)
+        {
+            await OnCompleted.InvokeAsync(true);
+        }
+        else
+        {
+            messageStore.Clear();
+
+            if (result is PostResponse.UnprocessableEntity ue)
+            {
+                foreach (var error in ue.ValidationErrors)
+                {
+                    messageStore.Add(editContext.Field(error.Key), error.Value);
+                }
+            }
+            else
+            {
+                if (result is PostResponse.BadRequest br)
+                {
+                    messageStore.Add(editContext.Field(""), br.ErrorMessage);
+                }
+                else// if (result is PostResponse.Failure)
+                {
+                    messageStore.Add(editContext.Field(""), "There was a problem sending your request.");
+                }
+            }
+
+            editContext.NotifyValidationStateChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(Title);
+        ArgumentNullException.ThrowIfNull(OnSave);
+        ArgumentNullException.ThrowIfNull(ChildContent);
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
+
+        editContext = new(Model);
+        messageStore = new(editContext);
+    }
+}
