@@ -23,11 +23,9 @@
 
     protected override void OnInitialized()
     {
-        base.OnInitialized();
-
-        if (ChildContent is null)
-            throw new InvalidOperationException("You must supply child content to the Dialog component.");
+        ArgumentNullException.ThrowIfNull(ChildContent);
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

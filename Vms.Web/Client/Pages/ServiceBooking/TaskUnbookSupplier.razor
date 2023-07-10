@@ -1,10 +1,10 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskUnbookSupplierDto"  Title="Unbook Supplier" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskUnbookSupplierCommand"  Title="Unbook Supplier" OnSave="Save" OnCompleted="OnCompleted">
     <InputRadioGroup @bind-Value="taskRef.Model.Result">
         <div class="option">
             <div class="option-select">
-                <InputRadio id="unbooked" Value="TaskUnbookSupplierDto.TaskResult.Unbooked" />
+                <InputRadio id="unbooked" Value="TaskUnbookSupplierCommand.TaskResult.Unbooked" />
                 <label for="unbooked">Unbooked</label>
             </div>
             <fieldset class="option-data" disabled="@OptionUnbookedDisabled">
@@ -20,12 +20,12 @@
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
 
-    TaskTemplate<TaskUnbookSupplierDto> taskRef = null!;
+    TaskTemplate<TaskUnbookSupplierCommand> taskRef = null!;
 
     bool isLoaded;
-    bool OptionUnbookedDisabled => taskRef.Model.Result != TaskUnbookSupplierDto.TaskResult.Unbooked;
+    bool OptionUnbookedDisabled => taskRef.Model.Result != TaskUnbookSupplierCommand.TaskResult.Unbooked;
 
-    async Task<PostResponse> Save(TaskUnbookSupplierDto model) 
+    async Task<PostResponse> Save(TaskUnbookSupplierCommand model) 
         => await Api.UnbookSupplier(ServiceBooking.Id, model);
 
     protected override void OnInitialized()

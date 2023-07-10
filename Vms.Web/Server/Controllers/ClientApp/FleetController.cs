@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -21,8 +22,11 @@ public class FleetController(VmsDbContext context) : ControllerBase
     public async Task<IActionResult> GetFleetsShort(string filter, CancellationToken cancellationToken)
         => Ok(await _context.Fleets.AsNoTracking()
                 .Where(d => d.Name.StartsWith(filter))
-                .Select(d => new FleetShortDto(d.CompanyCode, d.Code, d.Name))
+                .Select(d => d.ToShortDto())
                 .ToListAsync(cancellationToken));
+}
 
-    
+public static partial class DomainExtensions
+{
+    public static FleetShortDto ToShortDto(this Fleet fleet) => new(fleet.CompanyCode, fleet.Code, fleet.Name);
 }

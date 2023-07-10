@@ -1,13 +1,13 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierDto" Title="Book Supplier" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierCommand" Title="Book Supplier" OnSave="Save" OnCompleted="OnCompleted">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="booked" Value="TaskBookSupplierDto.TaskResult.Booked" />
+                    <InputRadio id="booked" Value="TaskBookSupplierCommand.TaskResult.Booked" />
                     <label for="booked">Booked</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionBookedDisabled">
@@ -19,7 +19,7 @@
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="refused" Value="TaskBookSupplierDto.TaskResult.Refused" />
+                    <InputRadio id="refused" Value="TaskBookSupplierCommand.TaskResult.Refused" />
                     <label for="refused">Refused</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionRefusedDisabled">
@@ -32,7 +32,7 @@
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="rescheduled" Value="TaskBookSupplierDto.TaskResult.Rescheduled" />
+                    <InputRadio id="rescheduled" Value="TaskBookSupplierCommand.TaskResult.Rescheduled" />
                     <label for="rescheduled">Reschedule</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
@@ -40,7 +40,7 @@
                         <label for="rescheduletime">Date</label>
                         <InputDate id="rescheduletime" @bind-Value="taskRef.Model.RescheduleDate" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleDate)" />
-
+                            
                         <label for="rescheduletime">Time</label>
                         <InputText id="rescheduletime" @bind-Value="taskRef.Model.RescheduleTime" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleTime)" />
@@ -65,17 +65,17 @@
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
 
-    TaskTemplate<TaskBookSupplierDto> taskRef = null!;
+    TaskTemplate<TaskBookSupplierCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskBookSupplierDto model)
+    async Task<PostResponse> Save(TaskBookSupplierCommand model)
         => await Api.BookSupplier(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
-    bool OptionBookedDisabled => taskRef.Model.Result != TaskBookSupplierDto.TaskResult.Booked;
-    bool OptionRefusedDisabled => taskRef.Model.Result != TaskBookSupplierDto.TaskResult.Refused;
-    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskBookSupplierDto.TaskResult.Rescheduled;
+    bool OptionBookedDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Booked;
+    bool OptionRefusedDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Refused;
+    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Rescheduled;
     string? errorMessage;
 
     protected override async Task OnInitializedAsync()

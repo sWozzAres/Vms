@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Polly;
+using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -24,7 +25,7 @@ public class DriverController(VmsDbContext context) : ControllerBase
     public async Task<IActionResult> GetDriversShort(string filter, CancellationToken cancellationToken)
         => Ok(await _context.Drivers.AsNoTracking()
                 .Where(d => d.LastName.StartsWith(filter))
-                .Select(d => new DriverShortDto(d.Id, d.CompanyCode, d.EmailAddress, d.FullName, d.MobileNumber))
+                .Select(d => d.ToShortDto())
                 .ToListAsync(cancellationToken));
 
     [HttpGet]
@@ -36,12 +37,16 @@ public class DriverController(VmsDbContext context) : ControllerBase
     {
         var driver = await _context.Drivers.AsNoTracking()
             .SingleOrDefaultAsync(d => d.Id == id, cancellationToken);
-
         if (driver is null)
         {
             return NotFound();
         }
 
-        return Ok(new DriverShortDto(driver.Id, driver.CompanyCode, driver.EmailAddress, driver.FullName, driver.MobileNumber));
+        return Ok(driver.ToShortDto());
     }
+}
+public static partial class DomainExtensions
+{
+    public static DriverShortDto ToShortDto(this Driver driver)
+        => new(driver.Id, driver.CompanyCode, driver.EmailAddress, driver.FullName, driver.MobileNumber);
 }

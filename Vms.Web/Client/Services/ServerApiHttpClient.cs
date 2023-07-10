@@ -100,17 +100,17 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/edit", request));
     }
-    public async Task<PostResponse> AssignSupplier(Guid id, TaskAssignSupplierDto request)
+    public async Task<PostResponse> AssignSupplier(Guid id, TaskAssignSupplierCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/assignsupplier", request));
     }
-    public async Task<PostResponse> BookSupplier(Guid id, TaskBookSupplierDto request)
+    public async Task<PostResponse> BookSupplier(Guid id, TaskBookSupplierCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
     }
-    public async Task<PostResponse> UnbookSupplier(Guid id, TaskUnbookSupplierDto request)
+    public async Task<PostResponse> UnbookSupplier(Guid id, TaskUnbookSupplierCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/unbooksupplier", request));
@@ -126,7 +126,7 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<ServiceBookingFullDto>($"/api/servicebooking/{id}")
             ?? throw new InvalidOperationException("Failed to load service booking.");
     }
-    public async Task<ServiceBookingDto> CreateServiceBookingAsync(Guid vehicleId, CreateServiceBookingDto request)
+    public async Task<ServiceBookingDto> CreateServiceBookingAsync(Guid vehicleId, CreateServiceBookingCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return await DeserializeOrThrow<ServiceBookingDto>(await http.PostAsJsonAsync("/api/servicebooking", request));
@@ -163,7 +163,7 @@ public class ServerApiHttpClient(HttpClient http)
     public async Task<HttpResponseMessage> AddDriverToVehicleAsync(Guid vehicleId, Guid driverId)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/drivers", new AddDriverToVehicleDto(driverId));
+        return await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/drivers", new AddDriverToVehicleCommand(driverId));
     }
     public async Task<List<ServiceBookingFullDto>> GetServiceBookingsForVehicleFullAsync(Guid id)
     {
@@ -174,7 +174,7 @@ public class ServerApiHttpClient(HttpClient http)
     public async Task<HttpResponseMessage> AssignFleetToVehicleAsync(Guid vehicleId, string code)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        var response = await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/fleet", new AssignFleetToVehicleDto(code));
+        var response = await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/fleet", new AssignFleetToVehicleCommand(code));
         if (!response.IsSuccessStatusCode)
         {
             throw new InvalidOperationException("Failed to assign fleet.");
@@ -194,7 +194,7 @@ public class ServerApiHttpClient(HttpClient http)
     public async Task<HttpResponseMessage> AssignCustomerToVehicleAsync(Guid vehicleId, string code)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        var response = await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/customer", new AssignCustomerToVehicleDto(code));
+        var response = await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/customer", new AssignCustomerToVehicleCommand(code));
         if (!response.IsSuccessStatusCode)
         {
             throw new InvalidOperationException("Failed to assign customer.");
@@ -227,64 +227,3 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
 }
-
-public abstract class PostResponse(HttpResponseMessage response)
-{
-    public HttpResponseMessage Response { get; private set; } = response;
-
-    public class Success(HttpResponseMessage response) : PostResponse(response)
-    {
-    }
-
-    public class Failure(HttpResponseMessage response) : PostResponse(response)
-    {
-    }
-
-    public class BadRequest : PostResponse
-    {
-        public string ErrorMessage { get; private set; }
-        public BadRequest(HttpResponseMessage response) : base(response)
-        {
-            var result = response.Content.ReadFromJsonAsync<BadRequestResponse>().GetAwaiter().GetResult();
-
-            ErrorMessage = result?.Detail ?? "Unexpected error was returned from the server.";
-        }
-
-        class BadRequestResponse
-        {
-            public string Title { get; set; } = null!;
-            public int Status { get; set; }
-            public string Detail { get; set; } = null!;
-        }
-    }
-
-    public class UnprocessableEntity : PostResponse
-    {
-        Dictionary<string, List<string>> _validationErrors;
-        public Dictionary<string, List<string>> ValidationErrors => _validationErrors;
-        public UnprocessableEntity(HttpResponseMessage response) : base(response)
-        {
-            var ue = response.Content.ReadFromJsonAsync<UnprocessableEntityResponse>().GetAwaiter().GetResult();
-
-            _validationErrors = ue?.Errors ?? new Dictionary<string, List<string>>();
-        }
-
-        class UnprocessableEntityResponse
-        {
-            public string Title { get; set; } = null!;
-            public int Status { get; set; }
-            public Dictionary<string, List<string>> Errors { get; set; } = null!;
-        }
-    }
-
-
-    public static PostResponse Create(HttpResponseMessage response)
-        => response.StatusCode switch
-        {
-            HttpStatusCode.OK => new Success(response),
-            HttpStatusCode.BadRequest => new BadRequest(response),
-            HttpStatusCode.UnprocessableEntity => new UnprocessableEntity(response),
-            _ => new Failure(response)
-        };
-}
-

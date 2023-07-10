@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Web.Shared;
+
+namespace Vms.Application.UseCase;
 
 public class AddDriverToVehicle
 {
@@ -8,12 +10,12 @@ public class AddDriverToVehicle
     public AddDriverToVehicle(VmsDbContext dbContext)
         => DbContext = dbContext;
 
-    public async Task AddAsync(Guid id, Guid driverId, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Guid id, AddDriverToVehicleCommand command, CancellationToken cancellationToken = default)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(id, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
             
-        Vehicle.AddDriver(driverId);
+        Vehicle.AddDriver(command.DriverId);
 
         //await DbContext.SaveChangesAsync(cancellationToken);
     }

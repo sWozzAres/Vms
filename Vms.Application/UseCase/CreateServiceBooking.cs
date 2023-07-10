@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Vms.Application.Services;
+using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;
 
 public interface ICreateServiceBooking
 {
-    Task<ServiceBooking> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default);
+    Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand request, CancellationToken cancellationToken = default);
 }
 
 public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase assignSupplierUseCase) : ICreateServiceBooking
@@ -14,12 +15,12 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
     readonly IAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
     VehicleRole? Vehicle;
 
-    public async Task<ServiceBooking> CreateAsync(CreateBookingRequest request, CancellationToken cancellationToken = default)
+    public async Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand command, CancellationToken cancellationToken = default)
     {
-        Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
+        Vehicle = new(await DbContext.Vehicles.FindAsync(command.VehicleId, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle not found."), this);
 
-        var serviceBooking = await Vehicle.CreateBooking(request, cancellationToken);
+        var serviceBooking = await Vehicle.CreateBooking(command, cancellationToken);
 
         //await DbContext.SaveChangesAsync(cancellationToken);
 
@@ -28,7 +29,7 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
 
     class VehicleRole(Vehicle self, CreateServiceBooking context)
     {
-        public async Task<ServiceBooking> CreateBooking(CreateBookingRequest request, CancellationToken cancellationToken)
+        public async Task<ServiceBooking> CreateBooking(CreateServiceBookingCommand request, CancellationToken cancellationToken)
         {
             var booking = new ServiceBooking(
                 self.CompanyCode,
@@ -65,11 +66,11 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
     }
 }
 
-public record CreateBookingRequest(
-    Guid VehicleId,
-    DateOnly? PreferredDate1,
-    DateOnly? PreferredDate2,
-    DateOnly? PreferredDate3,
-    Guid? MotId,
-    bool AutoAssign
-);
+//public record CreateBookingRequest(
+//    Guid VehicleId,
+//    DateOnly? PreferredDate1,
+//    DateOnly? PreferredDate2,
+//    DateOnly? PreferredDate3,
+//    Guid? MotId,
+//    bool AutoAssign
+//);

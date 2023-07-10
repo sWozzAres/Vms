@@ -1,6 +1,8 @@
-﻿namespace Vms.Web.Shared;
+﻿using System.Text.Json.Serialization;
 
-public class TaskUnbookSupplierDto
+namespace Vms.Web.Shared;
+
+public class TaskUnbookSupplierCommand
 {
     public enum TaskResult { None, Unbooked }
     [Required]
@@ -12,13 +14,13 @@ public class TaskUnbookSupplierDto
     public string? Reason { get; set; }
 }
 
-public class TaskAssignSupplierDto
+public class TaskAssignSupplierCommand
 {
     [Required]
     public string SupplierCode { get; set; } = null!;
 }
 
-public class TaskBookSupplierDto
+public class TaskBookSupplierCommand
 {
     public enum TaskResult { None, Booked, Refused, Rescheduled }
 
@@ -46,10 +48,15 @@ public class TaskBookSupplierDto
     public string? Callee { get; set; }
 }
 
-public record CreateServiceBookingDto(Guid VehicleId, bool AutoAssign,
-    Guid? Mot,
-    Guid? Service,
-    List<Guid>? Repairs);
+public record CreateServiceBookingCommand(
+    Guid VehicleId,
+    DateOnly? PreferredDate1,
+    DateOnly? PreferredDate2,
+    DateOnly? PreferredDate3,
+    bool AutoAssign,
+    Guid? MotId,
+    Guid? ServiceId,
+    List<Guid>? RepairIds);
 
 public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 {
@@ -72,12 +79,14 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
     }
 }
 
+
 public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
     string Vrm, string Make, string Model,
     DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3,
     int Status,
-    SupplierShortDto? Supplier)
+    SupplierShortDto? Supplier, MotEventShortDto? MotEvent)
 {
+    [JsonIgnore]
     public string StatusText => Status switch
     {
         0 => "None",

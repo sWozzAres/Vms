@@ -3,6 +3,7 @@ using NetTopologySuite.Geometries;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
+using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;
 
@@ -35,7 +36,7 @@ public class CreateDriver
             context.DbContext.Drivers.Add(driver);
 
             await new AddDriverToVehicle(context.DbContext)
-                .AddAsync(self.Id, driver.Id, cancellationToken);
+                .AddAsync(self.Id, new AddDriverToVehicleCommand(driver.Id), cancellationToken);
 
             //AddDriver(driver);
 

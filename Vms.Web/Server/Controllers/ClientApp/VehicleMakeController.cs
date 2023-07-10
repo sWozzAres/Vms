@@ -10,21 +10,15 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class VehicleMakeController : ControllerBase
+public class VehicleMakeController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<CompanyController> _logger;
-    readonly VmsDbContext _context;
-
-    public VehicleMakeController(ILogger<CompanyController> logger, VmsDbContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
+    readonly ILogger<CompanyController> _logger = logger;
+    readonly VmsDbContext _context = context;
 
     [HttpGet]
     [AcceptHeader("application/vnd.short")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetMakesShort(CancellationToken cancellationToken)
     {
         var result = await _context.VehicleMakes
                     .Select(x => new VehicleMakeShortListModel(x.Make))
@@ -38,7 +32,7 @@ public class VehicleMakeController : ControllerBase
     [AcceptHeader("application/vnd.short")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllModels(
+    public async Task<IActionResult> GetModelsForMakeShort(
         string make,
         CancellationToken cancellationToken)
         => Ok(await _context.VehicleMakes

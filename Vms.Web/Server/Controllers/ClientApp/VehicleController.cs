@@ -110,11 +110,11 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> AddDriverToVehicle(
         Guid id,
-        [FromBody] AddDriverToVehicleDto driver,
+        [FromBody] AddDriverToVehicleCommand request,
         CancellationToken cancellationToken)
     {
         await new AddDriverToVehicle(_context)
-            .AddAsync(id, driver.Id, cancellationToken);
+            .AddAsync(id, request, cancellationToken);
         return Ok();
     }
 
@@ -123,11 +123,11 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> AssignCustomerToVehicle(
         Guid id,
-        [FromBody] AssignCustomerToVehicleDto customer,
+        [FromBody] AssignCustomerToVehicleCommand request,
         CancellationToken cancellationToken)
     {
         await new AssignCustomerToVehicle(_context)
-            .AssignAsync(id, customer.CustomerCode, cancellationToken);
+            .AssignAsync(id, request, cancellationToken);
         return Ok();
     }
 
@@ -148,11 +148,11 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> AssignFleetToVehicle(
         Guid id,
-        [FromBody] AssignFleetToVehicleDto fleet,
+        [FromBody] AssignFleetToVehicleCommand request,
         CancellationToken cancellationToken)
     {
         await new AssignFleetToVehicle(_context)
-            .AssignAsync(id, fleet.FleetCode, cancellationToken);
+            .AssignAsync(id, request, cancellationToken);
         return Ok();
     }
 
@@ -275,9 +275,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 }
 public static partial class DomainExtensions
 {
-    public static DriverShortDto ToShortDto(this Driver driver)
-        => new(driver.Id, driver.CompanyCode, driver.EmailAddress, driver.FullName, driver.MobileNumber);
-
+    
     public static VehicleFullDto ToFullDto(this Vehicle vehicle)
     => new(
             vehicle.CompanyCode,

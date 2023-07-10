@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using NetTopologySuite.Utilities;
-using Vms.DomainApplication.Services;
+﻿using Vms.DomainApplication.Services;
+using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;
 
 public interface IBookSupplier
 {
-    Task BookAsync(Guid id, DateOnly bookedDate, CancellationToken cancellationToken);
-    Task RefuseAsync(Guid id, string code, CancellationToken cancellationToken);
-    Task RescheduleAsync(Guid id, DateTime rescheduleTime, CancellationToken cancellationToken);
+    Task BookAsync(Guid id, TaskBookSupplierCommand request, CancellationToken cancellationToken);
 }
 
 public class BookSupplier(VmsDbContext context, IEmailSender emailSender) : IBookSupplier
@@ -24,22 +15,22 @@ public class BookSupplier(VmsDbContext context, IEmailSender emailSender) : IBoo
 
     ServiceBookingRole? ServiceBooking;
 
-    public async Task BookAsync(Guid id, DateOnly bookedDate, CancellationToken cancellationToken)
+    public async Task BookAsync(Guid id, TaskBookSupplierCommand command, CancellationToken cancellationToken)
     {
         ServiceBooking = await Load(id, cancellationToken);
-        await ServiceBooking.BookAsync(bookedDate, cancellationToken);
-    }
 
-    public async Task RefuseAsync(Guid id, string code, CancellationToken cancellationToken)
-    {
-        ServiceBooking = await Load(id, cancellationToken);
-        await ServiceBooking.Refuse(code, cancellationToken);
-    }
-
-    public async Task RescheduleAsync(Guid id, DateTime rescheduleTime, CancellationToken cancellationToken)
-    {
-        ServiceBooking = await Load(id, cancellationToken);
-        ServiceBooking.Reschedule(rescheduleTime);
+        switch (command.Result)
+        {
+            case TaskBookSupplierCommand.TaskResult.Booked:
+                await ServiceBooking.BookAsync(command.BookedDate!.Value, cancellationToken);
+                break;
+            case TaskBookSupplierCommand.TaskResult.Refused:
+                await ServiceBooking.Refuse(command.RefusalReason!, cancellationToken);
+                break;
+            case TaskBookSupplierCommand.TaskResult.Rescheduled:
+                ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!));
+                break;
+        }
     }
 
     async Task<ServiceBookingRole> Load(Guid id, CancellationToken cancellationToken)

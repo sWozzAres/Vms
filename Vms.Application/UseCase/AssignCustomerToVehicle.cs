@@ -1,13 +1,15 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Web.Shared;
+
+namespace Vms.Application.UseCase;
 
 public class AssignCustomerToVehicle(VmsDbContext context)
 {
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task AssignAsync(Guid id, string code, CancellationToken cancellationToken)
+    public async Task AssignAsync(Guid id, AssignCustomerToVehicleCommand command,CancellationToken cancellationToken)
     {
         Assign(await _context.Vehicles.FindAsync(id, cancellationToken)
-            ?? throw new InvalidOperationException("Failed to load vehicle."), code);
+            ?? throw new InvalidOperationException("Failed to load vehicle."), command.CustomerCode);
     }
 
     public static void Assign(Vehicle v, string code)

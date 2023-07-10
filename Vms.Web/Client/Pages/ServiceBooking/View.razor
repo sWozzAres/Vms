@@ -59,7 +59,7 @@ else
                             <Edit OnLoad="LoadModel" OnSave="SaveModel" />
                         </TabPage>
                         <TabPage Text="Events">
-                            <p>TODO</p>
+                            <Events/>
                         </TabPage>
                     </TabControl>
                     <div class="task">
@@ -119,7 +119,7 @@ else
 
     async Task SupplierDialogSelect(SupplierLocatorDto item)
     {
-        var result = await Api.AssignSupplier(Id, new TaskAssignSupplierDto() { SupplierCode = item.Code });
+        var result = await Api.AssignSupplier(Id, new TaskAssignSupplierCommand() { SupplierCode = item.Code });
 
         if (result is PostResponse.Success)
         {

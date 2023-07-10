@@ -1,12 +1,13 @@
 ﻿using Vms.Web.Shared.DataAnnotations;
 
 namespace Vms.Web.Shared;
+public record MotEventShortDto(DateOnly Due);
 public record OpenEvents(List<OpenMotEvent> Mots);
 public record OpenMotEvent(Guid Id, DateOnly Due);
 
-public record AssignCustomerToVehicleDto(string CustomerCode);
-public record AssignFleetToVehicleDto(string FleetCode);
-public record AddDriverToVehicleDto(Guid Id);
+public record AssignCustomerToVehicleCommand(string CustomerCode);
+public record AssignFleetToVehicleCommand(string FleetCode);
+public record AddDriverToVehicleCommand(Guid DriverId);
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 
 public partial class VehicleDto : ICopyable<VehicleDto>

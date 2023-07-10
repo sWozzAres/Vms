@@ -9,11 +9,12 @@
 
 @if (loadingException is not null)
 {
-    <div class="error">
+    <RetryLoad Exception="loadingException" OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+    @* <div class="error">
         <p>An error occured loading the page.</p>
         <p>@loadingException.Message</p>
         <button @onclick="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)">Retry</button>
-    </div>
+    </div> *@
 }
 else if (Model is not null)
 {
@@ -77,7 +78,7 @@ else if (Model is not null)
     {
         try
         {
-            Model = await OnLoad();// ?? throw new InvalidOperationException("Failed to load.");
+            Model = await OnLoad();
             editContext = new EditContext(Model);
             messageStore = new ValidationMessageStore(editContext);
         }
@@ -154,50 +155,8 @@ else if (Model is not null)
         }
     }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        Logger.LogInformation("SetParametersAsync({parameters})", parameters.ToDictionary());
-        await base.SetParametersAsync(parameters);
-        //await Task.Delay(1000);
-    }
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("OnInitialized()");
-        base.OnInitialized();
-    }
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("OnInitializedAsync()");
-        await base.OnInitializedAsync();
         await Load();
-    }
-    protected override void OnParametersSet()
-    {
-        Logger.LogInformation("OnParametersSet() Model is {model}", Model);
-        base.OnParametersSet();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogInformation("OnParametersSetAsync()");
-        await base.OnParametersSetAsync();
-        //await Task.Delay(1000);
-
-
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
-        base.OnAfterRender(firstRender);
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-
-        }
     }
 }

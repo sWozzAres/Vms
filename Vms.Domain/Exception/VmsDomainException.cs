@@ -15,8 +15,4 @@ public class VmsDomainException : Exception
     public VmsDomainException(string? message, Exception? innerException) : base(message, innerException)
     {
     }
-
-    protected VmsDomainException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
 }

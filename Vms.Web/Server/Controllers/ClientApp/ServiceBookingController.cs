@@ -1,17 +1,11 @@
-﻿using System.Diagnostics.Contracts;
-using System.Net;
-using System.Runtime.CompilerServices;
+﻿using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Polly;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
-using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
-using Vms.DomainApplication.Services;
-using Vms.Web.Server.Helpers;
 using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
@@ -28,11 +22,11 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
-        [FromBody] TaskAssignSupplierDto request,
+        [FromBody] TaskAssignSupplierCommand request,
         CancellationToken cancellationToken)
     {
         await new AssignSupplierUseCase(_context)
-                .Assign(id, request.SupplierCode, cancellationToken);
+                .Assign(id, request, cancellationToken);
 
         return Ok();
     }
@@ -40,10 +34,11 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     [Route("{id}/unbooksupplier")]
     public async Task<IActionResult> UnbookSupplier(Guid id,
-        [FromBody] TaskUnbookSupplierDto request,
+        [FromBody] TaskUnbookSupplierCommand request,
         CancellationToken cancellationToken)
     {
-        await new UnbookSupplier(_context).UnbookAsync(id, request.Reason!, cancellationToken);
+        await new UnbookSupplier(_context)
+            .UnbookAsync(id, request, cancellationToken);
 
         return Ok();
     }
@@ -51,23 +46,11 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     [Route("{id}/booksupplier")]
     public async Task<IActionResult> BookSupplier(Guid id,
-    [FromBody] TaskBookSupplierDto request,
+    [FromBody] TaskBookSupplierCommand request,
     [FromServices] IBookSupplier bookSupplier,
     CancellationToken cancellationToken)
     {
-        switch (request.Result)
-        {
-            case TaskBookSupplierDto.TaskResult.Booked:
-                await bookSupplier.BookAsync(id, request.BookedDate!.Value, cancellationToken);
-                break;
-            case TaskBookSupplierDto.TaskResult.Refused:
-                await bookSupplier.RefuseAsync(id, request.RefusalReason!, cancellationToken);
-                break;
-            case TaskBookSupplierDto.TaskResult.Rescheduled:
-                await bookSupplier.RescheduleAsync(id, Helper.CombineDateAndTime(request.RescheduleDate!.Value, request.RescheduleTime!), cancellationToken);
-                break;
-        }
-
+        await bookSupplier.BookAsync(id, request, cancellationToken);
         return Ok();
     }
 
@@ -104,13 +87,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
     [HttpPost]
     public async Task<IActionResult> CreateServiceBooking(
-        [FromBody] CreateServiceBookingDto request,
+        [FromBody] CreateServiceBookingCommand request,
         [FromServices] IAssignSupplierUseCase assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
         var serviceBooking = await new CreateServiceBooking(_context, assignSupplierUseCase)
-            .CreateAsync(new CreateBookingRequest(request.VehicleId, null, null, null, 
-                request.Mot, request.AutoAssign), cancellationToken);
+            .CreateAsync(request, cancellationToken);
 
         return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
     }
@@ -139,6 +121,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         var serviceBooking = await _context.ServiceBookings.AsNoTracking()
             .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
             .Include(s => s.Supplier)
+            .Include(s=>s.MotEvent)
             .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToFullDto());
@@ -189,6 +172,8 @@ public static partial class DomainExtensions
         };
     }
 
+    public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new (motEvent.Due);
+
     public static ServiceBookingFullDto ToFullDto(this ServiceBooking serviceBooking)
     {
         return new ServiceBookingFullDto(
@@ -202,7 +187,8 @@ public static partial class DomainExtensions
             serviceBooking.PreferredDate2,
             serviceBooking.PreferredDate3,
             (int)serviceBooking.Status,
-            serviceBooking.Supplier?.ToSupplierShortDto()
+            serviceBooking.Supplier?.ToSupplierShortDto(),
+            serviceBooking.MotEvent?.ToShortDto()
         );
     }
 

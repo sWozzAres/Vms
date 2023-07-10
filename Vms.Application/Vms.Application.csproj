@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   <LangVersion>preview</LangVersion>
@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vms.Domain\Vms.Domain.csproj" />
+    <ProjectReference Include="..\Vms.Web\Shared\Vms.Web.Shared.csproj" />
   </ItemGroup>
 
 </Project>
