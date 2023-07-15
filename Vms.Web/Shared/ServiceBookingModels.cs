@@ -38,14 +38,83 @@ public class TaskBookSupplierCommand
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
     public string? RescheduleReason { get; set; }
 
-    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
     public DateOnly? RescheduleDate { get; set; }
 
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
-    [RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9])$", ErrorMessage = "Invalid time.")]
-    public string? RescheduleTime { get; set; }
+    //[RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):00$", ErrorMessage = "Invalid time.")]
+    public TimeOnly? RescheduleTime { get; set; }
 
     public string? Callee { get; set; }
+}
+
+public class TaskCheckArrivalCommand
+{
+    public enum TaskResult { None, Arrived, NotArrived, Rescheduled }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Arrived), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Arrived, ErrorMessage = "The Arrival Date is required.")]
+    public DateOnly? ArrivalDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Arrived, ErrorMessage = "The Arrival Time is required.")]
+    public TimeOnly? ArrivalTime { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.NotArrived, ErrorMessage = "The Non Arrival Reason is required.")]
+    public string? NonArrivalReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
+}
+
+public class TaskConfirmBookedCommand
+{
+    public enum TaskResult { None, Confirmed, Refused, Rescheduled }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Confirmed), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Refused, ErrorMessage = "The Refusal Reason is required.")]
+    public string? RefusalReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
+}
+
+public class TaskChangeMotStatusCommand
+{
+    public enum MotStatus { None, Active, Complete }
+    public enum TaskResult { None, Change }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Change), nameof(TaskResult.Change),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+
+    [RequiredIf(nameof(Result), TaskResult.Change, ErrorMessage = "The Status is required.")]
+    public MotStatus? Status { get; set; }
 }
 
 public record CreateServiceBookingCommand(
@@ -93,6 +162,10 @@ public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
         1 => "Assign",
         2 => "Book",
         3 => "Confirm",
+        4 => "Check Arrival",
+        5 => "Check Work Status",
+        6 => "ChaseDriver",
+        7 => "RebookDriver",
         _ => "Unknown"
     };
 

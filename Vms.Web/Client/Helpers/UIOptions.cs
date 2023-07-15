@@ -37,6 +37,22 @@ public static class UIOptions
         options.Insert(0, new(null, "-- Select Reason --"));
         return options;
     }
+    public static List<SelectOption<string?>> BuildNonArrivalReasonOptions(IEnumerable<NonArrivalReasonDto>? list)
+    {
+        var options = list is null
+            ? new List<SelectOption<string?>>()
+            : list.Select(m => new SelectOption<string?>(m.Code, m.Name)).ToList();
+        options.Insert(0, new(null, "-- Select Reason --"));
+        return options;
+    }
+    public static List<SelectOption<string?>> BuildConfirmBookedRefusalReasonOptions(IEnumerable<ConfirmBookedRefusalReasonDto>? list)
+    {
+        var options = list is null
+            ? new List<SelectOption<string?>>()
+            : list.Select(m => new SelectOption<string?>(m.Code, m.Name)).ToList();
+        options.Insert(0, new(null, "-- Select Reason --"));
+        return options;
+    }
     public static List<SelectOption<string?>> BuildRescheduleReasonOptions(IEnumerable<RescheduleReasonDto>? list)
     {
         var options = list is null

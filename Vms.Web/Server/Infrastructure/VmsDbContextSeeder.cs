@@ -4,6 +4,7 @@ using NetTopologySuite.Geometries;
 using Polly;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
+using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Web.Server;
 
 namespace Vms.Domain.Infrastructure.Seed;
@@ -75,6 +76,11 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 {
                     _logger.LogInformation("Seeding main data.");
                     await SeedData();
+                }
+                else
+                {
+                    // load all companies
+                    await _context.Companies.ToListAsync();
                 }
 
                 if (!_context.Suppliers.Any())
@@ -260,6 +266,30 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     void SeedLists()
     {
         var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
+
+        if (!_context.ConfirmBookedRefusalReasons.Any())
+        {
+            foreach (var company in allCompanies)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var refusalReason = new ConfirmBookedRefusalReason(company.Code, $"CODE{i:D2}", $"ConfirmBooked Refusal reason #{i}");
+                    _context.ConfirmBookedRefusalReasons.Add(refusalReason);
+                }
+            }
+        }
+
+        if (!_context.NonArrivalReasons.Any())
+        {
+            foreach (var company in allCompanies)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var refusalReason = new NonArrivalReason(company.Code, $"CODE{i:D2}", $"NonArrival Reason reason #{i}");
+                    _context.NonArrivalReasons.Add(refusalReason);
+                }
+            }
+        }
 
         if (!_context.RefusalReasons.Any())
         {

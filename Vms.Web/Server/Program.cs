@@ -41,6 +41,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
+builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
+builder.Services.AddScoped<ICheckArrival, CheckArrival>();
 builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
 builder.Services.AddScoped<ISupplierLocator, SupplierLocator>();
 builder.Services.AddScoped<IAssignSupplierUseCase, AutomaticallyAssignSupplierUseCase>();

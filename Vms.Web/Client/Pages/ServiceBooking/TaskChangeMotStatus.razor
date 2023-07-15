@@ -1,0 +1,65 @@
+﻿@inject ServerApiHttpClient Api
+
+<TaskTemplate @ref="taskRef" TModel="TaskChangeMotStatusCommand" Title="Change Status" OnSave="Save" OnCompleted="OnCompleted">
+        <InputRadioGroup @bind-Value="taskRef.Model.Result">
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="booked" Value="TaskChangeMotStatusCommand.TaskResult.Change" />
+                    <label for="booked">Booked</label>
+                </div>
+                <fieldset class="option-data" disabled="@OptionStatusDisabled">
+                    <CascadingValue Value="OptionStatusDisabled" Name="IsDisabled">
+                        <InputSelectOnlyCombobox Options="@options" LabelText="Reason" @bind-Value="taskRef.Model.Status" />
+                        <ValidationMessage For="@(() => taskRef.Model.Status)" />
+                    </CascadingValue>
+                </fieldset>
+            </div>
+
+        </InputRadioGroup>
+</TaskTemplate>
+
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+
+    TaskTemplate<TaskChangeMotStatusCommand> taskRef = null!;
+
+    async Task<PostResponse> Save(TaskChangeMotStatusCommand model)
+        => await Api.ChangeMotStatus(ServiceBooking.Id, model);
+
+    List<SelectOption<TaskChangeMotStatusCommand.MotStatus?>> options = new()
+    {
+        new(null, "-- Select Status --"),
+        new(TaskChangeMotStatusCommand.MotStatus.Active, "Active"),
+        new(TaskChangeMotStatusCommand.MotStatus.Complete, "Complete")
+    };
+
+    bool OptionStatusDisabled => taskRef.Model.Result != TaskChangeMotStatusCommand.TaskResult.Change;
+    string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
+
+        // options = new List<SelectOption<TaskChangeMotStatusCommand.MotStatus?>>();
+        // options.Add(new(null, "-- Select Status --"));
+        // options.Add(new(TaskChangeMotStatusCommand.MotStatus.Active, "Active"));
+        // options.Add(new(TaskChangeMotStatusCommand.MotStatus.Complete, "Complete"));
+
+        //isLoaded = true;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // taskRef.Model.BookedDate = DateOnly.FromDateTime(DateTime.Today);
+            // taskRef.Model.RescheduleDate = DateOnly.FromDateTime(DateTime.Today);
+            // taskRef.Model.RescheduleTime = DateTime.Now.ToShortTimeString();
+
+            // StateHasChanged();
+        }
+    }
+}

@@ -24,11 +24,27 @@ public class CompanyController : ControllerBase
     }
 
     [HttpGet]
+    [Route("{companyCode}/confirmbookedrefusalreasons")]
+    public async Task<IActionResult> GetConfirmBookedRefusalReasons(string companyCode, CancellationToken cancellationToken)
+        => Ok(await _context.ConfirmBookedRefusalReasons
+            .Where(r => r.CompanyCode == companyCode)
+            .Select(r => new ConfirmBookedRefusalReasonDto(r.Code, r.Name))
+            .ToListAsync(cancellationToken));
+
+    [HttpGet]
     [Route("{companyCode}/refusalreasons")]
     public async Task<IActionResult> GetRefusalReasons(string companyCode, CancellationToken cancellationToken)
         => Ok(await _context.RefusalReasons
             .Where(r=>r.CompanyCode == companyCode)
             .Select(r=>new RefusalReasonDto(r.Code, r.Name))
+            .ToListAsync(cancellationToken));
+
+    [HttpGet]
+    [Route("{companyCode}/nonarrivalreasons")]
+    public async Task<IActionResult> GetNonArrivalReasons(string companyCode, CancellationToken cancellationToken)
+        => Ok(await _context.NonArrivalReasons
+            .Where(r => r.CompanyCode == companyCode)
+            .Select(r => new NonArrivalReasonDto(r.Code, r.Name))
             .ToListAsync(cancellationToken));
 
     [HttpGet]

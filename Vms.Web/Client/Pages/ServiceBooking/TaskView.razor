@@ -2,7 +2,6 @@
 
 <div class="taskview">
     <div class="task-content">
-        The next task is
         @if (ServiceBooking.Status == 1)
         {
             <button @onclick="AssignSupplier">Assign Supplier</button>
@@ -15,7 +14,17 @@
         else if (ServiceBooking.Status == 3)
         {
             <button @onclick="UnbookSupplier">Unbook</button>
-            <button @onclick="Confirm">Confirm with Driver</button>
+            <button @onclick="Confirm">Confirm Booked</button>
+        }
+        else if (ServiceBooking.Status == 4)
+        {
+            <button @onclick="UnbookSupplier">Unbook</button>
+            <button @onclick="CheckArrival">Check Arrival</button>
+        }
+        else if (ServiceBooking.Status == 5)
+        {
+            <button @onclick="UnbookSupplier">Unbook</button>
+            <button @onclick="CheckWorkStatus">Check Work Status</button>
         }
     </div>
     <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="OnSelectTask">
@@ -37,13 +46,18 @@
         "Assign Supplier",
         "Unbook Supplier",
         "Book Supplier",
+        "Confirm Booked",
+        "Check Arrival",
+        "Check Work Status"
     };
     string selectedItem = string.Empty;
 
     public async Task AssignSupplier() => await OnSelectTask.InvokeAsync("Assign Supplier");
     public async Task BookSupplier() => await OnSelectTask.InvokeAsync("Book Supplier");
     public async Task UnbookSupplier() => await OnSelectTask.InvokeAsync("Unbook Supplier");
-    public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm with Driver");
+    public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm Booked");
+    public async Task CheckArrival() => await OnSelectTask.InvokeAsync("Check Arrival");
+    public async Task CheckWorkStatus() => await OnSelectTask.InvokeAsync("Check Work Status");
 
     protected override void OnInitialized()
     {

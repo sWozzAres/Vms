@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Vms.Domain.Entity.ServiceBookingEntity;
 
-namespace Vms.Domain.Entity
+namespace Vms.Domain.Entity.ServiceBookingEntity
 {
     public class MotEvent
     {
@@ -50,10 +51,10 @@ namespace Vms.Domain.Entity.Configuration
                 .WithOne(s => s.MotEvent)
                 .HasForeignKey<MotEvent>(e => new { e.CompanyCode, e.VehicleId, e.ServiceBookingId })
                 .HasPrincipalKey<ServiceBooking>(v => new { v.CompanyCode, v.VehicleId, v.Id });
-                
+
 
             entity.HasOne(e => e.Vehicle)
-                .WithMany(v=>v.MotEvents)
+                .WithMany(v => v.MotEvents)
                 .HasForeignKey(e => new { e.CompanyCode, e.VehicleId })
                 .HasPrincipalKey(v => new { v.CompanyCode, v.Id })
                 .OnDelete(DeleteBehavior.Restrict);

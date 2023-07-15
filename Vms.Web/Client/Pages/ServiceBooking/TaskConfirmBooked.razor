@@ -1,25 +1,20 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierCommand" Title="Book Supplier" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskConfirmBookedCommand" Title="Confirm Booked" OnSave="Save" OnCompleted="OnCompleted">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="booked" Value="TaskBookSupplierCommand.TaskResult.Booked" />
-                    <label for="booked">Booked</label>
+                    <InputRadio id="confirmed" Value="TaskConfirmBookedCommand.TaskResult.Confirmed" />
+                    <label for="confirmed">Confirmed</label>
                 </div>
-                <fieldset class="option-data" disabled="@OptionBookedDisabled">
-                    <label for="bookeddate">Date</label>
-                    <InputDate id="bookeddate" @bind-Value="taskRef.Model.BookedDate" />
-                    <ValidationMessage For="@(() => taskRef.Model.BookedDate)" />
-                </fieldset>
             </div>
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="refused" Value="TaskBookSupplierCommand.TaskResult.Refused" />
+                    <InputRadio id="refused" Value="TaskConfirmBookedCommand.TaskResult.Refused" />
                     <label for="refused">Refused</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionRefusedDisabled">
@@ -32,7 +27,7 @@
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="rescheduled" Value="TaskBookSupplierCommand.TaskResult.Rescheduled" />
+                    <InputRadio id="rescheduled" Value="TaskConfirmBookedCommand.TaskResult.Rescheduled" />
                     <label for="rescheduled">Reschedule</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
@@ -65,17 +60,16 @@
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
 
-    TaskTemplate<TaskBookSupplierCommand> taskRef = null!;
+    TaskTemplate<TaskConfirmBookedCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskBookSupplierCommand model)
-        => await Api.BookSupplier(ServiceBooking.Id, model);
+    async Task<PostResponse> Save(TaskConfirmBookedCommand model)
+        => await Api.ConfirmBooked(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
-    bool OptionBookedDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Booked;
-    bool OptionRefusedDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Refused;
-    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Rescheduled;
+    bool OptionRefusedDisabled => taskRef.Model.Result != TaskConfirmBookedCommand.TaskResult.Refused;
+    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskConfirmBookedCommand.TaskResult.Rescheduled;
     string? errorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -83,12 +77,12 @@
         ArgumentNullException.ThrowIfNull(ServiceBooking);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
-        var refusalReasons = Api.GetRefusalReasons(ServiceBooking.CompanyCode);
+        var refusalReasons = Api.GetConfirmBookedRefusalReasons(ServiceBooking.CompanyCode);
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
         await Task.WhenAll(refusalReasons, rescheduleReasons);
 
-        refusalReasonOptions = UIOptions.BuildRefusalReasonOptions(refusalReasons.Result);
+        refusalReasonOptions = UIOptions.BuildConfirmBookedRefusalReasonOptions(refusalReasons.Result);
         rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
 
         isLoaded = true;
@@ -98,7 +92,6 @@
     {
         if (firstRender)
         {
-            taskRef.Model.BookedDate = DateOnly.FromDateTime(DateTime.Today);
             taskRef.Model.RescheduleDate = DateOnly.FromDateTime(DateTime.Today);
             taskRef.Model.RescheduleTime = TimeOnly.FromDateTime(DateTime.Now);
 

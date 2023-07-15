@@ -1,64 +1,34 @@
 import React, { Component } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-function NewTodoForm({ onSubmit }) {
+import { NewTodoForm, TodoList } from './NewTodoForm';
+
+function Dialog({ show, toggle }) {
+
+    const ref = useRef(null)
     
-    const [newItem, setNewItem] = useState("")
 
-    function handleSubmit(e) {
-        e.preventDefault()
+    useEffect(() => {
+        if (!ref.current) {
+            return;
+        }
 
-        if (newItem === "") return;
+        if (show) {
+            ref.current.showModal();
+        }
+        else {
+            ref.current.close();
+        }
+    }, [ref, show]);
 
-        onSubmit(newItem);
-        setNewItem("");
-    }
-
-    return (
-        <form onSubmit={handleSubmit} className="new-item-form">
-            <div className="form-row">
-                <label htmlFor="item">New Item</label>
-                <input
-                    value={newItem}
-                    onChange={e => setNewItem(e.target.value)}
-                    type="text"
-                    id="item" />
-            </div>
-            <button className="button">Add</button>
-        </form>
-    )
-}
-
-function TodoList({ todos, toggleTodo, deleteToDo }) {
-    return <ul className="list">
-        {todos.length === 0 && "No todos"}
-        {todos.map(todo => {
-            return <TodoItem {...todo} key={todo.id} toggleTodo={toggleTodo} deleteToDo={deleteToDo} />
-        })}
-    </ul>
-}
-
-function TodoItem({ completed, id, title, toggleTodo, deleteToDo }) {
-    return <li>
-        <label>
-            <input type="checkbox"
-                checked={completed}
-                onChange={e => toggleTodo(id, e.target.checked)} />
-            {title}
-            <button onClick={() => deleteToDo(id)}
-                className="btn btn-danger">Delete</button>
-        </label>
-    </li>
-}
-
-function Dialog() {
-    return <dialog open>
-    <h1>A dialog</h1>
+    return <dialog ref={ref}>
+        <h1>A dialog</h1>
+        <button onClick={toggle}>Close</button>
     </dialog>
 }
 
 export default function App() {
-
+    const [show, setShow] = useState(false);
     const [dialogActive, setDialogActive] = useState(false)
 
     const [todos, setToDos] = useState(() => {
@@ -74,7 +44,7 @@ export default function App() {
     }, [todos])
 
 
-    
+
 
     function addToDo(title) {
         setToDos(currentToDos => {
@@ -103,16 +73,15 @@ export default function App() {
         })
     }
 
-    let content;
-    if (dialogActive) {
-        console.log('setting dialog');
-        content = <Dialog/>
-    }
-
+    const handleDialogToggle = () => {
+        setShow(prevShow => !prevShow);
+    };
+    let dialog = <Dialog show={show} toggle={handleDialogToggle} />
+    
     return (
         <>
-            {content}
-            <button onClick={() => setDialogActive(!dialogActive)}>Dialog</button>
+            {dialog}
+            <button onClick={handleDialogToggle}>Dialog</button>
             <NewTodoForm onSubmit={addToDo} />
             <h1 className="header">Todo List {todos.length}</h1>
             <TodoList todos={todos} toggleTodo={toggleTodo} deleteToDo={deleteToDo} />

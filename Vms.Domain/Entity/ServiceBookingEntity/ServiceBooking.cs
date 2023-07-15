@@ -1,10 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Exceptions;
 
-namespace Vms.Domain.Entity
+namespace Vms.Domain.Entity.ServiceBookingEntity
 {
-    public enum ServiceBookingStatus : int { None = 0, Assign = 1, Book = 2, Confirm = 3 };
+    public enum ServiceBookingStatus : int
+    {
+        None = 0,
+        Assign = 1,
+        Book = 2,
+        Confirm = 3,
+        CheckArrival = 4,
+        CheckWorkStatus = 5,
+        ChaseDriver = 6,
+        RebookDriver = 7
+    };
 
     public class ServiceBooking
     {
@@ -39,15 +50,13 @@ namespace Vms.Domain.Entity
             //TODO remove
             MotDue = motDue;
 
-            Status = IsValid switch
-            {
-                true => ServiceBookingStatus.Assign,
-                _ => ServiceBookingStatus.None,
-            };
+            Status = IsValid
+                ? ServiceBookingStatus.Assign
+                : ServiceBookingStatus.None;
         }
-        public bool IsValid 
+        public bool IsValid
             => PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null;
-        
+
         public void ChangeStatus(ServiceBookingStatus status) => Status = status;
         public void Assign(string supplierCode)
         {
@@ -62,7 +71,7 @@ namespace Vms.Domain.Entity
         //}
         public void Unbook()
         {
-            BookedDate = null!;
+            BookedDate = null;
             RescheduleTime = DateTime.Now;
             ChangeStatus(ServiceBookingStatus.Book);
         }
@@ -75,7 +84,7 @@ namespace Vms.Domain.Entity
             BookedDate = bookedDate;
             ChangeStatus(ServiceBookingStatus.Confirm);
         }
-        public void Refuse() 
+        public void UnassignSupplier()
         {
             RescheduleTime = null;
             SupplierCode = null;
@@ -89,7 +98,7 @@ namespace Vms.Domain.Entity
     //    public Guid ServiceBookingId { get; private set; }
     //    public string? SupplierCode { get; private set; } = null!;
     //    public DateOnly? BookedDate { get; set; }
-        
+
     //    public virtual ServiceBooking ServiceBooking { get; private set; } = null!;
     //    public virtual Supplier Supplier { get; private set; } = null!;
     //    private ServiceBookingSupplier() { }
@@ -117,7 +126,7 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.ToTable("ServiceBooking");
             builder.HasKey(e => e.Id);
-            
+
             builder.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
                 .IsFixedLength();

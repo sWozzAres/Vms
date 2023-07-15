@@ -1,4 +1,5 @@
-﻿using Vms.DomainApplication.Services;
+﻿using Vms.Domain.Entity.ServiceBookingEntity;
+using Vms.DomainApplication.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;
@@ -28,7 +29,7 @@ public class BookSupplier(VmsDbContext context, IEmailSender emailSender) : IBoo
                 await ServiceBooking.Refuse(command.RefusalReason!, cancellationToken);
                 break;
             case TaskBookSupplierCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!));
+                ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value));
                 break;
         }
     }
@@ -68,7 +69,7 @@ public class BookSupplier(VmsDbContext context, IEmailSender emailSender) : IBoo
 
             //self.Supplier.RefusalReasonCode = rr.Code;
             //self.Supplier.RefusalReasonName = rr.Name;
-            self.Refuse();
+            self.UnassignSupplier();
         }
 
         public void Reschedule(DateTime rescheduleTime)

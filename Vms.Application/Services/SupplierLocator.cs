@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
+using Vms.Domain.Entity.ServiceBookingEntity;
 
 namespace Vms.Application.Services;
 

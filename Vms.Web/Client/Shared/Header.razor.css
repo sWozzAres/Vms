@@ -19,26 +19,26 @@
     }
 }
 
-#header-logo {
+#header #header-logo {
     grid-area: logo;
     display: flex;
     align-items: center;
     justify-content: start;
 }
 
-    #header-logo .logo-svg {
+    #header #header-logo .logo-svg {
         fill: cornflowerblue;
     }
 
-#header-search {
+#header #header-search {
     grid-area: search;
     justify-self: center;
     position: relative;
 }
 
-    
 
-#header-toolbar {
+
+#header #header-toolbar {
     grid-area: toolbar;
     /*padding-left: 1em;*/
     cursor: pointer;
@@ -81,8 +81,8 @@
         grid-template-areas: "area logo toolbar" "search search search";
     }
 
-    #header-search {
-        padding-top: 0;
-        justify-self: center;
-    }
+        #header #header-search {
+            padding-top: 0;
+            justify-self: center;
+        }
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Domain.Entity;
+using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -46,11 +47,33 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     [Route("{id}/booksupplier")]
     public async Task<IActionResult> BookSupplier(Guid id,
-    [FromBody] TaskBookSupplierCommand request,
-    [FromServices] IBookSupplier bookSupplier,
-    CancellationToken cancellationToken)
+        [FromBody] TaskBookSupplierCommand request,
+        [FromServices] IBookSupplier bookSupplier,
+        CancellationToken cancellationToken)
     {
         await bookSupplier.BookAsync(id, request, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{id}/confirmbooked")]
+    public async Task<IActionResult> ConfirmBooked(Guid id,
+        [FromBody] TaskConfirmBookedCommand request,
+        [FromServices] IConfirmBooked confirmBooked,
+        CancellationToken cancellationToken)
+    {
+        await confirmBooked.ConfirmAsync(id, request, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{id}/checkarrival")]
+    public async Task<IActionResult> CheckArrival(Guid id,
+        [FromBody] TaskCheckArrivalCommand request,
+        [FromServices] ICheckArrival checkArrival,
+        CancellationToken cancellationToken)
+    {
+        await checkArrival.CheckAsync(id, request, cancellationToken);
         return Ok();
     }
 
@@ -172,7 +195,7 @@ public static partial class DomainExtensions
         };
     }
 
-    public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new (motEvent.Due);
+    public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new (motEvent.Id, motEvent.Due);
 
     public static ServiceBookingFullDto ToFullDto(this ServiceBooking serviceBooking)
     {

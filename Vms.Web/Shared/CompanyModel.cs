@@ -15,5 +15,7 @@ public class CompanyModel : ICopyable<CompanyModel>
 }
 public record struct CompanyListResponse(List<CompanyListModel> List, int TotalCount);
 public record CompanyListModel(string Code, string Name);
+public record ConfirmBookedRefusalReasonDto(string Code, string Name);
 public record RefusalReasonDto(string Code, string Name);
+public record NonArrivalReasonDto(string Code, string Name);
 public record RescheduleReasonDto(string Code, string Name);

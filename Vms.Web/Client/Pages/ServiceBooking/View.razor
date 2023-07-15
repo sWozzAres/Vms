@@ -53,28 +53,36 @@ else
             @if (serviceBooking is not null)
             {
                 <TaskView ServiceBooking="serviceBooking" OnSelectTask="SelectTask" />
-                <div class="details">
-                    <TabControl Title="Vehicle Tabs" TitleVisible="false">
-                        <TabPage Text="Details">
+
+                <TabControl Title="Vehicle Tabs" TitleVisible="false">
+                    <TabPage Text="Details">
+                        <div class="details">
                             <Edit OnLoad="LoadModel" OnSave="SaveModel" />
-                        </TabPage>
-                        <TabPage Text="Events">
-                            <Events/>
-                        </TabPage>
-                    </TabControl>
-                    <div class="task">
-                        @if (displayTask == "Book Supplier")
-                        {
-                            <TaskBookSupplier ServiceBooking="serviceBooking"
-                                              OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Unbook Supplier")
-                        {
-                            <TaskUnbookSupplier ServiceBooking="serviceBooking"
-                                                OnCompleted="TaskCompleted" />
-                        }
-                    </div>
-                </div>
+                            <div class="task">
+                                @if (displayTask == "Book Supplier")
+                                {
+                                    <TaskBookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
+                                else if (displayTask == "Unbook Supplier")
+                                {
+                                    <TaskUnbookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
+                                else if (displayTask == "Confirm Booked")
+                                {
+                                    <TaskConfirmBooked ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
+                                else if (displayTask == "Check Arrival")
+                                {
+                                    <TaskCheckArrival ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
+                            </div>
+                        </div>
+                    </TabPage>
+                    <TabPage Text="Events">
+                        <Events ServiceBooking="serviceBooking" />
+                    </TabPage>
+                </TabControl>
+
             }
         </ChildContent>
     </ViewTemplate>

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Vms.Domain.Entity;
 using Vms.Domain.Entity.Configuration;
+using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 
 namespace Vms.Domain.Infrastructure;
@@ -27,7 +28,9 @@ public class VmsDbContext : DbContext
     public DbSet<VehicleMake> VehicleMakes => Set<VehicleMake>();
     public DbSet<VehicleModel> VehicleModels => Set<VehicleModel>();
     public DbSet<RefusalReason> RefusalReasons => Set<RefusalReason>();
+    public DbSet<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons => Set<ConfirmBookedRefusalReason>();
     public DbSet<RescheduleReason> RescheduleReasons => Set<RescheduleReason>();
+    public DbSet<NonArrivalReason> NonArrivalReasons => Set<NonArrivalReason>();
     public DbSet<Email> Emails => Set<Email>();
     public DbSet<MotEvent> MotEvents => Set<MotEvent>();
     protected readonly IUserProvider _userProvider;
@@ -37,38 +40,29 @@ public class VmsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        _logger.LogInformation("OnModelCreating. UserId '{userId}', TenantId '{tenantId}'.", 
+        _logger.LogInformation("OnModelCreating. UserId '{userId}', TenantId '{tenantId}'.",
             _userProvider.UserId, _userProvider.TenantId);
 
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
 
-        //modelBuilder.HasSequence<int>("CompanyIds");
-        //modelBuilder.HasSequence<int>("CustomerIds");
-        //modelBuilder.HasSequence<int>("FleetIds");
-        //modelBuilder.HasSequence<int>("NetworkIds");
-        //modelBuilder.HasSequence<int>("VehicleIds");
-        //modelBuilder.HasSequence<int>("SupplierIds");
+        modelBuilder.Entity<NonArrivalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<ConfirmBookedRefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<MotEvent>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<RefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<RescheduleReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<ServiceBooking>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<Driver>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<DriverVehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<Company>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.Code == _userProvider.TenantId);
+        modelBuilder.Entity<Customer>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<CustomerNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<Network>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<NetworkSupplier>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<Fleet>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<FleetNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<Vehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
 
-        //if (!string.IsNullOrEmpty(_userProvider.TenantId))
-        //if (_userProvider.TenantId != "*")
-
-        {
-            modelBuilder.Entity<MotEvent>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<RefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<RescheduleReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<ServiceBooking>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<Driver>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<DriverVehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<Company>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.Code == _userProvider.TenantId);
-            modelBuilder.Entity<Customer>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<CustomerNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<Network>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<NetworkSupplier>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<Fleet>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<FleetNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-            modelBuilder.Entity<Vehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-        }
     }
 
     #region Transaction

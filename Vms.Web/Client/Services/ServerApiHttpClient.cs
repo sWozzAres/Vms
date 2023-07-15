@@ -37,11 +37,23 @@ public class ServerApiHttpClient(HttpClient http)
     }
 
     #region /api/company
+    public async Task<List<ConfirmBookedRefusalReasonDto>> GetConfirmBookedRefusalReasons(string companyCode)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<ConfirmBookedRefusalReasonDto>>($"/api/company/{companyCode}/confirmbookedrefusalreasons")
+            ?? throw new InvalidOperationException("Failed to get confirm booked refusal reasons.");
+    }
     public async Task<List<RefusalReasonDto>> GetRefusalReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return await http.GetFromJsonAsync<List<RefusalReasonDto>>($"/api/company/{companyCode}/refusalreasons")
             ?? throw new InvalidOperationException("Failed to get refusal reasons.");
+    }
+    public async Task<List<NonArrivalReasonDto>> GetNonArrivalReasons(string companyCode)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<NonArrivalReasonDto>>($"/api/company/{companyCode}/nonarrivalreasons")
+            ?? throw new InvalidOperationException("Failed to get non-arrival reasons.");
     }
     public async Task<List<RescheduleReasonDto>> GetRescheduleReasons(string companyCode)
     {
@@ -109,6 +121,21 @@ public class ServerApiHttpClient(HttpClient http)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
+    }
+    public async Task<PostResponse> ConfirmBooked(Guid id, TaskConfirmBookedCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/confirmbooked", request));
+    }
+    public async Task<PostResponse> CheckArrival(Guid id, TaskCheckArrivalCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/checkarrival", request));
+    }
+    public async Task<PostResponse> ChangeMotStatus(Guid id, TaskChangeMotStatusCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/changemotstatus", request));
     }
     public async Task<PostResponse> UnbookSupplier(Guid id, TaskUnbookSupplierCommand request)
     {

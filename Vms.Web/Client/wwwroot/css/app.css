@@ -64,8 +64,9 @@
 }
 
 html, body {
-  font-family: "Roboto", sans-serif;
-  /*font-family: 'Work Sans', sans-serif;*/
+  font-family: "Inter", sans-serif;
+  /*font-family: 'Roboto', sans-serif;
+  font-family: 'Work Sans', sans-serif;*/
   background-color: var(--bg);
   /*color: color-contrast(var(--bg));*/
   font-weight: 400;
@@ -674,6 +675,10 @@ form.fullresponse fieldset.form-grid {
   background: #cc2974;
 }
 
+.entity-svg-mot {
+  background: yellow;
+}
+
 .tabs {
   padding: 0.5em;
   background-color: #ffffff;
@@ -814,6 +819,7 @@ dialog.list-selector .dialog-container .dialog-footer {
   border: 2px solid var(--border-color);
   padding: 1em;
   width: 50ch;
+  margin-left: 1em;
 }
 .task-form h1 {
   margin: 0;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Vms.Domain.Entity.ServiceBookingEntity;
 
 namespace Vms.Domain.Entity
 {

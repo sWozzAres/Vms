@@ -1,7 +1,7 @@
 ﻿using Vms.Web.Shared.DataAnnotations;
 
 namespace Vms.Web.Shared;
-public record MotEventShortDto(DateOnly Due);
+public record MotEventShortDto(Guid Id, DateOnly Due);
 public record OpenEvents(List<OpenMotEvent> Mots);
 public record OpenMotEvent(Guid Id, DateOnly Due);
 

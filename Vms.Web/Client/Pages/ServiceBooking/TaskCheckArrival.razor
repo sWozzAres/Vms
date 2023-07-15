@@ -1,38 +1,41 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierCommand" Title="Book Supplier" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskCheckArrivalCommand" Title="Check Arrival" OnSave="Save" OnCompleted="OnCompleted">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
-
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="booked" Value="TaskBookSupplierCommand.TaskResult.Booked" />
-                    <label for="booked">Booked</label>
+                    <InputRadio id="rescheduled" Value="TaskCheckArrivalCommand.TaskResult.Arrived" />
+                    <label for="rescheduled">Arrived</label>
                 </div>
-                <fieldset class="option-data" disabled="@OptionBookedDisabled">
-                    <label for="bookeddate">Date</label>
-                    <InputDate id="bookeddate" @bind-Value="taskRef.Model.BookedDate" />
-                    <ValidationMessage For="@(() => taskRef.Model.BookedDate)" />
+                <fieldset class="option-data" disabled="@OptionArrivedDisabled">
+                    <label for="arrivaldate">Date</label>
+                    <InputDate id="arrivaldate" @bind-Value="taskRef.Model.ArrivalDate" />
+                    <ValidationMessage For="@(() => taskRef.Model.ArrivalDate)" />
+
+                    <label for="arrivaltime">Time</label>
+                    <InputDate id="arrivaltime" @bind-Value="taskRef.Model.ArrivalTime" Type="InputDateType.Time" />
+                    <ValidationMessage For="@(() => taskRef.Model.ArrivalTime)" />
                 </fieldset>
             </div>
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="refused" Value="TaskBookSupplierCommand.TaskResult.Refused" />
-                    <label for="refused">Refused</label>
+                    <InputRadio id="refused" Value="TaskCheckArrivalCommand.TaskResult.NotArrived" />
+                    <label for="refused">Not Arrived</label>
                 </div>
-                <fieldset class="option-data" disabled="@OptionRefusedDisabled">
-                    <CascadingValue Value="OptionRefusedDisabled" Name="IsDisabled">
-                        <InputSelectOnlyCombobox Options="@refusalReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.RefusalReason" />
-                        <ValidationMessage For="@(() => taskRef.Model.RefusalReason)" />
+                <fieldset class="option-data" disabled="@OptionNotArrivedDisabled">
+                    <CascadingValue Value="OptionNotArrivedDisabled" Name="IsDisabled">
+                        <InputSelectOnlyCombobox Options="@refusalReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.NonArrivalReason" />
+                        <ValidationMessage For="@(() => taskRef.Model.NonArrivalReason)" />
                     </CascadingValue>
                 </fieldset>
             </div>
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="rescheduled" Value="TaskBookSupplierCommand.TaskResult.Rescheduled" />
+                    <InputRadio id="rescheduled" Value="TaskCheckArrivalCommand.TaskResult.Rescheduled" />
                     <label for="rescheduled">Reschedule</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
@@ -40,11 +43,11 @@
                         <label for="rescheduledate">Date</label>
                         <InputDate id="rescheduledate" @bind-Value="taskRef.Model.RescheduleDate" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleDate)" />
-                            
+
                         <label for="rescheduletime">Time</label>
                         <InputDate id="rescheduletime" @bind-Value="taskRef.Model.RescheduleTime" Type="InputDateType.Time" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleTime)" />
-                        
+
                         <InputSelectOnlyCombobox Options="@rescheduleReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.RescheduleReason" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleReason)" />
                     </CascadingValue>
@@ -65,17 +68,17 @@
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
 
-    TaskTemplate<TaskBookSupplierCommand> taskRef = null!;
+    TaskTemplate<TaskCheckArrivalCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskBookSupplierCommand model)
-        => await Api.BookSupplier(ServiceBooking.Id, model);
+    async Task<PostResponse> Save(TaskCheckArrivalCommand model)
+        => await Api.CheckArrival(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
-    bool OptionBookedDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Booked;
-    bool OptionRefusedDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Refused;
-    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskBookSupplierCommand.TaskResult.Rescheduled;
+    bool OptionArrivedDisabled => taskRef.Model.Result != TaskCheckArrivalCommand.TaskResult.Arrived;
+    bool OptionNotArrivedDisabled => taskRef.Model.Result != TaskCheckArrivalCommand.TaskResult.NotArrived;
+    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskCheckArrivalCommand.TaskResult.Rescheduled;
     string? errorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -83,12 +86,12 @@
         ArgumentNullException.ThrowIfNull(ServiceBooking);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
-        var refusalReasons = Api.GetRefusalReasons(ServiceBooking.CompanyCode);
+        var refusalReasons = Api.GetNonArrivalReasons(ServiceBooking.CompanyCode);
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
         await Task.WhenAll(refusalReasons, rescheduleReasons);
 
-        refusalReasonOptions = UIOptions.BuildRefusalReasonOptions(refusalReasons.Result);
+        refusalReasonOptions = UIOptions.BuildNonArrivalReasonOptions(refusalReasons.Result);
         rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
 
         isLoaded = true;
@@ -98,7 +101,8 @@
     {
         if (firstRender)
         {
-            taskRef.Model.BookedDate = DateOnly.FromDateTime(DateTime.Today);
+            taskRef.Model.ArrivalDate = DateOnly.FromDateTime(DateTime.Today);
+            taskRef.Model.ArrivalTime = TimeOnly.FromDateTime(DateTime.Now);
             taskRef.Model.RescheduleDate = DateOnly.FromDateTime(DateTime.Today);
             taskRef.Model.RescheduleTime = TimeOnly.FromDateTime(DateTime.Now);
 

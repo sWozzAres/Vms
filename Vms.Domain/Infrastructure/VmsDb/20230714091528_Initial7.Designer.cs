@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230714091528_Initial7")]
+    partial class Initial7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -355,29 +358,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasIndex("SupplierCode");
 
                     b.ToTable("NetworkSupplier", (string)null);
-                });
-
-            modelBuilder.Entity("Vms.Domain.Entity.NonArrivalReason", b =>
-                {
-                    b.Property<string>("CompanyCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("nchar(10)")
-                        .IsFixedLength();
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(10)
-                        .HasColumnType("nchar(10)")
-                        .IsFixedLength();
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
-
-                    b.HasKey("CompanyCode", "Code");
-
-                    b.ToTable("NonArrivalReasons", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.RefusalReason", b =>
@@ -734,17 +714,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("Vms.Domain.Entity.NonArrivalReason", b =>
-                {
-                    b.HasOne("Vms.Domain.Entity.Company", "Company")
-                        .WithMany("NonArrivalReasons")
-                        .HasForeignKey("CompanyCode")
-                        .IsRequired()
-                        .HasConstraintName("FK_NonArrivalReason_Company");
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("Vms.Domain.Entity.RefusalReason", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Company", "Company")
@@ -1029,8 +998,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Fleets");
 
                     b.Navigation("Networks");
-
-                    b.Navigation("NonArrivalReasons");
 
                     b.Navigation("RefusalReasons");
 

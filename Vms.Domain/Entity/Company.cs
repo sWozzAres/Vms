@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using Vms.Domain.Entity.ServiceBookingEntity;
 
 namespace Vms.Domain.Entity
 {
@@ -19,7 +20,9 @@ namespace Vms.Domain.Entity
 
         internal List<Vehicle> Vehicles { get; private set; } = new();
         internal List<Driver> Drivers { get; private set; } = new();
+        internal List<NonArrivalReason> NonArrivalReasons { get; private set; } = new();
         internal List<RefusalReason> RefusalReasons { get; private set; } = new();
+        internal List<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons { get; private set; } = new();
         internal List<RescheduleReason> RescheduleReasons { get; private set; } = new();
         private Company() { }
         internal Company(string code, string name) => (Code, Name) = (code, name);
@@ -46,3 +49,4 @@ namespace Vms.Domain.Entity.Configuration
         }
     }
 }
+
