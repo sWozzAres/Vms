@@ -21,6 +21,7 @@ namespace Vms.Domain.Entity
         internal List<Vehicle> Vehicles { get; private set; } = new();
         internal List<Driver> Drivers { get; private set; } = new();
         internal List<NonArrivalReason> NonArrivalReasons { get; private set; } = new();
+        internal List<NotCompleteReason> NotCompleteReasons { get; private set; } = new();
         internal List<RefusalReason> RefusalReasons { get; private set; } = new();
         internal List<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons { get; private set; } = new();
         internal List<RescheduleReason> RescheduleReasons { get; private set; } = new();

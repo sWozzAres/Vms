@@ -48,6 +48,40 @@ public class TaskBookSupplierCommand
     public string? Callee { get; set; }
 }
 
+public class TaskCheckWorkStatusCommand
+{
+    public enum TaskResult { None, Complete, NotComplete, Rescheduled }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Complete), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Complete, ErrorMessage = "The Completion Date is required.")]
+    public DateOnly? CompletionDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.NotComplete, ErrorMessage = "The Not Complete Reason is required.")]
+    public string? NotCompleteReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.NotComplete, ErrorMessage = "The Next Chase Date is required.")]
+    public DateOnly? NextChaseDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.NotComplete, ErrorMessage = "The Next Chase Time is required.")]
+    public TimeOnly? NextChaseTime { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    //[RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):00$", ErrorMessage = "Invalid time.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
+}
+
 public class TaskCheckArrivalCommand
 {
     public enum TaskResult { None, Arrived, NotArrived, Rescheduled }
@@ -89,6 +123,47 @@ public class TaskConfirmBookedCommand
 
     [RequiredIf(nameof(Result), TaskResult.Refused, ErrorMessage = "The Refusal Reason is required.")]
     public string? RefusalReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
+}
+
+public class TaskNotifyCustomerCommand
+{
+    public enum TaskResult { None, Notified, Rescheduled }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Notified), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
+}
+public class TaskNotifyCustomerDelayCommand
+{
+    public enum TaskResult { None, Notified, Rescheduled }
+
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.Notified), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
 
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
     public string? RescheduleReason { get; set; }
@@ -164,8 +239,10 @@ public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
         3 => "Confirm",
         4 => "Check Arrival",
         5 => "Check Work Status",
-        6 => "ChaseDriver",
-        7 => "RebookDriver",
+        6 => "Chase Driver",
+        7 => "Rebook Driver",
+        8 => "Notify Customer",
+        9 => "Notify Customer Delay",
         _ => "Unknown"
     };
 

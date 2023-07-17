@@ -14,7 +14,9 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         CheckArrival = 4,
         CheckWorkStatus = 5,
         ChaseDriver = 6,
-        RebookDriver = 7
+        RebookDriver = 7,
+        NotifyCustomer = 8,
+        NotifyCustomerDelay = 9
     };
 
     public class ServiceBooking

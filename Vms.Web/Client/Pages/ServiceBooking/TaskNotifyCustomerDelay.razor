@@ -1,0 +1,84 @@
+﻿@inject ServerApiHttpClient Api
+
+<TaskTemplate @ref="taskRef" TModel="TaskNotifyCustomerDelayCommand" Title="Notify Customer Delay" OnSave="Save" OnCompleted="OnCompleted">
+    @if (isLoaded)
+    {
+        <InputRadioGroup @bind-Value="taskRef.Model.Result">
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="notified" Value="TaskNotifyCustomerDelayCommand.TaskResult.Notified" />
+                    <label for="notified">Notified</label>
+                </div>
+            </div>
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="rescheduled" Value="TaskNotifyCustomerDelayCommand.TaskResult.Rescheduled" />
+                    <label for="rescheduled">Reschedule</label>
+                </div>
+                <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
+                    <CascadingValue Value="OptionRescheduledDisabled" Name="IsDisabled">
+                        <label for="rescheduledate">Date</label>
+                        <InputDate id="rescheduledate" @bind-Value="taskRef.Model.RescheduleDate" />
+                        <ValidationMessage For="@(() => taskRef.Model.RescheduleDate)" />
+                            
+                        <label for="rescheduletime">Time</label>
+                        <InputDate id="rescheduletime" @bind-Value="taskRef.Model.RescheduleTime" Type="InputDateType.Time" />
+                        <ValidationMessage For="@(() => taskRef.Model.RescheduleTime)" />
+                        
+                        <InputSelectOnlyCombobox Options="@rescheduleReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.RescheduleReason" />
+                        <ValidationMessage For="@(() => taskRef.Model.RescheduleReason)" />
+                    </CascadingValue>
+                </fieldset>
+            </div>
+
+        </InputRadioGroup>
+
+        <div class="option">
+            <label for="callee">Callee</label>
+            <InputText id="callee" @bind-Value="taskRef.Model.Callee" />
+            <ValidationMessage For="@(() => taskRef.Model.Callee)" />
+        </div>
+    }
+</TaskTemplate>
+
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+
+    TaskTemplate<TaskNotifyCustomerDelayCommand> taskRef = null!;
+
+    async Task<PostResponse> Save(TaskNotifyCustomerDelayCommand model)
+        => await Api.NotifyCustomerDelay(ServiceBooking.Id, model);
+
+    List<SelectOption<string?>> rescheduleReasonOptions = null!;
+    bool isLoaded;
+    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskNotifyCustomerDelayCommand.TaskResult.Rescheduled;
+    string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
+
+        var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
+
+        await Task.WhenAll(rescheduleReasons);
+
+        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+
+        isLoaded = true;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            taskRef.Model.RescheduleDate = DateOnly.FromDateTime(DateTime.Today);
+            taskRef.Model.RescheduleTime = TimeOnly.FromDateTime(DateTime.Now);
+
+            StateHasChanged();
+        }
+    }
+}

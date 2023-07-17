@@ -27,6 +27,7 @@ public class VmsDbContext : DbContext
     public DbSet<VehicleVrm> VehicleVrms => Set<VehicleVrm>();
     public DbSet<VehicleMake> VehicleMakes => Set<VehicleMake>();
     public DbSet<VehicleModel> VehicleModels => Set<VehicleModel>();
+    public DbSet<NotCompleteReason> NotCompleteReasons => Set<NotCompleteReason>();
     public DbSet<RefusalReason> RefusalReasons => Set<RefusalReason>();
     public DbSet<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons => Set<ConfirmBookedRefusalReason>();
     public DbSet<RescheduleReason> RescheduleReasons => Set<RescheduleReason>();
@@ -45,7 +46,7 @@ public class VmsDbContext : DbContext
 
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
-
+        modelBuilder.Entity<NotCompleteReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<NonArrivalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<ConfirmBookedRefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<MotEvent>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);

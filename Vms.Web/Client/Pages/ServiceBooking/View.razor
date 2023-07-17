@@ -75,6 +75,18 @@ else
                                 {
                                     <TaskCheckArrival ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
                                 }
+                                else if (displayTask == "Check Work Status")
+                                {
+                                    <TaskCheckWorkStatus ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
+                                else if (displayTask == "Notify Customer")
+                                {
+                                    <TaskNotifyCustomer ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
+                                else if (displayTask == "Notify Customer Delay")
+                                {
+                                    <TaskNotifyCustomerDelay ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
                             </div>
                         </div>
                     </TabPage>
@@ -155,7 +167,10 @@ else
         }
     }
 
-    void SelectTask(string name) => displayTask = name;
+    void SelectTask(string name) {
+        //Logger.LogWarning("Selecting {name}", name);
+        displayTask = name;
+    }
 
     async Task<PostResponse> SaveModel(ServiceBookingDto model)
     {

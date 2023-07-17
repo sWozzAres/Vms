@@ -267,6 +267,18 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     {
         var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
 
+        if (!_context.NotCompleteReasons.Any())
+        {
+            foreach (var company in allCompanies)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var refusalReason = new NotCompleteReason(company.Code, $"CODE{i:D2}", $"Not Complete Reason #{i}");
+                    _context.NotCompleteReasons.Add(refusalReason);
+                }
+            }
+        }
+
         if (!_context.ConfirmBookedRefusalReasons.Any())
         {
             foreach (var company in allCompanies)

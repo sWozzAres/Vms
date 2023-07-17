@@ -56,6 +56,17 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     }
 
     [HttpPost]
+    [Route("{id}/checkworkstatus")]
+    public async Task<IActionResult> CheckWorkStatus(Guid id,
+        [FromBody] TaskCheckWorkStatusCommand request,
+        [FromServices] ICheckWorkStatus checkWorkStatus,
+        CancellationToken cancellationToken)
+    {
+        await checkWorkStatus.CheckAsync(id, request, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost]
     [Route("{id}/confirmbooked")]
     public async Task<IActionResult> ConfirmBooked(Guid id,
         [FromBody] TaskConfirmBookedCommand request,
@@ -63,6 +74,26 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await confirmBooked.ConfirmAsync(id, request, cancellationToken);
+        return Ok();
+    }
+    [HttpPost]
+    [Route("{id}/notifycustomer")]
+    public async Task<IActionResult> NotifyCustomer(Guid id,
+        [FromBody] TaskNotifyCustomerCommand request,
+        [FromServices] INotifyCustomer notifyCustomer,
+        CancellationToken cancellationToken)
+    {
+        await notifyCustomer.NotifyAsync(id, request, cancellationToken);
+        return Ok();
+    }
+    [HttpPost]
+    [Route("{id}/notifycustomerdelay")]
+    public async Task<IActionResult> NotifyCustomerDelay(Guid id,
+        [FromBody] TaskNotifyCustomerDelayCommand request,
+        [FromServices] INotifyCustomerDelay notifyCustomerDelay,
+        CancellationToken cancellationToken)
+    {
+        await notifyCustomerDelay.NotifyAsync(id, request, cancellationToken);
         return Ok();
     }
 

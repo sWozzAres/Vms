@@ -6,6 +6,7 @@ using Vms.Web.Shared;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Entity;
 using Microsoft.VisualBasic;
+using Vms.Domain.Entity.ServiceBookingEntity;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
 
@@ -45,6 +46,13 @@ public class CompanyController : ControllerBase
         => Ok(await _context.NonArrivalReasons
             .Where(r => r.CompanyCode == companyCode)
             .Select(r => new NonArrivalReasonDto(r.Code, r.Name))
+            .ToListAsync(cancellationToken));
+    [HttpGet]
+    [Route("{companyCode}/notcompletereasons")]
+    public async Task<IActionResult> GetNotCompleteReasons(string companyCode, CancellationToken cancellationToken)
+        => Ok(await _context.NotCompleteReasons
+            .Where(r => r.CompanyCode == companyCode)
+            .Select(r => new NotCompleteReasonDto(r.Code, r.Name))
             .ToListAsync(cancellationToken));
 
     [HttpGet]

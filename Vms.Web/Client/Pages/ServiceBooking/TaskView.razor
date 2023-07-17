@@ -26,6 +26,14 @@
             <button @onclick="UnbookSupplier">Unbook</button>
             <button @onclick="CheckWorkStatus">Check Work Status</button>
         }
+        else if (ServiceBooking.Status == 8)
+        {
+            <button @onclick="NotifyCustomer">Notify Customer</button>
+        }
+        else if (ServiceBooking.Status == 9)
+        {
+            <button @onclick="NotifyCustomerDelay">Notify Customer Delay</button>
+        }
     </div>
     <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="OnSelectTask">
         @* <svg viewBox="0 0 128 512">
@@ -43,12 +51,15 @@
 
     private string[] items = new string[]
     {
+        "Notify Customer Delay",
         "Assign Supplier",
         "Unbook Supplier",
         "Book Supplier",
         "Confirm Booked",
         "Check Arrival",
-        "Check Work Status"
+        "Check Work Status",
+        "Notify Customer",
+        
     };
     string selectedItem = string.Empty;
 
@@ -58,6 +69,8 @@
     public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm Booked");
     public async Task CheckArrival() => await OnSelectTask.InvokeAsync("Check Arrival");
     public async Task CheckWorkStatus() => await OnSelectTask.InvokeAsync("Check Work Status");
+    public async Task NotifyCustomer() => await OnSelectTask.InvokeAsync("Notify Customer");
+    public async Task NotifyCustomerDelay() => await OnSelectTask.InvokeAsync("Notify Customer Delay");
 
     protected override void OnInitialized()
     {

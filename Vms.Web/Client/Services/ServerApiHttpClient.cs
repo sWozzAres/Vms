@@ -55,6 +55,12 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<List<NonArrivalReasonDto>>($"/api/company/{companyCode}/nonarrivalreasons")
             ?? throw new InvalidOperationException("Failed to get non-arrival reasons.");
     }
+    public async Task<List<NotCompleteReasonDto>> GetNotCompleteReasons(string companyCode)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<NotCompleteReasonDto>>($"/api/company/{companyCode}/notcompletereasons")
+            ?? throw new InvalidOperationException("Failed to get not-complete reasons.");
+    }
     public async Task<List<RescheduleReasonDto>> GetRescheduleReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
@@ -122,10 +128,25 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
     }
+    public async Task<PostResponse> CheckWorkStatus(Guid id, TaskCheckWorkStatusCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/checkworkstatus", request));
+    }
     public async Task<PostResponse> ConfirmBooked(Guid id, TaskConfirmBookedCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/confirmbooked", request));
+    }
+    public async Task<PostResponse> NotifyCustomer(Guid id, TaskNotifyCustomerCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/notifycustomer", request));
+    }
+    public async Task<PostResponse> NotifyCustomerDelay(Guid id, TaskNotifyCustomerDelayCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/notifycustomerdelay", request));
     }
     public async Task<PostResponse> CheckArrival(Guid id, TaskCheckArrivalCommand request)
     {
