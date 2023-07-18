@@ -1,26 +1,38 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskChaseDriverCommand" Title="Chase Driver" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskRebookDriverCommand" Title="Rebook Driver" OnSave="Save" OnCompleted="OnCompleted">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="stillgoing" Value="TaskChaseDriverCommand.TaskResult.StillGoing" />
+                    <InputRadio id="stillgoing" Value="TaskRebookDriverCommand.TaskResult.StillGoing" />
                     <label for="stillgoing">Still Going</label>
                 </div>
             </div>
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="notoging" Value="TaskChaseDriverCommand.TaskResult.NotGoing" />
+                    <InputRadio id="notoging" Value="TaskRebookDriverCommand.TaskResult.NotGoing" />
                     <label for="notoging">Not Going</label>
                 </div>
             </div>
 
             <div class="option">
                 <div class="option-select">
-                    <InputRadio id="rescheduled" Value="TaskChaseDriverCommand.TaskResult.Rescheduled" />
+                    <InputRadio id="stillgoingtoday" Value="TaskRebookDriverCommand.TaskResult.StillGoingToday" />
+                    <label for="stillgoingtoday">Still Going Today</label>
+                </div>
+                <fieldset class="option-data" disabled="@OptionStillGoingTodayDisabled">
+                    <label for="arrivaltime">Time</label>
+                    <InputDate id="arrivaltime" @bind-Value="taskRef.Model.ArrivalTime" Type="InputDateType.Time" />
+                    <ValidationMessage For="@(() => taskRef.Model.ArrivalTime)" />
+                </fieldset>
+            </div>
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="rescheduled" Value="TaskRebookDriverCommand.TaskResult.Rescheduled" />
                     <label for="rescheduled">Reschedule</label>
                 </div>
                 <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
@@ -53,16 +65,17 @@
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
 
-    TaskTemplate<TaskChaseDriverCommand> taskRef = null!;
+    TaskTemplate<TaskRebookDriverCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskChaseDriverCommand model)
-        => await Api.ChaseDriver(ServiceBooking.Id, model);
+    async Task<PostResponse> Save(TaskRebookDriverCommand model)
+        => await Api.RebookDriver(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
-    bool OptionStillGoingDisabled => taskRef.Model.Result != TaskChaseDriverCommand.TaskResult.StillGoing;
-    bool OptionNotGoingDisabled => taskRef.Model.Result != TaskChaseDriverCommand.TaskResult.NotGoing;
-    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskChaseDriverCommand.TaskResult.Rescheduled;
+    bool OptionStillGoingDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.StillGoing;
+    bool OptionNotGoingDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.NotGoing;
+    bool OptionStillGoingTodayDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.StillGoingToday;
+    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.Rescheduled;
     string? errorMessage;
 
     protected override async Task OnInitializedAsync()

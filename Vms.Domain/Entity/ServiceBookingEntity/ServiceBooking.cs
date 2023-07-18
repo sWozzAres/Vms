@@ -7,6 +7,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
 {
     public enum ServiceBookingStatus : int
     {
+        Cancelled = -1,
         None = 0,
         Assign = 1,
         Book = 2,
@@ -94,13 +95,13 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             if (SupplierCode is null)
                 throw new VmsDomainException("Service Booking is not assigned.");
 
-            RescheduleTime = null;
+            //RescheduleTime = null;
             BookedDate = bookedDate;
             ChangeStatus(ServiceBookingStatus.Confirm);
         }
-        public void UnassignSupplier()
+        public void Unassign()
         {
-            RescheduleTime = null;
+            //RescheduleTime = null;
             SupplierCode = null;
             ChangeStatus(ServiceBookingStatus.Assign);
         }

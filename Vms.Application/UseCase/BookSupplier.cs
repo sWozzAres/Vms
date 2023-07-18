@@ -69,7 +69,7 @@ public class BookSupplier(VmsDbContext context, IEmailSender emailSender) : IBoo
 
             //self.Supplier.RefusalReasonCode = rr.Code;
             //self.Supplier.RefusalReasonName = rr.Name;
-            self.UnassignSupplier();
+            self.Unassign();
         }
 
         public void Reschedule(DateTime rescheduleTime)

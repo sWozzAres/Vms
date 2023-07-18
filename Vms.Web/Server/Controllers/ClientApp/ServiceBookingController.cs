@@ -119,6 +119,17 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         return Ok();
     }
 
+    [HttpPost]
+    [Route("{id}/rebookdriver")]
+    public async Task<IActionResult> RebookDriver(Guid id,
+        [FromBody] TaskRebookDriverCommand request,
+        [FromServices] IRebookDriver rebookDriver,
+        CancellationToken cancellationToken)
+    {
+        await rebookDriver.RebookAsync(id, request, cancellationToken);
+        return Ok();
+    }
+
     [HttpGet]
     [Route("{id}/suppliers")]
     public async Task<IActionResult> GetSuppliers(Guid id,

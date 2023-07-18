@@ -45,6 +45,7 @@ builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
 builder.Services.AddScoped<ICheckArrival, CheckArrival>();
 builder.Services.AddScoped<ICheckWorkStatus, CheckWorkStatus>();
 builder.Services.AddScoped<IChaseDriver, ChaseDriver>();
+builder.Services.AddScoped<IRebookDriver, RebookDriver>();  
 builder.Services.AddScoped<INotifyCustomer, NotifyCustomer>();
 builder.Services.AddScoped<INotifyCustomerDelay, NotifyCustomerDelay>();
 builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();

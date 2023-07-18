@@ -34,6 +34,29 @@ public class TaskChaseDriverCommand
     public string? Callee { get; set; }
 }
 
+public class TaskRebookDriverCommand
+{
+    public enum TaskResult { None, StillGoing, NotGoing, StillGoingToday, Rescheduled }
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.StillGoing), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.StillGoingToday, ErrorMessage = "The Arrival Time is required.")]
+    public TimeOnly? ArrivalTime { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
+}
+
 public class TaskAssignSupplierCommand
 {
     [Required]

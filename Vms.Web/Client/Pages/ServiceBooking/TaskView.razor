@@ -23,8 +23,8 @@
         }
         else if (ServiceBooking.Status == 5)
         {
-            <button @onclick="UnbookSupplier">Unbook</button>
-            <button @onclick="CheckWorkStatus">Check Work Status</button>
+            <button @onclick="UnbookSupplier" class="btn-prev-task">Unbook</button>
+            <button @onclick="CheckWorkStatus" class="btn-next-task">Check Work Status</button>
         }
         else if (ServiceBooking.Status == 8)
         {
@@ -59,7 +59,8 @@
         "Check Arrival",
         "Check Work Status",
         "Notify Customer",
-        "Chase Driver"
+        "Chase Driver",
+        "Rebook Driver"
         
     };
     string selectedItem = string.Empty;
@@ -70,6 +71,7 @@
     public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm Booked");
     public async Task CheckArrival() => await OnSelectTask.InvokeAsync("Check Arrival");
     public async Task ChaseDriver() => await OnSelectTask.InvokeAsync("Chase Driver");
+    public async Task RebookDriver() => await OnSelectTask.InvokeAsync("Rebook Driver");
     public async Task CheckWorkStatus() => await OnSelectTask.InvokeAsync("Check Work Status");
     public async Task NotifyCustomer() => await OnSelectTask.InvokeAsync("Notify Customer");
     public async Task NotifyCustomerDelay() => await OnSelectTask.InvokeAsync("Notify Customer Delay");

@@ -41,7 +41,7 @@ public class ConfirmBooked(VmsDbContext dbContext) : IConfirmBooked
         public void Refused()
         {
             self.Unbook();
-            self.UnassignSupplier();
+            self.Unassign();
 
             //TODO
         }
