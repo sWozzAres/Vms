@@ -9,9 +9,29 @@ public class TaskUnbookSupplierCommand
     [Range(typeof(TaskResult), nameof(TaskResult.Unbooked), nameof(TaskResult.Unbooked),
         ErrorMessage = "You must select an option.")]
     public TaskResult Result { get; set; }
-    
+
     [RequiredIf(nameof(Result), TaskResult.Unbooked, ErrorMessage = "You must supply a reason.")]
     public string? Reason { get; set; }
+}
+
+public class TaskChaseDriverCommand
+{
+    public enum TaskResult { None, StillGoing, NotGoing, Rescheduled }
+    [Required]
+    [Range(typeof(TaskResult), nameof(TaskResult.StillGoing), nameof(TaskResult.Rescheduled),
+        ErrorMessage = "You must select an option.")]
+    public TaskResult Result { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Reason is required.")]
+    public string? RescheduleReason { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Date is required.")]
+    public DateOnly? RescheduleDate { get; set; }
+
+    [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
+    public TimeOnly? RescheduleTime { get; set; }
+
+    public string? Callee { get; set; }
 }
 
 public class TaskAssignSupplierCommand
@@ -42,7 +62,6 @@ public class TaskBookSupplierCommand
     public DateOnly? RescheduleDate { get; set; }
 
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
-    //[RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):00$", ErrorMessage = "Invalid time.")]
     public TimeOnly? RescheduleTime { get; set; }
 
     public string? Callee { get; set; }
@@ -76,7 +95,6 @@ public class TaskCheckWorkStatusCommand
     public DateOnly? RescheduleDate { get; set; }
 
     [RequiredIf(nameof(Result), TaskResult.Rescheduled, ErrorMessage = "The Reschedule Time is required.")]
-    //[RegularExpression("^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):00$", ErrorMessage = "Invalid time.")]
     public TimeOnly? RescheduleTime { get; set; }
 
     public string? Callee { get; set; }
@@ -202,6 +220,16 @@ public record CreateServiceBookingCommand(
     Guid? ServiceId,
     List<Guid>? RepairIds);
 
+public enum ServiceLevel : int
+{
+    None = 0,
+    Mobile = 1,
+    Collection = 2,
+    DropOff = 3,
+    WhileYouWait = 4,
+    DropOffWithCourtesyCar = 5,
+};
+
 public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 {
     public Guid Id { get; set; }
@@ -211,7 +239,9 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
     public DateOnly? PreferredDate1 { get; set; }
     public DateOnly? PreferredDate2 { get; set; }
     public DateOnly? PreferredDate3 { get; set; }
-
+    [Range(typeof(ServiceLevel), nameof(ServiceLevel.Mobile), nameof(ServiceLevel.DropOffWithCourtesyCar), 
+        ErrorMessage = "You must select a service level.")]
+    public ServiceLevel ServiceLevel { get; set; }
     public void CopyFrom(ServiceBookingDto source)
     {
         Id = source.Id;
@@ -220,6 +250,7 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
         PreferredDate1 = source.PreferredDate1;
         PreferredDate2 = source.PreferredDate2;
         PreferredDate3 = source.PreferredDate3;
+        ServiceLevel = source.ServiceLevel;
     }
 }
 
@@ -227,7 +258,7 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
     string Vrm, string Make, string Model,
     DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3,
-    int Status,
+    int Status, ServiceLevel ServiceLevel,
     SupplierShortDto? Supplier, MotEventShortDto? MotEvent)
 {
     [JsonIgnore]
@@ -254,6 +285,7 @@ public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
             CompanyCode = CompanyCode,
             PreferredDate1 = PreferredDate1,
             PreferredDate2 = PreferredDate2,
-            PreferredDate3 = PreferredDate3
+            PreferredDate3 = PreferredDate3,
+            ServiceLevel = ServiceLevel
         };
 }

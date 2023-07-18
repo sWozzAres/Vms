@@ -108,6 +108,17 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         return Ok();
     }
 
+    [HttpPost]
+    [Route("{id}/chasedriver")]
+    public async Task<IActionResult> ChaseDriver(Guid id,
+        [FromBody] TaskChaseDriverCommand request,
+        [FromServices] IChaseDriver chaseDriver,
+        CancellationToken cancellationToken)
+    {
+        await chaseDriver.ChaseAsync(id, request, cancellationToken);
+        return Ok();
+    }
+
     [HttpGet]
     [Route("{id}/suppliers")]
     public async Task<IActionResult> GetSuppliers(Guid id,
@@ -201,6 +212,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         serviceBooking.PreferredDate1 = request.PreferredDate1;
         serviceBooking.PreferredDate2 = request.PreferredDate2;
         serviceBooking.PreferredDate3 = request.PreferredDate3;
+        serviceBooking.ServiceLevel = (Vms.Domain.Entity.ServiceBookingEntity.ServiceLevel)request.ServiceLevel;
 
         if (serviceBooking.Status == ServiceBookingStatus.None && serviceBooking.IsValid)
         {
@@ -241,6 +253,7 @@ public static partial class DomainExtensions
             serviceBooking.PreferredDate2,
             serviceBooking.PreferredDate3,
             (int)serviceBooking.Status,
+            (Vms.Web.Shared.ServiceLevel)serviceBooking.ServiceLevel,
             serviceBooking.Supplier?.ToSupplierShortDto(),
             serviceBooking.MotEvent?.ToShortDto()
         );

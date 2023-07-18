@@ -1,5 +1,6 @@
 ﻿using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Web.Shared;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Vms.Application.UseCase;
 
@@ -24,7 +25,7 @@ public class CheckWorkStatus(VmsDbContext context) : ICheckWorkStatus
                 ServiceBooking.Complete();
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.NotComplete:
-                ServiceBooking.NotComplete();
+                ServiceBooking.NotComplete(Helper.CombineDateAndTime(command.NextChaseDate!.Value, command.NextChaseTime!.Value));
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.Rescheduled:
                 ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value));
@@ -38,9 +39,9 @@ public class CheckWorkStatus(VmsDbContext context) : ICheckWorkStatus
         {
             self.ChangeStatus(ServiceBookingStatus.NotifyCustomer);
         }
-
-        public void NotComplete()
+        public void NotComplete(DateTime nextChase)
         {
+            self.EstimatedCompletion = nextChase;
             self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay);
 
         }

@@ -2,6 +2,9 @@
     <DataAnnotationsValidator />
 
     <div class="form-section">
+        <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="editForm.Model.ServiceLevel" />
+        <ValidationMessage For="@(() => editForm.Model.ServiceLevel)" />
+
         <label for="preferreddate1">Preferred Date 1</label>
         <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
         <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
@@ -11,6 +14,8 @@
         <label for="preferreddate3">Preferred Date 3</label>
         <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
         <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
+
+        
 
         @* <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
         <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
@@ -75,9 +80,13 @@
 
     EditFormTemplate2<ServiceBookingDto> editForm = null!;
 
+    List<SelectOption<Vms.Web.Shared.ServiceLevel>> serviceLevelOptions = null!;
+
     protected override void OnInitialized()
     {
         ArgumentNullException.ThrowIfNull(OnSave);
         ArgumentNullException.ThrowIfNull(OnLoad);
+
+        serviceLevelOptions = UIOptions.GetServiceLevelOptions();
     }
 }

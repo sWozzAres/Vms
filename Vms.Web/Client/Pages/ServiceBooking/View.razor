@@ -87,6 +87,10 @@ else
                                 {
                                     <TaskNotifyCustomerDelay ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
                                 }
+                                else if (displayTask == "Chase Driver")
+                                {
+                                    <TaskChaseDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                                }
                             </div>
                         </div>
                     </TabPage>

@@ -59,6 +59,7 @@
         "Check Arrival",
         "Check Work Status",
         "Notify Customer",
+        "Chase Driver"
         
     };
     string selectedItem = string.Empty;
@@ -68,6 +69,7 @@
     public async Task UnbookSupplier() => await OnSelectTask.InvokeAsync("Unbook Supplier");
     public async Task Confirm() => await OnSelectTask.InvokeAsync("Confirm Booked");
     public async Task CheckArrival() => await OnSelectTask.InvokeAsync("Check Arrival");
+    public async Task ChaseDriver() => await OnSelectTask.InvokeAsync("Chase Driver");
     public async Task CheckWorkStatus() => await OnSelectTask.InvokeAsync("Check Work Status");
     public async Task NotifyCustomer() => await OnSelectTask.InvokeAsync("Notify Customer");
     public async Task NotifyCustomerDelay() => await OnSelectTask.InvokeAsync("Notify Customer Delay");

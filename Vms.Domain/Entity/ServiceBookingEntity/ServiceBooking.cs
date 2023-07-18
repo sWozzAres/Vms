@@ -19,6 +19,16 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         NotifyCustomerDelay = 9
     };
 
+    public enum ServiceLevel : int
+    {
+        None = 0,
+        Mobile = 1,
+        Collection = 2,
+        DropOff = 3,
+        WhileYouWait = 4,
+        DropOffWithCourtesyCar = 5,
+    };
+
     public class ServiceBooking
     {
         public string CompanyCode { get; set; } = null!;
@@ -31,10 +41,12 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public string? SupplierCode { get; internal set; }
         public Supplier? Supplier { get; private set; }
         public DateOnly? BookedDate { get; internal set; }
+        public DateTime? EstimatedCompletion { get; set; }
         //public VehicleMot? VehicleMot { get; set; }
         //public ServiceBookingSupplier? Supplier { get; private set; }
         public DateTime? RescheduleTime { get; internal set; }
         public ServiceBookingStatus Status { get; private set; }
+        public ServiceLevel ServiceLevel { get; set; }
         public Vehicle Vehicle { get; set; } = null!;
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
@@ -57,7 +69,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
                 : ServiceBookingStatus.None;
         }
         public bool IsValid
-            => PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null;
+            => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 
         public void ChangeStatus(ServiceBookingStatus status) => Status = status;
         public void Assign(string supplierCode)

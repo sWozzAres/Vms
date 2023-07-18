@@ -464,6 +464,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
+                    b.Property<DateTime?>("EstimatedCompletion")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateOnly?>("MotDue")
                         .HasColumnType("date");
 
@@ -481,6 +484,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<DateTime?>("RescheduleTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("ServiceLevel")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

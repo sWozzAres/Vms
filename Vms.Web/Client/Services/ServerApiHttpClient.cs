@@ -128,6 +128,11 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
     }
+    public async Task<PostResponse> ChaseDriver(Guid id, TaskChaseDriverCommand request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/chasedriver", request));
+    }
     public async Task<PostResponse> CheckWorkStatus(Guid id, TaskCheckWorkStatusCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();

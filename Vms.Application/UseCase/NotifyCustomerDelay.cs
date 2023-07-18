@@ -21,7 +21,7 @@ public class NotifyCustomerDelay(VmsDbContext dbContext) : INotifyCustomerDelay
         switch (command.Result)
         {
             case TaskNotifyCustomerDelayCommand.TaskResult.Notified:
-                ServiceBooking.Notify();
+                ServiceBooking.CustomerNotified();
                 break;
             case TaskNotifyCustomerDelayCommand.TaskResult.Rescheduled:
                 ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value));
@@ -31,9 +31,10 @@ public class NotifyCustomerDelay(VmsDbContext dbContext) : INotifyCustomerDelay
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomerDelay context)
     {
-        public void Notify()
+        public void CustomerNotified()
         {
-            self.ChangeStatus(ServiceBookingStatus.CheckArrival);
+            self.RescheduleTime = self.EstimatedCompletion;
+            self.ChangeStatus(ServiceBookingStatus.CheckWorkStatus);
         }
 
         public void Reschedule(DateTime rescheduleTime)
