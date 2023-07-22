@@ -113,6 +113,17 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
     #region /api/servicebooking
+    public async Task<PostResponse> AddNote(Guid id, AddNoteDto request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/activity", request));
+    }
+    public async Task<List<ActivityLogDto>> GetActivity(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<ActivityLogDto>>($"/api/servicebooking/{id}/activity")
+            ?? throw new InvalidOperationException("Failed to load activity.");
+    }
     public async Task<PostResponse> SaveServiceBooking(Guid id, ServiceBookingDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();

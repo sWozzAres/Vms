@@ -1,0 +1,81 @@
+﻿@using Markdig;
+@inject ServerApiHttpClient Api
+
+<section class="activitylog">
+    <EditForm Model="noteModel" OnValidSubmit="HandleValidSubmit">
+        <InputTextArea @bind-Value="noteModel.Note" rows="5" placeholder="Enter note..." />
+        <div class="buttons">
+            <button type="submit" disabled="@addNoteButtonDisabled">Add Note</button>
+        </div>
+    </EditForm>
+
+    @if (entries is not null)
+    {
+        @foreach (var entry in entries.OrderByDescending(e => e.EntryDate))
+        {
+            <article class="activity-entry">
+                @((MarkupString)Markdown.ToHtml(entry.Text))
+                <footer>
+                    @entry.EntryDate.ToLongDateString() @entry.EntryDate.ToLongTimeString()
+                </footer>
+            </article>
+        }
+    }
+</section>
+
+@code {
+    [CascadingParameter] TabControl TabControl { get; set; } = null!;
+    [CascadingParameter] TabPage TabPage { get; set; } = null!;
+
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+
+    bool IsActive => TabControl.ActivePage == TabPage;
+    List<ActivityLogDto> entries = new();
+    NoteModel noteModel = new();
+    bool addNoteButtonDisabled => noteModel.Note.Length == 0 || isPosting;
+    bool isPosting;
+    bool loaded;
+
+    public async Task HandleValidSubmit()
+    {
+        isPosting = true;
+        try
+        {
+            var response = await Api.AddNote(Id, new AddNoteDto(noteModel.Note));
+            if (response is PostResponse.Created)
+            {
+                var result = await response.Response.Content.ReadFromJsonAsync<ActivityLogDto>()
+                    ?? throw new InvalidOperationException("Failed to read response.");
+
+                entries.Add(result);
+                noteModel.Note = string.Empty;
+            }
+        }
+        finally
+        {
+            isPosting = false;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!loaded && IsActive)
+        {
+            entries = await Api.GetActivity(Id);
+            loaded = true;
+            StateHasChanged();
+        }
+    }
+
+
+    class NoteModel
+    {
+        [Required, StringLength(1024)]
+        public string Note { get; set; } = string.Empty;
+    }
+}

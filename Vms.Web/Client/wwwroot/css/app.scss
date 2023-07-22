@@ -15,6 +15,23 @@
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.activitylog {
+    form {
+        display: flex;
+        gap: 1em;
+        flex-direction: column;
+    }
+
+    article {
+        padding-bottom: 1em;
+        border-bottom: 1px solid var(--border-color);
+
+        footer {
+            font-size: small;
+        }
+    }
+}
+
 .retry-load {
     display: grid;
     place-content: center;

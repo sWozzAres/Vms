@@ -34,7 +34,7 @@ public class TaskChaseDriverCommand
     public string? Callee { get; set; }
 }
 
-public class TaskRebookDriverCommand
+public partial class TaskRebookDriverCommand
 {
     public enum TaskResult { None, StillGoing, NotGoing, StillGoingToday, Rescheduled }
     [Required]

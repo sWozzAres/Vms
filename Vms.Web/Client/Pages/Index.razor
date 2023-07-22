@@ -2,10 +2,22 @@
 @inject NavigationManager Navigation
 @inject ILogger<Index> Logger
 @using System.ComponentModel.DataAnnotations;
+@using Markdig;
 
 <PageTitle>Index</PageTitle>
 
 <section class="page">
+
+    <textarea rows="6" @bind:event="oninput" @bind:set="MarkdownChanged" @bind:get="MarkdownSource">
+
+    </textarea>
+    @* <EditForm Model="Model">
+        <InputTextArea @bind-Value="Model.Markdown" @oninput="MarkdownChanged"></InputTextArea>
+    </EditForm> *@
+    <article>
+        @((MarkupString)MarkdownText)
+    </article>
+
     <h1>Home</h1>
     <button @onclick="SignOut">Sign out</button>
     <ol>
@@ -64,7 +76,25 @@
         new (122, "Huckleberry")
     };
 
-    public MyModel Model { get; set; } = new();
+    string MarkdownText = string.Empty;
+    string MarkdownSource = string.Empty;
+
+    public class MarkDigModel
+    {
+        public string Markdown { get; set; } = string.Empty;
+    }
+
+    public MarkDigModel Model { get; set; } = new();
+
+
+    public void MarkdownChanged(string value)
+    {
+        var newValue = value ?? string.Empty;
+        MarkdownSource = newValue;
+
+        MarkdownText = Markdown.ToHtml(newValue);
+        Logger.LogInformation("{a} {b}", Model.Markdown, MarkdownText);
+    }
 
     public class MyModel : ICopyable<MyModel>
     {

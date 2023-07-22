@@ -855,6 +855,19 @@ dialog.list-selector .dialog-container .dialog-footer {
   margin-top: 1em;
 }
 
+.activitylog form {
+  display: flex;
+  gap: 1em;
+  flex-direction: column;
+}
+.activitylog article {
+  padding-bottom: 1em;
+  border-bottom: 1px solid var(--border-color);
+}
+.activitylog article footer {
+  font-size: small;
+}
+
 .retry-load {
   display: grid;
   place-content: center;

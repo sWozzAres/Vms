@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
@@ -174,6 +175,45 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     }
 
     [HttpGet]
+    [Route("{id}/activity")]
+    public async Task<IActionResult> GetActivities(Guid id, CancellationToken cancellationToken)
+    {
+        var a = await _context.ActivityLog.AsNoTracking()
+            .Where(l => l.DocumentId == id)
+            .OrderBy(l => l.EntryDate)
+            .Select(l=> l.ToDto())
+            .ToListAsync(cancellationToken);
+
+        return Ok(a);
+    }
+    [HttpPost]
+    [Route("{id}/activity")]
+    public async Task<IActionResult> PostNote(Guid id,
+        [FromBody] AddNoteDto request,
+        CancellationToken cancellationToken)
+    {
+        var entry = new ActivityLog(id, request.Text);
+        _context.ActivityLog.Add(entry);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return CreatedAtAction(nameof(GetActivity), new { id, aid = entry.Id}, entry.ToDto());
+    }
+    
+    [HttpGet]
+    [Route("{id}/activity/{aid}")]
+    public async Task<IActionResult> GetActivity(Guid id, Guid aid,
+        CancellationToken cancellationToken)
+    {
+        var activityLog = await (from sb in _context.ServiceBookings
+                           join ac in _context.ActivityLog on sb.Id equals ac.DocumentId
+                           where sb.Id == id
+                           select ac).SingleOrDefaultAsync(cancellationToken);
+        
+
+        return activityLog is null ? NotFound() : Ok(activityLog.ToDto());
+    }
+
+    [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -272,4 +312,6 @@ public static partial class DomainExtensions
 
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);
+
+    public static ActivityLogDto ToDto(this ActivityLog activityLog) => new(activityLog.Id, activityLog.Text, activityLog.EntryDate);
 }
