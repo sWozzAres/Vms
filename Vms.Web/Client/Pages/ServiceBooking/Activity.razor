@@ -20,7 +20,7 @@
             <article class="activity-entry">
                 @((MarkupString)Markdown.ToHtml(entry.Text))
                 <footer>
-                    @entry.EntryDate.ToString("f") @entry.UserName
+                    @entry.EntryDate.ToString("f") - @entry.UserName
                 </footer>
             </article>
         }

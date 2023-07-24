@@ -24,6 +24,33 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpPost]
+    [Route("{id}/lock")]
+    public async Task<IActionResult> Lock(Guid id,
+        [FromServices] IUserProvider userProvider,
+        CancellationToken cancellationToken)
+    {
+        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName);
+        _context.ServiceBookingLocks.Add(lck);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return Ok(lck.Id);
+    }
+
+    [HttpDelete]
+    [Route("{id}/lock/{lockId}")]
+    public async Task<IActionResult> Unlock(Guid id,
+        Guid lockId,
+        CancellationToken cancellationToken)
+    {
+        var lck = new ServiceBookingLock() { Id = lockId };
+        _context.ServiceBookingLocks.Remove(lck);
+        
+        await _context.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost]
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
         [FromBody] TaskAssignSupplierCommand request,

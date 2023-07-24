@@ -51,6 +51,8 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public Vehicle Vehicle { get; set; } = null!;
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
+        public ServiceBookingLock? Lock { get; set; }
+        public Guid? LockId { get; set; }
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
             DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
@@ -108,6 +110,24 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
     }
 
+    public class ServiceBookingLock
+    {
+        public Guid Id { get; set; }
+        public Guid ServiceBookingId { get; set; }
+        public ServiceBooking ServiceBooking { get; set; }
+        public string UserId { get; set; }
+        public string UserName { get; set; }
+        public DateTime Granted { get; set; }
+        public static ServiceBookingLock Create(Guid serviceBookingId, string userId, string userName)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            ServiceBookingId = serviceBookingId,
+            UserId = userId,
+            UserName = userName,
+            Granted = DateTime.Now,
+        };
+    }
     //public class ServiceBookingSupplier
     //{
     //    public Guid ServiceBookingId { get; private set; }
@@ -135,6 +155,19 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
 
 namespace Vms.Domain.Entity.Configuration
 {
+    public class ServiceBookingLockEntityTypeConfiguration : IEntityTypeConfiguration<ServiceBookingLock>
+    {
+        public void Configure(EntityTypeBuilder<ServiceBookingLock> entity)
+        {
+            entity.ToTable("ServiceBookingLock");
+
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.ServiceBooking)
+                .WithOne(e => e.Lock);
+        }
+    }
+
     public class ServiceBookingEntityTypeConfiguration : IEntityTypeConfiguration<ServiceBooking>
     {
         public void Configure(EntityTypeBuilder<ServiceBooking> builder)

@@ -35,6 +35,7 @@ public class VmsDbContext : DbContext
     public DbSet<Email> Emails => Set<Email>();
     public DbSet<MotEvent> MotEvents => Set<MotEvent>();
     public DbSet<ActivityLog> ActivityLog => Set<ActivityLog>();
+    public DbSet<ServiceBookingLock> ServiceBookingLocks => Set<ServiceBookingLock>();
     protected readonly IUserProvider _userProvider;
     ILogger<VmsDbContext> _logger;
     public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : base(options)
@@ -64,7 +65,6 @@ public class VmsDbContext : DbContext
         modelBuilder.Entity<Fleet>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<FleetNetwork>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<Vehicle>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
-
     }
 
     #region Transaction

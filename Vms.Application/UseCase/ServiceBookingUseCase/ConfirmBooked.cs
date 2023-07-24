@@ -30,7 +30,8 @@ public class ConfirmBooked(VmsDbContext dbContext, IUserProvider userProvider) :
                 ServiceBooking.Confirm();
                 break;
             case TaskConfirmBookedCommand.TaskResult.Refused:
-                ServiceBooking.Refused(); break;
+                ServiceBooking.Refused(); 
+                break;
             case TaskConfirmBookedCommand.TaskResult.Rescheduled:
                 ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value), command.RescheduleReason!);
                 break;
