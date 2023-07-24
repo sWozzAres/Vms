@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using NetTopologySuite.Geometries;
+using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;

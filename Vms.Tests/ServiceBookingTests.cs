@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Vms.Application.UseCase;
+using Vms.Application.UseCase.VehicleUseCase;
 using VmsTesting;
 
 namespace Vms.Tests;

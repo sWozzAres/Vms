@@ -9,5 +9,6 @@ namespace Vms.Domain.Services;
 public interface IUserProvider
 {
     string UserId { get; }
+    string UserName { get; }
     string TenantId { get; }
 }

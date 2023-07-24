@@ -1,6 +1,6 @@
 ﻿using Vms.Web.Shared;
 
-namespace Vms.Application.UseCase;
+namespace Vms.Application.UseCase.VehicleUseCase;
 
 public class AddDriverToVehicle
 {

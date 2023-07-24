@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Vms.Application.UseCase;
+using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Tests;
 
 namespace VmsTesting;

@@ -8,12 +8,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Vms.Domain.Entity
 {
-    public class ActivityLog(Guid documentId, string text)
+    public class ActivityLog(Guid documentId, string text, string userId, string userName)
     {
         public Guid Id { get; private set; } = Guid.NewGuid();
         public Guid DocumentId { get; private set; } = documentId;
         public string Text { get; private set; } = text ?? throw new ArgumentNullException(nameof(text));
         public DateTime EntryDate { get; private set; } = DateTime.Now;
+        public string UserName { get; set; } = userName;
+        public string UserId { get; set; } = userId;
     }
 }
 

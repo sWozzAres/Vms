@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Vms.Application.UseCase;
+using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
 using Vms.Domain.Infrastructure;
@@ -102,8 +103,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     public async Task<IActionResult> RemoveDriverFromVehicle(
         Guid id, Guid driverId,
         CancellationToken cancellationToken)
-        => await new RemoveDriverFromVehicle(_context)
-                .RemoveAsync(id, driverId, cancellationToken) ? Accepted() : NotFound();
+        => await new RemoveDriverFromVehicle(_context).RemoveAsync(id, driverId, cancellationToken) 
+            ? Accepted() 
+            : NotFound();
 
     [HttpPost]
     [Route("{id}/drivers")]

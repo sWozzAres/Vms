@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
+using Vms.Application.UseCase.ServiceBookingUseCase;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Infrastructure.Seed;
 using Vms.Domain.Services;
@@ -50,7 +51,9 @@ builder.Services.AddScoped<INotifyCustomer, NotifyCustomer>();
 builder.Services.AddScoped<INotifyCustomerDelay, NotifyCustomerDelay>();
 builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
 builder.Services.AddScoped<ISupplierLocator, SupplierLocator>();
-builder.Services.AddScoped<IAssignSupplierUseCase, AutomaticallyAssignSupplierUseCase>();
+builder.Services.AddScoped<IAssignSupplierUseCase, AssignSupplierUseCase>();
+builder.Services.AddScoped<IUnbookSupplier, UnbookSupplier>();
+builder.Services.AddScoped<IAutomaticallyAssignSupplierUseCase, AutomaticallyAssignSupplierUseCase>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {

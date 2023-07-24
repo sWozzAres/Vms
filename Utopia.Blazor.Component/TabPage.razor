@@ -1,7 +1,7 @@
 ﻿@inject ILogger<TabPage> Logger
 
 <CascadingValue Value="this">
-    <div id="@Id" role="tabpanel" aria-labelledby="tab-@Index" class="@className">
+    <div id="@Id" role="tabpanel" aria-labelledby="@LabelledById" class="@className">
         @ChildContent
     </div>
 </CascadingValue>
@@ -11,6 +11,7 @@
     [Parameter] public string Text { get; set; } = null!;
     [Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
+    string LabelledById => $"{Parent.Id}-tab-{Index}";
     string Id => $"{Parent.Id}-tabpanel-{Index}";
     public int Index { get; set; }
     bool isVisible => Parent.ActivePage == this;

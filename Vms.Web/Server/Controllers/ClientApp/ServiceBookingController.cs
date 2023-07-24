@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
+using Vms.Application.UseCase.ServiceBookingUseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Infrastructure;
+using Vms.Domain.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
@@ -25,10 +27,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
         [FromBody] TaskAssignSupplierCommand request,
+        [FromServices] IAssignSupplierUseCase assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
-        await new AssignSupplierUseCase(_context)
-                .Assign(id, request, cancellationToken);
+        await assignSupplierUseCase.Assign(id, request, cancellationToken);
 
         return Ok();
     }
@@ -37,10 +39,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/unbooksupplier")]
     public async Task<IActionResult> UnbookSupplier(Guid id,
         [FromBody] TaskUnbookSupplierCommand request,
+        [FromServices] IUnbookSupplier unbookSupplier,
         CancellationToken cancellationToken)
     {
-        await new UnbookSupplier(_context)
-            .UnbookAsync(id, request, cancellationToken);
+        await unbookSupplier.UnbookAsync(id, request, cancellationToken);
 
         return Ok();
     }
@@ -165,10 +167,11 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     public async Task<IActionResult> CreateServiceBooking(
         [FromBody] CreateServiceBookingCommand request,
-        [FromServices] IAssignSupplierUseCase assignSupplierUseCase,
+        //[FromServices] IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
+        [FromServices] ICreateServiceBooking createServiceBooking,
         CancellationToken cancellationToken)
     {
-        var serviceBooking = await new CreateServiceBooking(_context, assignSupplierUseCase)
+        var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
             .CreateAsync(request, cancellationToken);
 
         return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
@@ -190,9 +193,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/activity")]
     public async Task<IActionResult> PostNote(Guid id,
         [FromBody] AddNoteDto request,
+        [FromServices] IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        var entry = new ActivityLog(id, request.Text);
+        var entry = new ActivityLog(id, request.Text, userProvider.UserId, userProvider.UserName);
         _context.ActivityLog.Add(entry);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -224,6 +228,23 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
                 .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToDto());
+    }
+
+    [HttpDelete]
+    [Route("{id}/activity/{activityId}")]
+    public async Task<IActionResult> DeleteActivity(Guid id, Guid activityId,
+        CancellationToken cancellationToken)
+    {
+        var serviceBooking = await _context.ServiceBookings.AsNoTracking()
+                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+        if (serviceBooking is null)
+        {
+            return NotFound();
+        }
+
+        //ActivityLog al = new ActivityLog(activityId)
+        return NoContent();
     }
 
     [HttpGet]
@@ -313,5 +334,5 @@ public static partial class DomainExtensions
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);
 
-    public static ActivityLogDto ToDto(this ActivityLog activityLog) => new(activityLog.Id, activityLog.Text, activityLog.EntryDate);
+    public static ActivityLogDto ToDto(this ActivityLog activityLog) => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
 }

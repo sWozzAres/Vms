@@ -1,19 +1,23 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
+using Vms.Domain.Services;
 using Vms.Web.Shared;
 
-namespace Vms.Application.UseCase;
+namespace Vms.Application.UseCase.ServiceBookingUseCase;
 
 public interface ICreateServiceBooking
 {
     Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand request, CancellationToken cancellationToken = default);
 }
 
-public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase assignSupplierUseCase) : ICreateServiceBooking
+public class CreateServiceBooking(VmsDbContext context, IAutomaticallyAssignSupplierUseCase assignSupplierUseCase, IUserProvider userProvider) : ICreateServiceBooking
 {
     readonly VmsDbContext DbContext = context;
-    readonly IAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
+    readonly IAutomaticallyAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
+    readonly IUserProvider UserProvider = userProvider;
+    readonly StringBuilder SummaryText = new(); 
     VehicleRole? Vehicle;
 
     public async Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand command, CancellationToken cancellationToken = default)
@@ -21,9 +25,13 @@ public class CreateServiceBooking(VmsDbContext context, IAssignSupplierUseCase a
         Vehicle = new(await DbContext.Vehicles.FindAsync(command.VehicleId, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle not found."), this);
 
+        SummaryText.AppendLine("# Create Service Booking");
+
         var serviceBooking = await Vehicle.CreateBooking(command, cancellationToken);
 
         //await DbContext.SaveChangesAsync(cancellationToken);
+
+        DbContext.ActivityLog.Add(new ActivityLog(serviceBooking.Id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
 
         return serviceBooking;
     }

@@ -2,10 +2,14 @@
 @inject ServerApiHttpClient Api
 
 <section class="activitylog">
+    <h1>Activity Log</h1>
     <EditForm Model="noteModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator/>
         <InputTextArea @bind-Value="noteModel.Note" rows="5" placeholder="Enter note..." />
+        <ValidationMessage For="@(() => noteModel.Note)"/>
         <div class="buttons">
-            <button type="submit" disabled="@addNoteButtonDisabled">Add Note</button>
+            <button type="submit" disabled="@buttonsDisabled">Add Note</button>
+            <button type="button" disabled="@buttonsDisabled" @onclick="Refresh">Refresh</button>
         </div>
     </EditForm>
 
@@ -16,7 +20,7 @@
             <article class="activity-entry">
                 @((MarkupString)Markdown.ToHtml(entry.Text))
                 <footer>
-                    @entry.EntryDate.ToLongDateString() @entry.EntryDate.ToLongTimeString()
+                    @entry.EntryDate.ToString("f") @entry.UserName
                 </footer>
             </article>
         }
@@ -32,13 +36,27 @@
     bool IsActive => TabControl.ActivePage == TabPage;
     List<ActivityLogDto> entries = new();
     NoteModel noteModel = new();
-    bool addNoteButtonDisabled => noteModel.Note.Length == 0 || isPosting;
-    bool isPosting;
+    bool buttonsDisabled => isWaitingForApi;
+    bool isWaitingForApi;
     bool loaded;
+
+    async Task Refresh()
+    {
+        isWaitingForApi = true;
+        try
+        {
+            entries = await Api.GetActivity(Id);
+            loaded = true;
+        }
+        finally
+        {
+            isWaitingForApi = false;
+        }
+    }
 
     public async Task HandleValidSubmit()
     {
-        isPosting = true;
+        isWaitingForApi = true;
         try
         {
             var response = await Api.AddNote(Id, new AddNoteDto(noteModel.Note));
@@ -53,7 +71,7 @@
         }
         finally
         {
-            isPosting = false;
+            isWaitingForApi = false;
         }
     }
 
@@ -66,8 +84,7 @@
     {
         if (!loaded && IsActive)
         {
-            entries = await Api.GetActivity(Id);
-            loaded = true;
+            await Refresh();
             StateHasChanged();
         }
     }

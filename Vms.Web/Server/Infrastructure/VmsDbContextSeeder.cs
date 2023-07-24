@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Polly;
 using Vms.Application.UseCase;
+using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Web.Server;
