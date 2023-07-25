@@ -155,7 +155,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
         });
 
         clientApp.UseMiddleware<VmsDomainExceptionMiddleware>();
-        clientApp.UseMiddleware<TransactionMiddleware>();
+        //clientApp.UseMiddleware<TransactionMiddleware>();
 
         clientApp.UseBlazorFrameworkFiles("/ClientApp");
         clientApp.UseStaticFiles();

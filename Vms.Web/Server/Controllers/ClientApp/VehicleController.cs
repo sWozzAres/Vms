@@ -103,9 +103,14 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     public async Task<IActionResult> RemoveDriverFromVehicle(
         Guid id, Guid driverId,
         CancellationToken cancellationToken)
-        => await new RemoveDriverFromVehicle(_context).RemoveAsync(id, driverId, cancellationToken) 
-            ? Accepted() 
+    {
+        var r = await new RemoveDriverFromVehicle(_context).RemoveAsync(id, driverId, cancellationToken);
+
+        await _context.SaveChangesAsync(cancellationToken);
+            
+        return r ? Accepted()
             : NotFound();
+    }
 
     [HttpPost]
     [Route("{id}/drivers")]
@@ -117,6 +122,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         await new AddDriverToVehicle(_context)
             .AddAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -130,6 +136,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         await new AssignCustomerToVehicle(_context)
             .AssignAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -142,6 +149,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         await new RemoveCustomerFromVehicle(_context)
             .RemoveAsync(id, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -155,6 +163,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         await new AssignFleetToVehicle(_context)
             .AssignAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -167,6 +176,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     {
         await new RemoveFleetFromVehicle(_context)
             .RemoveAsync(id, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -191,7 +201,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         var vehicle = await new CreateVehicle(_context)
             .CreateAsync(request, cancellationToken);
 
-        //await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle.ToDto());
     }
@@ -246,6 +256,8 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
             new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326});
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Ok(vehicle.ToDto());
 

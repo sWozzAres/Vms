@@ -312,3 +312,5 @@ public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
             ServiceLevel = ServiceLevel
         };
 }
+
+public record LockDto(Guid Id);

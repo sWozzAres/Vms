@@ -12,7 +12,7 @@
             @if (errorMessage is not null)
             {
                 <div class="error">
-                    @errorMessage
+                    <p>@errorMessage</p>
                 </div>
             }
             <button type="button" @onclick="() => OnCompleted.InvokeAsync(false)">Cancel</button>

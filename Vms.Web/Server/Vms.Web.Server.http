@@ -1,5 +1,6 @@
 ﻿@Vms.Web.Server_HostAddress = https://localhost:5002
-@Token = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkQ2RUFEMUJFNTlBNUJCNTZGRjcyNzBFREI5ODA0QUNBIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2ODg1NjUyMDgsImV4cCI6MTY4ODU2ODgwOCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6WyJ2bXNjbGllbnQiLCJodHRwczovL2xvY2FsaG9zdDo1MDAwL3Jlc291cmNlcyJdLCJjbGllbnRfaWQiOiJ2bXNjbGllbnQiLCJzdWIiOiI4Y2FiODgxNC05OGIzLTQ1MmUtOWIxYS05M2ExMzQ2NzU4MGUiLCJhdXRoX3RpbWUiOjE2ODc1MzgxOTgsImlkcCI6ImxvY2FsIiwibmFtZSI6IkJvYiBTbWl0aCIsInRlbmFudGlkIjoiVEVTVDAwMSIsImp0aSI6IjBCNEExMkQwNjlFNUU5N0Y1MDk5MzJENDVCOTE2RDhCIiwic2lkIjoiRjcyM0I1MjFDNjIwNEFBNTE0RUQ1QURBOEQ4RjA4RjkiLCJpYXQiOjE2ODg1NjUyMDgsInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiLCJlbWFpbCIsInZtcy5jbGllbnQiXSwiYW1yIjpbInB3ZCJdfQ.KaMbQI8eRHpO3iet7kjvSb6pNioraht8xso3X_XSzCP3GTPDJSg6PvuLCXMeWfiX1UcszvUIFQLA5dOaiZLFedFpDLHf8bIfLHI-wilYxEhA802KlzLdc70CDEa_dNW-_fb6sGxPmDByKynLLbQ1edhQHpDevEY2AALfCM8U3OqWdgMy9KGKE1Mt8lGobfr30io35KkZKZa011ZZetphzhgUgeQO7sf_PTFCVGSl9ochILYYZOQ5reL9exjc3d84RIPjQFGOgoY8ipFNzGIqjitakrz5jXRducWnQaZ8-RRWFAqzFmAD-Sh71f6nNeYpXGz7fWq0q1Tq1lNF-a2X3g
+@Token = Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkQ2RUFEMUJFNTlBNUJCNTZGRjcyNzBFREI5ODA0QUNBIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2OTAyODQ2NDksImV4cCI6MTY5MDI4ODI0OSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6WyJ2bXNjbGllbnQiLCJodHRwczovL2xvY2FsaG9zdDo1MDAwL3Jlc291cmNlcyJdLCJjbGllbnRfaWQiOiJ2bXNjbGllbnQiLCJzdWIiOiI4Y2FiODgxNC05OGIzLTQ1MmUtOWIxYS05M2ExMzQ2NzU4MGUiLCJhdXRoX3RpbWUiOjE2ODk2OTI3MDYsImlkcCI6ImxvY2FsIiwibmFtZSI6IkJvYiBTbWl0aCIsInRlbmFudGlkIjoiVEVTVDAwMSIsImp0aSI6Ijk5OEZEQzFGNDRBN0MxRUQxMkNFNTUyRUM2QUZGRjQ1Iiwic2lkIjoiN0Q1RkRGQUY2Mjc2NERGQzI2MDc0RjYxM0MxODg1NTIiLCJpYXQiOjE2OTAyODQ2NDksInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiLCJlbWFpbCIsInZtcy5jbGllbnQiXSwiYW1yIjpbInB3ZCJdfQ.DuiVELMXLl0gl6zhroGGIneTE-r-aHx-obaqB6aOKVclVtWYOAwVj09yp0bBquHphyKRYk5BQjcyCkVsdJe6Xy5tvuN3PZtIWukUAhrF19rrdWaA9Kh6HiPkq84qVeyOMX5K0Fi0vmbisP9rA3EDNrdHfNQ4wCRJmGZVE6hh__vzplLrIFL_bOnNI-jpVfBnF1kgLCZFufMdTiAmCrU4ofUlUSwJEVM8wyxyW6cA1zzRdxgxEPT7HtCuntGk-9nrS_QVzYY-w9NXmw9GBJbd0YwRt262kQetShhfESk6HZi3ti-Scgikslfo6pGsrzYsgk5XYv_7BBGc1O4IwQ-fqA
+
 @Id = 144b759e-cbdc-4a52-bdce-00cf20064721
 
 GET {{Vms.Web.Server_HostAddress}}/test
@@ -78,5 +79,36 @@ Authorization: {{Token}}
   "rescheduleDate":"2023-07-05",
   "rescheduleTime":"14:531",
   "callee":null}
+
+###
+
+POST {{Vms.Web.Server_HostAddress}}/api/servicebooking/100e86c0-c2ff-4e06-9b33-f8a8258c12a5/lock
+Content-Type: application/json
+Authorization: {{Token}}
+
+{
+  //Guid
+}
+
+###
+
+
+DELETE {{Vms.Web.Server_HostAddress}}/api/servicebooking/100e86c0-c2ff-4e06-9b33-f8a8258c12a5/lock/7cbd2a56-fa0b-44e6-af13-5ec578a8f38d
+Content-Type: application/json
+Authorization: {{Token}}
+
+{
+  //Guid
+}
+
+###
+
+POST {{Vms.Web.Server_HostAddress}}/api/servicebooking/100e86c0-c2ff-4e06-9b33-f8a8258c12a5/lock/57C9061A-6A7A-4852-BAD8-8EFEA0E9C7EC/refresh
+Content-Type: application/json
+Authorization: {{Token}}
+
+{
+  //Guid
+}
 
 ###

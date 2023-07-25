@@ -164,7 +164,8 @@ namespace Vms.Domain.Entity.Configuration
             entity.HasKey(e => e.Id);
 
             entity.HasOne(e => e.ServiceBooking)
-                .WithOne(e => e.Lock);
+                .WithOne(e => e.Lock)
+                .HasForeignKey<ServiceBookingLock>(e=>e.ServiceBookingId);
         }
     }
 

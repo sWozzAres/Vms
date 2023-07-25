@@ -11,6 +11,10 @@ public abstract class PostResponse(HttpResponseMessage response)
     {
     }
 
+    //public class Forbid(HttpResponseMessage response) : PostResponse(response)
+    //{
+    //}
+
     public class Created(HttpResponseMessage response) : PostResponse(response)
     {
 
@@ -63,6 +67,7 @@ public abstract class PostResponse(HttpResponseMessage response)
         {
             HttpStatusCode.OK => new Success(response),
             HttpStatusCode.Created => new Created(response),
+            //HttpStatusCode.Forbidden => new Forbid(response),
             HttpStatusCode.BadRequest => new BadRequest(response),
             HttpStatusCode.UnprocessableEntity => new UnprocessableEntity(response),
             _ => new Failure(response)

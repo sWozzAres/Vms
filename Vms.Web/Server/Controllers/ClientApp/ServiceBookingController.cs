@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Polly;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Application.UseCase.ServiceBookingUseCase;
@@ -32,9 +35,40 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName);
         _context.ServiceBookingLocks.Add(lck);
 
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return Ok(new LockDto(lck.Id));
+        }
+        catch (DbUpdateException dbe) when (dbe.InnerException is SqlException se && se.Message.Contains("IX_ServiceBookingLock_ServiceBookingId")) 
+        {
+            //if (dbe.InnerException is SqlException se) {
+            //    logger.LogInformation("{errorCode}", se.ErrorCode);
+            //    logger.LogInformation("{msg}", se.Message);
+            //};
+            //throw;
+            return Forbid();
+        }
+    }
+
+    [HttpPost]
+    [Route("{id}/lock/{lockId}/refresh")]
+    public async Task<IActionResult> RefreshLock(Guid id, Guid lockId,
+        //[FromServices] IUserProvider userProvider,
+        CancellationToken cancellationToken)
+    {
+        var lck = await _context.ServiceBookingLocks
+            .SingleOrDefaultAsync(x => x.Id == lockId && x.ServiceBookingId == id, cancellationToken);
+        if (lck is null)
+        {
+            return NotFound();
+        }
+
+        lck.Granted = DateTime.Now;
+
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Ok(lck.Id);
+        return Ok();
     }
 
     [HttpDelete]
@@ -45,9 +79,18 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     {
         var lck = new ServiceBookingLock() { Id = lockId };
         _context.ServiceBookingLocks.Remove(lck);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Ok();
+        }
+        catch (DbUpdateConcurrencyException dbu)
+        {
+            return NotFound();
+        }
         
-        await _context.SaveChangesAsync(cancellationToken);
-        return Ok();
     }
 
     [HttpPost]
@@ -58,7 +101,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await assignSupplierUseCase.Assign(id, request, cancellationToken);
-
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -70,7 +113,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await unbookSupplier.UnbookAsync(id, request, cancellationToken);
-
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -82,6 +125,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await bookSupplier.BookAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -93,6 +137,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await checkWorkStatus.CheckAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -104,6 +149,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await confirmBooked.ConfirmAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
     [HttpPost]
@@ -114,6 +160,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await notifyCustomer.NotifyAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
     [HttpPost]
@@ -124,6 +171,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await notifyCustomerDelay.NotifyAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -135,6 +183,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await checkArrival.CheckAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -146,6 +195,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await chaseDriver.ChaseAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -157,6 +207,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         await rebookDriver.RebookAsync(id, request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -200,6 +251,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     {
         var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
             .CreateAsync(request, cancellationToken);
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
     }
@@ -317,6 +370,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         {
             serviceBooking.ChangeStatus(ServiceBookingStatus.Assign);
         }
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Ok();
     }

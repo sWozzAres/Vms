@@ -113,6 +113,29 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
     #region /api/servicebooking
+    public async Task<Guid> Lock(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        var result = PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/lock", new { }));
+        if (result is PostResponse.Success)
+        {
+            var dto = result.Response.Content.ReadFromJsonAsync<LockDto>().GetAwaiter().GetResult()
+                ?? throw new InvalidOperationException("Failed to deserialize.");
+
+            return dto.Id;
+        }
+        throw new InvalidOperationException("Failed to lock.");
+    }
+    public async Task<HttpResponseMessage> Unlock(Guid id, Guid lockId)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.DeleteAsync($"/api/servicebooking/{id}/lock/{lockId}");
+    }
+    public async Task<PostResponse> RefreshLock(Guid id, Guid lockId)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/lock/{lockId}/refresh", new { }));
+    }
     public async Task<PostResponse> AddNote(Guid id, AddNoteDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
