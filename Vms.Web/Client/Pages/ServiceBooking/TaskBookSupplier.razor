@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierCommand" Title="Book Supplier" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskBookSupplierCommand" Title="Book Supplier" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="booksupplier">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
@@ -40,11 +41,11 @@
                         <label for="rescheduledate">Date</label>
                         <InputDate id="rescheduledate" @bind-Value="taskRef.Model.RescheduleDate" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleDate)" />
-                            
+
                         <label for="rescheduletime">Time</label>
                         <InputDate id="rescheduletime" @bind-Value="taskRef.Model.RescheduleTime" Type="InputDateType.Time" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleTime)" />
-                        
+
                         <InputSelectOnlyCombobox Options="@rescheduleReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.RescheduleReason" />
                         <ValidationMessage For="@(() => taskRef.Model.RescheduleReason)" />
                     </CascadingValue>
@@ -59,6 +60,12 @@
             <ValidationMessage For="@(() => taskRef.Model.Callee)" />
         </div>
     }
+    else if (errorMessage is not null)
+    {
+        <div class="error">
+            <p>@errorMessage</p>
+        </div>
+    }
 </TaskTemplate>
 
 @code {
@@ -67,8 +74,8 @@
 
     TaskTemplate<TaskBookSupplierCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskBookSupplierCommand model)
-        => await Api.BookSupplier(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskBookSupplierCommand model)
+    //     => await Api.BookSupplier(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
@@ -86,12 +93,25 @@
         var refusalReasons = Api.GetRefusalReasons(ServiceBooking.CompanyCode);
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
-        await Task.WhenAll(refusalReasons, rescheduleReasons);
+        var dataLoad = Task.WhenAll(refusalReasons, rescheduleReasons);
 
-        refusalReasonOptions = UIOptions.BuildRefusalReasonOptions(refusalReasons.Result);
-        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+        try
+        {
+            await dataLoad;
+        }
+        catch { }
 
-        isLoaded = true;
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
+        {
+            refusalReasonOptions = UIOptions.BuildRefusalReasonOptions(refusalReasons.Result);
+            rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+
+            isLoaded = true;
+        }
+        else
+        {
+            errorMessage = "Failed to load.";
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)

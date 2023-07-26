@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskUnbookSupplierCommand"  Title="Unbook Supplier" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskUnbookSupplierCommand"  Title="Unbook Supplier" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="unbooksupplier">
     <InputRadioGroup @bind-Value="taskRef.Model.Result">
         <div class="option">
             <div class="option-select">
@@ -25,8 +26,8 @@
     bool isLoaded;
     bool OptionUnbookedDisabled => taskRef.Model.Result != TaskUnbookSupplierCommand.TaskResult.Unbooked;
 
-    async Task<PostResponse> Save(TaskUnbookSupplierCommand model) 
-        => await Api.UnbookSupplier(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskUnbookSupplierCommand model) 
+    //     => await Api.UnbookSupplier(ServiceBooking.Id, model);
 
     protected override void OnInitialized()
     {

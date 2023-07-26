@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 using Vms.Web.Shared;
@@ -11,10 +12,11 @@ public interface ICheckWorkStatus
     Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken);
 }
 
-public class CheckWorkStatus(VmsDbContext context, IUserProvider userProvider) : ICheckWorkStatus
+public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : ICheckWorkStatus
 {
-    readonly VmsDbContext DbContext = context;
-    readonly IUserProvider UserProvider = userProvider;
+    readonly VmsDbContext DbContext = dbContext;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new(); 
     ServiceBookingRole? ServiceBooking;
 
@@ -38,7 +40,8 @@ public class CheckWorkStatus(VmsDbContext context, IUserProvider userProvider) :
                 break;
         }
 
-        DbContext.ActivityLog.Add(new ActivityLog(id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(id, SummaryText);
+        TaskLogger.Log(id, command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)

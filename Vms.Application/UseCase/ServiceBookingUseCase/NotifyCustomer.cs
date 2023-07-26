@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 using Vms.Web.Shared;
@@ -10,10 +11,11 @@ public interface INotifyCustomer
     Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken);
 }
 
-public class NotifyCustomer(VmsDbContext dbContext, IUserProvider userProvider) : INotifyCustomer
+public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : INotifyCustomer
 {
-    readonly VmsDbContext DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-    readonly IUserProvider UserProvider = userProvider;
+    readonly VmsDbContext DbContext = dbContext;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new(); 
     ServiceBookingRole? ServiceBooking;
 
@@ -34,7 +36,8 @@ public class NotifyCustomer(VmsDbContext dbContext, IUserProvider userProvider) 
                 break;
         }
 
-        DbContext.ActivityLog.Add(new ActivityLog(id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(id, SummaryText);
+        TaskLogger.Log(id, command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx)

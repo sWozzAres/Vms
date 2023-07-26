@@ -1,22 +1,23 @@
 ﻿using System.Text;
+using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
 
 public interface IAssignSupplierUseCase
 {
-    Task Assign(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
+    Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
 }
 
-public class AssignSupplierUseCase(VmsDbContext dbContext, IUserProvider userProvider) : IAssignSupplierUseCase
+public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IAssignSupplierUseCase
 {
     readonly VmsDbContext DbContext = dbContext;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
-    readonly IUserProvider UserProvider = userProvider;
 
-    public async Task Assign(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default)
+    public async Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default)
     {
         var serviceBooking = await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
             ?? throw new InvalidOperationException("Service Booking not found.");
@@ -34,7 +35,8 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IUserProvider userPro
 
         serviceBooking.Assign(command.SupplierCode);
 
-        DbContext.ActivityLog.Add(new ActivityLog(id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(id, SummaryText);
+        TaskLogger.Log(id, command);
         //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
         //    ?? throw new VmsDomainException("Service Booking not found."), this);
 

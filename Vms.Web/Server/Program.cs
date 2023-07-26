@@ -38,7 +38,8 @@ Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
+builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
@@ -46,7 +47,7 @@ builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
 builder.Services.AddScoped<ICheckArrival, CheckArrival>();
 builder.Services.AddScoped<ICheckWorkStatus, CheckWorkStatus>();
 builder.Services.AddScoped<IChaseDriver, ChaseDriver>();
-builder.Services.AddScoped<IRebookDriver, RebookDriver>();  
+builder.Services.AddScoped<IRebookDriver, RebookDriver>();
 builder.Services.AddScoped<INotifyCustomer, NotifyCustomer>();
 builder.Services.AddScoped<INotifyCustomerDelay, NotifyCustomerDelay>();
 builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();

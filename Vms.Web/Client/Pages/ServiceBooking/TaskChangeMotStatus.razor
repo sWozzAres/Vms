@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskChangeMotStatusCommand" Title="Change Status" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskChangeMotStatusCommand" Title="Change Status" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="changemotstatus">
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
 
             <div class="option">
@@ -25,8 +26,8 @@
 
     TaskTemplate<TaskChangeMotStatusCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskChangeMotStatusCommand model)
-        => await Api.ChangeMotStatus(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskChangeMotStatusCommand model)
+    //     => await Api.ChangeMotStatus(ServiceBooking.Id, model);
 
     List<SelectOption<TaskChangeMotStatusCommand.MotStatus?>> options = new()
     {
@@ -36,7 +37,7 @@
     };
 
     bool OptionStatusDisabled => taskRef.Model.Result != TaskChangeMotStatusCommand.TaskResult.Change;
-    string? errorMessage;
+    //string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {

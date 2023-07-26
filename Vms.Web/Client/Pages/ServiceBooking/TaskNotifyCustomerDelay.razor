@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskNotifyCustomerDelayCommand" Title="Notify Customer Delay" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskNotifyCustomerDelayCommand" Title="Notify Customer Delay" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="notifycustomerdelay">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
@@ -41,6 +42,12 @@
             <ValidationMessage For="@(() => taskRef.Model.Callee)" />
         </div>
     }
+    else if (errorMessage is not null)
+    {
+        <div class="error">
+            <p>@errorMessage</p>
+        </div>
+    }
 </TaskTemplate>
 
 @code {
@@ -49,8 +56,8 @@
 
     TaskTemplate<TaskNotifyCustomerDelayCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskNotifyCustomerDelayCommand model)
-        => await Api.NotifyCustomerDelay(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskNotifyCustomerDelayCommand model)
+    //     => await Api.NotifyCustomerDelay(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
@@ -64,11 +71,23 @@
 
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
-        await Task.WhenAll(rescheduleReasons);
+        var dataLoad = Task.WhenAll(rescheduleReasons);
 
-        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+        try
+        {
+            await dataLoad;
+        }
+        catch { }
 
-        isLoaded = true;
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
+        {
+            rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+            isLoaded = true;
+        }
+        else
+        {
+            errorMessage = "Failed to load.";
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)

@@ -37,7 +37,7 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
 
             //self.SupplierCode = list.First().Code;
             await new AssignSupplierUseCase(ctx.DbContext, ctx.UserProvider)
-                .Assign(self.Id, new TaskAssignSupplierCommand() { SupplierCode = list.First().Code }, cancellationToken);
+                .AssignAsync(self.Id, new TaskAssignSupplierCommand() { SupplierCode = list.First().Code }, cancellationToken);
             return true;
         }
     }

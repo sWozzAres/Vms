@@ -1,4 +1,7 @@
-﻿@typeparam TModel where TModel : new()
+﻿@inject ServerApiHttpClient Api
+@inject HttpClient Http
+@implements IAsyncDisposable
+@typeparam TModel where TModel : new()
 
 <section class="task-form">
     <h1>@Title</h1>
@@ -6,7 +9,19 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        @ChildContent
+        @if (isLoaded)
+        {
+            if (lockFail)
+            {
+                <div class="error">
+                    <p>Failed to lock the document.</p>
+                </div>
+            }
+            else
+            {
+                @ChildContent
+            }
+        }
 
         <div class="buttons">
             @if (errorMessage is not null)
@@ -16,29 +31,43 @@
                 </div>
             }
             <button type="button" @onclick="() => OnCompleted.InvokeAsync(false)">Cancel</button>
-            <button type="submit">Ok</button>
+            <button type="submit" disabled="@okDisabled">Ok</button>
         </div>
     </EditForm>
 </section>
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = null!;
-    public delegate Task<PostResponse> Save(TModel model);
-    [Parameter, EditorRequired] public Save OnSave { get; set; } = null!;
+    // public delegate Task<PostResponse> Save(TModel model);
+    // [Parameter] public Save OnSave { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+    [Parameter, EditorRequired] public string Url { get; set; } = null!;
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+    [Parameter, EditorRequired] public string Task { get; set; } = null!;
 
     public TModel Model = new();
 
     EditContext editContext = null!;
     ValidationMessageStore messageStore = null!;
     string? errorMessage;
+    Guid? lockId;
+    bool lockFail;
+    bool isLoaded;
+    bool okDisabled => !isLoaded || lockId is null;
+    string lockUrl = null!;
 
     async Task ValidSubmit()
     {
         errorMessage = null;
 
-        var result = await OnSave(Model);
+
+        var saveUrl = string.Join("/", Url, Id.ToString(), Task);
+
+        //var result = await OnSave(Model);
+        Http.DefaultRequestHeaders.Accept.Clear();
+        var result = PostResponse.Create(await Http.PostAsJsonAsync(saveUrl, Model));
+
         if (result is PostResponse.Success)
         {
             await OnCompleted.InvokeAsync(true);
@@ -72,12 +101,37 @@
 
     protected override void OnInitialized()
     {
+        ArgumentNullException.ThrowIfNull(Url);
+        if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
+        ArgumentNullException.ThrowIfNull(Task);
         ArgumentNullException.ThrowIfNull(Title);
-        ArgumentNullException.ThrowIfNull(OnSave);
         ArgumentNullException.ThrowIfNull(ChildContent);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
         editContext = new(Model);
         messageStore = new(editContext);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        lockUrl = string.Join("/", Url, Id.ToString());
+        try
+        {
+            lockId = await Api.Lock(lockUrl);
+        }
+        catch
+        {
+            lockFail = true;
+        }
+
+        isLoaded = true;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (lockId.HasValue)
+        {
+            await Api.Unlock(lockUrl, lockId.Value);
+        }
     }
 }

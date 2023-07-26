@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using Vms.Application.Services;
+using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 using Vms.DomainApplication.Services;
@@ -11,11 +13,12 @@ public interface IBookSupplier
     Task BookAsync(Guid id, TaskBookSupplierCommand request, CancellationToken cancellationToken);
 }
 
-public class BookSupplier(VmsDbContext context, IEmailSender emailSender, IUserProvider userProvider) : IBookSupplier
+public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IActivityLogger activityLog, ITaskLogger taskLogger) : IBookSupplier
 {
-    readonly VmsDbContext DbContext = context ?? throw new ArgumentNullException(nameof(context));
-    readonly IEmailSender EmailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
-    readonly IUserProvider UserProvider = userProvider;
+    readonly VmsDbContext DbContext = dbContext;
+    readonly IEmailSender EmailSender = emailSender;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
     ServiceBookingRole? ServiceBooking;
 
@@ -40,7 +43,8 @@ public class BookSupplier(VmsDbContext context, IEmailSender emailSender, IUserP
                 break;
         }
 
-        DbContext.ActivityLog.Add(new ActivityLog(id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(id, SummaryText);
+        TaskLogger.Log(id, command);
     }
 
     async Task<ServiceBookingRole> Load(Guid id, CancellationToken cancellationToken)

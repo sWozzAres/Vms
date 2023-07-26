@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskCheckWorkStatusCommand" Title="Check Work Status" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskCheckWorkStatusCommand" Title="Check Work Status" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="checkworkstatus">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
@@ -67,6 +68,12 @@
             <ValidationMessage For="@(() => taskRef.Model.Callee)" />
         </div>
     }
+    else if (errorMessage is not null)
+    {
+        <div class="error">
+            <p>@errorMessage</p>
+        </div>
+    }
 </TaskTemplate>
 
 @code {
@@ -75,8 +82,8 @@
 
     TaskTemplate<TaskCheckWorkStatusCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskCheckWorkStatusCommand model)
-        => await Api.CheckWorkStatus(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskCheckWorkStatusCommand model)
+    //     => await Api.CheckWorkStatus(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> notCompleteReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
@@ -94,12 +101,25 @@
         var notCompleteReasons = Api.GetNotCompleteReasons(ServiceBooking.CompanyCode);
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
-        await Task.WhenAll(notCompleteReasons, rescheduleReasons);
+        var dataLoad = Task.WhenAll(notCompleteReasons, rescheduleReasons);
 
-        notCompleteReasonOptions = UIOptions.BuildNotCompleteReasonOptions(notCompleteReasons.Result);
-        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+        try
+        {
+            await dataLoad;
+        }
+        catch { }
 
-        isLoaded = true;
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
+        {
+            notCompleteReasonOptions = UIOptions.BuildNotCompleteReasonOptions(notCompleteReasons.Result);
+            rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+
+            isLoaded = true;
+        }
+        else
+        {
+            errorMessage = "Failed to load.";
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)

@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskCheckArrivalCommand" Title="Check Arrival" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskCheckArrivalCommand" Title="Check Arrival" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="checkarrival">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
@@ -62,6 +63,12 @@
             <ValidationMessage For="@(() => taskRef.Model.Callee)" />
         </div>
     }
+    else if (errorMessage is not null)
+    {
+        <div class="error">
+            <p>@errorMessage</p>
+        </div>
+    }
 </TaskTemplate>
 
 @code {
@@ -70,8 +77,8 @@
 
     TaskTemplate<TaskCheckArrivalCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskCheckArrivalCommand model)
-        => await Api.CheckArrival(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskCheckArrivalCommand model)
+    //     => await Api.CheckArrival(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> refusalReasonOptions = null!;
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
@@ -89,12 +96,25 @@
         var refusalReasons = Api.GetNonArrivalReasons(ServiceBooking.CompanyCode);
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
-        await Task.WhenAll(refusalReasons, rescheduleReasons);
+        var dataLoad = Task.WhenAll(refusalReasons, rescheduleReasons);
 
-        refusalReasonOptions = UIOptions.BuildNonArrivalReasonOptions(refusalReasons.Result);
-        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+        try
+        {
+            await dataLoad;
+        }
+        catch { }
 
-        isLoaded = true;
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
+        {
+            refusalReasonOptions = UIOptions.BuildNonArrivalReasonOptions(refusalReasons.Result);
+            rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+
+            isLoaded = true;
+        }
+        else
+        {
+            errorMessage = "Failed to load.";
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)

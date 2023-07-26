@@ -36,6 +36,8 @@ public class VmsDbContext : DbContext
     public DbSet<MotEvent> MotEvents => Set<MotEvent>();
     public DbSet<ActivityLog> ActivityLog => Set<ActivityLog>();
     public DbSet<ServiceBookingLock> ServiceBookingLocks => Set<ServiceBookingLock>();
+    public DbSet<TaskLog> TaskLogs => Set<TaskLog>();
+
     protected readonly IUserProvider _userProvider;
     ILogger<VmsDbContext> _logger;
     public VmsDbContext(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : base(options)

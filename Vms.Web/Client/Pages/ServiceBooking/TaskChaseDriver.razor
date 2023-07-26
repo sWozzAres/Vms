@@ -1,6 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
-<TaskTemplate @ref="taskRef" TModel="TaskChaseDriverCommand" Title="Chase Driver" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskChaseDriverCommand" Title="Chase Driver" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="chasedriver">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
@@ -47,6 +48,12 @@
             <ValidationMessage For="@(() => taskRef.Model.Callee)" />
         </div>
     }
+    else if (errorMessage is not null)
+    {
+        <div class="error">
+            <p>@errorMessage</p>
+        </div>
+    }
 </TaskTemplate>
 
 @code {
@@ -55,8 +62,8 @@
 
     TaskTemplate<TaskChaseDriverCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskChaseDriverCommand model)
-        => await Api.ChaseDriver(ServiceBooking.Id, model);
+    // async Task<PostResponse> Save(TaskChaseDriverCommand model)
+    //     => await Api.ChaseDriver(ServiceBooking.Id, model);
 
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
@@ -72,11 +79,23 @@
 
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
 
-        await Task.WhenAll(rescheduleReasons);
+        var dataLoad = Task.WhenAll(rescheduleReasons);
 
-        rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+        try
+        {
+            await dataLoad;
+        }
+        catch { }
 
-        isLoaded = true;
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
+        {
+            rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+            isLoaded = true;
+        }
+        else
+        {
+            errorMessage = "Failed to load.";
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)

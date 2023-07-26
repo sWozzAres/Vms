@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Vms.Application.Services;
 using Vms.Domain.Services;
 using Vms.Web.Shared;
 
@@ -9,10 +10,11 @@ public interface IUnbookSupplier
     Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken);
 }
 
-public class UnbookSupplier(VmsDbContext dbContext, IUserProvider userProvider) : IUnbookSupplier
+public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IUnbookSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IUserProvider UserProvider = userProvider;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
 
     public async Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken)
@@ -24,6 +26,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IUserProvider userProvider) 
 
         serviceBooking.Unbook();
 
-        DbContext.ActivityLog.Add(new ActivityLog(id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(id, SummaryText);
+        TaskLogger.Log(id, command);
     }
 }

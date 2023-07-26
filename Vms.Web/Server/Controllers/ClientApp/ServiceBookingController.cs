@@ -100,7 +100,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IAssignSupplierUseCase assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
-        await assignSupplierUseCase.Assign(id, request, cancellationToken);
+        await assignSupplierUseCase.AssignAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }

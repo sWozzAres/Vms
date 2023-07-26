@@ -54,58 +54,60 @@ else
             {
                 <TaskView ServiceBooking="serviceBooking" OnSelectTask="SelectTask" />
 
-                <TabControl Title="Service Booking Tabs" TitleVisible="false">
-                    <TabPage Text="Details">
-                        <div class="details">
-                            <Edit OnLoad="LoadModel" OnSave="SaveModel" />
-                            <div class="task">
-                                @if (displayTask == "Book Supplier")
-                                {
-                                    <TaskBookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Unbook Supplier")
-                                {
-                                    <TaskUnbookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Confirm Booked")
-                                {
-                                    <TaskConfirmBooked ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Check Arrival")
-                                {
-                                    <TaskCheckArrival ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Check Work Status")
-                                {
-                                    <TaskCheckWorkStatus ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Notify Customer")
-                                {
-                                    <TaskNotifyCustomer ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Notify Customer Delay")
-                                {
-                                    <TaskNotifyCustomerDelay ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Chase Driver")
-                                {
-                                    <TaskChaseDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                                else if (displayTask == "Rebook Driver")
-                                {
-                                    <TaskRebookDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                                }
-                            </div>
-                        </div>
-                    </TabPage>
-                    <TabPage Text="Events">
-                        <Events ServiceBooking="serviceBooking" />
-                    </TabPage>
-                    <TabPage Text="Activity">
-                        <Activity Id="serviceBooking.Id"/>
-                    </TabPage>
-                </TabControl>
+                <div class="details">
+                    <TabControl Title="Service Booking Tabs" TitleVisible="false">
+                        <TabPage Text="Details">
 
+                            <Edit OnLoad="LoadModel" OnSave="SaveModel" />
+
+
+                        </TabPage>
+                        <TabPage Text="Events">
+                            <Events ServiceBooking="serviceBooking" />
+                        </TabPage>
+                        <TabPage Text="Activity">
+                            <Activity Id="serviceBooking.Id" />
+                        </TabPage>
+                    </TabControl>
+                    <div class="task">
+                        @if (displayTask == "Book Supplier")
+                        {
+                            <TaskBookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Unbook Supplier")
+                        {
+                            <TaskUnbookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Confirm Booked")
+                        {
+                            <TaskConfirmBooked ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Check Arrival")
+                        {
+                            <TaskCheckArrival ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Check Work Status")
+                        {
+                            <TaskCheckWorkStatus ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Notify Customer")
+                        {
+                            <TaskNotifyCustomer ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Notify Customer Delay")
+                        {
+                            <TaskNotifyCustomerDelay ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Chase Driver")
+                        {
+                            <TaskChaseDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                        else if (displayTask == "Rebook Driver")
+                        {
+                            <TaskRebookDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                        }
+                    </div>
+                </div>
             }
         </ChildContent>
     </ViewTemplate>
@@ -178,7 +180,8 @@ else
         }
     }
 
-    void SelectTask(string name) {
+    void SelectTask(string name)
+    {
         //Logger.LogWarning("Selecting {name}", name);
         displayTask = name;
     }

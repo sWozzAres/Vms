@@ -35,7 +35,31 @@ public class ServerApiHttpClient(HttpClient http)
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(header));
         }
     }
+    #region Task Locking
+    public async Task<Guid> Lock(string url)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        var result = PostResponse.Create(await http.PostAsJsonAsync($"{url}/lock", new { }));
+        if (result is PostResponse.Success)
+        {
+            var dto = result.Response.Content.ReadFromJsonAsync<LockDto>().GetAwaiter().GetResult()
+                ?? throw new InvalidOperationException("Failed to deserialize.");
 
+            return dto.Id;
+        }
+        throw new InvalidOperationException("Failed to lock.");
+    }
+    public async Task<HttpResponseMessage> Unlock(string url, Guid lockId)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.DeleteAsync($"{url}/lock/{lockId}");
+    }
+    public async Task<PostResponse> RefreshLock(string url, Guid lockId)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"{url}/lock/{lockId}/refresh", new { }));
+    }
+    #endregion
     #region /api/company
     public async Task<List<ConfirmBookedRefusalReasonDto>> GetConfirmBookedRefusalReasons(string companyCode)
     {
@@ -112,30 +136,9 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<List<FleetShortDto>>($"/api/fleet/{filter}");
     }
     #endregion
-    #region /api/servicebooking
-    public async Task<Guid> Lock(Guid id)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        var result = PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/lock", new { }));
-        if (result is PostResponse.Success)
-        {
-            var dto = result.Response.Content.ReadFromJsonAsync<LockDto>().GetAwaiter().GetResult()
-                ?? throw new InvalidOperationException("Failed to deserialize.");
 
-            return dto.Id;
-        }
-        throw new InvalidOperationException("Failed to lock.");
-    }
-    public async Task<HttpResponseMessage> Unlock(Guid id, Guid lockId)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return await http.DeleteAsync($"/api/servicebooking/{id}/lock/{lockId}");
-    }
-    public async Task<PostResponse> RefreshLock(Guid id, Guid lockId)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/lock/{lockId}/refresh", new { }));
-    }
+
+    #region /api/servicebooking
     public async Task<PostResponse> AddNote(Guid id, AddNoteDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
@@ -157,56 +160,56 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/assignsupplier", request));
     }
-    public async Task<PostResponse> BookSupplier(Guid id, TaskBookSupplierCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
-    }
-    public async Task<PostResponse> ChaseDriver(Guid id, TaskChaseDriverCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/chasedriver", request));
-    }
-    public async Task<PostResponse> RebookDriver(Guid id, TaskRebookDriverCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/rebookdriver", request));
-    }
-    public async Task<PostResponse> CheckWorkStatus(Guid id, TaskCheckWorkStatusCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/checkworkstatus", request));
-    }
-    public async Task<PostResponse> ConfirmBooked(Guid id, TaskConfirmBookedCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/confirmbooked", request));
-    }
-    public async Task<PostResponse> NotifyCustomer(Guid id, TaskNotifyCustomerCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/notifycustomer", request));
-    }
-    public async Task<PostResponse> NotifyCustomerDelay(Guid id, TaskNotifyCustomerDelayCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/notifycustomerdelay", request));
-    }
-    public async Task<PostResponse> CheckArrival(Guid id, TaskCheckArrivalCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/checkarrival", request));
-    }
-    public async Task<PostResponse> ChangeMotStatus(Guid id, TaskChangeMotStatusCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/changemotstatus", request));
-    }
-    public async Task<PostResponse> UnbookSupplier(Guid id, TaskUnbookSupplierCommand request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/unbooksupplier", request));
-    }
+    //public async Task<PostResponse> BookSupplier(Guid id, TaskBookSupplierCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/booksupplier", request));
+    //}
+    //public async Task<PostResponse> ChaseDriver(Guid id, TaskChaseDriverCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/chasedriver", request));
+    //}
+    //public async Task<PostResponse> RebookDriver(Guid id, TaskRebookDriverCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/rebookdriver", request));
+    //}
+    //public async Task<PostResponse> CheckWorkStatus(Guid id, TaskCheckWorkStatusCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/checkworkstatus", request));
+    //}
+    //public async Task<PostResponse> ConfirmBooked(Guid id, TaskConfirmBookedCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/confirmbooked", request));
+    //}
+    //public async Task<PostResponse> NotifyCustomer(Guid id, TaskNotifyCustomerCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/notifycustomer", request));
+    //}
+    //public async Task<PostResponse> NotifyCustomerDelay(Guid id, TaskNotifyCustomerDelayCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/notifycustomerdelay", request));
+    //}
+    //public async Task<PostResponse> CheckArrival(Guid id, TaskCheckArrivalCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/checkarrival", request));
+    //}
+    //public async Task<PostResponse> ChangeMotStatus(Guid id, TaskChangeMotStatusCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/changemotstatus", request));
+    //}
+    //public async Task<PostResponse> UnbookSupplier(Guid id, TaskUnbookSupplierCommand request)
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/unbooksupplier", request));
+    //}
     public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id)
     {
         ClearAndAddAcceptHeaders("application/vnd.short");

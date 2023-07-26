@@ -1,8 +1,6 @@
 ﻿using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
@@ -12,11 +10,13 @@ public interface ICreateServiceBooking
     Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand request, CancellationToken cancellationToken = default);
 }
 
-public class CreateServiceBooking(VmsDbContext context, IAutomaticallyAssignSupplierUseCase assignSupplierUseCase, IUserProvider userProvider) : ICreateServiceBooking
+public class CreateServiceBooking(VmsDbContext dbContext, IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
+    IActivityLogger activityLog, ITaskLogger taskLogger) : ICreateServiceBooking
 {
-    readonly VmsDbContext DbContext = context;
+    readonly VmsDbContext DbContext = dbContext;
     readonly IAutomaticallyAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
-    readonly IUserProvider UserProvider = userProvider;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new(); 
     VehicleRole? Vehicle;
 
@@ -31,7 +31,8 @@ public class CreateServiceBooking(VmsDbContext context, IAutomaticallyAssignSupp
 
         //await DbContext.SaveChangesAsync(cancellationToken);
 
-        DbContext.ActivityLog.Add(new ActivityLog(serviceBooking.Id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(serviceBooking.Id, SummaryText);
+        TaskLogger.Log(serviceBooking.Id, command);
 
         return serviceBooking;
     }

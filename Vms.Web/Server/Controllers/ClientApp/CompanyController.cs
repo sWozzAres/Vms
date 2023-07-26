@@ -7,6 +7,7 @@ using Vms.Domain.Infrastructure;
 using Vms.Domain.Entity;
 using Microsoft.VisualBasic;
 using Vms.Domain.Entity.ServiceBookingEntity;
+using Microsoft.Identity.Client;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
 

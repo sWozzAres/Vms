@@ -1,8 +1,8 @@
 ﻿@inject ServerApiHttpClient Api
 @inject ILogger<TaskRebookDriver> Logger
-@implements IAsyncDisposable
 
-<TaskTemplate @ref="taskRef" TModel="TaskRebookDriverCommand" Title="Rebook Driver" OnSave="Save" OnCompleted="OnCompleted">
+<TaskTemplate @ref="taskRef" TModel="TaskRebookDriverCommand" Title="Rebook Driver" OnCompleted="OnCompleted" 
+    Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="rebookdriver">
     @if (isLoaded)
     {
         <InputRadioGroup @bind-Value="taskRef.Model.Result">
@@ -75,9 +75,6 @@
 
     TaskTemplate<TaskRebookDriverCommand> taskRef = null!;
 
-    async Task<PostResponse> Save(TaskRebookDriverCommand model)
-        => await Api.RebookDriver(ServiceBooking.Id, model);
-
     List<SelectOption<string?>> rescheduleReasonOptions = null!;
     bool isLoaded;
     bool OptionStillGoingDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.StillGoing;
@@ -85,7 +82,6 @@
     bool OptionStillGoingTodayDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.StillGoingToday;
     bool OptionRescheduledDisabled => taskRef.Model.Result != TaskRebookDriverCommand.TaskResult.Rescheduled;
     string? errorMessage;
-    Guid? lockId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,38 +89,23 @@
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
         var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
-        var lockRequest = Api.Lock(ServiceBooking.Id);
 
-        var x = Task.WhenAll(rescheduleReasons, lockRequest);
+        var dataLoad = Task.WhenAll(rescheduleReasons);
 
         try
         {
-            await x;
+            await dataLoad;
         }
         catch { }
 
-        Logger.LogWarning("lockrequest {ls} rescheduleReasons {rs}", lockRequest.Status, rescheduleReasons.Status);
-
-        if (lockRequest.Status == TaskStatus.RanToCompletion)
-        {
-            lockId = lockRequest.Result;
-            Logger.LogWarning("Got lockid {lockid}", lockId);
-        }
-
-        if (rescheduleReasons.Status == TaskStatus.RanToCompletion)
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
         {
             rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
-        }
-
-        if (x.Status == TaskStatus.RanToCompletion)
-        {
             isLoaded = true;
         }
         else
         {
-            errorMessage = lockId is null
-                ? "Failed to lock document. Somebody else is working on it."
-                : "Failed to load.";
+            errorMessage = "Failed to load.";
         }
     }
 
@@ -136,15 +117,6 @@
             taskRef.Model.RescheduleTime = TimeOnly.FromDateTime(DateTime.Now);
 
             StateHasChanged();
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (lockId.HasValue)
-        {
-            Logger.LogWarning("Unlocking");
-            await Api.Unlock(ServiceBooking.Id, lockId.Value);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices.Marshalling;
 using System.Text;
+using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 using Vms.Web.Shared;
@@ -11,10 +12,11 @@ public interface INotifyCustomerDelay
     Task NotifyAsync(Guid id, TaskNotifyCustomerDelayCommand command, CancellationToken cancellationToken);
 }
 
-public class NotifyCustomerDelay(VmsDbContext context, IUserProvider userProvider) : INotifyCustomerDelay
+public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityLog, ITaskLogger taskLogger) : INotifyCustomerDelay
 {
-    readonly VmsDbContext DbContext = context ?? throw new ArgumentNullException(nameof(context));
-    readonly IUserProvider UserProvider = userProvider;
+    readonly VmsDbContext DbContext = context;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
     ServiceBookingRole? ServiceBooking;
 
@@ -38,7 +40,8 @@ public class NotifyCustomerDelay(VmsDbContext context, IUserProvider userProvide
                 break;
         }
 
-        DbContext.ActivityLog.Add(new ActivityLog(id, SummaryText.ToString(), UserProvider.UserId, UserProvider.UserName));
+        ActivityLog.Log(id, SummaryText);
+        TaskLogger.Log(id, command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomerDelay ctx)
