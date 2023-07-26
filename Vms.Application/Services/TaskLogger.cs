@@ -9,19 +9,21 @@ namespace Vms.Application.Services;
 
 public interface ITaskLogger
 {
-    void Log<T>(Guid id, T task);
+    void Log<T>(Guid id, string taskName, T task);
 }
 
 public class TaskLogger(VmsDbContext dbContext) : ITaskLogger
 {
     readonly VmsDbContext _dbContext = dbContext;
 
-    public void Log<T>(Guid id, T task)
+    public void Log<T>(Guid id, string taskName, T task)
     {
         var taskLog = new TaskLog()
         {
             DocumentId = id,
-            Log = JsonSerializer.Serialize(task)
+            TaskName = taskName,
+            Log = JsonSerializer.Serialize(task),
+            EntryDate = DateTime.Now,
         };
         _dbContext.TaskLogs.Add(taskLog);
     }

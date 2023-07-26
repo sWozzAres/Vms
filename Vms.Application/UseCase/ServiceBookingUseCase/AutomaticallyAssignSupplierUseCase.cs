@@ -10,10 +10,12 @@ public interface IAutomaticallyAssignSupplierUseCase
     Task<bool> Assign(Guid id, CancellationToken cancellationToken = default);
 }
 
-public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplierLocator locator, IUserProvider userProvider) : IAutomaticallyAssignSupplierUseCase
+public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplierLocator locator,
+    IActivityLogger activityLog, ITaskLogger taskLogger) : IAutomaticallyAssignSupplierUseCase
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IUserProvider UserProvider = userProvider;
+    readonly IActivityLogger ActivityLog = activityLog;
+    readonly ITaskLogger TaskLogger = taskLogger;
     readonly ISupplierLocator Locator = locator;
     ServiceBookingRole? ServiceBooking;
 
@@ -36,7 +38,7 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
             }
 
             //self.SupplierCode = list.First().Code;
-            await new AssignSupplierUseCase(ctx.DbContext, ctx.UserProvider)
+            await new AssignSupplierUseCase(ctx.DbContext, ctx.ActivityLog, ctx.TaskLogger)
                 .AssignAsync(self.Id, new TaskAssignSupplierCommand() { SupplierCode = list.First().Code }, cancellationToken);
             return true;
         }

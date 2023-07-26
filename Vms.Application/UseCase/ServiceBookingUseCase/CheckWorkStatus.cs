@@ -41,7 +41,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
         }
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Check Work Status", command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)

@@ -41,7 +41,7 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityL
         }
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Notify Customer Delay", command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomerDelay ctx)

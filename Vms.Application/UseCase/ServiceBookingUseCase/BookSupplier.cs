@@ -44,7 +44,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
         }
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Book Supplier", command);
     }
 
     async Task<ServiceBookingRole> Load(Guid id, CancellationToken cancellationToken)

@@ -41,7 +41,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
         }
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Check Arrival", command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckArrival ctx)

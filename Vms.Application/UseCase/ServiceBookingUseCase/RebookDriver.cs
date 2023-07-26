@@ -46,7 +46,7 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
         }
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Rebook Driver", command);
     }
 
     class ServiceBookingRole(ServiceBooking self, RebookDriver ctx)

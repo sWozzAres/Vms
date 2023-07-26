@@ -37,7 +37,7 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
         }
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Notify Customer", command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx)

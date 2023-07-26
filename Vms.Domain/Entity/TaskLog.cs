@@ -7,7 +7,9 @@ namespace Vms.Domain.Entity
     {
         public long Id { get; set; }
         public Guid DocumentId { get; set; }
+        public string TaskName { get; set; } = null!;
         public string Log { get; set; } = null!;
+        public DateTime EntryDate { get; set; }
     }
 }
 
@@ -23,6 +25,9 @@ namespace Vms.Domain.Entity
             });
 
             entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.TaskName)
+                .HasMaxLength(50);
 
             entity.Property(e => e.Log)
                 .HasMaxLength(4000)

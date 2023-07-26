@@ -27,6 +27,6 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger activityLog,
         serviceBooking.Unbook();
 
         ActivityLog.Log(id, SummaryText);
-        TaskLogger.Log(id, command);
+        TaskLogger.Log(id, "Unbook Supplier", command);
     }
 }
