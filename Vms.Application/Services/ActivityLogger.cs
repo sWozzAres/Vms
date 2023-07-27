@@ -1,19 +1,35 @@
 ﻿using System.Text;
+using System.Threading;
 using Vms.Domain.Services;
+using Vms.DomainApplication.Services;
 
 namespace Vms.Application.Services;
 
 public interface IActivityLogger
 {
-    void Log(Guid id, StringBuilder log);
+    Task LogAsync(Guid id, StringBuilder log, CancellationToken cancellationToken);
 }
 
-public class ActivityLogger(VmsDbContext dbContext, IUserProvider userProvider) : IActivityLogger
+public class ActivityLogger(VmsDbContext dbContext, IUserProvider userProvider, IEmailSender emailSender) : IActivityLogger
 {
     readonly VmsDbContext _dbContext = dbContext;
     readonly IUserProvider _userProvider = userProvider;
-    public void Log(Guid id, StringBuilder log)
+    readonly IEmailSender _emailSender = emailSender;
+
+    public async Task LogAsync(Guid id, StringBuilder log, CancellationToken cancellationToken)
     {
+        var followers = await _dbContext.Followers.AsNoTracking()
+            .Where(f => f.DocumentId == id)
+            .ToListAsync(cancellationToken);
+
+        if (followers.Any())
+        {
+            foreach (var f in followers)
+            {
+                _emailSender.Send(f.EmailAddress, "Activity", log.ToString());
+            }
+        }
+
         _dbContext.ActivityLog.Add(new ActivityLog(id, log.ToString(), _userProvider.UserId, _userProvider.UserName));
     }
 }

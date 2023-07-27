@@ -139,6 +139,23 @@ public class ServerApiHttpClient(HttpClient http)
 
 
     #region /api/servicebooking
+    public async Task<List<ServiceBookingFullDto>> GetServiceBookingsForVehicleFullAsync(Guid id)
+    {
+        ClearAndAddAcceptHeaders("application/vnd.full");
+        return await http.GetFromJsonAsync<List<ServiceBookingFullDto>>($"/api/servicebooking/vehicle/{id}")
+            ?? throw new InvalidOperationException("Failed to get service bookings.");
+    }
+    public async Task<PostResponse> Follow(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/follow", new { }));
+    }
+    public async Task<bool> Unfollow(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        var response = await http.DeleteAsync($"/api/servicebooking/{id}/follow");
+        return response.IsSuccessStatusCode;
+    }
     public async Task<PostResponse> AddNote(Guid id, AddNoteDto request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
@@ -260,12 +277,7 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return await http.PostAsJsonAsync($"/api/vehicle/{vehicleId}/drivers", new AddDriverToVehicleCommand(driverId));
     }
-    public async Task<List<ServiceBookingFullDto>> GetServiceBookingsForVehicleFullAsync(Guid id)
-    {
-        ClearAndAddAcceptHeaders("application/vnd.full");
-        return await http.GetFromJsonAsync<List<ServiceBookingFullDto>>($"/api/vehicle/{id}/servicebookings")
-            ?? throw new InvalidOperationException("Failed to get service bookings.");
-    }
+    
     public async Task<HttpResponseMessage> AssignFleetToVehicleAsync(Guid vehicleId, string code)
     {
         http.DefaultRequestHeaders.Accept.Clear();

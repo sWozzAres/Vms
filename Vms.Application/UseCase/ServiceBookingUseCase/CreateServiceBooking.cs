@@ -31,7 +31,7 @@ public class CreateServiceBooking(VmsDbContext dbContext, IAutomaticallyAssignSu
 
         //await DbContext.SaveChangesAsync(cancellationToken);
 
-        ActivityLog.Log(serviceBooking.Id, SummaryText);
+        await ActivityLog.LogAsync(serviceBooking.Id, SummaryText, cancellationToken);
         TaskLogger.Log(serviceBooking.Id, "Create Service Booking", command);
 
         return serviceBooking;

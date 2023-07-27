@@ -40,7 +40,7 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
                 break;
         }
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Chase Driver", command);
     }
 

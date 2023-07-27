@@ -27,6 +27,9 @@ public static class ClaimsPrincipalExtensions
 
     public static string? Name(this ClaimsPrincipal principal)
         => principal.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
+
+    public static string? Email(this ClaimsPrincipal principal)
+        => principal.Claims.FirstOrDefault(x => x.Type == "email")?.Value;
 }
 
 //public class UserProvider2 : IUserProvider
@@ -50,7 +53,8 @@ public class UserProvider : IUserProvider
     public string TenantId => _tenantId;
     string _userName;
     public string UserName => _userName;
-
+    string _email;
+    public string EmailAddress => _email;
     public UserProvider(IHttpContextAccessor context)
     {
         //_userId = InMigration ? "" : context.HttpContext?.User.UserId() ?? throw new InvalidOperationException("Failed to retrieve user id.");
@@ -58,5 +62,6 @@ public class UserProvider : IUserProvider
         _userId = context.HttpContext?.User.UserId() ?? "";
         _tenantId = InMigration ? "*" : context.HttpContext?.User.TenantId() ?? "";
         _userName = context.HttpContext?.User.Name() ?? "";
+        _email = context.HttpContext?.User.Email() ?? "no@no.com";
     }
 }

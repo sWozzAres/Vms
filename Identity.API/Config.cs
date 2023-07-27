@@ -87,12 +87,12 @@ namespace Identity.API
                 new ApiResource("vmsadmin", "Vms Admin Service")
                 {
                     Scopes = { "vms.admin" },
-                    UserClaims = { JwtClaimTypes.Name, "tenantid" }
+                    UserClaims = { JwtClaimTypes.Name, JwtClaimTypes.Email, "tenantid" }
                 },
                 new ApiResource("vmsclient", "Vms Client Service")
                 {
                     Scopes = { "vms.client" },
-                    UserClaims = { JwtClaimTypes.Name, "tenantid" }
+                    UserClaims = { JwtClaimTypes.Name, JwtClaimTypes.Email, "tenantid" }
                 },
                     // name and human-friendly name of our API
                 new ApiResource("reactdotnetapi", "React DotNet API")

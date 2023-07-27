@@ -52,6 +52,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
         public ServiceBookingLock? Lock { get; set; }
+        
         public Guid? LockId { get; set; }
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
@@ -128,6 +129,13 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             Granted = DateTime.Now,
         };
     }
+
+    public class Follower
+    {
+        public Guid DocumentId { get; set; }
+        public string UserId { get; set; }
+        public string EmailAddress { get; set; }
+    }
     //public class ServiceBookingSupplier
     //{
     //    public Guid ServiceBookingId { get; private set; }
@@ -155,6 +163,15 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
 
 namespace Vms.Domain.Entity.Configuration
 {
+    public class FollowerEntityTypeConfiguration : IEntityTypeConfiguration<Follower>
+    {
+        public void Configure(EntityTypeBuilder<Follower> entity)
+        {
+            entity.ToTable("Followers");
+
+            entity.HasKey(e=>new {e.DocumentId, e.UserId});
+        }
+    }
     public class ServiceBookingLockEntityTypeConfiguration : IEntityTypeConfiguration<ServiceBookingLock>
     {
         public void Configure(EntityTypeBuilder<ServiceBookingLock> entity)

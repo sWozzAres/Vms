@@ -40,7 +40,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
                 break;
         }
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Check Arrival", command);
     }
 

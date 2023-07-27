@@ -40,7 +40,7 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityL
                 break;
         }
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Notify Customer Delay", command);
     }
 

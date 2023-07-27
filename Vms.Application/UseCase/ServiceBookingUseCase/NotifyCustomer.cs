@@ -36,7 +36,7 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
                 break;
         }
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Notify Customer", command);
     }
 

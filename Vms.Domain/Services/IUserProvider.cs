@@ -10,5 +10,6 @@ public interface IUserProvider
 {
     string UserId { get; }
     string UserName { get; }
+    string EmailAddress { get; }
     string TenantId { get; }
 }

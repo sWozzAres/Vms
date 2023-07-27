@@ -1,4 +1,5 @@
 using System.Reflection;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -14,6 +15,7 @@ using Vms.Web.Server;
 using Vms.Web.Server.Configuration;
 using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
+using Vms.Web.Server.Helpers;
 using Vms.Web.Server.Middleware;
 using Vms.Web.Server.Services;
 
@@ -36,12 +38,17 @@ Log.Logger = new LoggerConfiguration()
 
 Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
+SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
+
 builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
 builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+builder.Services.AddScoped<IFollow, Follow>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
 builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
 builder.Services.AddScoped<ICheckArrival, CheckArrival>();

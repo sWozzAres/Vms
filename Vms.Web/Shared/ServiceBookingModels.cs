@@ -278,12 +278,32 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 }
 
 
-public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
-    string Vrm, string Make, string Model,
-    DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3,
-    int Status, ServiceLevel ServiceLevel,
-    SupplierShortDto? Supplier, MotEventShortDto? MotEvent)
+//public record ServiceBookingFullDto(Guid Id, Guid VehicleId, string CompanyCode,
+//    string Vrm, string Make, string Model,
+//    DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3,
+//    int Status, ServiceLevel ServiceLevel,
+//    SupplierShortDto? Supplier, MotEventShortDto? MotEvent, bool IsFollowing)
+//{
+//}
+public class ServiceBookingFullDto
 {
+    public Guid Id { get; set; }
+    public Guid VehicleId { get; set; }
+    public string CompanyCode { get; set; }
+    public string Vrm { get; set; }
+    public string Make { get; set; }
+    public string Model { get; set; }
+    public DateOnly? PreferredDate1 { get; set; }
+    public DateOnly? PreferredDate2 { get; set; }
+    public DateOnly? PreferredDate3 { get; set; }
+    public int Status { get; set; }
+    public ServiceLevel ServiceLevel { get; set; }
+    public string? Supplier_Code { get; set; }
+    public string? Supplier_Name { get; set; }
+    public Guid? MotEvent_Id { get; set; }
+    public DateOnly? MotEvent_Due { get; set; }
+    public bool IsFollowing { get; set; }
+
     [JsonIgnore]
     public string StatusText => Status switch
     {

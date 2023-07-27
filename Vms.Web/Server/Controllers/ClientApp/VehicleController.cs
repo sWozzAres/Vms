@@ -33,21 +33,21 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         return Ok(new OpenEvents(motEvents));
     }
 
-    [HttpGet]
-    [Route("{id}/servicebookings")]
-    [AcceptHeader("application/vnd.full")]
-    public async Task<IActionResult> GetServiceBookingsFull(Guid id,
-        CancellationToken cancellationToken)
-    {
-        var serviceBookings = await _context.ServiceBookings.AsNoTracking()
-                .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
-                .Include(s=>s.Supplier)
-                .Where(v => v.VehicleId == id)
-                .Select(v => v.ToFullDto())
-                .ToListAsync(cancellationToken);
+    //[HttpGet]
+    //[Route("{id}/servicebookings")]
+    //[AcceptHeader("application/vnd.full")]
+    //public async Task<IActionResult> GetServiceBookingsFull(Guid id,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var serviceBookings = await _context.ServiceBookings.AsNoTracking()
+    //            .Include(s => s.Vehicle).ThenInclude(v => v.VehicleVrm)
+    //            .Include(s => s.Supplier)
+    //            .Where(v => v.VehicleId == id)
+    //            .Select(v => v.ToFullDto())
+    //            .ToListAsync(cancellationToken);
 
-        return Ok(serviceBookings);
-    }
+    //    return Ok(serviceBookings);
+    //}
 
     [HttpGet]
     [Route("{id}")]

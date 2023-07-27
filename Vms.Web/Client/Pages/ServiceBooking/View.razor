@@ -20,7 +20,17 @@ else
             </div>
         </IconContent>
         <Buttons>
-            <button onclick="Follow">Follow</button>
+            @if (serviceBooking is not null)
+            {
+                if (serviceBooking.IsFollowing)
+                {
+                    <button @onclick="Unfollow" disabled="@followBtnDisabled">Unfollow</button>
+                }
+                else
+                {
+                    <button @onclick="Follow" disabled="@followBtnDisabled">Follow</button>
+                }
+            }
         </Buttons>
         <HeaderContent>
             @if (serviceBooking is not null)
@@ -44,7 +54,7 @@ else
                     </div>
                     <div class="namevalue">
                         <dt>Supplier</dt>
-                        <dd><a href="/supplier/view/@serviceBooking.Supplier?.Code">@serviceBooking.Supplier?.Name</a></dd>
+                        <dd><a href="/supplier/view/@serviceBooking.Supplier_Code">@serviceBooking.Supplier_Name</a></dd>
                     </div>
                 </dl>
             }
@@ -219,9 +229,38 @@ else
         }
     }
 
+    bool followBtnDisabled;
+
     async Task Follow()
     {
-        await Task.CompletedTask;
+        followBtnDisabled = true;
+        try {
+            var response = await Api.Follow(serviceBooking!.Id);
+            if (response is PostResponse.Success)
+            {
+                serviceBooking.IsFollowing = true;
+            }
+        }
+        finally
+        {
+            followBtnDisabled = false;
+        }
+    }
+    async Task Unfollow()
+    {
+        followBtnDisabled = true;
+        try
+        {
+            var response = await Api.Unfollow(serviceBooking!.Id);
+            if (response)
+            {
+                serviceBooking.IsFollowing = false;
+            }
+        }
+        finally
+        {
+            followBtnDisabled = false;
+        }
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)

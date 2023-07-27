@@ -43,7 +43,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
                 break;
         }
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Book Supplier", command);
     }
 

@@ -1,6 +1,6 @@
-﻿@if (ServiceBooking.MotEvent is not null)
+﻿@if (ServiceBooking.MotEvent_Id is not null)
 {
-    <RelatedItem TypeName="Mot" Item="ServiceBooking.MotEvent" Context="Mot">
+    <RelatedItem TypeName="Mot" Item="ServiceBooking" Context="ServiceBooking">
         <IconContent>
             <div class="entity-svg-mot">
                 <svg viewBox="0 0 512 512">
@@ -13,13 +13,13 @@
         </Buttons>
         <ItemTemplate>
             <div class="content-header">
-                <h1><a href="/motevent/view/@Mot.Id">Mot</a></h1>
+                <h1><a href="/motevent/view/@ServiceBooking.MotEvent_Id">Mot</a></h1>
                 @* <MenuButton Items="@driverOptions" Align="MenuButton.Alignment.Right"
             OnSelectCallback="(val) => OptionSelected(val, customer)" /> *@
             </div>
             <dl>
                 <dt>Due:</dt>
-                <dd>@Mot.Due</dd>
+                <dd>@ServiceBooking.MotEvent_Due</dd>
             </dl>
         </ItemTemplate>
     </RelatedItem>

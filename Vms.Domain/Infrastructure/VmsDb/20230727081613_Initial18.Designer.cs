@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230727081613_Initial18")]
+    partial class Initial18
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -356,23 +359,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("ConfirmBookedRefusalReasons", (string)null);
                 });
 
-            modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.Follower", b =>
-                {
-                    b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DocumentId", "UserId");
-
-                    b.ToTable("Followers", (string)null);
-                });
-
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.MotEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -555,6 +541,23 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasIndex("SupplierCode");
 
                     b.ToTable("ServiceBooking", (string)null);
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingFollower", b =>
+                {
+                    b.Property<Guid>("ServiceBookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ServiceBookingId", "UserId");
+
+                    b.ToTable("ServiceBookingFollowers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingLock", b =>
@@ -939,6 +942,17 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingFollower", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", "ServiceBooking")
+                        .WithMany("Followers")
+                        .HasForeignKey("ServiceBookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceBooking");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingLock", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", "ServiceBooking")
@@ -1235,6 +1249,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", b =>
                 {
+                    b.Navigation("Followers");
+
                     b.Navigation("Lock");
 
                     b.Navigation("MotEvent");

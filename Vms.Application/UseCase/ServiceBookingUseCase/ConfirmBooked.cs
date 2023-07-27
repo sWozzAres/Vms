@@ -39,7 +39,7 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, 
                 break;
         }
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Confirm Booked", command);
     }
 

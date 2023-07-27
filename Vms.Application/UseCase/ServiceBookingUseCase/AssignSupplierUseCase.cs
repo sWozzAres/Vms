@@ -35,7 +35,7 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
 
         serviceBooking.Assign(command.SupplierCode);
 
-        ActivityLog.Log(id, SummaryText);
+        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
         TaskLogger.Log(id, "Assign Supplier", command);
         //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
         //    ?? throw new VmsDomainException("Service Booking not found."), this);
