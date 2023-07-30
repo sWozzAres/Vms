@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Threading;
 using Vms.Domain.Services;
 using Vms.DomainApplication.Services;
 
@@ -22,7 +21,7 @@ public class ActivityLogger(VmsDbContext dbContext, IUserProvider userProvider, 
             .Where(f => f.DocumentId == id)
             .ToListAsync(cancellationToken);
 
-        if (followers.Any())
+        if (followers.Count != 0)
         {
             foreach (var f in followers)
             {

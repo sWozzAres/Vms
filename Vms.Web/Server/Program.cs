@@ -1,5 +1,6 @@
 using System.Reflection;
 using Dapper;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -16,6 +17,7 @@ using Vms.Web.Server.Configuration;
 using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
 using Vms.Web.Server.Helpers;
+using Vms.Web.Server.Hubs;
 using Vms.Web.Server.Middleware;
 using Vms.Web.Server.Services;
 
@@ -99,7 +101,16 @@ builder.Services.AddApplicationSecurity();
 
 builder.Services.AddRazorPages();
 
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+       new[] { "application/octet-stream" });
+});
+
 var app = builder.Build();
+
+app.UseResponseCompression();
 
 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
 UserProvider.InMigration = true;
@@ -176,6 +187,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
             VehicleEndpoints.Map(endpoints);
 
             endpoints.MapControllers();
+            endpoints.MapHub<ChatHub>("/ClientApp/chathub");
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",
                 "ClientApp/index.html");
         });
@@ -189,6 +201,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
+//app.MapHub<ChatHub>("/chathub");
 //app.MapFallbackToFile("index.html");
 
 app.Run();
