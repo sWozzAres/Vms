@@ -282,7 +282,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -526,6 +527,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AssignedToUserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateOnly?>("BookedDate")
                         .HasColumnType("date");
 
@@ -534,6 +539,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
+
+                    b.Property<string>("CreatedUserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("EstimatedCompletion")
                         .HasColumnType("datetime2");
@@ -546,6 +556,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<Guid?>("MotEventId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OwnerUserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateOnly?>("PreferredDate1")
                         .HasColumnType("date");
@@ -573,6 +587,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedToUserId");
+
+                    b.HasIndex("CreatedUserId");
+
+                    b.HasIndex("OwnerUserId");
 
                     b.HasIndex("SupplierCode");
 
@@ -664,11 +684,18 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Entity.User", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("UserId");
 
@@ -969,6 +996,22 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", b =>
                 {
+                    b.HasOne("Vms.Domain.Entity.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Vms.Domain.Entity.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Vms.Domain.Entity.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
                         .WithMany()
                         .HasForeignKey("SupplierCode");
@@ -980,6 +1023,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ServiceBookings_Vehicle");
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Owner");
 
                     b.Navigation("Supplier");
 

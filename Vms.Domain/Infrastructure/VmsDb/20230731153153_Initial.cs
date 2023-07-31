@@ -12,6 +12,28 @@ namespace Vms.Domain.Infrastructure.VmsDb
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "System");
+
+            migrationBuilder.EnsureSchema(
+                name: "ClientApp");
+
+            migrationBuilder.CreateTable(
+                name: "ActivityLog",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActivityLog", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Company",
                 columns: table => new
@@ -22,6 +44,34 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Company", x => x.Code);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Emails",
+                schema: "System",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Recipients = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Emails", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Followers",
+                columns: table => new
+                {
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Followers", x => new { x.DocumentId, x.UserId });
                 });
 
             migrationBuilder.CreateTable(
@@ -43,6 +93,36 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "TaskLogs",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TaskName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Log = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
+                    EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskLogs", x => x.Id);
+                    table.CheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                schema: "ClientApp",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "VehicleMake",
                 columns: table => new
                 {
@@ -51,6 +131,24 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Make", x => x.Make);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ConfirmBookedRefusalReasons",
+                columns: table => new
+                {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ConfirmBookedRefusalReasons", x => new { x.CompanyCode, x.Code });
+                    table.ForeignKey(
+                        name: "FK_ConfirmBookedRefusalReason_Company",
+                        column: x => x.CompanyCode,
+                        principalTable: "Company",
+                        principalColumn: "Code");
                 });
 
             migrationBuilder.CreateTable(
@@ -134,6 +232,42 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "NonArrivalReasons",
+                columns: table => new
+                {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NonArrivalReasons", x => new { x.CompanyCode, x.Code });
+                    table.ForeignKey(
+                        name: "FK_NonArrivalReason_Company",
+                        column: x => x.CompanyCode,
+                        principalTable: "Company",
+                        principalColumn: "Code");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NotCompleteReasons",
+                columns: table => new
+                {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotCompleteReasons", x => new { x.CompanyCode, x.Code });
+                    table.ForeignKey(
+                        name: "FK_NotCompleteReason_Company",
+                        column: x => x.CompanyCode,
+                        principalTable: "Company",
+                        principalColumn: "Code");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefusalReasons",
                 columns: table => new
                 {
@@ -167,6 +301,28 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         column: x => x.CompanyCode,
                         principalTable: "Company",
                         principalColumn: "Code");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Logins",
+                schema: "ClientApp",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LoginTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logins", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Logins_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "ClientApp",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -361,16 +517,46 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
                     SupplierCode = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true),
                     BookedDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    EstimatedCompletion = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RescheduleTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ServiceLevel = table.Column<int>(type: "int", nullable: false),
+                    MotEventId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedUserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    AssignedToUserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    OwnerUserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LockId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ServiceBooking", x => x.Id);
+                    table.UniqueConstraint("AK_ServiceBooking_CompanyCode_VehicleId_Id", x => new { x.CompanyCode, x.VehicleId, x.Id });
                     table.ForeignKey(
                         name: "FK_ServiceBooking_Supplier_SupplierCode",
                         column: x => x.SupplierCode,
                         principalTable: "Supplier",
                         principalColumn: "Code");
+                    table.ForeignKey(
+                        name: "FK_ServiceBooking_Users_AssignedToUserId",
+                        column: x => x.AssignedToUserId,
+                        principalSchema: "ClientApp",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ServiceBooking_Users_CreatedUserId",
+                        column: x => x.CreatedUserId,
+                        principalSchema: "ClientApp",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ServiceBooking_Users_OwnerUserId",
+                        column: x => x.OwnerUserId,
+                        principalSchema: "ClientApp",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ServiceBookings_Vehicle",
                         columns: x => new { x.CompanyCode, x.VehicleId },
@@ -442,6 +628,106 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
                 .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
 
+            migrationBuilder.CreateTable(
+                name: "MotEvent",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    ServiceBookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    CompanyCode = table.Column<string>(type: "nchar(10)", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    Due = table.Column<DateOnly>(type: "date", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    IsCurrent = table.Column<bool>(type: "bit", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    ValidFrom = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom"),
+                    ValidTo = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                        .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MotEvent", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MotEvent_ServiceBooking_CompanyCode_VehicleId_ServiceBookingId",
+                        columns: x => new { x.CompanyCode, x.VehicleId, x.ServiceBookingId },
+                        principalTable: "ServiceBooking",
+                        principalColumns: new[] { "CompanyCode", "VehicleId", "Id" });
+                    table.ForeignKey(
+                        name: "FK_MotEvent_Vehicle_CompanyCode_VehicleId",
+                        columns: x => new { x.CompanyCode, x.VehicleId },
+                        principalTable: "Vehicle",
+                        principalColumns: new[] { "CompanyCode", "Id" },
+                        onDelete: ReferentialAction.Restrict);
+                })
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
+
+            migrationBuilder.CreateTable(
+                name: "ServiceBookingLock",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceBookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Granted = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceBookingLock", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ServiceBookingLock_ServiceBooking_ServiceBookingId",
+                        column: x => x.ServiceBookingId,
+                        principalTable: "ServiceBooking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLog_DocumentId",
+                table: "ActivityLog",
+                column: "DocumentId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerNetwork_CompanyCode_CustomerCode",
                 table: "CustomerNetwork",
@@ -458,19 +744,55 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: new[] { "CompanyCode", "NetworkCode" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Logins_UserId",
+                schema: "ClientApp",
+                table: "Logins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MotEvent_CompanyCode_VehicleId_ServiceBookingId",
+                table: "MotEvent",
+                columns: new[] { "CompanyCode", "VehicleId", "ServiceBookingId" },
+                unique: true,
+                filter: "[ServiceBookingId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MotEvent_VehicleId_IsCurrent",
+                table: "MotEvent",
+                columns: new[] { "VehicleId", "IsCurrent" },
+                unique: true,
+                filter: "IsCurrent = 1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_NetworkSupplier_SupplierCode",
                 table: "NetworkSupplier",
                 column: "SupplierCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceBooking_CompanyCode_VehicleId",
+                name: "IX_ServiceBooking_AssignedToUserId",
                 table: "ServiceBooking",
-                columns: new[] { "CompanyCode", "VehicleId" });
+                column: "AssignedToUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceBooking_CreatedUserId",
+                table: "ServiceBooking",
+                column: "CreatedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceBooking_OwnerUserId",
+                table: "ServiceBooking",
+                column: "OwnerUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceBooking_SupplierCode",
                 table: "ServiceBooking",
                 column: "SupplierCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceBookingLock_ServiceBookingId",
+                table: "ServiceBookingLock",
+                column: "ServiceBookingId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupplierFranchise_Franchise",
@@ -497,16 +819,47 @@ namespace Vms.Domain.Infrastructure.VmsDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ActivityLog");
+
+            migrationBuilder.DropTable(
+                name: "ConfirmBookedRefusalReasons");
+
+            migrationBuilder.DropTable(
                 name: "CustomerNetwork");
 
             migrationBuilder.DropTable(
                 name: "DriverVehicles");
 
             migrationBuilder.DropTable(
+                name: "Emails",
+                schema: "System");
+
+            migrationBuilder.DropTable(
                 name: "FleetNetwork");
 
             migrationBuilder.DropTable(
+                name: "Followers");
+
+            migrationBuilder.DropTable(
+                name: "Logins",
+                schema: "ClientApp");
+
+            migrationBuilder.DropTable(
+                name: "MotEvent")
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "MotEventHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "ValidTo")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "ValidFrom");
+
+            migrationBuilder.DropTable(
                 name: "NetworkSupplier");
+
+            migrationBuilder.DropTable(
+                name: "NonArrivalReasons");
+
+            migrationBuilder.DropTable(
+                name: "NotCompleteReasons");
 
             migrationBuilder.DropTable(
                 name: "RefusalReasons");
@@ -515,10 +868,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "RescheduleReasons");
 
             migrationBuilder.DropTable(
-                name: "ServiceBooking");
+                name: "ServiceBookingLock");
 
             migrationBuilder.DropTable(
                 name: "SupplierFranchise");
+
+            migrationBuilder.DropTable(
+                name: "TaskLogs");
 
             migrationBuilder.DropTable(
                 name: "VehicleMot");
@@ -538,7 +894,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Network");
 
             migrationBuilder.DropTable(
+                name: "ServiceBooking");
+
+            migrationBuilder.DropTable(
                 name: "Supplier");
+
+            migrationBuilder.DropTable(
+                name: "Users",
+                schema: "ClientApp");
 
             migrationBuilder.DropTable(
                 name: "Vehicle");

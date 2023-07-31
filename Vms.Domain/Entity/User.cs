@@ -5,8 +5,10 @@ namespace Vms.Domain.Entity
 {
     public class User
     {
+        public const int UserId_MaxLength = 50;
         public string UserId { get; set; } = null!;
         public string UserName { get; set; } = null!;
+        public string TenantId { get; set; } = null!;
     }
 
     public class Login
@@ -26,6 +28,12 @@ namespace Vms.Domain.Entity.Configuration
         {
             entity.ToTable("Users", "ClientApp");
             entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserId)
+                .HasMaxLength(User.UserId_MaxLength);
+            entity.Property(e => e.TenantId)
+                .HasMaxLength(Company.Code_MaxLength);
+            entity.Property(e => e.UserName)
+                .HasMaxLength(50);
         }
     }
 
@@ -38,8 +46,12 @@ namespace Vms.Domain.Entity.Configuration
 
             entity.Property(e=>e.Id)
                 .ValueGeneratedOnAdd();
+            entity.Property(e => e.UserId)
+                .HasMaxLength(User.UserId_MaxLength);
 
-            entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId);
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId);
         }
     }
 }

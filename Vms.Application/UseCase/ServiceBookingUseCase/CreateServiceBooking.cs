@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
+using Vms.Domain.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
@@ -10,10 +11,13 @@ public interface ICreateServiceBooking
     Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand request, CancellationToken cancellationToken = default);
 }
 
-public class CreateServiceBooking(VmsDbContext dbContext, IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
+public class CreateServiceBooking(VmsDbContext dbContext, 
+    IUserProvider userProvider,
+    IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
     IActivityLogger activityLog, ITaskLogger taskLogger) : ICreateServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;
+    readonly IUserProvider UserProvider = userProvider;
     readonly IAutomaticallyAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
@@ -37,7 +41,7 @@ public class CreateServiceBooking(VmsDbContext dbContext, IAutomaticallyAssignSu
         return serviceBooking;
     }
 
-    class VehicleRole(Vehicle self, CreateServiceBooking context)
+    class VehicleRole(Vehicle self, CreateServiceBooking ctx)
     {
         public async Task<ServiceBooking> CreateBooking(CreateServiceBookingCommand request, CancellationToken cancellationToken)
         {
@@ -47,21 +51,22 @@ public class CreateServiceBooking(VmsDbContext dbContext, IAutomaticallyAssignSu
                 request.PreferredDate1,
                 request.PreferredDate2,
                 request.PreferredDate3,
-                null//request.IncludeMot ? self.Mot.Due : null
+                null,
+                ctx.UserProvider.UserId
             );
 
-            context.DbContext.ServiceBookings.Add(booking);
+            ctx.DbContext.ServiceBookings.Add(booking);
 
             if (request.MotId is not null)
             {
-                var motEntry = await context.DbContext.MotEvents.SingleAsync(m => m.Id == request.MotId);
+                var motEntry = await ctx.DbContext.MotEvents.SingleAsync(m => m.Id == request.MotId);
                 //motEntry.ServiceBookingId = booking.Id;
                 motEntry.ServiceBooking = booking;
             }
 
             if (request.AutoAssign)
             {
-                var assigned = await context.AssignSupplierUseCase.Assign(booking.Id, cancellationToken);
+                var assigned = await ctx.AssignSupplierUseCase.Assign(booking.Id, cancellationToken);
 
                 if (assigned)
                 {

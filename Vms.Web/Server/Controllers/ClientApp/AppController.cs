@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Vms.Domain.Entity;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Services;
+using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
 
@@ -22,6 +24,24 @@ public class AppController : ControllerBase
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
+    [HttpGet]
+    [Route("users/{code}")]
+    public async Task<IActionResult> GetUsersForCompany(string code,
+        IUserProvider userProvider,
+        CancellationToken cancellationToken)
+    {
+        if (userProvider.TenantId == "*" || userProvider.TenantId == code)
+        {
+            var users = await _context.Users.Where(u => u.TenantId == "*" || u.TenantId == code)
+                .Select(u => new  UserDto(u.UserId, u.UserName))
+                .ToListAsync(cancellationToken);
+
+            return Ok(users);
+        }
+
+        throw new InvalidOperationException("User has no access to tenant.");
+    }
+
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> RegisterLogin(IUserProvider userProvider, CancellationToken cancellationToken)
@@ -33,15 +53,21 @@ public class AppController : ControllerBase
             {
                 UserId = userProvider.UserId,
                 UserName = userProvider.UserName,
+                TenantId = userProvider.TenantId,
             };
 
             _context.Users.Add(user);
         }
 
-        // update username
-        if (user.UserName !=  userProvider.UserName)
+        // update username / tenantid
+        if (user.UserName != userProvider.UserName)
         {
             user.UserName = userProvider.UserName;
+        }
+
+        if (user.TenantId != userProvider.TenantId)
+        {
+            user.TenantId = userProvider.TenantId;
         }
 
         var login = new Login()

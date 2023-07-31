@@ -13,8 +13,8 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230718060559_Initial10")]
-    partial class Initial10
+    [Migration("20230731153153_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,38 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Vms.Domain.Entity.ActivityLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.ToTable("ActivityLog", (string)null);
+                });
 
             modelBuilder.Entity("Vms.Domain.Entity.Company", b =>
                 {
@@ -240,6 +272,29 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("FleetNetwork", (string)null);
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.Login", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("LoginTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Logins", "ClientApp");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.Network", b =>
                 {
                     b.Property<string>("CompanyCode")
@@ -325,6 +380,23 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("CompanyCode", "Code");
 
                     b.ToTable("ConfirmBookedRefusalReasons", (string)null);
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.Follower", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("DocumentId", "UserId");
+
+                    b.ToTable("Followers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.MotEvent", b =>
@@ -458,6 +530,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AssignedToUserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateOnly?>("BookedDate")
                         .HasColumnType("date");
 
@@ -467,14 +543,26 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
+                    b.Property<string>("CreatedUserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("EstimatedCompletion")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LockId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly?>("MotDue")
                         .HasColumnType("date");
 
                     b.Property<Guid?>("MotEventId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OwnerUserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateOnly?>("PreferredDate1")
                         .HasColumnType("date");
@@ -503,9 +591,43 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedToUserId");
+
+                    b.HasIndex("CreatedUserId");
+
+                    b.HasIndex("OwnerUserId");
+
                     b.HasIndex("SupplierCode");
 
                     b.ToTable("ServiceBooking", (string)null);
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingLock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Granted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceBookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceBookingId")
+                        .IsUnique();
+
+                    b.ToTable("ServiceBookingLock", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Supplier", b =>
@@ -527,6 +649,54 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("Code");
 
                     b.ToTable("Supplier", (string)null);
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.TaskLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Log")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaskLogs", null, t =>
+                        {
+                            t.HasCheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
+                        });
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.User", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users", "ClientApp");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Vehicle", b =>
@@ -706,6 +876,17 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Network");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.Login", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.Network", b =>
                 {
                     b.HasOne("Vms.Domain.Entity.Company", "CompanyCodeNavigation")
@@ -812,6 +993,22 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", b =>
                 {
+                    b.HasOne("Vms.Domain.Entity.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Vms.Domain.Entity.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Vms.Domain.Entity.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Vms.Domain.Entity.Supplier", "Supplier")
                         .WithMany()
                         .HasForeignKey("SupplierCode");
@@ -824,9 +1021,26 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_ServiceBookings_Vehicle");
 
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Owner");
+
                     b.Navigation("Supplier");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingLock", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", "ServiceBooking")
+                        .WithOne("Lock")
+                        .HasForeignKey("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingLock", "ServiceBookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceBooking");
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Supplier", b =>
@@ -1114,6 +1328,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBooking", b =>
                 {
+                    b.Navigation("Lock");
+
                     b.Navigation("MotEvent");
                 });
 

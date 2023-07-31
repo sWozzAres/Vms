@@ -8,6 +8,7 @@ namespace Vms.Domain.Entity
 {
     public partial class Company
     {
+        public const int Code_MaxLength = 10;
         public string Code { get; private set; } = null!;
 
         public string Name { get; set; } = null!;
@@ -41,7 +42,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.HasKey(e => e.Code);
 
             builder.Property(e => e.Code)
-                .HasMaxLength(10)
+                .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
             
             builder.Property(e => e.Name)

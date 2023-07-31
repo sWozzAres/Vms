@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection.Metadata.Ecma335;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Exceptions;
@@ -52,11 +53,19 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
         public ServiceBookingLock? Lock { get; set; }
-        
+
+        public string CreatedUserId { get; set; }
+        public User CreatedBy { get; set; }
+        public string? AssignedToUserId { get; set; }
+        public User? AssignedTo { get; set; } = null!;
+        public string? OwnerUserId { get; set; }
+        public User? Owner { get; set; } = null!;
+
         public Guid? LockId { get; set; }
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
-            DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue)
+            DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue,
+            string createdUserId)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
@@ -67,7 +76,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
 
             //TODO remove
             MotDue = motDue;
-
+            CreatedUserId = createdUserId;
             Status = IsValid
                 ? ServiceBookingStatus.Assign
                 : ServiceBookingStatus.None;
@@ -200,6 +209,27 @@ namespace Vms.Domain.Entity.Configuration
             builder.Property(e => e.SupplierCode).HasMaxLength(8);
             builder.HasOne(e => e.Supplier)
                 .WithMany();
+
+            builder.Property(e => e.AssignedToUserId)
+                .HasMaxLength(User.UserId_MaxLength);
+            builder.HasOne(e => e.AssignedTo)
+                .WithMany()
+                .HasForeignKey(e => e.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(e => e.OwnerUserId)
+                .HasMaxLength(User.UserId_MaxLength);
+            builder.HasOne(e => e.Owner)
+                .WithMany()
+                .HasForeignKey(e => e.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(e => e.CreatedUserId)
+                .HasMaxLength(User.UserId_MaxLength);
+            builder.HasOne(e => e.CreatedBy)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(e => e.Vehicle)
                 .WithMany(v => v.ServiceBookings)
