@@ -1,0 +1,48 @@
+﻿@page "/servicebooking/list"
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Service Bookings</PageTitle>
+
+<ListTemplate2 TGridItem="ServiceBookingListDto" Options="listOptions" ApiUrl="/api/servicebooking">
+    <IconContent>
+        <div class="entity-svg-vehicle">
+            <svg viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#car" />
+            </svg>
+        </div>
+    </IconContent>
+    <Buttons>
+        <button @onclick="() => isCreating = true">New</button>
+        <button>Import</button>
+        <button>Add to Campaign</button>
+    </Buttons>
+    <GridColumns>
+        <TemplateColumn Title="Id">
+            <a href="/servicebooking/view/@context!.Id">@context.Id</a>
+        </TemplateColumn>
+        <TemplateColumn Title="Vrm">
+            <a href="/vehicle/view/@context!.VehicleId">@context.Vrm</a>
+        </TemplateColumn>
+        <PropertyColumn Property="x=>x.RescheduleTime" Title="Due"/>
+        <PropertyColumn Property="x=>x.StatusText" Title="Status" />
+    </GridColumns>
+</ListTemplate2>
+
+@* @if (isCreating)
+{
+    <Create OnClose="() => isCreating = false"/>
+} *@
+
+@code {
+    List<SelectOption<int?>> listOptions = new()
+    {
+        new (0, "All Service Bookings"),
+        new (1, "Recently Viewed"),
+        new (2, "Pinned"),
+        new (3, "Assigned"),
+        new (4, "Owned"),
+    };
+
+    bool isCreating;
+}

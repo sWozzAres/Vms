@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,9 @@ public class VmsDbContext : DbContext
     public DbSet<ServiceBookingLock> ServiceBookingLocks => Set<ServiceBookingLock>();
     public DbSet<Follower> Followers => Set<Follower>();
     public DbSet<TaskLog> TaskLogs => Set<TaskLog>();
+
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Login> Logins => Set<Login>();
 
     protected readonly IUserProvider _userProvider;
     ILogger<VmsDbContext> _logger;

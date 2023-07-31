@@ -1,7 +1,24 @@
 ﻿@page "/authentication/{action}"
+@inject ILogger<Authentication> Logger
+@inject ServerApiHttpClient Api
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-<RemoteAuthenticatorView Action="@Action" />
+<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="LoginSucceeded" />
 
 @code{
     [Parameter] public string? Action { get; set; }
+
+    async Task LoginSucceeded()
+    {
+        Logger.LogWarning("Login succeeded.");
+        try
+        {
+            await Api.RegisterLogin();
+            
+            Logger.LogWarning("Login registered.");
+        }
+        catch
+        {
+            // ignore
+        }
+    }
 }

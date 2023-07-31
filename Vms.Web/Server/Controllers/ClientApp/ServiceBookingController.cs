@@ -332,6 +332,28 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     }
 
     [HttpGet]
+    public async Task<IActionResult> GetServiceBookings(int list, int start, int take, 
+        CancellationToken cancellationToken)
+    {
+        int totalCount = await context.ServiceBookings.CountAsync(cancellationToken);
+
+        var result = await context.ServiceBookings
+            .Include(s=>s.Vehicle)
+            .Skip(start)
+            .Take(take)
+            .Select(x => new ServiceBookingListDto() { 
+                Id = x.Id, 
+                VehicleId = x.VehicleId, 
+                Vrm = x.Vehicle.Vrm,
+                RescheduleTime = x.RescheduleTime,
+                Status = (int)x.Status
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(new ListResult<ServiceBookingListDto>(totalCount, result));
+    }
+
+    [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]

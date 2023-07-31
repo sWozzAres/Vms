@@ -35,6 +35,13 @@ public class ServerApiHttpClient(HttpClient http)
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(header));
         }
     }
+    #region App
+    public async Task<PostResponse> RegisterLogin()
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"api/app/register", new { }));
+    }
+    #endregion
     #region Task Locking
     public async Task<Guid> Lock(string url)
     {
