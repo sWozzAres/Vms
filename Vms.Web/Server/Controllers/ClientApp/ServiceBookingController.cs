@@ -383,7 +383,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         return NoContent();
     }
 
-    string GetServiceBookingQueryText()
+    static string GetServiceBookingQueryText()
     {
         return """
                 SELECT sb.Id, sb.VehicleId, sb.CompanyCode, vv.Vrm, v.Make, v.Model, sb.PreferredDate1, sb.PreferredDate2, sb.PreferredDate3, sb.Status, sb.ServiceLevel,
@@ -399,6 +399,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
                 JOIN VehicleVrm vv ON v.Id = vv.VehicleId
                 LEFT JOIN Supplier s ON sb.SupplierCode = s.Code
                 LEFT JOIN MotEvent mo ON sb.MotEventId = mo.Id
+                WHERE (@tenantId = '*' OR @tenantId = sb.CompanyCode)
             """;
     }
     [HttpGet]
@@ -411,7 +412,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         var serviceBooking = (await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition($"{GetServiceBookingQueryText()} WHERE sb.Id = @id AND (@tenantId = '*' OR @tenantId = sb.CompanyCode)",
+            new CommandDefinition($"{GetServiceBookingQueryText()} AND sb.Id = @id",
                 new { id, userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken)))
             .SingleOrDefault();
 
@@ -428,7 +429,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         var serviceBookings = await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition($"{GetServiceBookingQueryText()} WHERE @tenantId = '*' OR @tenantId = sb.CompanyCode",
+            new CommandDefinition(GetServiceBookingQueryText(),
                 new { userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken));
 
         return Ok(serviceBookings.ToList());
@@ -473,43 +474,6 @@ public static partial class DomainExtensions
     }
 
     public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new(motEvent.Id, motEvent.Due);
-
-    //public static ServiceBookingFullDto ToFullDto(this ServiceBookingFull result) 
-    //    => new (
-    //        result.Id,
-    //        result.VehicleId,
-    //        result.CompanyCode,
-    //        result.Vrm,
-    //        result.Make,
-    //        result.Model,
-    //        result.PreferredDate1,
-    //        result.PreferredDate2,
-    //        result.PreferredDate3,
-    //        (int) result.Status,
-    //        (Vms.Web.Shared.ServiceLevel) result.ServiceLevel,
-    //        result.Supplier?.ToSupplierShortDto(),
-    //        result.MotEvent?.ToShortDto(),
-    //        result.Follower is null
-    //    );
-    //public static ServiceBookingFullDto ToFullDto(this ServiceBooking serviceBooking)
-    //{
-    //    return new ServiceBookingFullDto(
-    //        serviceBooking.Id,
-    //        serviceBooking.VehicleId,
-    //        serviceBooking.CompanyCode,
-    //        serviceBooking.Vehicle.VehicleVrm.Vrm,
-    //        serviceBooking.Vehicle.Make,
-    //        serviceBooking.Vehicle.Model,
-    //        serviceBooking.PreferredDate1,
-    //        serviceBooking.PreferredDate2,
-    //        serviceBooking.PreferredDate3,
-    //        (int)serviceBooking.Status,
-    //        (Vms.Web.Shared.ServiceLevel)serviceBooking.ServiceLevel,
-    //        serviceBooking.Supplier?.ToSupplierShortDto(),
-    //        serviceBooking.MotEvent?.ToShortDto(),
-    //        serviceBooking.Followers.Any()
-    //    );
-    //}
 
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);

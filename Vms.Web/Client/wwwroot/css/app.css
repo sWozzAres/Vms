@@ -71,11 +71,9 @@ html, body {
   /*color: color-contrast(var(--bg));*/
   font-weight: 400;
   color: black;
-}
-@media (prefers-color-scheme: dark) {
-  html, body {
-    color: white;
-  }
+  /* @media (prefers-color-scheme: dark) {
+       color: white;
+   }*/
 }
 
 body {
@@ -238,7 +236,7 @@ h5 + h6 {
 
 .main {
   /*padding: 0.5em;*/
-  background-color: cornflowerblue;
+  /*background-color: cornflowerblue;*/
 }
 
 /*#app {

@@ -14,10 +14,10 @@
     gap: 0.5em 1em;
 }
 
-@media (prefers-color-scheme: dark){
+/*@media (prefers-color-scheme: dark){
     #header {
     }
-}
+}*/
 
 #header #header-logo {
     grid-area: logo;

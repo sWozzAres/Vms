@@ -27,13 +27,10 @@
 </EditFormTemplate2>
 
 @code {
-    //[Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.LoadModel OnLoad { get; set; } = null!;
-    //[Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.SaveModel OnSave { get; set; } = null!;
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
     EditFormTemplate2<ServiceBookingDto> editForm = null!;
-
     List<SelectOption<Vms.Web.Shared.ServiceLevel>> serviceLevelOptions = null!;
     List<SelectOption<string?>> userOptions = null!;
     bool isLoaded;
@@ -64,8 +61,6 @@
         if (result is PostResponse.Success)
         {
             await OnAfterSave.InvokeAsync();
-            // await LoadServiceBooking();
-            // StateHasChanged();
         }
         return result;
     }

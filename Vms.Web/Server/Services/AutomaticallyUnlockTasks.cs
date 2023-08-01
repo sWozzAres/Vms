@@ -1,20 +1,18 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Polly;
-using Vms.Domain.Infrastructure;
 
 namespace Vms.Web.Server.Services;
 
 public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<AutomaticallyUnlockTasks> logger) : BackgroundService
 {
+    const int CheckTimeSeconds = 60;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var options = new ConnectionStringOptions();
-        configuration.GetSection("ConnectionStrings").Bind(options);
+        var options = GetOptions(configuration);
 
-
-        stoppingToken.Register(() => logger.LogDebug("#1 AutomaticallyUnlockTasks background task is stopping."));
+        stoppingToken.Register(() => logger.LogDebug("AutomaticallyUnlockTasks background task is stopping."));
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -24,24 +22,32 @@ public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<Auto
             try
             {
                 conn.Open();
-                
+
                 await conn.ExecuteAsync("""
-                DELETE FROM ServiceBookingLock WHERE DATEDIFF(second, Granted, @now) > 5
-                """, new { now = DateTime.Now });
+                DELETE FROM ServiceBookingLock WHERE DATEDIFF(second, Granted, @now) > @checkTime
+                """, new { now = DateTime.Now, checkTime = CheckTimeSeconds });
             }
             catch (SqlException exception)
             {
-                logger.LogCritical(exception, "FATAL ERROR: Database connection could not be opened: {Message}", exception.Message);
+                logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
             }
 
-            await Task.Delay(60000, stoppingToken);  
+            await Task.Delay(CheckTimeSeconds * 1000, stoppingToken);
         }
 
         logger.LogDebug("AutomaticallyUnlockTasks background task is stopping.");
     }
+
+    static ConnectionStringOptions GetOptions(IConfiguration configuration)
+    {
+        var options = new ConnectionStringOptions();
+        configuration.GetSection("ConnectionStrings").Bind(options);
+        return options;
+    }
+
+    class ConnectionStringOptions
+    {
+        public string VmsDbConnection { get; set; } = null!;
+    }
 }
 
-public class ConnectionStringOptions
-{
-    public string VmsDbConnection { get; set; } = null!;
-}
