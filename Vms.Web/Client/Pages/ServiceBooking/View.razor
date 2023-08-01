@@ -68,7 +68,7 @@ else
                     <TabControl Title="Service Booking Tabs" TitleVisible="false">
                         <TabPage Text="Details">
 
-                            <Edit OnLoad="LoadModel" OnSave="SaveModel" />
+                            <Edit ServiceBooking="@serviceBooking" OnAfterSave="LoadServiceBooking" />
 
 
                         </TabPage>

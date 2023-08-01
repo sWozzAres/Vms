@@ -1,22 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Vms.Domain.Entity
 {
     public class User
     {
         public const int UserId_MaxLength = 50;
-        public string UserId { get; set; } = null!;
+        public string UserId { get; private set; } = null!;
         public string UserName { get; set; } = null!;
         public string TenantId { get; set; } = null!;
+        public User(string userId, string userName, string tenantId)
+            => (UserId, UserName, TenantId) = (userId, userName, tenantId);
     }
 
     public class Login
     {
-        public long Id { get; set; }
-        public string UserId { get; set; } = null!;
-        public User User { get; set; } = null!;
-        public DateTime LoginTime { get; set; }
+        public long Id { get; private set; }
+        public string UserId { get; private set; } = null!;
+        public User User { get; private set; } = null!;
+        public DateTime LoginTime { get; private set; }
+        public Login(string userId, DateTime loginTime)
+            => (UserId, LoginTime) = (userId, loginTime);
     }
 }
 
@@ -44,7 +49,7 @@ namespace Vms.Domain.Entity.Configuration
             entity.ToTable("Logins", "ClientApp");
             entity.HasKey(e => e.Id);
 
-            entity.Property(e=>e.Id)
+            entity.Property(e => e.Id)
                 .ValueGeneratedOnAdd();
             entity.Property(e => e.UserId)
                 .HasMaxLength(User.UserId_MaxLength);

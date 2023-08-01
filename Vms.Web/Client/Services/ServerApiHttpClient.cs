@@ -41,6 +41,12 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"api/app/register", new { }));
     }
+    public async Task<List<UserDto>> GetUsersForCompany(string companyCode)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<UserDto>>($"/api/app/users/{companyCode}")
+            ?? throw new InvalidOperationException("Failed to get users.");
+    }
     #endregion
     #region Task Locking
     public async Task<Guid> Lock(string url)

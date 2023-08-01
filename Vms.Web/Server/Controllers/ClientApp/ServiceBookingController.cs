@@ -383,6 +383,24 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         return NoContent();
     }
 
+    string GetServiceBookingQueryText()
+    {
+        return """
+                SELECT sb.Id, sb.VehicleId, sb.CompanyCode, vv.Vrm, v.Make, v.Model, sb.PreferredDate1, sb.PreferredDate2, sb.PreferredDate3, sb.Status, sb.ServiceLevel,
+            	    s.Code 'Supplier_Code', s.Name 'Supplier_Name',
+            	    mo.Id 'MotEvent_Id', mo.Due 'MotEvent_Due',
+            	    CASE 
+            		    WHEN EXISTS (SELECT 1 FROM Followers f WHERE sb.Id = f.DocumentId AND f.UserId = @userId) THEN 1
+            		    ELSE 0
+            	    END AS IsFollowing,
+                    sb.AssignedToUserId
+                FROM ServiceBooking sb
+                JOIN Vehicle v ON sb.VehicleId = v.Id
+                JOIN VehicleVrm vv ON v.Id = vv.VehicleId
+                LEFT JOIN Supplier s ON sb.SupplierCode = s.Code
+                LEFT JOIN MotEvent mo ON sb.MotEventId = mo.Id
+            """;
+    }
     [HttpGet]
     [Route("{id}")]
     [AcceptHeader("application/vnd.full")]
@@ -393,21 +411,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         var serviceBooking = (await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition("""
-                SELECT sb.Id, sb.VehicleId, sb.CompanyCode, vv.Vrm, v.Make, v.Model, sb.PreferredDate1, sb.PreferredDate2, sb.PreferredDate3, sb.Status, sb.ServiceLevel,
-            	    s.Code 'Supplier_Code', s.Name 'Supplier_Name',
-            	    mo.Id 'MotEvent_Id', mo.Due 'MotEvent_Due',
-            	    CASE 
-            		    WHEN EXISTS (SELECT 1 FROM Followers f WHERE sb.Id = f.DocumentId AND f.UserId = @userId) THEN 1
-            		    ELSE 0
-            	    END AS IsFollowing
-                FROM ServiceBooking sb
-                JOIN Vehicle v ON sb.VehicleId = v.Id
-                JOIN VehicleVrm vv ON v.Id = vv.VehicleId
-                LEFT JOIN Supplier s ON sb.SupplierCode = s.Code
-                LEFT JOIN MotEvent mo ON sb.MotEventId = mo.Id
-                WHERE sb.Id = @id AND (@tenantId = '*' OR @tenantId = sb.CompanyCode)
-            """, new { id, userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken)))
+            new CommandDefinition($"{GetServiceBookingQueryText()} WHERE sb.Id = @id AND (@tenantId = '*' OR @tenantId = sb.CompanyCode)",
+                new { id, userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken)))
             .SingleOrDefault();
 
         return serviceBooking is null ? NotFound() : Ok(serviceBooking);
@@ -423,21 +428,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         var serviceBookings = await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition("""
-                SELECT sb.Id, sb.VehicleId, sb.CompanyCode, vv.Vrm, v.Make, v.Model, sb.PreferredDate1, sb.PreferredDate2, sb.PreferredDate3, sb.Status, sb.ServiceLevel,
-            	    s.Code 'Supplier_Code', s.Name 'Supplier_Name',
-            	    mo.Id 'MotEvent_Id', mo.Due 'MotEvent_Due',
-            	    CASE 
-            		    WHEN EXISTS (SELECT 1 FROM Followers f WHERE sb.Id = f.DocumentId AND f.UserId = @userId) THEN 1
-            		    ELSE 0
-            	    END AS IsFollowing
-                FROM ServiceBooking sb
-                JOIN Vehicle v ON sb.VehicleId = v.Id
-                JOIN VehicleVrm vv ON v.Id = vv.VehicleId
-                LEFT JOIN Supplier s ON sb.SupplierCode = s.Code
-                LEFT JOIN MotEvent mo ON sb.MotEventId = mo.Id
-                WHERE @tenantId = '*' OR @tenantId = sb.CompanyCode
-            """, new { userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition($"{GetServiceBookingQueryText()} WHERE @tenantId = '*' OR @tenantId = sb.CompanyCode",
+                new { userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken));
 
         return Ok(serviceBookings.ToList());
     }
@@ -446,6 +438,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/edit")]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] ServiceBookingDto request,
+        [FromServices] IEdit edit,
         CancellationToken cancellationToken)
     {
         if (request.Id != id)
@@ -453,22 +446,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return BadRequest();
         }
 
-        var serviceBooking = await _context.ServiceBookings.FindAsync(id, cancellationToken);
-        if (serviceBooking is null)
-        {
-            return NotFound();
-        }
-
-        serviceBooking.PreferredDate1 = request.PreferredDate1;
-        serviceBooking.PreferredDate2 = request.PreferredDate2;
-        serviceBooking.PreferredDate3 = request.PreferredDate3;
-        serviceBooking.ServiceLevel = (Vms.Domain.Entity.ServiceBookingEntity.ServiceLevel)request.ServiceLevel;
-
-        if (serviceBooking.Status == ServiceBookingStatus.None && serviceBooking.IsValid)
-        {
-            serviceBooking.ChangeStatus(ServiceBookingStatus.Assign);
-        }
-
+        await edit.EditAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
         return Ok();

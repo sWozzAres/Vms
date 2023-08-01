@@ -47,36 +47,27 @@ public class AppController : ControllerBase
     public async Task<IActionResult> RegisterLogin(IUserProvider userProvider, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FindAsync(userProvider.UserId, cancellationToken);
-        if (user == null)
+        if (user is null)
         {
-            user = new Domain.Entity.User()
-            {
-                UserId = userProvider.UserId,
-                UserName = userProvider.UserName,
-                TenantId = userProvider.TenantId,
-            };
+            user = new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId);
 
             _context.Users.Add(user);
         }
-
-        // update username / tenantid
-        if (user.UserName != userProvider.UserName)
+        else
         {
-            user.UserName = userProvider.UserName;
+            // update username / tenantid
+            if (user.UserName != userProvider.UserName)
+            {
+                user.UserName = userProvider.UserName;
+            }
+
+            if (user.TenantId != userProvider.TenantId)
+            {
+                user.TenantId = userProvider.TenantId;
+            }
         }
 
-        if (user.TenantId != userProvider.TenantId)
-        {
-            user.TenantId = userProvider.TenantId;
-        }
-
-        var login = new Login()
-        {
-            UserId = userProvider.UserId,
-            LoginTime = DateTime.Now,
-        };
-
-        _context.Logins.Add(login);
+        _context.Logins.Add(new Login(userProvider.UserId, DateTime.Now));
 
         await _context.SaveChangesAsync(cancellationToken);
 

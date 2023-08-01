@@ -56,6 +56,7 @@
     bool isLoaded;
     bool okDisabled => !isLoaded || lockId is null;
     string lockUrl = null!;
+    System.Threading.Timer? timer;
 
     async Task ValidSubmit()
     {
@@ -118,6 +119,12 @@
         try
         {
             lockId = await Api.Lock(lockUrl);
+
+            timer = new System.Threading.Timer(async (object? state) =>
+            {
+                await Api.RefreshLock(lockUrl, lockId.Value);
+            }, null, 0, 19000);
+
         }
         catch
         {
@@ -132,6 +139,11 @@
         if (lockId.HasValue)
         {
             await Api.Unlock(lockUrl, lockId.Value);
+        }
+
+        if (timer is not null)
+        {
+            await timer.DisposeAsync();
         }
     }
 }

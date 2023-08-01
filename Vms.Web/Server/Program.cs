@@ -50,6 +50,7 @@ builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
+builder.Services.AddScoped<IEdit, Edit>();
 builder.Services.AddScoped<IFollow, Follow>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
 builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
@@ -81,6 +82,8 @@ builder.Services.AddDbContext<VmsDbContext>(options =>
 }, ServiceLifetime.Scoped);
 
 builder.Services.AddApplicationSecurity();
+
+builder.Services.AddHostedService<AutomaticallyUnlockTasks>();
 
 //builder.Services.AddControllersWithViews()
 //    .ConfigureApiBehaviorOptions(options =>

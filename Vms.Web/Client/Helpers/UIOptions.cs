@@ -69,6 +69,14 @@ public static class UIOptions
         options.Insert(0, new(null, "-- Select Reason --"));
         return options;
     }
+    public static List<SelectOption<string?>> BuildUserOptions(IEnumerable<UserDto>? list)
+    {
+        var options = list is null
+            ? new List<SelectOption<string?>>()
+            : list.Select(m => new SelectOption<string?>(m.UserId, m.UserName)).ToList();
+        options.Insert(0, new(null, "-- Select User --"));
+        return options;
+    }
 
     public static List<SelectOption<Vms.Web.Shared.ServiceLevel>> GetServiceLevelOptions()
         => new()

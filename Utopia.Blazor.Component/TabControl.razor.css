@@ -59,7 +59,7 @@
     /*background: hsl(220deg 43% 99%);*/
     min-height: 10em;
     width: 100%;
-    overflow: auto;
+    overflow: visible;
 }
 
     ::deep [role="tabpanel"].is-hidden {

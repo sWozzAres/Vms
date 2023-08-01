@@ -265,6 +265,7 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
     [Range(typeof(ServiceLevel), nameof(ServiceLevel.Mobile), nameof(ServiceLevel.DropOffWithCourtesyCar), 
         ErrorMessage = "You must select a service level.")]
     public ServiceLevel ServiceLevel { get; set; }
+    public string? AssignedToUserId { get; set; }
     public void CopyFrom(ServiceBookingDto source)
     {
         Id = source.Id;
@@ -330,7 +331,7 @@ public class ServiceBookingFullDto
     public Guid? MotEvent_Id { get; set; }
     public DateOnly? MotEvent_Due { get; set; }
     public bool IsFollowing { get; set; }
-
+    public  string  AssignedToUserId { get; set; }
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 
@@ -343,7 +344,8 @@ public class ServiceBookingFullDto
             PreferredDate1 = PreferredDate1,
             PreferredDate2 = PreferredDate2,
             PreferredDate3 = PreferredDate3,
-            ServiceLevel = ServiceLevel
+            ServiceLevel = ServiceLevel,
+            AssignedToUserId = AssignedToUserId
         };
 }
 

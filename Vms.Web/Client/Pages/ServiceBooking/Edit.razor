@@ -1,92 +1,72 @@
-﻿<EditFormTemplate2 TModel="ServiceBookingDto" @ref="editForm" OnLoad="OnLoad" OnSave="OnSave">
+﻿@inject ServerApiHttpClient Api
+<EditFormTemplate2 TModel="ServiceBookingDto" @ref="editForm" OnLoad="LoadModel" OnSave="SaveModel">
     <DataAnnotationsValidator />
+    @if (isLoaded)
+    {
+        <div class="form-section">
+            <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="editForm.Model.ServiceLevel" />
+            <ValidationMessage For="@(() => editForm.Model.ServiceLevel)" />
 
-    <div class="form-section">
-        <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="editForm.Model.ServiceLevel" />
-        <ValidationMessage For="@(() => editForm.Model.ServiceLevel)" />
-
-        <label for="preferreddate1">Preferred Date 1</label>
-        <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
-        <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
-        <label for="preferreddate2">Preferred Date 2</label>
-        <InputDate id="preferreddate2" @bind-Value="editForm.Model.PreferredDate2" />
-        <ValidationMessage For="@(() => editForm.Model.PreferredDate2)" />
-        <label for="preferreddate3">Preferred Date 3</label>
-        <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
-        <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
-
-        
-
-        @* <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
-        <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
-
-        <label for="vrm">Vrm</label>
-        <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
-        <ValidationMessage For="@(() => editForm.Model.Vrm)" />
-
-        <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
-        <ValidationMessage For="@(() => editForm.Model.Make)" />
-
-        <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
-        <ValidationMessage For="@(() => editForm.Model.Model)" />
-
-        <label for="chassis">Chassis Number</label>
-        <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
-        <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
-
-        <label for="preferreddate1">Preferred Date 1</label>
-        <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
-        <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
-
-        <label for="motdue">MOT Due</label>
-        <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
-        <ValidationMessage For="@(() => editForm.Model.MotDue)" /> *@
-
-    </div>
-    <div class="form-section">
-        @* <fieldset>
-        <legend>Address</legend>
-
-        <label for="street">Street</label>
-        <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-        <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
-
-        <label for="locality">Locality</label>
-        <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-        <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
-
-        <label for="town">Town</label>
-        <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-        <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
-
-        <label for="postcode">Postcode</label>
-        <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-        <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
-
-        <label for="latitude">Latitude</label>
-        <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-        <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
-
-        <label for="longitude">Longitude</label>
-        <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-        <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-        </fieldset> *@
-    </div>
+            <label for="preferreddate1">Preferred Date 1</label>
+            <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
+            <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
+            <label for="preferreddate2">Preferred Date 2</label>
+            <InputDate id="preferreddate2" @bind-Value="editForm.Model.PreferredDate2" />
+            <ValidationMessage For="@(() => editForm.Model.PreferredDate2)" />
+            <label for="preferreddate3">Preferred Date 3</label>
+            <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
+            <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
+            <InputSelectOnlyCombobox Options="@userOptions" LabelText="Assigned To" @bind-Value="editForm.Model.AssignedToUserId" />
+            <ValidationMessage For="@(() => editForm.Model.AssignedToUserId)" />
+            
+        </div>
+        <div class="form-section">
+            
+        </div>
+    }
 </EditFormTemplate2>
 
 @code {
-    [Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.LoadModel OnLoad { get; set; } = null!;
-    [Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.SaveModel OnSave { get; set; } = null!;
+    //[Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.LoadModel OnLoad { get; set; } = null!;
+    //[Parameter, EditorRequired] public EditFormTemplate2<ServiceBookingDto>.SaveModel OnSave { get; set; } = null!;
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
     EditFormTemplate2<ServiceBookingDto> editForm = null!;
 
     List<SelectOption<Vms.Web.Shared.ServiceLevel>> serviceLevelOptions = null!;
+    List<SelectOption<string?>> userOptions = null!;
+    bool isLoaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var users = await Api.GetUsersForCompany(ServiceBooking.CompanyCode);
+        userOptions = UIOptions.BuildUserOptions(users);
+        isLoaded = true;
+    }
 
     protected override void OnInitialized()
     {
-        ArgumentNullException.ThrowIfNull(OnSave);
-        ArgumentNullException.ThrowIfNull(OnLoad);
-
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnAfterSave.HasDelegate) throw new ArgumentNullException(nameof(OnAfterSave));
+        
         serviceLevelOptions = UIOptions.GetServiceLevelOptions();
+    }
+
+    async Task<ServiceBookingDto> LoadModel()
+    {
+        return await Task.FromResult(ServiceBooking.ToDto());
+    }
+
+    async Task<PostResponse> SaveModel(ServiceBookingDto model)
+    {
+        var result = await Api.SaveServiceBooking(ServiceBooking.Id, model);
+        if (result is PostResponse.Success)
+        {
+            await OnAfterSave.InvokeAsync();
+            // await LoadServiceBooking();
+            // StateHasChanged();
+        }
+        return result;
     }
 }
