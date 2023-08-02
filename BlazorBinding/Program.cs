@@ -9,7 +9,7 @@ namespace BlazorBinding
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
-                .AddWebAssemblyComponents()
+                
                 .AddServerComponents();
                 
 

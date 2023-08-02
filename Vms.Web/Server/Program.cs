@@ -104,16 +104,15 @@ builder.Services.AddHostedService<AutomaticallyUnlockTasks>();
 
 builder.Services.AddRazorPages();
 
-builder.Services.AddSignalR();
-builder.Services.AddResponseCompression(opts =>
-{
-    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-       new[] { "application/octet-stream" });
-});
+//builder.Services.AddSignalR();
+//builder.Services.AddResponseCompression(opts =>
+//{
+//    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+//       new[] { "application/octet-stream" });
+//});
 
 var app = builder.Build();
-
-app.UseResponseCompression();
+//app.UseResponseCompression();
 
 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
 UserProvider.InMigration = true;
@@ -190,7 +189,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
             VehicleEndpoints.Map(endpoints);
 
             endpoints.MapControllers();
-            endpoints.MapHub<ChatHub>("/ClientApp/chathub");
+            //endpoints.MapHub<ChatHub>("/ClientApp/chathub");
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",
                 "ClientApp/index.html");
         });
@@ -204,7 +203,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
-//app.MapHub<ChatHub>("/chathub");
+
 //app.MapFallbackToFile("index.html");
 
 app.Run();

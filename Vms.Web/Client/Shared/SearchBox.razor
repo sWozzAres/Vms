@@ -31,9 +31,6 @@
     }
     <div id="search-history" class="@className">
         <ul>
-            @{
-                Logger.LogInformation("searchString '{s}'.", searchString);
-            }
             @for (var index = 0; index < items.Count; index++) //SearchHistory.History.Where(x => x.SearchString.StartsWith(searchString)))
             {
                 var item = items[index];

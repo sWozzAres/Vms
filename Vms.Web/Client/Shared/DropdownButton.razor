@@ -67,7 +67,6 @@
     #region Lifecycle methods
     protected override void OnInitialized()
     {
-        Logger.LogInformation("OnInitialized()");
         objRef = DotNetObjectReference.Create(this);
         Id = HtmlHelpers.GetRandomHtmlId();
         SelectedValue = 1;
@@ -88,14 +87,12 @@
 
         if (mustSetMenuNodeFocus)
         {
-            Logger.LogInformation("Setting menuNode focus.");
             mustSetMenuNodeFocus = false;
             await menuNode.FocusAsync();
         }
 
         if (mustSetButtonNodeFocus)
         {
-            Logger.LogInformation("Setting buttonNode focus.");
             mustSetButtonNodeFocus = false;
             await buttonNode.FocusAsync();
         }

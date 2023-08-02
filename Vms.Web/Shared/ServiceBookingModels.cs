@@ -286,14 +286,15 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 //    SupplierShortDto? Supplier, MotEventShortDto? MotEvent, bool IsFollowing)
 //{
 //}
-public class ServiceBookingListDto
+public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm, DateTime? rescheduleTime, int status)
 {
-    public Guid Id { get; set; }
-    public Guid VehicleId { get; set; }
-    public string Ref { get; set; } = null!;
-    public string Vrm { get; set; } = null!;
-    public DateTime? RescheduleTime { get; set; }
-    public int Status { get; set; }
+    public Guid Id { get; set; } = id;
+    public Guid VehicleId { get; set; } = vehicleId;
+    public string Ref { get; set; } = @ref;
+    public string Vrm { get; set; } = vrm;
+    public DateTime? RescheduleTime { get; set; } = rescheduleTime;
+    public int Status { get; set; } = status;
+    [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 }
 public static class ServiceBookingHelper

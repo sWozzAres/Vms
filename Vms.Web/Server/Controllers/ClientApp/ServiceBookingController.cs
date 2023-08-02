@@ -283,7 +283,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         int tries = 1;
-        while (true) {
+        while (true)
+        {
             try
             {
                 var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
@@ -300,7 +301,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
                     logger.LogCritical("Failed to create service booking with unique ref.");
                     throw;
                 }
-                
+
                 tries++;
             }
         }
@@ -327,7 +328,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     {
         var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
-        
+
         var entry = new ActivityLog(id, request.Text, userProvider.UserId, userProvider.UserName);
         _context.ActivityLog.Add(entry);
         await _context.SaveChangesAsync(cancellationToken);
@@ -349,23 +350,16 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetServiceBookings(int list, int start, int take, 
+    public async Task<IActionResult> GetServiceBookings(int list, int start, int take,
         CancellationToken cancellationToken)
     {
         int totalCount = await context.ServiceBookings.CountAsync(cancellationToken);
 
         var result = await context.ServiceBookings
-            .Include(s=>s.Vehicle)
+            .Include(s => s.Vehicle)
             .Skip(start)
             .Take(take)
-            .Select(x => new ServiceBookingListDto() { 
-                Id = x.Id, 
-                VehicleId = x.VehicleId, 
-                Ref = x.Ref,
-                Vrm = x.Vehicle.Vrm,
-                RescheduleTime = x.RescheduleTime,
-                Status = (int)x.Status
-            })
+            .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm, x.RescheduleTime, (int)x.Status))
             .ToListAsync(cancellationToken);
 
         return Ok(new ListResult<ServiceBookingListDto>(totalCount, result));

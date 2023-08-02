@@ -12,7 +12,7 @@ window.jsInterop = {
 window.searchBox = {
     installOnKeydownHandler: function (id, objRef) {
         const element = document.getElementById(id);
-        console.log('searchBox.installOnKeydownHandler() id: ', id, ' element: ', element, ' objRef: ', objRef);
+        //console.log('searchBox.installOnKeydownHandler() id: ', id, ' element: ', element, ' objRef: ', objRef);
 
         if (!element)
             return false;
@@ -90,7 +90,7 @@ window.dropdownButton = {
 
     installOnDropdownItemKeydown: function (id, objRef) {
         const element = document.querySelector('#' + id + ' ul[role="menu"]');
-        console.log('installOnDropdownItemKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
+        //console.log('installOnDropdownItemKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
         if (!element) {
             return false;
         }
@@ -167,7 +167,7 @@ window.dropdownButton = {
 
     installOnDropdownButtonKeydown: function (id, objRef) {
         const element = document.getElementById(id);
-        console.log('installOnDropdownButtonKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
+        //console.log('installOnDropdownButtonKeydown() id: ', id, ' element: ', element, ' objRef: ', objRef);
         if (!element) {
             return false;
         }
