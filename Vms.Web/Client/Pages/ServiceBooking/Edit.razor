@@ -31,6 +31,7 @@
     [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
     EditFormTemplate2<ServiceBookingDto> editForm = null!;
+    
     List<SelectOption<Vms.Web.Shared.ServiceLevel>> serviceLevelOptions = null!;
     List<SelectOption<string?>> userOptions = null!;
     bool isLoaded;
@@ -51,9 +52,8 @@
     }
 
     async Task<ServiceBookingDto> LoadModel()
-    {
-        return await Task.FromResult(ServiceBooking.ToDto());
-    }
+        => await Task.FromResult(ServiceBooking.ToDto());
+    
 
     async Task<PostResponse> SaveModel(ServiceBookingDto model)
     {

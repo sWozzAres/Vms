@@ -1,11 +1,8 @@
 ﻿namespace Vms.Application.UseCase;
 
-public class CreateSupplier
+public class CreateSupplier(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
-
-    public CreateSupplier(VmsDbContext dbContext)
-       => DbContext = dbContext;
+    readonly VmsDbContext DbContext = dbContext;
 
     public Supplier Create(CreateSupplierRequest request)
     {

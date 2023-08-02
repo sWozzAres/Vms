@@ -1,18 +1,15 @@
 ﻿namespace Vms.Application.UseCase.VehicleUseCase;
 
-public class ChangeVrm
+public class ChangeVrm(VmsDbContext context)
 {
-    readonly VmsDbContext DbContext;
-    //VehicleRole? Vehicle;
-
-    public ChangeVrm(VmsDbContext context) => DbContext = context;
+    readonly VmsDbContext DbContext = context;
 
     public async Task ChangeTo(ChangeVrmRequest request, CancellationToken cancellationToken = default)
     {
-        var vehicle = await DbContext.Vehicles.FindAsync(request.vehicleId, cancellationToken)
+        var vehicle = await DbContext.Vehicles.FindAsync(new object[] { request.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found.");
         
-        vehicle.Vrm = request.newVrm;
+        vehicle.Vrm = request.NewVrm;
 
         //Vehicle = new(await DbContext.Vehicles.FindAsync(request.vehicleId, cancellationToken)
         //    ?? throw new VmsDomainException("Vehicle not found."), this);
@@ -27,4 +24,4 @@ public class ChangeVrm
     //}
 }
 
-public record ChangeVrmRequest(Guid vehicleId, string newVrm);
+public record ChangeVrmRequest(Guid VehicleId, string NewVrm);

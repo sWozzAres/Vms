@@ -19,7 +19,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger activityLog,
 
     public async Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken)
     {
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
         SummaryText.AppendLine("# Unbook Supplier");

@@ -44,7 +44,7 @@ public abstract class PostResponse(HttpResponseMessage response)
 
     public class UnprocessableEntity : PostResponse
     {
-        Dictionary<string, List<string>> _validationErrors;
+        readonly Dictionary<string, List<string>> _validationErrors;
         public Dictionary<string, List<string>> ValidationErrors => _validationErrors;
         public UnprocessableEntity(HttpResponseMessage response) : base(response)
         {

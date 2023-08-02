@@ -15,15 +15,10 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class CompanyController : ControllerBase
+public class CompanyController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<CompanyController> _logger;
-    readonly VmsDbContext _context;
-    public CompanyController(ILogger<CompanyController> logger, VmsDbContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
+    readonly ILogger<CompanyController> _logger = logger;
+    readonly VmsDbContext _context = context;
 
     [HttpGet]
     [Route("{companyCode}/confirmbookedrefusalreasons")]

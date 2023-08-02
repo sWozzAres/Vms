@@ -48,7 +48,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
     }
 
     async Task<ServiceBookingRole> Load(Guid id, CancellationToken cancellationToken)
-        => new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        => new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
     class ServiceBookingRole(ServiceBooking self, BookSupplier ctx)
@@ -59,7 +59,10 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
 
             self.Book(bookedDate);
 
-            var supplier = await ctx.DbContext.Suppliers.FindAsync(self.SupplierCode, cancellationToken)
+            if (self.SupplierCode is null)
+                throw new InvalidOperationException("Supplier code is null.");
+
+            var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, cancellationToken)
                 ?? throw new VmsDomainException("Failed to load supplier.");
 
             var drivers = await ctx.DbContext.DriverVehicles
@@ -81,9 +84,11 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
                 throw new VmsDomainException("Service Booking is not assigned.");
 
             // TODO
-            var rr = await ctx.DbContext.RefusalReasons.FindAsync(new[] { self.CompanyCode, code }, cancellationToken)
+            var rr = await ctx.DbContext.RefusalReasons.FindAsync(new object[] { self.CompanyCode, code }, cancellationToken)
                 ?? throw new InvalidOperationException("Failed to load refusal reason.");
 
+            ctx.SummaryText.AppendLine($"* Reason Code: {rr.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {rr.Name}");
             //self.Supplier.RefusalReasonCode = rr.Code;
             //self.Supplier.RefusalReasonName = rr.Name;
             self.Unassign();

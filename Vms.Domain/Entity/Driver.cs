@@ -5,53 +5,33 @@ using NetTopologySuite.Geometries;
 
 namespace Vms.Domain.Entity
 {
-    public partial class Driver
+    public partial class Driver(string companyCode, string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
     {
-        public Guid Id { get; set; }
-        public string CompanyCode { get; set; } = null!;
-        public string? Salutation { get; set; }
-        public string? FirstName { get; set; }
-        public string? MiddleNames { get; set; }
-        public string LastName { get; set; } = null!;
-        public string EmailAddress { get; set; } = null!;
-        public string MobileNumber { get; set; } = null!;
-        public Geometry HomeLocation { get; set; } = null!;
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string CompanyCode { get; set; } = companyCode;
+        public string? Salutation { get; set; } = salutation;
+        public string? FirstName { get; set; } = firstName;
+        public string? MiddleNames { get; set; } = middleNames;
+        public string LastName { get; set; } = lastName ?? throw new ArgumentNullException(nameof(lastName));
+        public string EmailAddress { get; set; } = emailAddress ?? throw new ArgumentNullException(nameof(emailAddress));
+        public string MobileNumber { get; set; } = mobileNumber ?? throw new ArgumentNullException(nameof(mobileNumber));
+        public Geometry HomeLocation { get; set; } = homeLocation ?? throw new ArgumentNullException(nameof(homeLocation));
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
 
-        public Driver(string companyCode, string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
-        {
-            Id = Guid.NewGuid();
-            CompanyCode = companyCode;
-            Salutation = salutation;
-            FirstName = firstName;
-            MiddleNames = middleNames;
-            LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
-            EmailAddress = emailAddress ?? throw new ArgumentNullException(nameof(emailAddress));
-            MobileNumber = mobileNumber ?? throw new ArgumentNullException(nameof(mobileNumber));
-            HomeLocation = homeLocation ?? throw new ArgumentNullException(nameof(homeLocation));
-        }
         public string FullName
             => string.Join(" ", new string?[]{ Salutation, FirstName, MiddleNames, LastName }
                 .Where(x=>!string.IsNullOrEmpty(x)));
     }
 
-    public partial class DriverVehicle
+    public partial class DriverVehicle(string companyCode, Guid driverId, Guid vehicleId)
     {
-        public string CompanyCode { get; set; } = null!;
-
-        public Guid VehicleId { get; set; }
-        
-        public Guid DriverId { get; set; }
+        public string CompanyCode { get; set; } = companyCode;
+        public Guid VehicleId { get; set; } = vehicleId;
+        public Guid DriverId { get; set; } = driverId;
 
         public virtual Driver Driver { get; set; } = null!;
         public virtual Vehicle Vehicle { get; set; } = null!;
-        public DriverVehicle(string companyCode, Guid driverId, Guid vehicleId)
-        {
-            CompanyCode = companyCode;
-            DriverId = driverId; 
-            VehicleId = vehicleId;
-        }
     }
 }
 

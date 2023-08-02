@@ -21,7 +21,7 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
 
     public async Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Notify Customer");

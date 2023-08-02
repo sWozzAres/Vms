@@ -1,15 +1,13 @@
 ﻿namespace Vms.Application.UseCase;
 
-public class CreateNetwork
+public class CreateNetwork(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
-    public CreateNetwork(VmsDbContext dbContext)
-       => DbContext = dbContext;
 
     public async Task<Network> CreateAsync(CreateNetworkRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
+        Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
         var network = Company.CreateNetwork(request.Code, request.Name);

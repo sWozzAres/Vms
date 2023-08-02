@@ -29,7 +29,7 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
         //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
         //    ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
         SummaryText.AppendLine("# Edit");
@@ -71,7 +71,7 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
             }
             else
             {
-                var user = await DbContext.Users.FindAsync(command.AssignedToUserId, cancellationToken)
+                var user = await DbContext.Users.FindAsync(new object[] { command.AssignedToUserId }, cancellationToken)
                     ?? throw new InvalidOperationException("Failed to load user.");
 
                 SummaryText.AppendLine($"* Assigned To: {user.UserName}");

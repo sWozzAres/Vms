@@ -290,6 +290,7 @@ public class ServiceBookingListDto
 {
     public Guid Id { get; set; }
     public Guid VehicleId { get; set; }
+    public string Ref { get; set; } = null!;
     public string Vrm { get; set; } = null!;
     public DateTime? RescheduleTime { get; set; }
     public int Status { get; set; }
@@ -317,10 +318,11 @@ public class ServiceBookingFullDto
 {
     public Guid Id { get; set; }
     public Guid VehicleId { get; set; }
-    public string CompanyCode { get; set; }
-    public string Vrm { get; set; }
-    public string Make { get; set; }
-    public string Model { get; set; }
+    public string Ref { get; set; } = null!;
+    public string CompanyCode { get; set; } = null!;
+    public string Vrm { get; set; } = null!;
+    public string Make { get; set; } = null!;
+    public string Model { get; set; } = null!;
     public DateOnly? PreferredDate1 { get; set; }
     public DateOnly? PreferredDate2 { get; set; }
     public DateOnly? PreferredDate3 { get; set; }
@@ -331,7 +333,7 @@ public class ServiceBookingFullDto
     public Guid? MotEvent_Id { get; set; }
     public DateOnly? MotEvent_Due { get; set; }
     public bool IsFollowing { get; set; }
-    public  string  AssignedToUserId { get; set; }
+    public string AssignedToUserId { get; set; } = null!;
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 

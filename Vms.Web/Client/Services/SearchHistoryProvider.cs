@@ -12,25 +12,21 @@ public interface ISearchHistoryProvider
     Task InitializeAsync(CancellationToken cancellationToken = default);
 }
 
-public class SearchHistoryProvider : ISearchHistoryProvider
+public class SearchHistoryProvider(ILocalStorageService localStorage) : ISearchHistoryProvider
 {
     const int HistorySize = 5;
     const string Key = "History";
 
-    readonly ILocalStorageService _localStorage;
-
-    Queue<SearchItem> history { get; set; } = new(HistorySize);
-    public IEnumerable<SearchItem> History => history;
+    Queue<SearchItem> _history = new(HistorySize);
+    public IEnumerable<SearchItem> History => _history;
 
     bool _isLoaded;
-
-    public SearchHistoryProvider(ILocalStorageService localStorage) => _localStorage = localStorage;
 
     async Task EnsureLoaded(CancellationToken cancellationToken)
     {
         if (!_isLoaded)
         {
-            history = await _localStorage.GetItemAsync<Queue<SearchItem>>(Key, cancellationToken) ?? new(HistorySize);
+            _history = await localStorage.GetItemAsync<Queue<SearchItem>>(Key, cancellationToken) ?? new(HistorySize);
             _isLoaded = true;
         }
     }
@@ -44,20 +40,20 @@ public class SearchHistoryProvider : ISearchHistoryProvider
     {
         await EnsureLoaded(cancellationToken);
 
-        var entry = history.FirstOrDefault(item => item.SearchString == searchString);
+        var entry = _history.FirstOrDefault(item => item.SearchString == searchString);
         if (entry is not null)
         {
             entry.Count++;
         }
         else
         {
-            if (history.Count >= HistorySize)
-                _ = history.Dequeue();
+            if (_history.Count >= HistorySize)
+                _ = _history.Dequeue();
 
-            history.Enqueue(new SearchItem() { SearchString = searchString, Count = 1 });
+            _history.Enqueue(new SearchItem() { SearchString = searchString, Count = 1 });
         }
 
-        await _localStorage.SetItemAsync(Key, history, cancellationToken);
+        await localStorage.SetItemAsync(Key, _history, cancellationToken);
     }
 }
 

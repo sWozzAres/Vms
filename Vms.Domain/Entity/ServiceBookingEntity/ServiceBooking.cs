@@ -35,6 +35,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
     {
         public string CompanyCode { get; set; } = null!;
         public Guid Id { get; private set; }
+        public string Ref { get; set; }
         public Guid VehicleId { get; set; }
         public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
@@ -54,12 +55,12 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public MotEvent? MotEvent { get; set; }
         public ServiceBookingLock? Lock { get; set; }
 
-        public string CreatedUserId { get; set; }
-        public User CreatedBy { get; set; }
+        public string CreatedUserId { get; set; } = null!;
+        public User CreatedBy { get; set; } = null!;
         public string? AssignedToUserId { get; set; }
-        public User? AssignedTo { get; set; } = null!;
+        public User? AssignedTo { get; set; }
         public string? OwnerUserId { get; set; }
-        public User? Owner { get; set; } = null!;
+        public User? Owner { get; set; }
 
         public Guid? LockId { get; set; }
         private ServiceBooking() { }
@@ -80,7 +81,11 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             Status = IsValid
                 ? ServiceBookingStatus.Assign
                 : ServiceBookingStatus.None;
+
+            var r = (uint)new Random().NextInt64(1111111111, uint.MaxValue);
+            Ref = r.ToString()[..3] + "-" + r.ToString()[3..6] + "-" + r.ToString()[6..10];
         }
+
         public bool IsValid
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 
@@ -124,9 +129,9 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
     {
         public Guid Id { get; set; }
         public Guid ServiceBookingId { get; set; }
-        public ServiceBooking ServiceBooking { get; set; }
-        public string UserId { get; set; }
-        public string UserName { get; set; }
+        public ServiceBooking ServiceBooking { get; set; } = null!;
+        public string UserId { get; set; } = null!;
+        public string UserName { get; set; } = null!;
         public DateTime Granted { get; set; }
         public static ServiceBookingLock Create(Guid serviceBookingId, string userId, string userName)
         => new()
@@ -142,8 +147,8 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
     public class Follower
     {
         public Guid DocumentId { get; set; }
-        public string UserId { get; set; }
-        public string EmailAddress { get; set; }
+        public string UserId { get; set; } = null!;
+        public string EmailAddress { get; set; } = null!;
     }
     //public class ServiceBookingSupplier
     //{
@@ -201,6 +206,8 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.ToTable("ServiceBooking");
             builder.HasKey(e => e.Id);
+
+            builder.HasIndex(e=>e.Ref).IsUnique().HasDatabaseName("UQ_ServiceBooking_Ref");
 
             builder.Property(e => e.CompanyCode)
                 .HasMaxLength(10)

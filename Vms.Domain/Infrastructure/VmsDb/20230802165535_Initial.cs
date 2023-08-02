@@ -115,7 +115,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    TenantId = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -510,6 +511,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Ref = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PreferredDate1 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
@@ -787,6 +789,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "IX_ServiceBooking_SupplierCode",
                 table: "ServiceBooking",
                 column: "SupplierCode");
+
+            migrationBuilder.CreateIndex(
+                name: "UQ_ServiceBooking_Ref",
+                table: "ServiceBooking",
+                column: "Ref",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceBookingLock_ServiceBookingId",

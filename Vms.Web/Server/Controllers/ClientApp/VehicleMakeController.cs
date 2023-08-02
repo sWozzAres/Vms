@@ -10,9 +10,8 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class VehicleMakeController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
+public class VehicleMakeController(VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<CompanyController> _logger = logger;
     readonly VmsDbContext _context = context;
 
     [HttpGet]

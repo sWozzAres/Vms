@@ -8,7 +8,7 @@ public class AssignFleetToVehicle(VmsDbContext context)
 
     public async Task AssignAsync(Guid id, AssignFleetToVehicleCommand command, CancellationToken cancellationToken)
     {
-        Assign(await _context.Vehicles.FindAsync(id, cancellationToken)
+        Assign(await _context.Vehicles.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load vehicle."), command.FleetCode);
     }
 

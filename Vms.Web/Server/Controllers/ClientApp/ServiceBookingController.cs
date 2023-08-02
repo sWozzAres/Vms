@@ -2,13 +2,9 @@
 using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Polly;
 using Vms.Application.Services;
-using Vms.Application.UseCase;
 using Vms.Application.UseCase.ServiceBookingUseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
@@ -45,7 +41,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         CancellationToken cancellationToken)
     {
         var follow = await _context.Followers
-            .SingleOrDefaultAsync(f => f.UserId == userProvider.UserId && f.DocumentId == id);
+            .SingleOrDefaultAsync(f => f.UserId == userProvider.UserId && f.DocumentId == id, cancellationToken);
 
         if (follow is null)
         {
@@ -108,6 +104,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         Guid lockId,
         CancellationToken cancellationToken)
     {
+        var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken);
+        if (serviceBooking is null)
+        {
+            return NotFound();
+        }
+
         var lck = new ServiceBookingLock() { Id = lockId };
         _context.ServiceBookingLocks.Remove(lck);
 
@@ -117,7 +119,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
             return Ok();
         }
-        catch (DbUpdateConcurrencyException dbu)
+        catch (DbUpdateConcurrencyException)
         {
             return NotFound();
         }
@@ -248,7 +250,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] ISupplierLocator supplierLocator,
         CancellationToken cancellationToken)
     {
-        var serviceBooking = await _context.ServiceBookings.FindAsync(id, cancellationToken);
+        var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken);
         if (serviceBooking is null)
         {
             return NotFound();
@@ -280,12 +282,28 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] ICreateServiceBooking createServiceBooking,
         CancellationToken cancellationToken)
     {
-        var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
-            .CreateAsync(request, cancellationToken);
+        int tries = 1;
+        while (true) {
+            try
+            {
+                var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
+                    .CreateAsync(request, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
+                return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException && ex.InnerException.Message.Contains("UQ_ServiceBooking_Ref"))
+            {
+                if (tries == 3)
+                {
+                    logger.LogCritical("Failed to create service booking with unique ref.");
+                    throw;
+                }
+                
+                tries++;
+            }
+        }
     }
 
     [HttpGet]
@@ -307,6 +325,9 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
+        var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+            ?? throw new InvalidOperationException("Failed to load service booking.");
+        
         var entry = new ActivityLog(id, request.Text, userProvider.UserId, userProvider.UserName);
         _context.ActivityLog.Add(entry);
         await _context.SaveChangesAsync(cancellationToken);
@@ -319,14 +340,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     public async Task<IActionResult> GetActivity(Guid id, Guid aid,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-
-        //TODO aid
         var activityLog = await (from sb in _context.ServiceBookings
                                  join ac in _context.ActivityLog on sb.Id equals ac.DocumentId
-                                 where sb.Id == id
+                                 where sb.Id == id && ac.DocumentId == aid
                                  select ac).SingleOrDefaultAsync(cancellationToken);
-
 
         return activityLog is null ? NotFound() : Ok(activityLog.ToDto());
     }
@@ -344,6 +361,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             .Select(x => new ServiceBookingListDto() { 
                 Id = x.Id, 
                 VehicleId = x.VehicleId, 
+                Ref = x.Ref,
                 Vrm = x.Vehicle.Vrm,
                 RescheduleTime = x.RescheduleTime,
                 Status = (int)x.Status
@@ -366,22 +384,22 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToDto());
     }
 
-    [HttpDelete]
-    [Route("{id}/activity/{activityId}")]
-    public async Task<IActionResult> DeleteActivity(Guid id, Guid activityId,
-        CancellationToken cancellationToken)
-    {
-        var serviceBooking = await _context.ServiceBookings.AsNoTracking()
-                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+    //[HttpDelete]
+    //[Route("{id}/activity/{activityId}")]
+    //public async Task<IActionResult> DeleteActivity(Guid id, Guid activityId,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var serviceBooking = await _context.ServiceBookings.AsNoTracking()
+    //            .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
-        if (serviceBooking is null)
-        {
-            return NotFound();
-        }
+    //    if (serviceBooking is null)
+    //    {
+    //        return NotFound();
+    //    }
 
-        //ActivityLog al = new ActivityLog(activityId)
-        return NoContent();
-    }
+    //    //ActivityLog al = new ActivityLog(activityId)
+    //    return NoContent();
+    //}
 
     static string GetServiceBookingQueryText()
     {
@@ -393,7 +411,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             		    WHEN EXISTS (SELECT 1 FROM Followers f WHERE sb.Id = f.DocumentId AND f.UserId = @userId) THEN 1
             		    ELSE 0
             	    END AS IsFollowing,
-                    sb.AssignedToUserId
+                    sb.AssignedToUserId, sb.Ref
                 FROM ServiceBooking sb
                 JOIN Vehicle v ON sb.VehicleId = v.Id
                 JOIN VehicleVrm vv ON v.Id = vv.VehicleId
@@ -424,13 +442,13 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [AcceptHeader("application/vnd.full")]
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetServiceBookingFullByVehicle(Guid id,
+    public async Task<IActionResult> GetServiceBookingsFullByVehicle(Guid id,
         IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
         var serviceBookings = await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition(GetServiceBookingQueryText(),
-                new { userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition($"{GetServiceBookingQueryText()} AND v.Id = @id",
+                new { id, userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken));
 
         return Ok(serviceBookings.ToList());
     }

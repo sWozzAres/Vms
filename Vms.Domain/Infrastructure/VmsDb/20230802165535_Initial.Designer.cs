@@ -13,7 +13,7 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230731153153_Initial")]
+    [Migration("20230802165535_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -573,6 +573,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<DateOnly?>("PreferredDate3")
                         .HasColumnType("date");
 
+                    b.Property<string>("Ref")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("RescheduleTime")
                         .HasColumnType("datetime2");
 
@@ -596,6 +600,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasIndex("CreatedUserId");
 
                     b.HasIndex("OwnerUserId");
+
+                    b.HasIndex("Ref")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_ServiceBooking_Ref");
 
                     b.HasIndex("SupplierCode");
 
@@ -690,9 +698,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("UserId");
 

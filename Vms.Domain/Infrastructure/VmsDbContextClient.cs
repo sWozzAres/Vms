@@ -6,12 +6,8 @@ using Vms.Domain.Services;
 
 namespace Vms.Domain.Infrastructure;
 
-public class VmsDbContextClient : VmsDbContext
+public class VmsDbContextClient(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : VmsDbContext(options, userProvider, logger)
 {
-    public VmsDbContextClient(DbContextOptions<VmsDbContext> options, IUserProvider userProvider, ILogger<VmsDbContext> logger) : base(options, userProvider, logger)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //base.OnModelCreating(modelBuilder);

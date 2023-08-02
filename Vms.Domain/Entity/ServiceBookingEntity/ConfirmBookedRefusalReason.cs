@@ -3,18 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Vms.Domain.Entity.ServiceBookingEntity
 {
-    public class ConfirmBookedRefusalReason
+    public class ConfirmBookedRefusalReason(string companyCode, string code, string name)
     {
-        public string CompanyCode { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
+        public string CompanyCode { get; set; } = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
+        public string Code { get; set; } = code ?? throw new ArgumentNullException(nameof(code));
+        public string Name { get; set; } = name ?? throw new ArgumentNullException(nameof(name));
         internal Company Company { get; set; } = null!;
-        public ConfirmBookedRefusalReason(string companyCode, string code, string name)
-        {
-            CompanyCode = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
-            Code = code ?? throw new ArgumentNullException(nameof(code));
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
     }
 }
 

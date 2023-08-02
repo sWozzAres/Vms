@@ -18,13 +18,11 @@
         <button>Add to Campaign</button>
     </Buttons>
     <GridColumns>
-        <TemplateColumn Title="Id">
-            <a href="/servicebooking/view/@context!.Id">@context.Id</a>
+        <TemplateColumn Title="Ref">
+            <a href="/servicebooking/view/@context!.Id">@context.Ref</a>
         </TemplateColumn>
-        <TemplateColumn Title="Vrm">
-            <a href="/vehicle/view/@context!.VehicleId">@context.Vrm</a>
-        </TemplateColumn>
-        <PropertyColumn Property="x=>x.RescheduleTime" Title="Due"/>
+        <PropertyColumn Property="x=>x.Vrm" Title="Vrm" />
+        <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g"/>
         <PropertyColumn Property="x=>x.StatusText" Title="Status" />
     </GridColumns>
 </ListTemplate2>

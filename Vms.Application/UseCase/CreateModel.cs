@@ -2,16 +2,14 @@
 
 namespace Vms.Application.UseCase;
 
-public class CreateModel
+public class CreateModel(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
     MakeRole? Make;
-    public CreateModel(VmsDbContext dbContext)
-       => DbContext = dbContext;
 
     public async Task<VehicleModel> CreateAsync(CreateModelRequest request, CancellationToken cancellationToken = default)
     {
-        Make = new(await DbContext.VehicleMakes.FindAsync(request.Make, cancellationToken)
+        Make = new(await DbContext.VehicleMakes.FindAsync(new object[] { request.Make }, cancellationToken)
             ?? throw new VmsDomainException("Make not found."), this);
 
         var model = Make.CreateModel(request.Model);

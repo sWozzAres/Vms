@@ -3,20 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Vms.Domain.Entity
 {
-    public class Email
+    public class Email(string recipients, string subject, string body)
     {
-        public Guid Id { get; set; }
-        public string Recipients { get; set; } = null!;
-        public string Subject { get; set; } = null!;
-        public string Body { get; set; } = null!;
-
-        public Email(string recipients, string subject, string body)
-        {
-            Id = Guid.NewGuid();
-            Recipients = recipients ?? throw new ArgumentNullException(nameof(recipients));
-            Subject = subject ?? throw new ArgumentNullException(nameof(subject));
-            Body = body ?? throw new ArgumentNullException(nameof(body));
-        }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Recipients { get; set; } = recipients ?? throw new ArgumentNullException(nameof(recipients));
+        public string Subject { get; set; } = subject ?? throw new ArgumentNullException(nameof(subject));
+        public string Body { get; set; } = body ?? throw new ArgumentNullException(nameof(body));
     }
 }
 

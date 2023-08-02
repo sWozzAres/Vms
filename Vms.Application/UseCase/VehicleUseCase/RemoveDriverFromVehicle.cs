@@ -1,17 +1,14 @@
 ﻿namespace Vms.Application.UseCase.VehicleUseCase;
 
-public class RemoveDriverFromVehicle
+public class RemoveDriverFromVehicle(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
     VehicleRole? Vehicle;
-
-    public RemoveDriverFromVehicle(VmsDbContext dbContext)
-        => DbContext = dbContext;
 
     public async Task<bool> RemoveAsync(Guid id, Guid driverId, CancellationToken cancellationToken = default)
     {
         // load vehicle - ensures we have access
-        Vehicle = new(await DbContext.Vehicles.FindAsync(id, cancellationToken)
+        Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
 
         if (!await Vehicle.RemoveDriverAsync(driverId, cancellationToken))

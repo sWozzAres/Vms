@@ -13,16 +13,10 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class AppController : ControllerBase
+public class AppController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<CompanyController> _logger;
-    readonly VmsDbContext _context;
-
-    public AppController(ILogger<CompanyController> logger, VmsDbContext context)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    readonly ILogger<CompanyController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpGet]
     [Route("users/{code}")]
@@ -46,11 +40,11 @@ public class AppController : ControllerBase
     [Route("register")]
     public async Task<IActionResult> RegisterLogin(IUserProvider userProvider, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FindAsync(userProvider.UserId, cancellationToken);
+        var user = await _context.Users.FindAsync(new object[] { userProvider.UserId }, cancellationToken);
         if (user is null)
         {
             user = new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId);
-
+            _logger.LogDebug("Creating information record for user {user}.", user);
             _context.Users.Add(user);
         }
         else

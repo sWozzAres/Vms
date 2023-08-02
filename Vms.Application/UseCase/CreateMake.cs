@@ -1,13 +1,10 @@
 ﻿namespace Vms.Application.UseCase;
 
-public class CreateMake
+public class CreateMake(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
 
-    public CreateMake(VmsDbContext dbContext)
-       => DbContext = dbContext;
-
-    public VehicleMake Create(CreateMakeRequest request, CancellationToken cancellationToken = default)
+    public VehicleMake Create(CreateMakeRequest request)
     {
         var make = new VehicleMake(request.Make);
         DbContext.Add(make);

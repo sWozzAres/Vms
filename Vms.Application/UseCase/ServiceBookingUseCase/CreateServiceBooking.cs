@@ -26,7 +26,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
     public async Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand command, CancellationToken cancellationToken = default)
     {
-        Vehicle = new(await DbContext.Vehicles.FindAsync(command.VehicleId, cancellationToken)
+        Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { command.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle not found."), this);
 
         SummaryText.AppendLine("# Create Service Booking");
@@ -59,7 +59,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
             if (request.MotId is not null)
             {
-                var motEntry = await ctx.DbContext.MotEvents.SingleAsync(m => m.Id == request.MotId);
+                var motEntry = await ctx.DbContext.MotEvents.SingleAsync(m => m.Id == request.MotId, cancellationToken);
                 //motEntry.ServiceBookingId = booking.Id;
                 motEntry.ServiceBooking = booking;
             }

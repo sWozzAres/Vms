@@ -91,9 +91,8 @@
         {
             try
             {
-                var response = await Http.GetFromJsonAsync<ListResult<TGridItem>>($"{ApiUrl}?list={selectedList}&start={req.StartIndex}&take={req.Count}");
-                if (response is null)
-                    throw new InvalidOperationException("Failed to load data.");
+                var response = await Http.GetFromJsonAsync<ListResult<TGridItem>>($"{ApiUrl}?list={selectedList}&start={req.StartIndex}&take={req.Count}")
+                    ?? throw new InvalidOperationException("Failed to load data.");
                 error = false;
                 return GridItemsProviderResult.From(response.Items, response.TotalCount);
             }

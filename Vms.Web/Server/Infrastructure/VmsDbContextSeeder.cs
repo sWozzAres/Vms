@@ -57,7 +57,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     const double maxLongitude = 2.668112510252122;
     const double deltaLatitude = maxLatitude - minLatitude;
     const double deltaLongitude = maxLongitude - minLongitude;
-    static Geometry RandomPoint() => new Point(minLongitude + (deltaLongitude * rnd.NextDouble()), minLatitude + (deltaLatitude * rnd.NextDouble())) { SRID = 4326 };
+    static Point RandomPoint() => new(minLongitude + (deltaLongitude * rnd.NextDouble()), minLatitude + (deltaLatitude * rnd.NextDouble())) { SRID = 4326 };
 
     static readonly Random rnd = new();
 
@@ -143,7 +143,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 var customer = await new CreateCustomer(_context)
                     .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
 
-                
+
             }
         }
 
@@ -169,7 +169,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         IEnumerable<DriverInfo> GetDrivers()
         {
-            var fullNames = (IEnumerable<string> firstNames)
+            IEnumerable<(string firstName, string surName)> fullNames(IEnumerable<string> firstNames)
                 => from surName in SurNames.Distinct()
                    from firstName in firstNames
                    select (firstName, surName);
@@ -331,31 +331,31 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     async Task SeedSuppliers()
     {
-        var s1 = new CreateSupplier(_context)
+        new CreateSupplier(_context)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP01",
                     "Thrupp Tyre Co Ltd",
                     new Address("Unit 12 Griffin Mill", "London Rd", "STROUD", "GL52AZ", new Point(-2.204244578769126, 51.73021720095717) { SRID = 4326 }), true));
 
-        var s2 = new CreateSupplier(_context)
+        new CreateSupplier(_context)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP02",
                     "Warwick Car Co",
                     new Address("Fromeside Ind Est", "Doctor Newtons Way", "STROUD", "GL53JX", new Point(-2.217698852580117, 51.74259678708762) { SRID = 4326 }), true));
 
-        var s3 = new CreateSupplier(_context)
+        new CreateSupplier(_context)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP03",
                     "Blake Services Stroud Ltd",
                     new Address("Hopes Mill Business Centre", "", "STROUD", "GL52SE", new Point(-2.197510975726595, 51.72249258962455) { SRID = 4326 }), true));
 
-        var s4 = new CreateSupplier(_context)
+        new CreateSupplier(_context)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP04",
                     "Lansdown Road Motors Ltd",
                     new Address("Lansdown Rd", "", "STROUD", "GL51BW", new Point(-2.210593551187789, 51.74831757007313) { SRID = 4326 }), true));
 
-        var s5 = new CreateSupplier(_context)
+        new CreateSupplier(_context)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP05",
                     "Kwik Fit - Dursley",
@@ -363,7 +363,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         foreach (var i in Enumerable.Range(1, 100))
         {
-            var supplier = new CreateSupplier(_context)
+            new CreateSupplier(_context)
                 .Create(new CreateSupplierRequest(
                     $"SUP{i:D4}",
                     $"Supplier #{i}",
@@ -375,25 +375,14 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     }
 }
 
-class MakeInfo
+class MakeInfo(string make, List<ModelInfo> models)
 {
-    public string Make { get; set; }
-    public List<ModelInfo> Models { get; set; }
-
-    public MakeInfo(string make, List<ModelInfo> models)
-    {
-        Make = make ?? throw new ArgumentNullException(nameof(make));
-        Models = models ?? throw new ArgumentNullException(nameof(models));
-    }
+    public string Make { get; set; } = make ?? throw new ArgumentNullException(nameof(make));
+    public List<ModelInfo> Models { get; set; } = models ?? throw new ArgumentNullException(nameof(models));
 }
-class ModelInfo
+class ModelInfo(string model)
 {
-    public string Model { get; set; }
-
-    public ModelInfo(string model)
-    {
-        Model = model ?? throw new ArgumentNullException(nameof(model));
-    }
+    public string Model { get; set; } = model ?? throw new ArgumentNullException(nameof(model));
 }
 
 public record DriverInfo(string? Salutation, string? FirstName, string? MiddleNames,

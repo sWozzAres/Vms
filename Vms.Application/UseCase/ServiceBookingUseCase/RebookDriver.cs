@@ -21,7 +21,7 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
 
     public async Task RebookAsync(Guid id, TaskRebookDriverCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Rebook Driver");

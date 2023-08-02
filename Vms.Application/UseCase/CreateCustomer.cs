@@ -7,7 +7,7 @@ public class CreateCustomer(VmsDbContext dbContext)
 
     public async Task<Customer> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
+        Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
         var company = Company.CreateCustomer(request.Code, request.Name);

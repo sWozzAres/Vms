@@ -8,16 +8,14 @@ using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;
 
-public class CreateDriver
+public class CreateDriver(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
     VehicleRole? Vehicle;
-    public CreateDriver(VmsDbContext dbContext)
-       => DbContext = dbContext;
 
     public async Task<Driver> CreateAsync(CreateDriverRequest request, CancellationToken cancellationToken = default)
     {
-        Vehicle = new(await DbContext.Vehicles.FindAsync(request.VehicleId, cancellationToken)
+        Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { request.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
 
         var driver = await Vehicle.CreateDriverAsync(request, cancellationToken);

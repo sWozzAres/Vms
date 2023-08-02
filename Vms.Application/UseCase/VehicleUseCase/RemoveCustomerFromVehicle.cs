@@ -6,7 +6,7 @@ public class RemoveCustomerFromVehicle(VmsDbContext context)
 
     public async Task RemoveAsync(Guid id, CancellationToken cancellationToken)
     {
-        Remove(await _context.Vehicles.FindAsync(id, cancellationToken)
+        Remove(await _context.Vehicles.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load vehicle."));
     }
 

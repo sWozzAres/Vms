@@ -570,6 +570,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<DateOnly?>("PreferredDate3")
                         .HasColumnType("date");
 
+                    b.Property<string>("Ref")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("RescheduleTime")
                         .HasColumnType("datetime2");
 
@@ -593,6 +597,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasIndex("CreatedUserId");
 
                     b.HasIndex("OwnerUserId");
+
+                    b.HasIndex("Ref")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_ServiceBooking_Ref");
 
                     b.HasIndex("SupplierCode");
 

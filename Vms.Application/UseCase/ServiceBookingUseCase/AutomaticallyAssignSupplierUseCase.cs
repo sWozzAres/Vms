@@ -21,7 +21,7 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
 
     public async Task<bool> Assign(Guid id, CancellationToken cancellationToken = default)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new VmsDomainException("Service Booking not found."), this);
 
         return await ServiceBooking.AutoAssign(cancellationToken);

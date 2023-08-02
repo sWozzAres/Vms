@@ -10,11 +10,6 @@
 @if (loadingException is not null)
 {
     <RetryLoad Exception="loadingException" OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
-    @* <div class="error">
-        <p>An error occured loading the page.</p>
-        <p>@loadingException.Message</p>
-        <button @onclick="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)">Retry</button>
-    </div> *@
 }
 else if (Model is not null)
 {
@@ -39,7 +34,6 @@ else if (Model is not null)
 
     [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
     public TModel Model { get; set; } = null!;
-    //[Parameter] public string Id { get; set; } = null!;
 
     EditContext editContext { get; set; } = null!;
     ValidationMessageStore messageStore = null!;

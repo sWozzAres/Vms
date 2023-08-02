@@ -19,7 +19,7 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
 
     public async Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default)
     {
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Service Booking not found.");
 
         if (serviceBooking.Status != ServiceBookingStatus.Assign && serviceBooking.Status != ServiceBookingStatus.Book)
@@ -27,7 +27,7 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
 
         SummaryText.AppendLine("# Assign Supplier");
 
-        var supplier = await DbContext.Suppliers.FindAsync(command.SupplierCode, cancellationToken)
+        var supplier = await DbContext.Suppliers.FindAsync(new object[] { command.SupplierCode }, cancellationToken)
             ?? throw new InvalidOperationException("Supplier not found.");
 
         SummaryText.AppendLine($"* Code: {supplier.Code}");

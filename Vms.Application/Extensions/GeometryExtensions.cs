@@ -16,7 +16,7 @@ namespace Vms.Application.Extensions;
 public static class GeometryExtensions
 {
     private static readonly CoordinateSystemServices _coordinateSystemServices
-        = new CoordinateSystemServices(
+        = new(
             new Dictionary<int, string>
             {
                 // Coordinate systems:
@@ -61,13 +61,8 @@ public static class GeometryExtensions
         return result;
     }
 
-    private class MathTransformFilter : ICoordinateSequenceFilter
+    private class MathTransformFilter(MathTransform transform) : ICoordinateSequenceFilter
     {
-        private readonly MathTransform _transform;
-
-        public MathTransformFilter(MathTransform transform)
-            => _transform = transform;
-
         public bool Done => false;
         public bool GeometryChanged => true;
 
@@ -76,7 +71,7 @@ public static class GeometryExtensions
             var x = seq.GetX(i);
             var y = seq.GetY(i);
             var z = seq.GetZ(i);
-            _transform.Transform(ref x, ref y, ref z);
+            transform.Transform(ref x, ref y, ref z);
             seq.SetX(i, x);
             seq.SetY(i, y);
             seq.SetZ(i, z);

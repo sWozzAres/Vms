@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Vms.Domain.Entity
@@ -11,6 +6,7 @@ namespace Vms.Domain.Entity
     public class ActivityLog(Guid documentId, string text, string userId, string userName)
     {
         public Guid Id { get; private set; } = Guid.NewGuid();
+        //public string CompanyCode { get; set; } = companyCode;
         public Guid DocumentId { get; private set; } = documentId;
         public string Text { get; private set; } = text ?? throw new ArgumentNullException(nameof(text));
         public DateTime EntryDate { get; private set; } = DateTime.Now;
@@ -31,6 +27,7 @@ namespace Vms.Domain.Entity.Configuration
             entity.HasIndex(t => t.DocumentId).IsUnique(false);
 
             entity.Property(t => t.Text).HasMaxLength(1024).IsRequired();
+            //entity.Property(t => t.CompanyCode).HasMaxLength(Company.Code_MaxLength);
         }
     }
 }

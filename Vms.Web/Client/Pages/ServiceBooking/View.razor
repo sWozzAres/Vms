@@ -149,7 +149,7 @@ else
 
     Exception? loadingException;
     ServiceBookingFullDto? serviceBooking;
-    string Title => serviceBooking?.Id.ToString() ?? "";
+    string Title => serviceBooking is null ? "" : serviceBooking.Ref;
 
     async Task TaskCompleted(bool saved)
     {
@@ -173,7 +173,7 @@ else
         {
             if (result is PostResponse.UnprocessableEntity ue)
             {
-                //TODO should never happen but it does should we show errors? Probably not.
+                //TODO should never happen but if it does should we show errors? Probably not.
                 throw new InvalidOperationException("Validation error.");
             }
             else
@@ -196,21 +196,21 @@ else
         displayTask = name;
     }
 
-    async Task<PostResponse> SaveModel(ServiceBookingDto model)
-    {
-        var result = await Api.SaveServiceBooking(Id, model);
-        if (result is PostResponse.Success)
-        {
-            await LoadServiceBooking();
-            StateHasChanged();
-        }
-        return result;
-    }
+    // async Task<PostResponse> SaveModel(ServiceBookingDto model)
+    // {
+    //     var result = await Api.SaveServiceBooking(Id, model);
+    //     if (result is PostResponse.Success)
+    //     {
+    //         await LoadServiceBooking();
+    //         StateHasChanged();
+    //     }
+    //     return result;
+    // }
 
-    async Task<ServiceBookingDto> LoadModel()
-    {
-        return await Task.FromResult(serviceBooking!.ToDto());
-    }
+    // async Task<ServiceBookingDto> LoadModel()
+    // {
+    //     return await Task.FromResult(serviceBooking!.ToDto());
+    // }
 
     async Task LoadServiceBooking()
     {
@@ -263,44 +263,44 @@ else
         }
     }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        Logger.LogInformation("SetParametersAsync()");
-        await base.SetParametersAsync(parameters);
-        //await Task.Delay(1000);
-    }
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("OnInitialized()");
-        base.OnInitialized();
-    }
+    // public override async Task SetParametersAsync(ParameterView parameters)
+    // {
+    //     Logger.LogInformation("SetParametersAsync()");
+    //     await base.SetParametersAsync(parameters);
+    //     //await Task.Delay(1000);
+    // }
+    // protected override void OnInitialized()
+    // {
+    //     Logger.LogInformation("OnInitialized()");
+    //     base.OnInitialized();
+    // }
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("OnInitializedAsync()");
-        await base.OnInitializedAsync();
+        //Logger.LogInformation("OnInitializedAsync()");
+        //await base.OnInitializedAsync();
         ArgumentNullException.ThrowIfNull(Id);
         await LoadServiceBooking();
     }
-    protected override void OnParametersSet()
-    {
-        Logger.LogInformation("OnParametersSet()");
-        base.OnParametersSet();
-    }
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogInformation("OnParametersSetAsync()");
-        await base.OnParametersSetAsync();
-        //await Task.Delay(1000);
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
-        base.OnAfterRender(firstRender);
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
-        await base.OnAfterRenderAsync(firstRender);
-        //await Task.Delay(1000);
-    }
+    // protected override void OnParametersSet()
+    // {
+    //     Logger.LogInformation("OnParametersSet()");
+    //     base.OnParametersSet();
+    // }
+    // protected override async Task OnParametersSetAsync()
+    // {
+    //     Logger.LogInformation("OnParametersSetAsync()");
+    //     await base.OnParametersSetAsync();
+    //     //await Task.Delay(1000);
+    // }
+    // protected override void OnAfterRender(bool firstRender)
+    // {
+    //     Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+    //     base.OnAfterRender(firstRender);
+    // }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+    //     await base.OnAfterRenderAsync(firstRender);
+    //     //await Task.Delay(1000);
+    // }
 }

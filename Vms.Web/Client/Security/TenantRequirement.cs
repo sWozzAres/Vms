@@ -2,9 +2,7 @@
 
 namespace Vms.Web.Client.Security;
 
-public class TenantRequirement : IAuthorizationRequirement
+public class TenantRequirement(string tenantId) : IAuthorizationRequirement
 {
-    public string TenantId { get; }
-
-    public TenantRequirement(string tenantId) => TenantId = tenantId;
+    public string TenantId { get; } = tenantId;
 }

@@ -16,7 +16,7 @@ public class Follow(VmsDbContext dbContext, IUserProvider userProvider) : IFollo
 
     public async Task FollowAsync(Guid id, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         ServiceBooking.Follow();

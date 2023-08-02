@@ -22,7 +22,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
 
     public async Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Check Arrival");

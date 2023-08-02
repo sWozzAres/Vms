@@ -251,7 +251,7 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<ServiceBookingFullDto>($"/api/servicebooking/{id}")
             ?? throw new InvalidOperationException("Failed to load service booking.");
     }
-    public async Task<ServiceBookingDto> CreateServiceBookingAsync(Guid vehicleId, CreateServiceBookingCommand request)
+    public async Task<ServiceBookingDto> CreateServiceBookingAsync(CreateServiceBookingCommand request)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return await DeserializeOrThrow<ServiceBookingDto>(await http.PostAsJsonAsync("/api/servicebooking", request));

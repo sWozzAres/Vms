@@ -1,15 +1,13 @@
 ﻿namespace Vms.Application.UseCase.VehicleUseCase;
 
-public class CreateVehicle
+public class CreateVehicle(VmsDbContext dbContext)
 {
-    readonly VmsDbContext DbContext;
+    readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
-    public CreateVehicle(VmsDbContext dbContext)
-       => DbContext = dbContext;
 
     public async Task<Vehicle> CreateAsync(CreateVehicleRequest request, CancellationToken cancellationToken = default)
     {
-        Company = new(await DbContext.Companies.FindAsync(request.CompanyCode, cancellationToken)
+        Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
         var vehicle = Company.CreateVehicle(request);

@@ -86,7 +86,7 @@
                 null,
                 null,
                 false, motId, null, null);
-            var serviceBooking = await Api.CreateServiceBookingAsync(Id, request);
+            var serviceBooking = await Api.CreateServiceBookingAsync(request);
             NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
         }
         catch (VmsDomainException ex)
