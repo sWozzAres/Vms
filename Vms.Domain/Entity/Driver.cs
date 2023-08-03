@@ -7,6 +7,10 @@ namespace Vms.Domain.Entity
 {
     public partial class Driver(string companyCode, string? salutation, string? firstName, string? middleNames, string lastName, string emailAddress, string mobileNumber, Geometry homeLocation)
     {
+        public const int FirstName_MaxLength = 20;
+        public const int LastName_MaxLength = 20;
+        public const int Email_MaxLength = 128;
+        public const int MobileNumber_MaxLength = 12;
         public Guid Id { get; set; } = Guid.NewGuid();
         public string CompanyCode { get; set; } = companyCode;
         public string? Salutation { get; set; } = salutation;

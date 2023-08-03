@@ -266,6 +266,20 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
         ErrorMessage = "You must select a service level.")]
     public ServiceLevel ServiceLevel { get; set; }
     public string? AssignedToUserId { get; set; }
+    [StringLength(41)]
+    public string? Driver_Name { get; set; }
+    [StringLength(128)]
+    [EmailAddress]
+    public string? Driver_EmailAddress { get; set; }
+    [StringLength(12)]
+    public string? Driver_MobileNumber { get; set; }
+    [StringLength(41)]
+    public string? Contact_Name { get; set; }
+    [StringLength(128)]
+    [EmailAddress]
+    public string? Contact_EmailAddress { get; set; }
+    [StringLength(12)]
+    public string? Contact_MobileNumber { get; set; }
     public void CopyFrom(ServiceBookingDto source)
     {
         Id = source.Id;
@@ -275,6 +289,12 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
         PreferredDate2 = source.PreferredDate2;
         PreferredDate3 = source.PreferredDate3;
         ServiceLevel = source.ServiceLevel;
+        Driver_Name = source.Driver_Name;
+        Driver_EmailAddress = source.Driver_EmailAddress;
+        Driver_MobileNumber = source.Driver_MobileNumber;
+        Contact_Name = source.Contact_Name;
+        Contact_EmailAddress = source.Contact_EmailAddress;
+        Contact_MobileNumber = source.Contact_MobileNumber;
     }
 }
 
@@ -286,31 +306,48 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 //    SupplierShortDto? Supplier, MotEventShortDto? MotEvent, bool IsFollowing)
 //{
 //}
-public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm, DateTime? rescheduleTime, int status)
+public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm, DateTime? rescheduleTime, ServiceBookingDtoStatus status)
 {
     public Guid Id { get; set; } = id;
     public Guid VehicleId { get; set; } = vehicleId;
     public string Ref { get; set; } = @ref;
     public string Vrm { get; set; } = vrm;
     public DateTime? RescheduleTime { get; set; } = rescheduleTime;
-    public int Status { get; set; } = status;
+    public ServiceBookingDtoStatus Status { get; set; } = status;
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 }
+public enum ServiceBookingDtoStatus : int
+{
+    Cancelled = -2,
+    Complete = -1,
+    None = 0,
+    Assign = 1,
+    Book = 2,
+    Confirm = 3,
+    CheckArrival = 4,
+    CheckWorkStatus = 5,
+    ChaseDriver = 6,
+    RebookDriver = 7,
+    NotifyCustomer = 8,
+    NotifyCustomerDelay = 9
+};
 public static class ServiceBookingHelper
 {
-    public static string StatusText(int status) => status switch
+    public static string StatusText(ServiceBookingDtoStatus status) => status switch
     {
-        0 => "None",
-        1 => "Assign",
-        2 => "Book",
-        3 => "Confirm",
-        4 => "Check Arrival",
-        5 => "Check Work Status",
-        6 => "Chase Driver",
-        7 => "Rebook Driver",
-        8 => "Notify Customer",
-        9 => "Notify Customer Delay",
+        ServiceBookingDtoStatus.Cancelled => "Cancelled",
+        ServiceBookingDtoStatus.Complete => "Complete",
+        ServiceBookingDtoStatus.None => "None",
+        ServiceBookingDtoStatus.Assign => "Assign",
+        ServiceBookingDtoStatus.Book => "Book",
+        ServiceBookingDtoStatus.Confirm => "Confirm",
+        ServiceBookingDtoStatus.CheckArrival => "Check Arrival",
+        ServiceBookingDtoStatus.CheckWorkStatus => "Check Work Status",
+        ServiceBookingDtoStatus.ChaseDriver => "Chase Driver",
+        ServiceBookingDtoStatus.RebookDriver => "Rebook Driver",
+        ServiceBookingDtoStatus.NotifyCustomer => "Notify Customer",
+        ServiceBookingDtoStatus.NotifyCustomerDelay => "Notify Customer Delay",
         _ => "Unknown"
     };
 
@@ -327,7 +364,7 @@ public class ServiceBookingFullDto
     public DateOnly? PreferredDate1 { get; set; }
     public DateOnly? PreferredDate2 { get; set; }
     public DateOnly? PreferredDate3 { get; set; }
-    public int Status { get; set; }
+    public ServiceBookingDtoStatus Status { get; set; }
     public ServiceLevel ServiceLevel { get; set; }
     public string? Supplier_Code { get; set; }
     public string? Supplier_Name { get; set; }
@@ -335,6 +372,13 @@ public class ServiceBookingFullDto
     public DateOnly? MotEvent_Due { get; set; }
     public bool IsFollowing { get; set; }
     public string AssignedToUserId { get; set; } = null!;
+    public DateTime? RescheduleTime { get; set; }
+    public string? Driver_Name { get; set; }
+    public string? Driver_EmailAddress { get; set; }
+    public string? Driver_MobileNumber { get; set; }
+    public string? Contact_Name { get; set; }
+    public string? Contact_EmailAddress { get; set; }
+    public string? Contact_MobileNumber { get; set; }
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 
@@ -348,7 +392,13 @@ public class ServiceBookingFullDto
             PreferredDate2 = PreferredDate2,
             PreferredDate3 = PreferredDate3,
             ServiceLevel = ServiceLevel,
-            AssignedToUserId = AssignedToUserId
+            AssignedToUserId = AssignedToUserId,
+            Driver_Name = Driver_Name,
+            Driver_EmailAddress = Driver_EmailAddress,
+            Driver_MobileNumber = Driver_MobileNumber,
+            Contact_Name = Contact_Name,
+            Contact_EmailAddress = Contact_EmailAddress,
+            Contact_MobileNumber = Contact_MobileNumber
         };
 }
 

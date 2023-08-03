@@ -20,7 +20,7 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Produces("application/json")]
 public class ServiceBookingController(ILogger<ServiceBookingController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<ServiceBookingController> _logger = logger;
+    readonly ILogger<ServiceBookingController> _logger = logger ?? throw new ArgumentNullException(nameof(context));
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpPost]
@@ -359,7 +359,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             .Include(s => s.Vehicle)
             .Skip(start)
             .Take(take)
-            .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm, x.RescheduleTime, (int)x.Status))
+            .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm, x.RescheduleTime, (ServiceBookingDtoStatus)x.Status))
             .ToListAsync(cancellationToken);
 
         return Ok(new ListResult<ServiceBookingListDto>(totalCount, result));
@@ -405,8 +405,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             		    WHEN EXISTS (SELECT 1 FROM Followers f WHERE sb.Id = f.DocumentId AND f.UserId = @userId) THEN 1
             		    ELSE 0
             	    END AS IsFollowing,
-                    sb.AssignedToUserId, sb.Ref
+                    sb.AssignedToUserId, sb.Ref, sb.RescheduleTime,
+                    sbd.Name 'Driver_Name', sbd.EmailAddress 'Driver_EmailAddress', sbd.MobileNumber 'Driver_MobileNumber',
+                    sbc.Name 'Contact_Name', sbc.EmailAddress 'Contact_EmailAddress', sbc.MobileNumber 'Contact_MobileNumber'
                 FROM ServiceBooking sb
+                LEFT JOIN ServiceBookingDriver sbd ON sb.Id = sbd.ServiceBookingId
+                LEFT JOIN ServiceBookingContact sbc ON sb.Id = sbc.ServiceBookingId
                 JOIN Vehicle v ON sb.VehicleId = v.Id
                 JOIN VehicleVrm vv ON v.Id = vv.VehicleId
                 LEFT JOIN Supplier s ON sb.SupplierCode = s.Code
@@ -467,7 +471,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 }
 
 public record ServiceBookingFull(Guid Id, Guid VehicleId, string CompanyCode, string Vrm, string Make, string Model,
-        DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3, ServiceBookingStatus Status,
+        DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3, ServiceBookingDtoStatus Status,
         Domain.Entity.ServiceBookingEntity.ServiceLevel ServiceLevel, Supplier? Supplier, MotEvent? MotEvent, Follower? Follower);
 
 public static partial class DomainExtensions

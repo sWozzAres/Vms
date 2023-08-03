@@ -47,9 +47,8 @@ namespace Identity.API
 
             var subjectId = subject.Claims.Where(x => x.Type == "sub").FirstOrDefault().Value;
 
-            var user = await _userManager.FindByIdAsync(subjectId);
-            if (user == null)
-                throw new ArgumentException("Invalid subject identifier");
+            var user = await _userManager.FindByIdAsync(subjectId)
+                ?? throw new ArgumentException("Invalid subject identifier");
 
             // claims from user.claims
             var additionalClaims = (await _userManager.GetClaimsAsync(user))

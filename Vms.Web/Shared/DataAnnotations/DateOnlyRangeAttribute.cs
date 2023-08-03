@@ -8,19 +8,12 @@ namespace Vms.Web.Shared.DataAnnotations;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter,
      AllowMultiple = false)]
-public class DateOnlyRangeAttribute : ValidationAttribute
+public class DateOnlyRangeAttribute(int minimumYear, int minimumMonth, int minimumDay,
+    int maximumYear, int maximumMonth, int maximumDay, bool allowNull = false) : ValidationAttribute
 {
-    public DateOnly Minimum { get; set; }
-    public DateOnly Maximum { get; set; }
-    public bool AllowNull { get; set; }
-
-    public DateOnlyRangeAttribute(int minimumYear, int minimumMonth, int minimumDay, 
-        int maximumYear, int maximumMonth, int maximumDay, bool allowNull = false)
-    {
-        Minimum = new DateOnly(minimumYear, minimumMonth, minimumDay);
-        Maximum = new DateOnly(maximumYear, maximumMonth, maximumDay);
-        AllowNull = allowNull;
-    }
+    public DateOnly Minimum { get; set; } = new DateOnly(minimumYear, minimumMonth, minimumDay);
+    public DateOnly Maximum { get; set; } = new DateOnly(maximumYear, maximumMonth, maximumDay);
+    public bool AllowNull { get; set; } = allowNull;
 
     public override bool IsValid(object? value)
     {

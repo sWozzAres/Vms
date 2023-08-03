@@ -23,7 +23,7 @@
 
     TaskTemplate<TaskUnbookSupplierCommand> taskRef = null!;
 
-    bool isLoaded;
+    //bool isLoaded;
     bool OptionUnbookedDisabled => taskRef.Model.Result != TaskUnbookSupplierCommand.TaskResult.Unbooked;
 
     // async Task<PostResponse> Save(TaskUnbookSupplierCommand model) 
@@ -34,6 +34,6 @@
         ArgumentNullException.ThrowIfNull(ServiceBooking);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
-        isLoaded = true;
+        //isLoaded = true;
     }
 }

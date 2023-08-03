@@ -25,7 +25,7 @@ namespace Identity.API
         {
             var configuration = GetConfiguration();
 
-            Log.Logger = CreateSerilogLogger(configuration);
+            Log.Logger = CreateSerilogLogger();
 
             try
             {
@@ -78,7 +78,7 @@ namespace Identity.API
             }
         }
 
-        private static Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
+        private static Serilog.ILogger CreateSerilogLogger()
         {
             return new LoggerConfiguration()
                 .MinimumLevel.Debug()

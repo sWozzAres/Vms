@@ -1,46 +1,76 @@
 ﻿@inject ServerApiHttpClient Api
 
 <div class="taskview">
-    <div class="task-content">
-        @if (ServiceBooking.Status == 1)
-        {
-            <button @onclick="AssignSupplier">Assign Supplier</button>
-        }
-        else if (ServiceBooking.Status == 2)
-        {
-            <button @onclick="AssignSupplier">Assign Supplier</button>
-            <button @onclick="BookSupplier">Book Supplier</button>
-        }
-        else if (ServiceBooking.Status == 3)
-        {
-            <button @onclick="UnbookSupplier">Unbook</button>
-            <button @onclick="Confirm">Confirm Booked</button>
-        }
-        else if (ServiceBooking.Status == 4)
-        {
-            <button @onclick="UnbookSupplier">Unbook</button>
-            <button @onclick="CheckArrival">Check Arrival</button>
-        }
-        else if (ServiceBooking.Status == 5)
-        {
-            <button @onclick="UnbookSupplier" class="btn-prev-task">Unbook</button>
-            <button @onclick="CheckWorkStatus" class="btn-next-task">Check Work Status</button>
-        }
-        else if (ServiceBooking.Status == 8)
-        {
-            <button @onclick="NotifyCustomer">Notify Customer</button>
-        }
-        else if (ServiceBooking.Status == 9)
-        {
-            <button @onclick="NotifyCustomerDelay">Notify Customer Delay</button>
-        }
-    </div>
-    <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="OnSelectTask">
-        @* <svg viewBox="0 0 128 512">
-        <use xlink:href="icons/solid.svg#ellipsis-vertical" />
-        </svg> *@
-        Task
-    </MenuButton>
+    @if (ServiceBooking.Status == 0)
+    {
+        <Alert Style="Alert.AlertStyle.Info">You must complete the booking detail.</Alert>
+    }
+    else
+    {
+        <div class="task-content">
+            <MenuButton Items="@items" Align="MenuButton.Alignment.Left" OnSelectCallback="OnSelectTask">
+                Task
+            </MenuButton>
+
+            @if (ServiceBooking.Status == ServiceBookingDtoStatus.Assign)
+            {
+                <button @onclick="AssignSupplier" class="btn-next-task">Assign Supplier</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.Book)
+            {
+                <button @onclick="AssignSupplier" class="btn-prev-task">Assign Supplier</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.Confirm)
+            {
+                <button @onclick="UnbookSupplier" class="btn-prev-task">Unbook</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.CheckArrival)
+            {
+                <button @onclick="UnbookSupplier" class="btn-prev-task">Unbook</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.CheckWorkStatus)
+            {
+                <button @onclick="UnbookSupplier" class="btn-prev-task">Unbook</button>
+            }
+
+            @if(ServiceBooking.RescheduleTime is not null)
+            {
+                <strong>
+                    @RescheduleTimeDisplay(ServiceBooking.RescheduleTime.Value)
+                </strong>
+            }
+
+            @if (ServiceBooking.Status == ServiceBookingDtoStatus.Assign)
+            {
+                <button @onclick="AssignSupplier" class="btn-next-task">Assign Supplier</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.Book)
+            {
+                <button @onclick="BookSupplier" class="btn-next-task">Book Supplier</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.Confirm)
+            {
+                <button @onclick="Confirm" class="btn-next-task">Confirm Booked</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.CheckArrival)
+            {
+                <button @onclick="CheckArrival" class="btn-next-task">Check Arrival</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.CheckWorkStatus)
+            {
+                <button @onclick="CheckWorkStatus" class="btn-next-task">Check Work Status</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.NotifyCustomer)
+            {
+                <button @onclick="NotifyCustomer" class="btn-next-task">Notify Customer</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.NotifyCustomerDelay)
+            {
+                <button @onclick="NotifyCustomerDelay" class="btn-next-task">Notify Customer Delay</button>
+            }
+        </div>
+
+    }
 </div>
 
 
@@ -61,9 +91,31 @@
         "Notify Customer",
         "Chase Driver",
         "Rebook Driver"
-        
+
     };
     string selectedItem = string.Empty;
+
+    string RescheduleTimeDisplay(DateTime rescheduleTime)
+    {
+        if (rescheduleTime > DateTime.Now)
+        {
+            return "The next task is overdue";
+        }
+        else
+            return $"The next task is scheduled for {DateText()} at {rescheduleTime.ToString("t")}";
+
+        string DateText()
+        {
+            if (rescheduleTime.Date == DateTime.Today)
+                return "today";
+            else if (rescheduleTime.Date == DateTime.Today.AddDays(1))
+                return "tommorrow";
+            else if (rescheduleTime.Date == DateTime.Today.AddDays(-1))
+                return "yesterday";
+            else
+                return rescheduleTime.ToString("d");
+        }
+    }
 
     public async Task AssignSupplier() => await OnSelectTask.InvokeAsync("Assign Supplier");
     public async Task BookSupplier() => await OnSelectTask.InvokeAsync("Book Supplier");

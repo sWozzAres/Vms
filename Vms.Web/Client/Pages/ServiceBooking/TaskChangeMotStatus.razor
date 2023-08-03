@@ -39,7 +39,7 @@
     bool OptionStatusDisabled => taskRef.Model.Result != TaskChangeMotStatusCommand.TaskResult.Change;
     //string? errorMessage;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         ArgumentNullException.ThrowIfNull(ServiceBooking);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));

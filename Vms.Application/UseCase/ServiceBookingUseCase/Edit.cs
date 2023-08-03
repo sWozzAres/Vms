@@ -80,6 +80,44 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
             isModified = true;
         }
 
+
+        if (serviceBooking.Driver.Name != command.Driver_Name)
+        {
+            SummaryText.AppendLine($"* Driver Name: {command.Driver_Name}");
+            serviceBooking.Driver.Name = command.Driver_Name;
+            isModified = true;
+        }
+        if (serviceBooking.Driver.EmailAddress != command.Driver_EmailAddress)
+        {
+            SummaryText.AppendLine($"* Driver Email Address: {command.Driver_EmailAddress}");
+            serviceBooking.Driver.EmailAddress = command.Driver_EmailAddress;
+            isModified = true;
+        }
+        if (serviceBooking.Driver.MobileNumber != command.Driver_MobileNumber)
+        {
+            SummaryText.AppendLine($"* Driver Mobile Number: {command.Driver_MobileNumber}");
+            serviceBooking.Driver.MobileNumber = command.Driver_MobileNumber;
+            isModified = true;
+        }
+        if (serviceBooking.Contact.Name != command.Contact_Name)
+        {
+            SummaryText.AppendLine($"* Contact Name: {command.Contact_Name}");
+            serviceBooking.Contact.Name = command.Contact_Name;
+            isModified = true;
+        }
+        if (serviceBooking.Contact.EmailAddress != command.Contact_EmailAddress)
+        {
+            SummaryText.AppendLine($"* Contact Email Address: {command.Contact_EmailAddress}");
+            serviceBooking.Contact.EmailAddress = command.Contact_EmailAddress;
+            isModified = true;
+        }
+        if (serviceBooking.Contact.MobileNumber != command.Contact_MobileNumber)
+        {
+            SummaryText.AppendLine($"* Contact Mobile Number: {command.Contact_MobileNumber}");
+            serviceBooking.Contact.MobileNumber = command.Contact_MobileNumber;
+            isModified = true;
+        }
+
         if (serviceBooking.Status == ServiceBookingStatus.None && serviceBooking.IsValid)
         {
             SummaryText.AppendLine($"* Status: {ServiceBookingStatus.Assign.ToString()}");

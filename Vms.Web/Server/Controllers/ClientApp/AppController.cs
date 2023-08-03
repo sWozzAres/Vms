@@ -24,16 +24,18 @@ public class AppController(ILogger<CompanyController> logger, VmsDbContext conte
         IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        if (userProvider.TenantId == "*" || userProvider.TenantId == code)
+        if (!userProvider.HasAccessToTenant(code))
         {
-            var users = await _context.Users.Where(u => u.TenantId == "*" || u.TenantId == code)
-                .Select(u => new  UserDto(u.UserId, u.UserName))
-                .ToListAsync(cancellationToken);
-
-            return Ok(users);
+            logger.LogError("User '{userId}' has no access to tenant '{companyCode}'.", userProvider.UserId, code);
+            throw new InvalidOperationException("User has no access to tenant.");
         }
 
-        throw new InvalidOperationException("User has no access to tenant.");
+        var users = await _context.Users.Where(u => u.TenantId == "*" || u.TenantId == code)
+                .Select(u => new UserDto(u.UserId, u.UserName))
+                .ToListAsync(cancellationToken);
+
+        return Ok(users);
+
     }
 
     [HttpPost]
@@ -44,7 +46,7 @@ public class AppController(ILogger<CompanyController> logger, VmsDbContext conte
         if (user is null)
         {
             user = new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId);
-            _logger.LogDebug("Creating information record for user {user}.", user);
+            _logger.LogInformation("Creating information record for user {user}.", user);
             _context.Users.Add(user);
         }
         else

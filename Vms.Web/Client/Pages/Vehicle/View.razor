@@ -76,9 +76,7 @@ else
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
-    Exception? loadingException;
-    EditFormTemplate<VehicleDto> editForm = null!;
-    
+    Exception? loadingException;  
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
 

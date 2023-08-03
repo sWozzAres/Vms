@@ -208,6 +208,7 @@ h5 + h6 {
   min-height: 100vh;
   /*display: flex;
   flex-direction: column;*/
+  /*background-color: #a7bbdb;*/
 }
 
 .sidebar {
@@ -236,12 +237,16 @@ h5 + h6 {
 
 .main {
   /*padding: 0.5em;*/
-  background-color: #a7bbdb;
+  /*background-color: #a7bbdb;*/
 }
 
 /*#app {
     background-color: cornflowerblue;
 }*/
+.section {
+  /*margin: 0.5em;*/
+}
+
 table {
   background-color: #ffffff;
   width: 100%;
@@ -803,15 +808,6 @@ dialog.list-selector .dialog-container .dialog-footer {
   background-color: #ffffff;
 }
 
-.taskview {
-  display: flex;
-  padding: 5px;
-  background: #ffffff;
-  align-items: center;
-}
-.taskview .task-content {
-  flex-grow: 1;
-}
 .task-form {
   background: var(--task-background-color);
   border: 2px solid var(--border-color);

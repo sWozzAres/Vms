@@ -15,18 +15,17 @@ builder.Logging.AddConfiguration(
 
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+var authorizedUrls = new[] { "https://localhost:5002" };
+var scopes = new[] { "vms.client" };
+
 // https://docs.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/additional-scenarios?view=aspnetcore-5.0#configure-the-httpclient-handler-1
 builder.Services.AddHttpClient("Vms.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
-    .ConfigureHandler(
-        authorizedUrls: new[] { "https://localhost:5002" },
-        scopes: new[] { "vms.client" }));
+    .ConfigureHandler(authorizedUrls, scopes));
 
 builder.Services.AddHttpClient<ServerApiHttpClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
-    .ConfigureHandler(
-        authorizedUrls: new[] { "https://localhost:5002" },
-        scopes: new[] { "vms.client" }));
+    .ConfigureHandler(authorizedUrls, scopes));
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Vms.ServerAPI"));

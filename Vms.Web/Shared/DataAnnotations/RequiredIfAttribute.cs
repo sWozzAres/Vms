@@ -10,16 +10,10 @@ using System.ComponentModel.DataAnnotations;
 /// </remarks>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter,
         AllowMultiple = false)]
-public class RequiredIfAttribute : ValidationAttribute
+public class RequiredIfAttribute(string propertyName, object? isValue) : ValidationAttribute
 {
-    private readonly string _propertyName;
-    private readonly object? _isValue;
-
-    public RequiredIfAttribute(string propertyName, object? isValue)
-    {
-        _propertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
-        _isValue = isValue;
-    }
+    private readonly string _propertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
+    private readonly object? _isValue = isValue;
 
     public override string FormatErrorMessage(string name)
     {

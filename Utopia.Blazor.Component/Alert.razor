@@ -1,0 +1,27 @@
+﻿<div class="alert @ClassName" role="alert">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    public enum AlertStyle { Primary, Secondary, Success, Danger, Warning, Info, Light, Dark }
+    [Parameter, EditorRequired] public AlertStyle Style { get; set; }
+
+    string ClassName => Style switch
+    {
+        AlertStyle.Primary => "alert-primary",
+        AlertStyle.Secondary => "alert-secondary",
+        AlertStyle.Success => "alert-success",
+        AlertStyle.Danger => "alert-danger",
+        AlertStyle.Warning => "alert-warning",
+        AlertStyle.Info => "alert-info",
+        AlertStyle.Light => "alert-light",
+        AlertStyle.Dark => "alert-dark",
+        _ => throw new ArgumentOutOfRangeException(nameof(Style))
+    };
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(ChildContent);
+    }
+}

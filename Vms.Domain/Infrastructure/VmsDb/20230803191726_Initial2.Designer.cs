@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230803191726_Initial2")]
+    partial class Initial2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1032,55 +1035,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_ServiceBookings_Vehicle");
 
-                    b.OwnsOne("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingContact", "Contact", b1 =>
-                        {
-                            b1.Property<Guid>("ServiceBookingId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("EmailAddress")
-                                .HasMaxLength(128)
-                                .HasColumnType("nvarchar(128)");
-
-                            b1.Property<string>("MobileNumber")
-                                .HasMaxLength(12)
-                                .HasColumnType("nvarchar(12)");
-
-                            b1.Property<string>("Name")
-                                .HasMaxLength(41)
-                                .HasColumnType("nvarchar(41)");
-
-                            b1.Property<DateTime>("ValidFrom")
-                                .ValueGeneratedOnAddOrUpdate()
-                                .HasColumnType("datetime2")
-                                .HasColumnName("ValidFrom");
-
-                            b1.Property<DateTime>("ValidTo")
-                                .ValueGeneratedOnAddOrUpdate()
-                                .HasColumnType("datetime2")
-                                .HasColumnName("ValidTo");
-
-                            b1.HasKey("ServiceBookingId");
-
-                            b1.ToTable("ServiceBookingContact", (string)null);
-
-                            b1.ToTable(tb => tb.IsTemporal(ttb =>
-                                    {
-                                        ttb.UseHistoryTable("ServiceBookingContactHistory");
-                                        ttb
-                                            .HasPeriodStart("ValidFrom")
-                                            .HasColumnName("ValidFrom");
-                                        ttb
-                                            .HasPeriodEnd("ValidTo")
-                                            .HasColumnName("ValidTo");
-                                    }));
-
-                            b1.WithOwner("ServiceBooking")
-                                .HasForeignKey("ServiceBookingId")
-                                .HasConstraintName("FK_ServiceBooking_ServiceBookingContact");
-
-                            b1.Navigation("ServiceBooking");
-                        });
-
                     b.OwnsOne("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingDriver", "Driver", b1 =>
                         {
                             b1.Property<Guid>("ServiceBookingId")
@@ -1131,9 +1085,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         });
 
                     b.Navigation("AssignedTo");
-
-                    b.Navigation("Contact")
-                        .IsRequired();
 
                     b.Navigation("CreatedBy");
 

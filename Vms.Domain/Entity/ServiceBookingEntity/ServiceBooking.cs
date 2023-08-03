@@ -8,7 +8,8 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
 {
     public enum ServiceBookingStatus : int
     {
-        Cancelled = -1,
+        Cancelled = -2,
+        Complete = -1,
         None = 0,
         Assign = 1,
         Book = 2,
@@ -35,7 +36,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
     {
         public string CompanyCode { get; set; } = null!;
         public Guid Id { get; private set; }
-        public string Ref { get; set; }
+        public string Ref { get; set; } = null!;
         public Guid VehicleId { get; set; }
         public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
@@ -54,7 +55,8 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
         public ServiceBookingLock? Lock { get; set; }
-
+        public ServiceBookingDriver Driver { get; set; } = new();
+        public ServiceBookingContact Contact { get; set; } = new();
         public string CreatedUserId { get; set; } = null!;
         public User CreatedBy { get; set; } = null!;
         public string? AssignedToUserId { get; set; }
@@ -123,6 +125,30 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             ChangeStatus(ServiceBookingStatus.Assign);
         }
         //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
+    }
+
+    public class ServiceBookingDriver
+    {
+        public const int Name_MaxLength = Driver.FirstName_MaxLength + Driver.LastName_MaxLength + 1;
+        public const int Email_MaxLength = Driver.Email_MaxLength;
+        public const int MobileNumber_MaxLength = Driver.MobileNumber_MaxLength;
+        public Guid ServiceBookingId { get; set; }
+        public string? Name { get; set; }
+        public string? EmailAddress { get; set; }
+        public string? MobileNumber { get; set; }
+        public ServiceBooking ServiceBooking { get; set; } = null!;
+    }
+
+    public class ServiceBookingContact
+    {
+        public const int Name_MaxLength = Driver.FirstName_MaxLength + Driver.LastName_MaxLength + 1;
+        public const int Email_MaxLength = Driver.Email_MaxLength;
+        public const int MobileNumber_MaxLength = Driver.MobileNumber_MaxLength;
+        public Guid ServiceBookingId { get; set; }
+        public string? Name { get; set; }
+        public string? EmailAddress { get; set; }
+        public string? MobileNumber { get; set; }
+        public ServiceBooking ServiceBooking { get; set; } = null!;
     }
 
     public class ServiceBookingLock
@@ -243,6 +269,56 @@ namespace Vms.Domain.Entity.Configuration
                 .HasForeignKey(e => new { e.CompanyCode, e.VehicleId })
                 .HasPrincipalKey(v => new { v.CompanyCode, v.Id })
                 .HasConstraintName("FK_ServiceBookings_Vehicle");
+
+            builder.OwnsOne(e => e.Driver, d =>
+            {
+                d.ToTable("ServiceBookingDriver", tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.UseHistoryTable("ServiceBookingDriverHistory");
+                    ttb
+                        .HasPeriodStart("ValidFrom")
+                        .HasColumnName("ValidFrom");
+                    ttb
+                        .HasPeriodEnd("ValidTo")
+                        .HasColumnName("ValidTo");
+                }));
+
+                d.Property(e => e.Name)
+                    .HasMaxLength(ServiceBookingDriver.Name_MaxLength);
+                d.Property(e => e.EmailAddress)
+                    .HasMaxLength(ServiceBookingDriver.Email_MaxLength);
+                d.Property(e => e.MobileNumber)
+                    .HasMaxLength(ServiceBookingDriver.MobileNumber_MaxLength);
+
+                d.WithOwner(x => x.ServiceBooking)
+                    .HasForeignKey(d => d.ServiceBookingId)
+                    .HasConstraintName("FK_ServiceBooking_ServiceBookingDriver");
+            });
+
+            builder.OwnsOne(e => e.Contact, d =>
+            {
+                d.ToTable("ServiceBookingContact", tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.UseHistoryTable("ServiceBookingContactHistory");
+                    ttb
+                        .HasPeriodStart("ValidFrom")
+                        .HasColumnName("ValidFrom");
+                    ttb
+                        .HasPeriodEnd("ValidTo")
+                        .HasColumnName("ValidTo");
+                }));
+
+                d.Property(e => e.Name)
+                    .HasMaxLength(ServiceBookingContact.Name_MaxLength);
+                d.Property(e => e.EmailAddress)
+                    .HasMaxLength(ServiceBookingContact.Email_MaxLength);
+                d.Property(e => e.MobileNumber)
+                    .HasMaxLength(ServiceBookingContact.MobileNumber_MaxLength);
+
+                d.WithOwner(x => x.ServiceBooking)
+                    .HasForeignKey(d => d.ServiceBookingId)
+                    .HasConstraintName("FK_ServiceBooking_ServiceBookingContact");
+            });
 
             //builder.HasOne(e => e.VehicleMot)
             //    .WithOne(m => m.ServiceBooking)

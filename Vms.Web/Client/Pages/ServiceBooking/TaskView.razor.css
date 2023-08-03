@@ -1,0 +1,16 @@
+.taskview {
+    /*display: flex;*/
+    padding: 0.5em;
+    background: #ffffff;
+    
+}
+    .taskview .task-content {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        /*flex-grow: 1;*/
+    }
+
+    .taskview .menu-button-actions {
+    }
+

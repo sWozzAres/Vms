@@ -72,7 +72,7 @@
     [Parameter, EditorRequired] public RenderFragment GridColumns { get; set; } = null!;
 
     GridItemsProvider<TGridItem> itemsProvider { get; set; } = null!;
-    PaginationState pagination = new() { ItemsPerPage = 10 };
+    PaginationState pagination = new() { ItemsPerPage = 50 };
     QuickGrid<TGridItem> grid = null!;
     int? selectedList = 0;
 

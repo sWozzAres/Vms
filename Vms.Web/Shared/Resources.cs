@@ -1,6 +1,6 @@
 ﻿namespace Vms.Web.Shared;
 
-public record DriverShortDto(Guid Id, string companyCode, string EmailAddress, string FullName, string MobileNumber);
+public record DriverShortDto(Guid Id, string CompanyCode, string EmailAddress, string FullName, string MobileNumber);
 
 public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Make, string Model, string? ChassisNumber,
     DateOnly DateFirstRegistered, DateOnly? MotDue, AddressFullDto Address, CustomerShortDto? Customer,

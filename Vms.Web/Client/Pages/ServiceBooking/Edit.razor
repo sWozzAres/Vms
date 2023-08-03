@@ -18,10 +18,45 @@
             <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
             <InputSelectOnlyCombobox Options="@userOptions" LabelText="Assigned To" @bind-Value="editForm.Model.AssignedToUserId" />
             <ValidationMessage For="@(() => editForm.Model.AssignedToUserId)" />
-            
+
+        </div>
+        <div class="form-section">
+            <fieldset>
+                <legend>Driver</legend>
+
+                <label for="driver_name">Name</label>
+                <InputText id="driver_name" @bind-Value="editForm.Model.Driver_Name" />
+                <ValidationMessage For="@(() => editForm.Model.Driver_Name)" />
+
+                <label for="driver_email">Email</label>
+                <InputText id="driver_email" @bind-Value="editForm.Model.Driver_EmailAddress" />
+                <ValidationMessage For="@(() => editForm.Model.Driver_EmailAddress)" />
+
+                <label for="driver_mobile">Mobile Number</label>
+                <InputText id="driver_mobile" @bind-Value="editForm.Model.Driver_MobileNumber" />
+                <ValidationMessage For="@(() => editForm.Model.Driver_MobileNumber)" />
+            </fieldset>
+            <fieldset>
+                <legend>Contact</legend>
+
+                <label for="contact_name">Name</label>
+                <InputText id="contact_name" @bind-Value="editForm.Model.Contact_Name" />
+                <ValidationMessage For="@(() => editForm.Model.Contact_Name)" />
+
+                <label for="contact_email">Email</label>
+                <InputText id="contact_email" @bind-Value="editForm.Model.Contact_EmailAddress" />
+                <ValidationMessage For="@(() => editForm.Model.Contact_EmailAddress)" />
+
+                <label for="contact_mobile">Mobile Number</label>
+                <InputText id="contact_mobile" @bind-Value="editForm.Model.Contact_MobileNumber" />
+                <ValidationMessage For="@(() => editForm.Model.Contact_MobileNumber)" />
+            </fieldset>
         </div>
         <div class="form-section">
             
+
+        </div>
+        <div class="form-section">
         </div>
     }
 </EditFormTemplate2>
@@ -31,7 +66,7 @@
     [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
     EditFormTemplate2<ServiceBookingDto> editForm = null!;
-    
+
     List<SelectOption<Vms.Web.Shared.ServiceLevel>> serviceLevelOptions = null!;
     List<SelectOption<string?>> userOptions = null!;
     bool isLoaded;
@@ -47,13 +82,13 @@
     {
         ArgumentNullException.ThrowIfNull(ServiceBooking);
         if (!OnAfterSave.HasDelegate) throw new ArgumentNullException(nameof(OnAfterSave));
-        
+
         serviceLevelOptions = UIOptions.GetServiceLevelOptions();
     }
 
     async Task<ServiceBookingDto> LoadModel()
         => await Task.FromResult(ServiceBooking.ToDto());
-    
+
 
     async Task<PostResponse> SaveModel(ServiceBookingDto model)
     {
