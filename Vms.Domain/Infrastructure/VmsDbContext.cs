@@ -40,6 +40,7 @@ public class VmsDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Login> Logins => Set<Login>();
+    public DbSet<EntityTag> EntityTags => Set<EntityTag>();
 
     protected readonly IUserProvider _userProvider;
     readonly ILogger<VmsDbContext> _logger;
@@ -54,6 +55,7 @@ public class VmsDbContext : DbContext
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
         //modelBuilder.Entity<ActivityLog>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<EntityTag>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<NotCompleteReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<NonArrivalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<ConfirmBookedRefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);

@@ -1,6 +1,8 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Application.Services;
 
-public class CreateCompany(VmsDbContext dbContext)
+namespace Vms.Application.UseCase;
+
+public class CreateCompany(VmsDbContext dbContext, ISearchManager searchManager)
 {
     readonly VmsDbContext DbContext = dbContext;
 
@@ -9,8 +11,9 @@ public class CreateCompany(VmsDbContext dbContext)
         var company = new Company(request.Code, request.Name);
         DbContext.Add(company);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
-
+        searchManager.Add(company.Code, company.Code, EntityKind.Company, company.Name, 
+            string.Join(" ", company.Code, company.Name));
+        
         return company;
     }
 }

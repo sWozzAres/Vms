@@ -4,6 +4,15 @@ add-migration -Name Initial2 -o Infrastructure\VmsDb -Context VmsDbContext -Proj
 update-database -Context VmsDbContext -Project Vms.Domain -StartupProject Vms.Domain
 remove-migration -Context VmsDbContext -Project Vms.Domain -StartupProject Vms.Domain
 
+migrationBuilder.Sql(
+    sql: "CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;",
+    suppressTransaction: true);
+
+migrationBuilder.Sql(
+    sql: "CREATE FULLTEXT INDEX ON EntityTags(Content) KEY INDEX PK_EntityTags;",
+    suppressTransaction: true);
+
+
 users:
 	admin / all companies
 	company specific

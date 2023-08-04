@@ -1,6 +1,8 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Application.Services;
 
-public class CreateNetwork(VmsDbContext dbContext)
+namespace Vms.Application.UseCase;
+
+public class CreateNetwork(VmsDbContext dbContext, ISearchManager searchManager)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
@@ -12,7 +14,8 @@ public class CreateNetwork(VmsDbContext dbContext)
 
         var network = Company.CreateNetwork(request.Code, request.Name);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
+        searchManager.Add(network.CompanyCode, network.Code, EntityKind.Network, network.Name,
+            string.Join(" ", network.Code, network.Name));
 
         return network;
     }

@@ -1,6 +1,8 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Application.Services;
 
-public class CreateCustomer(VmsDbContext dbContext)
+namespace Vms.Application.UseCase;
+
+public class CreateCustomer(VmsDbContext dbContext, ISearchManager searchManager)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
@@ -10,11 +12,12 @@ public class CreateCustomer(VmsDbContext dbContext)
         Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 
-        var company = Company.CreateCustomer(request.Code, request.Name);
+        var customer = Company.CreateCustomer(request.Code, request.Name);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
+        searchManager.Add(customer.CompanyCode, customer.Code, EntityKind.Customer, customer.Name,
+            string.Join(" ", customer.Code, customer.Name));
 
-        return company;
+        return customer;
     }
 
     class CompanyRole(Company self, CreateCustomer context)

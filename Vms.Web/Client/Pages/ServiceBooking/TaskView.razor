@@ -93,7 +93,7 @@
 
     string RescheduleTimeDisplay(DateTime rescheduleTime)
     {
-        if (rescheduleTime > DateTime.Now)
+        if (DateTime.Now > rescheduleTime)
         {
             return "The next task is overdue";
         }

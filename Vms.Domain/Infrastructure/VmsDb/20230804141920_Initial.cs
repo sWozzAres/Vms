@@ -197,6 +197,28 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "EntityTags",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyCode = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
+                    EntityKey = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    EntityKind = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EntityTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EntityTags_Companies_CompanyCode",
+                        column: x => x.CompanyCode,
+                        principalTable: "Companies",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Fleets",
                 columns: table => new
                 {
@@ -855,6 +877,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: new[] { "CompanyCode", "VehicleId" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_EntityTags_CompanyCode_Id_EntityKind",
+                table: "EntityTags",
+                columns: new[] { "CompanyCode", "Id", "EntityKind" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FleetNetworks_CompanyCode_NetworkCode",
                 table: "FleetNetworks",
                 columns: new[] { "CompanyCode", "NetworkCode" });
@@ -935,6 +963,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "IX_Vehicles_Make_Model",
                 table: "Vehicles",
                 columns: new[] { "Make", "Model" });
+            migrationBuilder.Sql(
+    sql: "CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;",
+    suppressTransaction: true);
+
+            migrationBuilder.Sql(
+                sql: "CREATE FULLTEXT INDEX ON EntityTags(Content) KEY INDEX PK_EntityTags;",
+                suppressTransaction: true);
         }
 
         /// <inheritdoc />
@@ -955,6 +990,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             migrationBuilder.DropTable(
                 name: "Emails",
                 schema: "System");
+
+            migrationBuilder.DropTable(
+                name: "EntityTags");
 
             migrationBuilder.DropTable(
                 name: "FleetNetworks");

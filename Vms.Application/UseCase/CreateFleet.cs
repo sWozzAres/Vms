@@ -1,6 +1,8 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Application.Services;
 
-public class CreateFleet(VmsDbContext dbContext)
+namespace Vms.Application.UseCase;
+
+public class CreateFleet(VmsDbContext dbContext, ISearchManager searchManager)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
@@ -12,8 +14,10 @@ public class CreateFleet(VmsDbContext dbContext)
 
         var fleet = Company.CreateFleet(request.Code, request.Name);
 
-        //await DbContext.SaveChangesAsync(cancellationToken); 
-        
+        searchManager.Add(fleet.CompanyCode, fleet.Code, EntityKind.Fleet, fleet.Name,
+            string.Join(" ", fleet.Code, fleet.Name));
+
+
         return fleet;
     }
 

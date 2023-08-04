@@ -395,6 +395,9 @@ table thead th {
   padding-inline: 0.2em;
   padding-block: 0;
 }
+.page-header .info h2 .combo .combo-input {
+  padding: 0;
+}
 .page-header .buttons {
   justify-items: flex-end;
   align-self: end;
@@ -470,6 +473,7 @@ table thead th {
   column-gap: 1em;
   border: none;
   border-radius: 4px;
+  align-items: center;
 }
 .combo.header-combo .combo-input svg {
   justify-self: start;

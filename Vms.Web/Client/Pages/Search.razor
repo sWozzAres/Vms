@@ -1,6 +1,7 @@
 ﻿@page "/search/{SearchString}"
 @inject IJSRuntime JSRuntime
 @inject ILogger<Search> Logger
+@inject ServerApiHttpClient Api
 
 <PageTitle>Search</PageTitle>
 
@@ -8,12 +9,42 @@
     <h1 id="h1Element">Search Results</h1>
 
     <h2>@SearchString</h2>
+
+    @if(results is not null)
+    {
+        <QuickGrid @ref="grid" Items="results" TGridItem="EntityTagDto" >
+            <PropertyColumn Property="x=>x.KindString" Title="Type" />
+            <TemplateColumn Title="Name">
+                <a href="@Url(context)/@context!.Key">@context.Name</a>
+            </TemplateColumn>
+        </QuickGrid>
+    }
 </section>
 
 @code {
     [Parameter]
     public string SearchString { get; set; } = null!;
 
+    QuickGrid<EntityTagDto> grid = null!;
+    IQueryable<EntityTagDto>? results;
+
+    string Url(EntityTagDto tag) => tag.Kind switch
+    {
+        EntityTagKindDto.Company => "/company/view",
+        EntityTagKindDto.Fleet => "/fleet/view",
+        EntityTagKindDto.Vehicle => "/vehicle/view",
+        EntityTagKindDto.Customer => "/customer/view",
+        EntityTagKindDto.Network => "/network/view",
+        EntityTagKindDto.Supplier => "/supplier/view",
+        EntityTagKindDto.ServiceBooking => "/servicebooking/view",
+        EntityTagKindDto.Driver => "/driver/view",
+        _ => ""
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        results = (await Api.Search(SearchString)).AsQueryable();
+    }
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (firstRender)
@@ -23,10 +54,10 @@
     //     }
     // }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        //return base.OnParametersSetAsync();
-        var result = await JSRuntime.InvokeAsync<bool>("jsInterop.setFocus", "h1Element");
-        Logger.LogInformation("Setting focus returned {result}.", result);
-    }
+    // protected override async Task OnParametersSetAsync()
+    // {
+    //     //return base.OnParametersSetAsync();
+    //     var result = await JSRuntime.InvokeAsync<bool>("jsInterop.setFocus", "h1Element");
+    //     Logger.LogInformation("Setting focus returned {result}.", result);
+    // }
 }

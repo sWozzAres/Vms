@@ -55,7 +55,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public MotEvent? MotEvent { get; set; }
         public Guid? LockId { get; set; }
         public ServiceBookingLock? Lock { get; set; }
-        public ServiceBookingDriver Driver { get; set; } = new();
+        public ServiceBookingDriver Driver { get; private set; } = new();
         public ServiceBookingContact Contact { get; set; } = new();
         public string CreatedUserId { get; set; } = null!;
         public User CreatedBy { get; set; } = null!;
@@ -87,6 +87,12 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             Ref = r.ToString()[..3] + "-" + r.ToString()[3..6] + "-" + r.ToString()[6..10];
         }
 
+        public void SetDriver(string name, string emailAddress, string mobileNumber)
+        {
+            Driver.Name = name;
+            Driver.EmailAddress = emailAddress;
+            Driver.MobileNumber = mobileNumber;
+        }
         public bool IsValid
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 
@@ -119,9 +125,9 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public const int Email_MaxLength = Driver.Email_MaxLength;
         public const int MobileNumber_MaxLength = Driver.MobileNumber_MaxLength;
         public Guid ServiceBookingId { get; set; }
-        public string? Name { get; set; }
-        public string? EmailAddress { get; set; }
-        public string? MobileNumber { get; set; }
+        public string? Name { get; internal set; }
+        public string? EmailAddress { get; internal set; }
+        public string? MobileNumber { get; internal set; }
         public ServiceBooking ServiceBooking { get; set; } = null!;
     }
 

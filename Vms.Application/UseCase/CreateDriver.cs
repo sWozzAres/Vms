@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using NetTopologySuite.Geometries;
+using Vms.Application.Services;
 using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Entity;
 using Vms.Domain.Exceptions;
@@ -8,7 +9,7 @@ using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;
 
-public class CreateDriver(VmsDbContext dbContext)
+public class CreateDriver(VmsDbContext dbContext, ISearchManager searchManager)
 {
     readonly VmsDbContext DbContext = dbContext;
     VehicleRole? Vehicle;
@@ -20,7 +21,8 @@ public class CreateDriver(VmsDbContext dbContext)
 
         var driver = await Vehicle.CreateDriverAsync(request, cancellationToken);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
+        searchManager.Add(driver.CompanyCode, driver.Id.ToString(), EntityKind.Driver, driver.FullName,
+            driver.FullName);
 
         return driver;
     }

@@ -222,6 +222,42 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("Emails", "System");
                 });
 
+            modelBuilder.Entity("Vms.Domain.Entity.EntityTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("EntityKind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyCode", "Id", "EntityKind")
+                        .IsUnique();
+
+                    b.ToTable("EntityTags", (string)null);
+                });
+
             modelBuilder.Entity("Vms.Domain.Entity.Fleet", b =>
                 {
                     b.Property<string>("CompanyCode")
@@ -856,6 +892,15 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Driver");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Vms.Domain.Entity.EntityTag", b =>
+                {
+                    b.HasOne("Vms.Domain.Entity.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Fleet", b =>

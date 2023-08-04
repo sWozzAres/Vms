@@ -8,6 +8,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Application.UseCase.ServiceBookingUseCase;
+using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Infrastructure.Seed;
 using Vms.Domain.Services;
@@ -49,7 +50,9 @@ builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
 builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<ISearchManager, SearchManager>();
 
+builder.Services.AddScoped<ICreateVehicle, CreateVehicle>();
 builder.Services.AddScoped<IEdit, Edit>();
 builder.Services.AddScoped<IFollow, Follow>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
@@ -121,8 +124,8 @@ app.MigrateDbContext<VmsDbContext>((context, services) =>
     var logger = services.GetService<ILogger<VmsDbContextSeeder>>() ?? throw new InvalidOperationException(); ;
     var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
     var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
-
-    new VmsDbContextSeeder(context, logger)
+    var searchManager = services.GetRequiredService<ISearchManager>();
+    new VmsDbContextSeeder(context, searchManager, logger)
         .SeedAsync(env, settings)
         .Wait();
 });

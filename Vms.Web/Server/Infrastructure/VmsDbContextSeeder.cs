@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Polly;
+using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Entity;
@@ -18,10 +19,11 @@ public interface IVmsDbContextSeeder
 public class VmsDbContextSeeder : IVmsDbContextSeeder
 {
     readonly VmsDbContext _context;
+    readonly ISearchManager _searchManager;
     readonly ILogger<VmsDbContextSeeder> _logger;
 
-    public VmsDbContextSeeder(VmsDbContext context, ILogger<VmsDbContextSeeder> logger)
-        => (_context, _logger) = (context, logger);
+    public VmsDbContextSeeder(VmsDbContext context, ISearchManager searchManager, ILogger<VmsDbContextSeeder> logger)
+        => (_context, _searchManager, _logger) = (context, searchManager, logger);
 
     static readonly string[] SurNames = new string[]
     {
@@ -114,7 +116,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         {
             string code = $"TEST{ci:D3}";
             string name = $"Company #{ci}";
-            var company = new CreateCompany(_context)
+            var company = new CreateCompany(_context, _searchManager)
                 .Create(new CreateCompanyRequest(code, name));
 
             foreach (var fi in Enumerable.Range(1, 50))
@@ -122,7 +124,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string fleetCode = $"FL{ci:D3}{fi:D2}";
                 string fleetName = $"Fleet #{fi:D2} Company #{ci:D3}";
 
-                var fleet1 = await new CreateFleet(_context)
+                var fleet1 = await new CreateFleet(_context, _searchManager)
                     .CreateAsync(new CreateFleetRequest(company.Code, fleetCode, fleetName));
             }
 
@@ -131,7 +133,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string networkCode = $"NET{ci:D3}{ni:D2}";
                 string networkName = $"Network #{ni:D2} Company #{ci:D3}";
 
-                var fleet = await new CreateNetwork(_context)
+                var fleet = await new CreateNetwork(_context, _searchManager)
                     .CreateAsync(new CreateNetworkRequest(company.Code, networkCode, networkName));
             }
 
@@ -140,7 +142,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string customerCode = $"CUS{ci:D3}{csi:D3}";
                 string customerName = $"Customer #{csi:D3} Company #{ci:D3}";
 
-                var customer = await new CreateCustomer(_context)
+                var customer = await new CreateCustomer(_context, _searchManager)
                     .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
 
 
@@ -231,7 +233,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
             var company = allCompanies.ElementAt(rnd.Next(0, allCompanies.Count - 1));
 
-            var vehicle = await new CreateVehicle(_context)
+            var vehicle = await new CreateVehicle(_context, _searchManager)
                 .CreateAsync(new CreateVehicleRequest(
                     company.Code,
                     RandomVrm(dateFirstRegistered),
@@ -241,7 +243,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     new Address("", "", "", "", new Point(51.73021720095717, -2.204244578769126) { SRID = 4326 }),
                     null, null));
 
-            var driver = await new CreateDriver(_context)
+            var driver = await new CreateDriver(_context, _searchManager)
                 .CreateAsync(new CreateDriverRequest(company.Code,
                     vehicle.Id,
                     driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName,

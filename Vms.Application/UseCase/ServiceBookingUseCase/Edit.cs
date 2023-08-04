@@ -45,7 +45,7 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
             isModified = true;
         }
 
-        var sl = (Vms.Domain.Entity.ServiceBookingEntity.ServiceLevel)command.ServiceLevel;
+        var sl = (ServiceLevel)command.ServiceLevel;
         if (serviceBooking.ServiceLevel != sl)
         {
             SummaryText.AppendLine($"* Service Level: {sl.ToString()}");
@@ -123,9 +123,4 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
 
         return isModified;
     }
-
-    //class ServiceBookingRole(ServiceBooking self, Edit ctx)
-    //{
-
-    //}
 }

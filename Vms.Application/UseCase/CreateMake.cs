@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.UseCase;
+﻿using Vms.Application.Services;
+
+namespace Vms.Application.UseCase;
 
 public class CreateMake(VmsDbContext dbContext)
 {
@@ -9,8 +11,6 @@ public class CreateMake(VmsDbContext dbContext)
         var make = new VehicleMake(request.Make);
         DbContext.Add(make);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
-        
         return make;
     }
 }

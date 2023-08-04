@@ -47,6 +47,12 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<List<UserDto>>($"/api/app/users/{companyCode}")
             ?? throw new InvalidOperationException("Failed to get users.");
     }
+    public async Task<List<EntityTagDto>> Search(string searchString)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<EntityTagDto>>($"/api/search/{searchString}")
+            ?? throw new InvalidOperationException("Failed to get search.");
+    }
     #endregion
     #region Task Locking
     public async Task<Guid> Lock(string url)

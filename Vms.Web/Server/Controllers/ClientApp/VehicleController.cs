@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
+using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Entity;
@@ -185,6 +186,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [HttpPost]
     public async Task<IActionResult> CreateVehicle(
         [FromBody] VehicleDto vehicleDto,
+        [FromServices] ICreateVehicle createVehicle,
         CancellationToken cancellationToken)
     {
         var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm, 
@@ -198,8 +200,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
             null, null);
 
 
-        var vehicle = await new CreateVehicle(_context)
-            .CreateAsync(request, cancellationToken);
+        var vehicle = await createVehicle.CreateAsync(request, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 

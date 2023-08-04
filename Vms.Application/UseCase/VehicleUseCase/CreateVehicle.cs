@@ -1,6 +1,13 @@
-﻿namespace Vms.Application.UseCase.VehicleUseCase;
+﻿using Vms.Application.Services;
 
-public class CreateVehicle(VmsDbContext dbContext)
+namespace Vms.Application.UseCase.VehicleUseCase;
+
+public interface ICreateVehicle
+{
+    Task<Vehicle> CreateAsync(CreateVehicleRequest request, CancellationToken cancellationToken = default);
+}
+
+public class CreateVehicle(VmsDbContext dbContext, ISearchManager searchManager) : ICreateVehicle
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
@@ -12,7 +19,7 @@ public class CreateVehicle(VmsDbContext dbContext)
 
         var vehicle = Company.CreateVehicle(request);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
+        searchManager.Add(vehicle.CompanyCode, vehicle.Id.ToString(), EntityKind.Vehicle, vehicle.Vrm, vehicle.Vrm);
 
         return vehicle;
     }

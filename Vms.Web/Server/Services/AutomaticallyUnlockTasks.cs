@@ -24,7 +24,7 @@ public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<Auto
                 conn.Open();
 
                 await conn.ExecuteAsync("""
-                DELETE FROM ServiceBookingLock WHERE DATEDIFF(second, Granted, @now) > @checkTime
+                DELETE FROM ServiceBookingLocks WHERE DATEDIFF(second, Granted, @now) > @checkTime
                 """, new { now = DateTime.Now, checkTime = CheckTimeSeconds });
             }
             catch (SqlException exception)

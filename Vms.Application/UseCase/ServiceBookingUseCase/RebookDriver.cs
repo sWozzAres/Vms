@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.Data.SqlClient;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
@@ -79,12 +80,17 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
             ctx.SummaryText.AppendLine("## Not Going");
 
             // remove work items from booking
-            (await MotEvents()).ForEach(e => e.ServiceBookingId = null);
+            //(await MotEvents()).ForEach(e => e.ServiceBookingId = null);
+            var motEvent = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(e => e.ServiceBookingId == self.Id && e.IsCurrent);
+            if (motEvent is not null)
+            {
+                motEvent.ServiceBookingId = null;
+            }
 
             self.ChangeStatus(ServiceBookingStatus.Cancelled);
 
-            async Task<List<MotEvent>> MotEvents()
-                => await ctx.DbContext.MotEvents.Where(e => e.ServiceBookingId == self.Id).ToListAsync(ctx.CancellationToken);
+            //async Task<List<MotEvent>> MotEvents()
+            //    => await ctx.DbContext.MotEvents.Where(e => e.ServiceBookingId == self.Id).ToListAsync(ctx.CancellationToken);
         }
 
         public void Reschedule()
