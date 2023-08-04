@@ -35,7 +35,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.ToTable("FleetNetworks");
 
             builder.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
+                .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
             builder.Property(e => e.FleetCode)
                 .HasMaxLength(10)

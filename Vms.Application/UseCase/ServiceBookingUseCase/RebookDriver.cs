@@ -1,10 +1,7 @@
 ﻿using System.Text;
-using Microsoft.Data.SqlClient;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.Web.Shared;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
 
@@ -16,10 +13,8 @@ public interface IRebookDriver
 public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IRebookDriver
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
-    
+
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskRebookDriverCommand Command = null!;
@@ -52,8 +47,8 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
                 break;
         }
 
-        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
-        TaskLogger.Log(Id, "Rebook Driver", Command);
+        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        taskLogger.Log(Id, "Rebook Driver", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, RebookDriver ctx)

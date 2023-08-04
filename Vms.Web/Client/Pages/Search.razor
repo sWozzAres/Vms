@@ -6,7 +6,7 @@
 <PageTitle>Search</PageTitle>
 
 <section>
-    <h1 id="h1Element">Search Results</h1>
+    <h1>Search Results</h1>
 
     <h2>@SearchString</h2>
 
@@ -38,26 +38,11 @@
         EntityTagKindDto.Supplier => "/supplier/view",
         EntityTagKindDto.ServiceBooking => "/servicebooking/view",
         EntityTagKindDto.Driver => "/driver/view",
-        _ => ""
+        _ => throw new ArgumentOutOfRangeException(nameof(tag))
     };
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         results = (await Api.Search(SearchString)).AsQueryable();
     }
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         var result = await JSRuntime.InvokeAsync<bool>("jsInterop.setFocus", "h1Element");
-    //         Logger.LogInformation("Setting focus returned {result}.", result);
-    //     }
-    // }
-
-    // protected override async Task OnParametersSetAsync()
-    // {
-    //     //return base.OnParametersSetAsync();
-    //     var result = await JSRuntime.InvokeAsync<bool>("jsInterop.setFocus", "h1Element");
-    //     Logger.LogInformation("Setting focus returned {result}.", result);
-    // }
 }

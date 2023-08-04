@@ -1,5 +1,4 @@
-﻿using System.Security.Permissions;
-using System.Text;
+﻿using System.Text;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
@@ -12,17 +11,17 @@ public interface ICreateServiceBooking
     Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand request, CancellationToken cancellationToken = default);
 }
 
-public class CreateServiceBooking(VmsDbContext dbContext, 
+public class CreateServiceBooking(VmsDbContext dbContext,
     IUserProvider userProvider,
     IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
-    IActivityLogger activityLog, 
+    IActivityLogger activityLog,
     ITaskLogger taskLogger,
     ISearchManager searchManager) : ICreateServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;
     readonly IAutomaticallyAssignSupplierUseCase AssignSupplierUseCase = assignSupplierUseCase;
-    readonly StringBuilder SummaryText = new(); 
+    readonly StringBuilder SummaryText = new();
     VehicleRole? Vehicle;
 
     public async Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand command, CancellationToken cancellationToken = default)
@@ -34,9 +33,9 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         var serviceBooking = await Vehicle.CreateBooking(command, cancellationToken);
 
-        searchManager.Add(serviceBooking.CompanyCode, serviceBooking.Id.ToString(), EntityKind.ServiceBooking, serviceBooking.Ref, 
+        searchManager.Add(serviceBooking.CompanyCode, serviceBooking.Id.ToString(), EntityKind.ServiceBooking, serviceBooking.Ref,
             string.Join(" ", Vehicle.Vrm, serviceBooking.Ref));
-        
+
         await activityLog.AddAsync(serviceBooking.Id, SummaryText, cancellationToken);
         taskLogger.Log(serviceBooking.Id, "Create Service Booking", command);
 
@@ -50,8 +49,8 @@ public class CreateServiceBooking(VmsDbContext dbContext,
         public async Task<ServiceBooking> CreateBooking(CreateServiceBookingCommand request, CancellationToken cancellationToken)
         {
             var driver = await (from dv in ctx.DbContext.DriverVehicles
-                         where dv.VehicleId == self.Id
-                         select dv.Driver).FirstOrDefaultAsync(cancellationToken);
+                                where dv.VehicleId == self.Id
+                                select dv.Driver).FirstOrDefaultAsync(cancellationToken);
 
             var booking = new ServiceBooking(
                 self.CompanyCode,

@@ -6,9 +6,9 @@ namespace Vms.Domain.Entity
     public class Email(string recipients, string subject, string body)
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string Recipients { get; set; } = recipients ?? throw new ArgumentNullException(nameof(recipients));
-        public string Subject { get; set; } = subject ?? throw new ArgumentNullException(nameof(subject));
-        public string Body { get; set; } = body ?? throw new ArgumentNullException(nameof(body));
+        public string Recipients { get; set; } = recipients;
+        public string Subject { get; set; } = subject;
+        public string Body { get; set; } = body;
     }
 }
 

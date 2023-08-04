@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Exceptions;
 
 namespace Vms.Domain.Entity.ServiceBookingEntity
 {
@@ -42,9 +41,9 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
         public DateOnly? MotDue { get; set; }
-        public string? SupplierCode { get; internal set; }
+        public string? SupplierCode { get; private set; }
         public Supplier? Supplier { get; private set; }
-        public DateOnly? BookedDate { get; internal set; }
+        public DateOnly? BookedDate { get; private set; }
         public DateTime? EstimatedCompletion { get; set; }
         //public VehicleMot? VehicleMot { get; set; }
         //public ServiceBookingSupplier? Supplier { get; private set; }
@@ -106,6 +105,11 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         {
             SupplierCode = supplierCode;
             ChangeStatus(ServiceBookingStatus.Book, DateTime.Now);
+        }
+        public void Book(DateOnly bookedDate)
+        {
+            BookedDate = bookedDate;
+            ChangeStatus(ServiceBookingStatus.Confirm, DateTime.Now);
         }
         public void Unbook()
         {
@@ -189,7 +193,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.HasIndex(e => e.Ref).IsUnique().HasDatabaseName("UQ_ServiceBooking_Ref");
 
             builder.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
+                .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
 
             builder.Property(e => e.SupplierCode).HasMaxLength(8);

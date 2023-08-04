@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
@@ -14,10 +13,8 @@ public interface IConfirmBooked
 public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IConfirmBooked
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
-    readonly StringBuilder SummaryText = new(); 
-    
+    readonly StringBuilder SummaryText = new();
+
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskConfirmBookedCommand Command = null!;
@@ -40,15 +37,15 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, 
                 ServiceBooking.Confirm();
                 break;
             case TaskConfirmBookedCommand.TaskResult.Refused:
-                ServiceBooking.Refused(); 
+                ServiceBooking.Refused();
                 break;
             case TaskConfirmBookedCommand.TaskResult.Rescheduled:
                 ServiceBooking.Reschedule();
                 break;
         }
 
-        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
-        TaskLogger.Log(Id, "Confirm Booked", Command);
+        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        taskLogger.Log(Id, "Confirm Booked", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, ConfirmBooked ctx)
@@ -74,7 +71,7 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, 
 
             //TODO
         }
-        
+
         public void Reschedule()
         {
             var rescheduleTime = Helper.CombineDateAndTime(ctx.Command.RescheduleDate!.Value, ctx.Command.RescheduleTime!.Value);

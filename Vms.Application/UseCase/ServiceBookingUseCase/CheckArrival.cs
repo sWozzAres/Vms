@@ -13,10 +13,8 @@ public interface ICheckArrival
 public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : ICheckArrival
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
-    readonly StringBuilder SummaryText = new(); 
-    
+    readonly StringBuilder SummaryText = new();
+
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskCheckArrivalCommand Command = null!;
@@ -46,8 +44,8 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
                 break;
         }
 
-        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
-        TaskLogger.Log(Id, "Check Arrival", Command);
+        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        taskLogger.Log(Id, "Check Arrival", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckArrival ctx)

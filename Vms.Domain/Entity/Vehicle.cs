@@ -120,7 +120,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.Ignore(e => e.Vrm);
 
             builder.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
+                .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
             builder.Property(e => e.CustomerCode)
                 .HasMaxLength(10)

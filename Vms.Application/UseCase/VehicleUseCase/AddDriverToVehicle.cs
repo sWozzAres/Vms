@@ -11,7 +11,7 @@ public class AddDriverToVehicle(VmsDbContext dbContext)
     {
         Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
-            
+
         Vehicle.AddDriver(command.DriverId);
 
         //await DbContext.SaveChangesAsync(cancellationToken);

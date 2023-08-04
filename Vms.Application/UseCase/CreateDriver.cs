@@ -1,10 +1,6 @@
-﻿using Azure.Core;
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using Vms.Application.Services;
 using Vms.Application.UseCase.VehicleUseCase;
-using Vms.Domain.Entity;
-using Vms.Domain.Exceptions;
-using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase;

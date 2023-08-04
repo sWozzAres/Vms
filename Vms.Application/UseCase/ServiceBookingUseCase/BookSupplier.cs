@@ -15,10 +15,8 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IEmailSender EmailSender = emailSender;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
-    
+
     ServiceBookingRole? ServiceBooking;
     TaskBookSupplierCommand Command = null!;
     CancellationToken CancellationToken;
@@ -48,8 +46,8 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
                 break;
         }
 
-        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
-        TaskLogger.Log(Id, "Book Supplier", Command);
+        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        taskLogger.Log(Id, "Book Supplier", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, BookSupplier ctx)
@@ -61,25 +59,24 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
 
             ctx.SummaryText.AppendLine("## Booked");
 
-            self.BookedDate = ctx.Command.BookedDate!.Value;
-            self.ChangeStatus(ServiceBookingStatus.Confirm, DateTime.Now);
+            self.Book(ctx.Command.BookedDate!.Value);
 
             await NotifyDriver();
 
             async Task NotifyDriver()
             {
-                var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, ctx.CancellationToken)
-                    ?? throw new VmsDomainException("Failed to load supplier.");
+                if (!string.IsNullOrEmpty(self.Driver.EmailAddress))
+                {
+                    var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, ctx.CancellationToken)
+                        ?? throw new VmsDomainException("Failed to load supplier.");
 
-                var drivers = await ctx.DbContext.DriverVehicles
-                    .Include(d => d.Driver)
-                    .Where(d => d.VehicleId == self.VehicleId)
-                    .Select(dv => dv.Driver)
-                    .ToListAsync(ctx.CancellationToken);
+                    var recipient = self.Driver.EmailAddress;
 
-                var recipients = string.Join(";", drivers.Select(d => d.EmailAddress));
-                ctx.EmailSender.Send(recipients, "Your service is booked",
-                    $"Your service is booked with {supplier.Name} on {self.BookedDate}.");
+                    ctx.EmailSender.Send(recipient, "Your service is booked",
+                        $"Your service is booked with {supplier.Name} on {self.BookedDate}.");
+
+                    ctx.SummaryText.AppendLine($"Notification email sent to driver at [{recipient}](mailto://{recipient}).");
+                }
             }
         }
 
@@ -90,14 +87,12 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
             if (self.SupplierCode is null)
                 throw new VmsDomainException("Service Booking is not assigned.");
 
-            // TODO
-            var rr = await ctx.DbContext.RefusalReasons.FindAsync(new object[] { self.CompanyCode, ctx.Command.RefusalReason! }, ctx.CancellationToken)
+            var reason = await ctx.DbContext.RefusalReasons.FindAsync(new object[] { self.CompanyCode, ctx.Command.RefusalReason! }, ctx.CancellationToken)
                 ?? throw new InvalidOperationException("Failed to load refusal reason.");
 
-            ctx.SummaryText.AppendLine($"* Reason Code: {rr.Code}");
-            ctx.SummaryText.AppendLine($"* Reason Text: {rr.Name}");
-            //self.Supplier.RefusalReasonCode = rr.Code;
-            //self.Supplier.RefusalReasonName = rr.Name;
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
+            
             self.Unassign();
         }
 

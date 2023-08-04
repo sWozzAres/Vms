@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
@@ -14,10 +13,8 @@ public interface IChaseDriver
 public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IChaseDriver
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
-    
+
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskChaseDriverCommand Command = null!;
@@ -47,8 +44,8 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
                 break;
         }
 
-        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
-        TaskLogger.Log(Id, "Chase Driver", Command);
+        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        taskLogger.Log(Id, "Chase Driver", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, ChaseDriver ctx)

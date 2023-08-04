@@ -1,6 +1,4 @@
-﻿using Vms.Application.Services;
-
-namespace Vms.Application.UseCase;
+﻿namespace Vms.Application.UseCase;
 
 public class CreateMake(VmsDbContext dbContext)
 {

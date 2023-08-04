@@ -8,7 +8,7 @@ public class ChangeVrm(VmsDbContext context)
     {
         var vehicle = await DbContext.Vehicles.FindAsync(new object[] { request.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found.");
-        
+
         vehicle.Vrm = request.NewVrm;
 
         //Vehicle = new(await DbContext.Vehicles.FindAsync(request.vehicleId, cancellationToken)

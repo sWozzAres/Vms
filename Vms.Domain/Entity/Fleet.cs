@@ -35,7 +35,7 @@ namespace Vms.Domain.Entity.Configuration
                 .HasMaxLength(10)
                 .IsFixedLength();
             entity.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
+                .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
             entity.Property(e => e.Name)
                 .HasMaxLength(32)

@@ -37,18 +37,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpDelete]
     [Route("{id}/follow")]
     public async Task<IActionResult> Unfollow(Guid id,
-        IUserProvider userProvider,
+        [FromServices] IUnfollow unfollow,
         CancellationToken cancellationToken)
     {
-        var follow = await _context.Followers
-            .SingleOrDefaultAsync(f => f.UserId == userProvider.UserId && f.DocumentId == id, cancellationToken);
-
-        if (follow is null)
-        {
+        if (!await unfollow.UnfollowAsync(id, cancellationToken))
             return NotFound();
-        }
-
-        _context.Followers.Remove(follow);
+        
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -69,11 +63,6 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         }
         catch (DbUpdateException dbe) when (dbe.InnerException is SqlException se && se.Message.Contains("IX_ServiceBookingLock_ServiceBookingId"))
         {
-            //if (dbe.InnerException is SqlException se) {
-            //    logger.LogInformation("{errorCode}", se.ErrorCode);
-            //    logger.LogInformation("{msg}", se.Message);
-            //};
-            //throw;
             return Forbid();
         }
     }

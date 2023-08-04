@@ -11,9 +11,9 @@ public class CreateCompany(VmsDbContext dbContext, ISearchManager searchManager)
         var company = new Company(request.Code, request.Name);
         DbContext.Add(company);
 
-        searchManager.Add(company.Code, company.Code, EntityKind.Company, company.Name, 
+        searchManager.Add(company.Code, company.Code, EntityKind.Company, company.Name,
             string.Join(" ", company.Code, company.Name));
-        
+
         return company;
     }
 }

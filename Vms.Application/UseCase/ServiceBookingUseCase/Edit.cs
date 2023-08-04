@@ -13,8 +13,6 @@ public interface IEdit
 public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IEdit
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
 
     public async Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken)
@@ -117,8 +115,8 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
 
         if (isModified)
         {
-            await ActivityLog.AddAsync(id, SummaryText, cancellationToken);
-            TaskLogger.Log(id, "Edit", command);
+            await activityLog.AddAsync(id, SummaryText, cancellationToken);
+            taskLogger.Log(id, "Edit", command);
         }
 
         return isModified;

@@ -37,7 +37,7 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
             .Distinct()
             .OrderBy(s => s.Distance)
             .ToList();
-            //.ToListAsync(cancellationToken);
+        //.ToListAsync(cancellationToken);
 
         return result;
     }

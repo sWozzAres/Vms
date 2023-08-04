@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Vms.Application.UseCase;
+﻿namespace Vms.Application.UseCase;
 
 public class CreateModel(VmsDbContext dbContext)
 {

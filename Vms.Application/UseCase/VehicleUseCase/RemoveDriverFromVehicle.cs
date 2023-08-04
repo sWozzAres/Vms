@@ -15,7 +15,7 @@ public class RemoveDriverFromVehicle(VmsDbContext dbContext)
         {
             return false;
         }
-        
+
         //await DbContext.SaveChangesAsync(cancellationToken);
 
         return true;

@@ -55,6 +55,7 @@ builder.Services.AddScoped<ISearchManager, SearchManager>();
 builder.Services.AddScoped<ICreateVehicle, CreateVehicle>();
 builder.Services.AddScoped<IEdit, Edit>();
 builder.Services.AddScoped<IFollow, Follow>();
+builder.Services.AddScoped<IUnfollow, Unfollow>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
 builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
 builder.Services.AddScoped<ICheckArrival, CheckArrival>();

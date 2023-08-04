@@ -13,10 +13,8 @@ public interface IAssignSupplierUseCase
 public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IAssignSupplierUseCase
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
-    
+
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskAssignSupplierCommand Command = null!;
@@ -28,13 +26,13 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 
-        ServiceBooking = new (await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
             ?? throw new InvalidOperationException("Service Booking not found."), this);
 
         await ServiceBooking.Assign();
 
-        await ActivityLog.AddAsync(id, SummaryText, CancellationToken);
-        TaskLogger.Log(id, "Assign Supplier", Command);
+        await activityLog.AddAsync(id, SummaryText, CancellationToken);
+        taskLogger.Log(id, "Assign Supplier", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, AssignSupplierUseCase ctx)
@@ -45,7 +43,7 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
                 throw new VmsDomainException("Service Booking is not in Assign or Book status.");
 
             ctx.SummaryText.AppendLine("# Assign Supplier");
-            
+
             var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { ctx.Command.SupplierCode }, ctx.CancellationToken)
                 ?? throw new InvalidOperationException("Supplier not found.");
 

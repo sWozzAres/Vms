@@ -1,9 +1,7 @@
 ﻿using System.Text;
 using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.Web.Shared;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
 
@@ -15,10 +13,8 @@ public interface ICheckWorkStatus
 public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : ICheckWorkStatus
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
-    readonly StringBuilder SummaryText = new(); 
-    
+    readonly StringBuilder SummaryText = new();
+
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskCheckWorkStatusCommand Command = null!;
@@ -27,7 +23,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
     public async Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken)
     {
         Id = id;
-        Command = command ?? throw new ArgumentNullException(nameof(command));  
+        Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 
         ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
@@ -48,8 +44,8 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
                 break;
         }
 
-        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
-        TaskLogger.Log(Id, "Check Work Status", Command);
+        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        taskLogger.Log(Id, "Check Work Status", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)
@@ -75,7 +71,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
 
             self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, DateTime.Now);
 
-            
+
         }
         public void NotComplete()
         {
