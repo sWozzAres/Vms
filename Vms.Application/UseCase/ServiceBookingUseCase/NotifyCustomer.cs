@@ -17,11 +17,19 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new(); 
+    
     ServiceBookingRole? ServiceBooking;
+    Guid Id;
+    TaskNotifyCustomerCommand Command = null!;
+    CancellationToken CancellationToken;
 
     public async Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        Id = id;
+        Command = command ?? throw new ArgumentNullException(nameof(command));
+        CancellationToken = cancellationToken;
+
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Notify Customer");
@@ -32,12 +40,12 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
                 ServiceBooking.Notify();
                 break;
             case TaskNotifyCustomerCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value), command.RescheduleReason!);
+                ServiceBooking.Reschedule();
                 break;
         }
 
-        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
-        TaskLogger.Log(id, "Notify Customer", command);
+        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
+        TaskLogger.Log(Id, "Notify Customer", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx)
@@ -45,13 +53,14 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
         public void Notify()
         {
             ctx.SummaryText.AppendLine("## Notify");
-            self.ChangeStatus(ServiceBookingStatus.CheckArrival);
+            self.ChangeStatus(ServiceBookingStatus.Complete);
         }
 
-        public void Reschedule(DateTime rescheduleTime, string reason)
+        public void Reschedule()
         {
+            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{reason}'.");
+            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
             self.RescheduleTime = rescheduleTime;
         }
     }

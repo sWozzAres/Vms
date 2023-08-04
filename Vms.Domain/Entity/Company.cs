@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 using Vms.Domain.Entity.ServiceBookingEntity;
 
 namespace Vms.Domain.Entity
@@ -37,14 +35,14 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Company> builder)
         {
-            builder.ToTable("Company");
+            builder.ToTable("Companies");
 
             builder.HasKey(e => e.Code);
 
             builder.Property(e => e.Code)
                 .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
-            
+
             builder.Property(e => e.Name)
                 .HasMaxLength(32)
                 .IsUnicode(false);

@@ -32,9 +32,9 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<MotEvent> entity)
         {
-            entity.ToTable("MotEvent", tb => tb.IsTemporal(ttb =>
+            entity.ToTable("MotEvents", tb => tb.IsTemporal(ttb =>
             {
-                ttb.UseHistoryTable("MotEventHistory");
+                ttb.UseHistoryTable("MotEventsHistory");
                 ttb.HasPeriodStart("ValidFrom")
                    .HasColumnName("ValidFrom");
                 ttb.HasPeriodEnd("ValidTo")

@@ -12,11 +12,7 @@
                 Task
             </MenuButton>
 
-            @if (ServiceBooking.Status == ServiceBookingDtoStatus.Assign)
-            {
-                <button @onclick="AssignSupplier" class="btn-next-task">Assign Supplier</button>
-            }
-            else if (ServiceBooking.Status == ServiceBookingDtoStatus.Book)
+            @if (ServiceBooking.Status == ServiceBookingDtoStatus.Book)
             {
                 <button @onclick="AssignSupplier" class="btn-prev-task">Assign Supplier</button>
             }

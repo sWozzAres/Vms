@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.IdentityModel.Tokens;
 using NetTopologySuite.Geometries;
 
 namespace Vms.Domain.Entity
@@ -24,8 +23,8 @@ namespace Vms.Domain.Entity
         public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
 
         public string FullName
-            => string.Join(" ", new string?[]{ Salutation, FirstName, MiddleNames, LastName }
-                .Where(x=>!string.IsNullOrEmpty(x)));
+            => string.Join(" ", new string?[] { Salutation, FirstName, MiddleNames, LastName }
+                .Where(x => !string.IsNullOrEmpty(x)));
     }
 
     public partial class DriverVehicle(string companyCode, Guid driverId, Guid vehicleId)
@@ -49,7 +48,7 @@ namespace Vms.Domain.Entity.Configuration
             entity.HasAlternateKey(e => new { e.CompanyCode, e.Id });
             entity.HasAlternateKey(e => new { e.CompanyCode, e.EmailAddress });
 
-            entity.ToTable("Driver");
+            entity.ToTable("Drivers");
 
             entity.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
@@ -83,7 +82,7 @@ namespace Vms.Domain.Entity.Configuration
                 //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Driver_Company");
+                .HasConstraintName("FK_Drivers_Companies");
         }
     }
     public class DriverVehicleEntityTypeConfiguration : IEntityTypeConfiguration<DriverVehicle>
@@ -104,14 +103,14 @@ namespace Vms.Domain.Entity.Configuration
                 .WithMany(p => p.DriverVehicles)
                 .HasForeignKey(d => new { d.CompanyCode, d.DriverId })
                 .HasPrincipalKey(d => new { d.CompanyCode, d.Id })
-                .HasConstraintName("FK_DriverVehicles_Driver");
+                .HasConstraintName("FK_DriverVehicles_Drivers");
 
             entity.HasOne(d => d.Vehicle)
                 .WithMany(p => p.DriverVehicles)
                 .HasForeignKey(d => new { d.CompanyCode, d.VehicleId })
                 .HasPrincipalKey(d => new { d.CompanyCode, d.Id })
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DriverVehicles_Vehicle");
+                .HasConstraintName("FK_DriverVehicles_Vehicles");
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
 namespace Vms.Application.Services;
 
@@ -14,8 +9,6 @@ public interface ITaskLogger
 
 public class TaskLogger(VmsDbContext dbContext) : ITaskLogger
 {
-    readonly VmsDbContext _dbContext = dbContext;
-
     public void Log<T>(Guid id, string taskName, T task)
     {
         var taskLog = new TaskLog()
@@ -25,6 +18,6 @@ public class TaskLogger(VmsDbContext dbContext) : ITaskLogger
             Log = JsonSerializer.Serialize(task),
             EntryDate = DateTime.Now,
         };
-        _dbContext.TaskLogs.Add(taskLog);
+        dbContext.TaskLogs.Add(taskLog);
     }
 }

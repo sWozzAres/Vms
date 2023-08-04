@@ -24,7 +24,7 @@ namespace Vms.Domain.Entity
 
             entity.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
-                .IsFixedLength(); 
+                .IsFixedLength();
             entity.Property(e => e.Code)
                 .HasMaxLength(10)
                 .IsFixedLength();
@@ -35,7 +35,7 @@ namespace Vms.Domain.Entity
             entity.HasOne(d => d.Company).WithMany(p => p.RescheduleReasons)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_RescheduleReason_Company");
+                .HasConstraintName("FK_RescheduleReasons_Companies");
         }
     }
 }

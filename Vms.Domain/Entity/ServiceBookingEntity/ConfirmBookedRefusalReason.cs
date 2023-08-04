@@ -35,7 +35,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             entity.HasOne(d => d.Company).WithMany(p => p.ConfirmBookedRefusalReasons)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ConfirmBookedRefusalReason_Company");
+                .HasConstraintName("FK_ConfirmBookedRefusalReasons_Companies");
         }
     }
 }

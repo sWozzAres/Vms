@@ -22,9 +22,9 @@ namespace Vms.Domain.Entity.Configuration
 
             entity.HasKey(e => e.Id);
 
-            entity.Property(e=>e.Recipients).HasMaxLength(256);
-            entity.Property(e=>e.Subject).HasMaxLength(64);
-            entity.Property(e=>e.Body).HasMaxLength(2048);
+            entity.Property(e => e.Recipients).HasMaxLength(256);
+            entity.Property(e => e.Subject).HasMaxLength(64);
+            entity.Property(e => e.Body).HasMaxLength(2048);
         }
     }
 }

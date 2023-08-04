@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Exceptions;
@@ -38,6 +37,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public Guid Id { get; private set; }
         public string Ref { get; set; } = null!;
         public Guid VehicleId { get; set; }
+        public Vehicle Vehicle { get; set; } = null!;
         public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
@@ -51,9 +51,9 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public DateTime? RescheduleTime { get; internal set; }
         public ServiceBookingStatus Status { get; private set; }
         public ServiceLevel ServiceLevel { get; set; }
-        public Vehicle Vehicle { get; set; } = null!;
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; set; }
+        public Guid? LockId { get; set; }
         public ServiceBookingLock? Lock { get; set; }
         public ServiceBookingDriver Driver { get; set; } = new();
         public ServiceBookingContact Contact { get; set; } = new();
@@ -64,7 +64,6 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public string? OwnerUserId { get; set; }
         public User? Owner { get; set; }
 
-        public Guid? LockId { get; set; }
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
             DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue,
@@ -91,40 +90,27 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public bool IsValid
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 
-        public void ChangeStatus(ServiceBookingStatus status) => Status = status;
+        //public void ChangeStatus(ServiceBookingStatus status) => Status = status;
+        public void ChangeStatus(ServiceBookingStatus status, DateTime? rescheduleTime = null)
+        {
+            Status = status;
+            RescheduleTime = rescheduleTime;
+        }
         public void Assign(string supplierCode)
         {
             SupplierCode = supplierCode;
-            Status = ServiceBookingStatus.Book;
-            //Supplier = new ServiceBookingSupplier(Id, supplierCode);
+            ChangeStatus(ServiceBookingStatus.Book, DateTime.Now);
         }
-        //public void UnassignSupplier()
-        //{
-        //    SupplierCode = null;
-        //    //Supplier = new ServiceBookingSupplier(Id, supplierCode);
-        //}
         public void Unbook()
         {
             BookedDate = null;
-            RescheduleTime = DateTime.Now;
-            ChangeStatus(ServiceBookingStatus.Book);
-        }
-        public void Book(DateOnly bookedDate)
-        {
-            if (SupplierCode is null)
-                throw new VmsDomainException("Service Booking is not assigned.");
-
-            //RescheduleTime = null;
-            BookedDate = bookedDate;
-            ChangeStatus(ServiceBookingStatus.Confirm);
+            ChangeStatus(ServiceBookingStatus.Book, DateTime.Now);
         }
         public void Unassign()
         {
-            //RescheduleTime = null;
             SupplierCode = null;
-            ChangeStatus(ServiceBookingStatus.Assign);
+            ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
         }
-        //public void Reschedule(DateTime? rescheduleTime) => RescheduleTime = rescheduleTime;
     }
 
     public class ServiceBookingDriver
@@ -169,60 +155,21 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             Granted = DateTime.Now,
         };
     }
-
-    public class Follower
-    {
-        public Guid DocumentId { get; set; }
-        public string UserId { get; set; } = null!;
-        public string EmailAddress { get; set; } = null!;
-    }
-    //public class ServiceBookingSupplier
-    //{
-    //    public Guid ServiceBookingId { get; private set; }
-    //    public string? SupplierCode { get; private set; } = null!;
-    //    public DateOnly? BookedDate { get; set; }
-
-    //    public virtual ServiceBooking ServiceBooking { get; private set; } = null!;
-    //    public virtual Supplier Supplier { get; private set; } = null!;
-    //    private ServiceBookingSupplier() { }
-    //    public ServiceBookingSupplier(Guid serviceBookingId, string supplierCode)
-    //        => (ServiceBookingId, SupplierCode) = (serviceBookingId, supplierCode);
-    //}
-
-    //public class ServiceBookingRefusal
-    //{
-    //    public string CompanyCode { get; set; } = null!;
-    //    public Guid ServiceBookingId { get; set; }
-    //    public ServiceBooking ServiceBooking { get; set; } = null!;
-    //    public string SupplierCode { get; set; } = null!;
-    //    public Supplier Supplier { get; set; } = null!;
-    //    public string RefusalReasonCode { get; set; } = null!;
-    //    public RefusalReason RefusalReason { get; set; } = null!;
-    //}
 }
 
 namespace Vms.Domain.Entity.Configuration
 {
-    public class FollowerEntityTypeConfiguration : IEntityTypeConfiguration<Follower>
-    {
-        public void Configure(EntityTypeBuilder<Follower> entity)
-        {
-            entity.ToTable("Followers");
-
-            entity.HasKey(e=>new {e.DocumentId, e.UserId});
-        }
-    }
     public class ServiceBookingLockEntityTypeConfiguration : IEntityTypeConfiguration<ServiceBookingLock>
     {
         public void Configure(EntityTypeBuilder<ServiceBookingLock> entity)
         {
-            entity.ToTable("ServiceBookingLock");
+            entity.ToTable("ServiceBookingLocks");
 
             entity.HasKey(e => e.Id);
 
             entity.HasOne(e => e.ServiceBooking)
                 .WithOne(e => e.Lock)
-                .HasForeignKey<ServiceBookingLock>(e=>e.ServiceBookingId);
+                .HasForeignKey<ServiceBookingLock>(e => e.ServiceBookingId);
         }
     }
 
@@ -230,10 +177,10 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<ServiceBooking> builder)
         {
-            builder.ToTable("ServiceBooking");
+            builder.ToTable("ServiceBookings");
             builder.HasKey(e => e.Id);
 
-            builder.HasIndex(e=>e.Ref).IsUnique().HasDatabaseName("UQ_ServiceBooking_Ref");
+            builder.HasIndex(e => e.Ref).IsUnique().HasDatabaseName("UQ_ServiceBooking_Ref");
 
             builder.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
@@ -268,13 +215,13 @@ namespace Vms.Domain.Entity.Configuration
                 .WithMany(v => v.ServiceBookings)
                 .HasForeignKey(e => new { e.CompanyCode, e.VehicleId })
                 .HasPrincipalKey(v => new { v.CompanyCode, v.Id })
-                .HasConstraintName("FK_ServiceBookings_Vehicle");
+                .HasConstraintName("FK_ServiceBookings_Vehicles");
 
             builder.OwnsOne(e => e.Driver, d =>
             {
-                d.ToTable("ServiceBookingDriver", tb => tb.IsTemporal(ttb =>
+                d.ToTable("ServiceBookingDrivers", tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.UseHistoryTable("ServiceBookingDriverHistory");
+                    ttb.UseHistoryTable("ServiceBookingDriversHistory");
                     ttb
                         .HasPeriodStart("ValidFrom")
                         .HasColumnName("ValidFrom");
@@ -292,14 +239,14 @@ namespace Vms.Domain.Entity.Configuration
 
                 d.WithOwner(x => x.ServiceBooking)
                     .HasForeignKey(d => d.ServiceBookingId)
-                    .HasConstraintName("FK_ServiceBooking_ServiceBookingDriver");
+                    .HasConstraintName("FK_ServiceBookings_ServiceBookingDrivers");
             });
 
             builder.OwnsOne(e => e.Contact, d =>
             {
-                d.ToTable("ServiceBookingContact", tb => tb.IsTemporal(ttb =>
+                d.ToTable("ServiceBookingContacts", tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.UseHistoryTable("ServiceBookingContactHistory");
+                    ttb.UseHistoryTable("ServiceBookingContactsHistory");
                     ttb
                         .HasPeriodStart("ValidFrom")
                         .HasColumnName("ValidFrom");
@@ -317,7 +264,7 @@ namespace Vms.Domain.Entity.Configuration
 
                 d.WithOwner(x => x.ServiceBooking)
                     .HasForeignKey(d => d.ServiceBookingId)
-                    .HasConstraintName("FK_ServiceBooking_ServiceBookingContact");
+                    .HasConstraintName("FK_ServiceBookings_ServiceBookingContacts");
             });
 
             //builder.HasOne(e => e.VehicleMot)

@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
@@ -34,7 +32,7 @@ namespace Vms.Domain.Entity.Configuration
         {
             builder.HasKey(e => new { e.CompanyCode, e.NetworkCode, e.CustomerCode });
 
-            builder.ToTable("CustomerNetwork");
+            builder.ToTable("CustomerNetworks");
 
             builder.Property(e => e.CompanyCode)
                 .HasMaxLength(10)
@@ -50,13 +48,13 @@ namespace Vms.Domain.Entity.Configuration
                 //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.CustomerCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CustomerNetwork_Customer");
+                .HasConstraintName("FK_CustomerNetworks_Customers");
 
             builder.HasOne(d => d.Network).WithMany(p => p.CustomerNetworks)
                 //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.NetworkCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CustomerNetwork_Network");
+                .HasConstraintName("FK_CustomerNetworks_Networks");
         }
     }
-}    
+}

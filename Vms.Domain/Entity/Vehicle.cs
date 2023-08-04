@@ -43,7 +43,7 @@ namespace Vms.Domain.Entity
             VehicleVrm = new VehicleVrm(vrm);
             Address = new(homeLocation.Street, homeLocation.Locality, homeLocation.Town, homeLocation.Postcode, homeLocation.Location.Copy());
         }
-        public static Vehicle Create(string companyCode, string vrm, string make, string model, 
+        public static Vehicle Create(string companyCode, string vrm, string make, string model,
             DateOnly dateFirstRegistered, DateOnly? motDue, Address homeLocation,
             string? customerCode = null, string? fleetCode = null)
         {
@@ -112,7 +112,7 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
-            builder.ToTable("Vehicle");
+            builder.ToTable("Vehicles");
             builder.HasKey(e => e.Id);
             //builder.Property(e => e.Id).UseHiLo("VehicleIds");
             builder.HasAlternateKey(e => new { e.CompanyCode, e.Id });
@@ -163,23 +163,23 @@ namespace Vms.Domain.Entity.Configuration
                 .WithMany(p => p.Vehicles)
                 .HasForeignKey(d => new { d.Make, d.Model })
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Vehicle_VehicleModel");
+                .HasConstraintName("FK_Vehicles_VehicleModels");
 
             builder.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Vehicles)
                 //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Vehicle_Company");
+                .HasConstraintName("FK_Vehicles_Companies");
 
             builder.HasOne(d => d.C).WithMany(p => p.Vehicles)
                 //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.CustomerCode })
-                .HasConstraintName("FK_Vehicle_Customer");
+                .HasConstraintName("FK_Vehicles_Customers");
 
             builder.HasOne(d => d.Fleet).WithMany(p => p.Vehicles)
                 //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
                 .HasForeignKey(d => new { d.CompanyCode, d.FleetCode })
-                .HasConstraintName("FK_Vehicle_Fleet");
+                .HasConstraintName("FK_Vehicles_Fleets");
 
             builder.HasMany(d => d.ServiceBookings).WithOne(p => p.Vehicle);
 
@@ -189,17 +189,17 @@ namespace Vms.Domain.Entity.Configuration
             //    .HasPrincipalKey(m => m.Id);
             builder.OwnsOne(d => d.Mot, x =>
             {
-                x.ToTable("VehicleMot");
+                x.ToTable("VehicleMots");
                 x.WithOwner(x => x.Vehicle)
                     .HasForeignKey(d => d.VehicleId)
-                    .HasConstraintName("FK_Vehicle_VehicleMot");
+                    .HasConstraintName("FK_Vehicles_VehicleMots");
             });
 
             builder.OwnsOne(d => d.VehicleVrm, x =>
             {
-                x.ToTable("VehicleVrm", tb => tb.IsTemporal(ttb =>
+                x.ToTable("VehicleVrms", tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.UseHistoryTable("VehicleVrmHistory");
+                    ttb.UseHistoryTable("VehicleVrmsHistory");
                     ttb
                         .HasPeriodStart("ValidFrom")
                         .HasColumnName("ValidFrom");
@@ -212,7 +212,7 @@ namespace Vms.Domain.Entity.Configuration
 
                 x.WithOwner(x => x.Vehicle)
                     .HasForeignKey(d => d.VehicleId)
-                    .HasConstraintName("FK_Vehicle_VehicleVrm");
+                    .HasConstraintName("FK_Vehicles_VehicleVrms");
             });
         }
     }

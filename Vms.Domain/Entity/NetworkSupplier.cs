@@ -9,6 +9,6 @@
         public virtual Supplier Supplier { get; set; } = null!;
         private NetworkSupplier() { }
         public NetworkSupplier(string companyCode, string networkCode, string supplierCode)
-            => (CompanyCode,NetworkCode,SupplierCode) = (companyCode, networkCode,supplierCode);    
+            => (CompanyCode, NetworkCode, SupplierCode) = (companyCode, networkCode, supplierCode);
     }
 }

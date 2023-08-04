@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
@@ -22,7 +20,7 @@ namespace Vms.Domain.Entity
         public virtual ICollection<Supplier> Suppliers { get; set; } = new List<Supplier>();
         public virtual ICollection<NetworkSupplier> NetworkSuppliers { get; set; } = new List<NetworkSupplier>();
         private Network() { }
-        public Network(string companyCode, string code, string name) 
+        public Network(string companyCode, string code, string name)
             => (CompanyCode, Code, Name) = (companyCode, code, name);
     }
 }
@@ -33,7 +31,7 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Network> builder)
         {
-            builder.ToTable("Network");
+            builder.ToTable("Networks");
 
             builder.HasKey(e => new { e.CompanyCode, e.Code });
 
@@ -51,7 +49,7 @@ namespace Vms.Domain.Entity.Configuration
                 //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Network_Company");
+                .HasConstraintName("FK_Networks_Companies");
 
             builder.HasMany(d => d.Suppliers).WithMany(p => p.Networks)
             //.UsingEntity<NetworkSupplier>(x =>
@@ -64,15 +62,15 @@ namespace Vms.Domain.Entity.Configuration
                 r => r.HasOne(e => e.Supplier).WithMany(e => e.NetworkSuppliers)
                     .HasForeignKey(e => e.SupplierCode)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_NetworkSupplier_Supplier"),
+                    .HasConstraintName("FK_NetworkSuppliers_Suppliers"),
                 l => l.HasOne(e => e.Network).WithMany(e => e.NetworkSuppliers)
                     .HasForeignKey(e => new { e.CompanyCode, e.NetworkCode })
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_NetworkSupplier_Network"),
+                    .HasConstraintName("FK_NetworkSuppliers_Networks"),
                 j =>
                 {
                     j.HasKey(e => new { e.CompanyCode, e.NetworkCode, e.SupplierCode });
-                    j.ToTable("NetworkSupplier");
+                    j.ToTable("NetworkSuppliers");
                 });
         }
     }

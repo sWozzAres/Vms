@@ -78,14 +78,14 @@ public static class UIOptions
         return options;
     }
 
-    public static List<SelectOption<Vms.Web.Shared.ServiceLevel>> GetServiceLevelOptions()
+    public static List<SelectOption<Vms.Web.Shared.ServiceLevelDto>> GetServiceLevelOptions()
         => new()
         {
-            new(Vms.Web.Shared.ServiceLevel.None, "-- Select Service Level --"),
-            new(Vms.Web.Shared.ServiceLevel.Mobile, "Mobile"),
-            new(Vms.Web.Shared.ServiceLevel.Collection, "Collection"),
-            new(Vms.Web.Shared.ServiceLevel.DropOff, "Drop Off"),
-            new(Vms.Web.Shared.ServiceLevel.WhileYouWait, "While You Wait"),
-            new(Vms.Web.Shared.ServiceLevel.DropOffWithCourtesyCar, "Drop Off With Courtesy Car"),
+            new(Vms.Web.Shared.ServiceLevelDto.None, "-- Select Service Level --"),
+            new(Vms.Web.Shared.ServiceLevelDto.Mobile, "Mobile"),
+            new(Vms.Web.Shared.ServiceLevelDto.Collection, "Collection"),
+            new(Vms.Web.Shared.ServiceLevelDto.DropOff, "Drop Off"),
+            new(Vms.Web.Shared.ServiceLevelDto.WhileYouWait, "While You Wait"),
+            new(Vms.Web.Shared.ServiceLevelDto.DropOffWithCourtesyCar, "Drop Off With Courtesy Car"),
         };
 }

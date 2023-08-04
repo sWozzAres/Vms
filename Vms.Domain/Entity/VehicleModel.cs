@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 
 namespace Vms.Domain.Entity
 {
@@ -28,7 +26,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.HasKey(e => new { e.Make, e.Model })
                 .HasName("PK_Model");
 
-            builder.ToTable("VehicleModel");
+            builder.ToTable("VehicleModels");
 
             builder.Property(e => e.Make)
                 .HasMaxLength(VehicleMake.Make_Maxlength)

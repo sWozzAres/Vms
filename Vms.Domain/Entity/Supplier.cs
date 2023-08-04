@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using System;
-using System.Collections.Generic;
-
 namespace Vms.Domain.Entity
 {
     public partial class Supplier
@@ -43,7 +40,7 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Supplier> builder)
         {
-            builder.ToTable("Supplier");
+            builder.ToTable("Suppliers");
 
             builder.HasKey(e => e.Code);
             //builder.HasIndex(e => e.Location, "SPATIAL_Supplier");
@@ -74,7 +71,7 @@ namespace Vms.Domain.Entity.Configuration
 
             builder.OwnsMany(d => d.Franchises, p =>
             {
-                p.ToTable("SupplierFranchise");
+                p.ToTable("SupplierFranchises");
                 p.HasKey(p => new { p.SupplierCode, p.Franchise });
 
                 p.WithOwner(p => p.Supplier)

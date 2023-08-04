@@ -8,7 +8,7 @@ namespace Vms.Domain.Entity
         internal const int Make_Maxlength = 30;
         public string Make { get; set; } = null!;
         public virtual ICollection<VehicleModel> VehicleModels { get; set; } = null!;
-        
+
         private VehicleMake() { }
         public VehicleMake(string make)
         {
@@ -27,7 +27,7 @@ namespace Vms.Domain.Entity.Configuration
             builder.HasKey(e => e.Make)
                 .HasName("PK_Make");
 
-            builder.ToTable("VehicleMake");
+            builder.ToTable("VehicleMakes");
 
             builder.Property(e => e.Make)
                 .HasMaxLength(VehicleMake.Make_Maxlength)

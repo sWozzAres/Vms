@@ -3,6 +3,7 @@ using Vms.Application.Services;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 using Vms.Web.Shared;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Vms.Application.UseCase.ServiceBookingUseCase;
 
@@ -17,11 +18,19 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
+    
     ServiceBookingRole? ServiceBooking;
+    Guid Id;
+    TaskRebookDriverCommand Command = null!;
+    CancellationToken CancellationToken;
 
     public async Task RebookAsync(Guid id, TaskRebookDriverCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        Id = id;
+        Command = command ?? throw new ArgumentNullException(nameof(command));
+        CancellationToken = cancellationToken;
+
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Rebook Driver");
@@ -32,21 +41,18 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
                 ServiceBooking.StillGoing();
                 break;
             case TaskRebookDriverCommand.TaskResult.NotGoing:
-                ServiceBooking.NotGoing();
+                await ServiceBooking.NotGoing();
                 break;
             case TaskRebookDriverCommand.TaskResult.StillGoingToday:
-                ServiceBooking.StillGoingToday(command.ArrivalTime!.Value);
+                ServiceBooking.StillGoingToday();
                 break;
             case TaskRebookDriverCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule(
-                    Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value),
-                    command.RescheduleReason!
-                );
+                ServiceBooking.Reschedule();
                 break;
         }
 
-        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
-        TaskLogger.Log(id, "Rebook Driver", command);
+        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
+        TaskLogger.Log(Id, "Rebook Driver", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, RebookDriver ctx)
@@ -57,24 +63,35 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
             self.Unbook();
             self.Unassign();
         }
-        public void StillGoingToday(TimeOnly arrivalTime)
+        public void StillGoingToday()
         {
+            var arrivalTime = ctx.Command.ArrivalTime!.Value;
+
             ctx.SummaryText.AppendLine("## Still Going Today");
             ctx.SummaryText.AppendLine($"Will arrive at {arrivalTime}.");
 
-            self.RescheduleTime = Helper.CombineDateAndTime(DateOnly.FromDateTime(DateTime.Now), arrivalTime);
-            self.ChangeStatus(ServiceBookingStatus.CheckArrival);
+            var date = DateTime.Today;
+            var rescheduleTime = new DateTime(date.Year, date.Month, date.Day, arrivalTime.Hour, arrivalTime.Minute, arrivalTime.Second);
+            self.ChangeStatus(ServiceBookingStatus.CheckArrival, rescheduleTime);
         }
-        public void NotGoing()
+        public async Task NotGoing()
         {
             ctx.SummaryText.AppendLine("## Not Going");
-            self.ChangeStatus(ServiceBookingStatus.Cancelled);
-        }
-        public void Reschedule(DateTime rescheduleTime, string reason)
-        {
-            ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{reason}'.");
 
+            // remove work items from booking
+            (await MotEvents()).ForEach(e => e.ServiceBookingId = null);
+
+            self.ChangeStatus(ServiceBookingStatus.Cancelled);
+
+            async Task<List<MotEvent>> MotEvents()
+                => await ctx.DbContext.MotEvents.Where(e => e.ServiceBookingId == self.Id).ToListAsync(ctx.CancellationToken);
+        }
+
+        public void Reschedule()
+        {
+            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
+            ctx.SummaryText.AppendLine("## Rescheduled");
+            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
             self.RescheduleTime = rescheduleTime;
         }
     }

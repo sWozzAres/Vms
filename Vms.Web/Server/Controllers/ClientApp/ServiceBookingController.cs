@@ -408,13 +408,13 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
                     sb.AssignedToUserId, sb.Ref, sb.RescheduleTime,
                     sbd.Name 'Driver_Name', sbd.EmailAddress 'Driver_EmailAddress', sbd.MobileNumber 'Driver_MobileNumber',
                     sbc.Name 'Contact_Name', sbc.EmailAddress 'Contact_EmailAddress', sbc.MobileNumber 'Contact_MobileNumber'
-                FROM ServiceBooking sb
-                LEFT JOIN ServiceBookingDriver sbd ON sb.Id = sbd.ServiceBookingId
-                LEFT JOIN ServiceBookingContact sbc ON sb.Id = sbc.ServiceBookingId
-                JOIN Vehicle v ON sb.VehicleId = v.Id
-                JOIN VehicleVrm vv ON v.Id = vv.VehicleId
-                LEFT JOIN Supplier s ON sb.SupplierCode = s.Code
-                LEFT JOIN MotEvent mo ON sb.MotEventId = mo.Id
+                FROM ServiceBookings sb
+                LEFT JOIN ServiceBookingDrivers sbd ON sb.Id = sbd.ServiceBookingId
+                LEFT JOIN ServiceBookingContacts sbc ON sb.Id = sbc.ServiceBookingId
+                JOIN Vehicles v ON sb.VehicleId = v.Id
+                JOIN VehicleVrms vv ON v.Id = vv.VehicleId
+                LEFT JOIN Suppliers s ON sb.SupplierCode = s.Code
+                LEFT JOIN MotEvents mo ON sb.MotEventId = mo.Id
                 WHERE (@tenantId = '*' OR @tenantId = sb.CompanyCode)
             """;
     }

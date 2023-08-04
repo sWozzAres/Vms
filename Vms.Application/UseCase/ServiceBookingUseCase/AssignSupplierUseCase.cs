@@ -16,38 +16,43 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
+    
+    ServiceBookingRole? ServiceBooking;
+    Guid Id;
+    TaskAssignSupplierCommand Command = null!;
+    CancellationToken CancellationToken;
 
-    public async Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default)
+    public async Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken)
     {
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
-            ?? throw new InvalidOperationException("Service Booking not found.");
+        Id = id;
+        Command = command ?? throw new ArgumentNullException(nameof(command));
+        CancellationToken = cancellationToken;
 
-        if (serviceBooking.Status != ServiceBookingStatus.Assign && serviceBooking.Status != ServiceBookingStatus.Book)
-            throw new VmsDomainException("Service Booking is not in Assign or Book status.");
+        ServiceBooking = new (await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
+            ?? throw new InvalidOperationException("Service Booking not found."), this);
 
-        SummaryText.AppendLine("# Assign Supplier");
+        await ServiceBooking.Assign();
 
-        var supplier = await DbContext.Suppliers.FindAsync(new object[] { command.SupplierCode }, cancellationToken)
-            ?? throw new InvalidOperationException("Supplier not found.");
-
-        SummaryText.AppendLine($"* Code: {supplier.Code}");
-        SummaryText.AppendLine($"* Name: {supplier.Name}");
-
-        serviceBooking.Assign(command.SupplierCode);
-
-        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
-        TaskLogger.Log(id, "Assign Supplier", command);
-        //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
-        //    ?? throw new VmsDomainException("Service Booking not found."), this);
-
-        //ServiceBooking.Assign(supplierCode);
+        await ActivityLog.AddAsync(id, SummaryText, CancellationToken);
+        TaskLogger.Log(id, "Assign Supplier", Command);
     }
 
-    //class ServiceBookingRole(ServiceBooking self, AssignSupplierUseCase context)
-    //{
-    //    public void Assign(string supplierCode)
-    //    {
-    //        self.Assign(supplierCode);
-    //    }
-    //}
+    class ServiceBookingRole(ServiceBooking self, AssignSupplierUseCase ctx)
+    {
+        public async Task Assign()
+        {
+            if (self.Status != ServiceBookingStatus.Assign && self.Status != ServiceBookingStatus.Book)
+                throw new VmsDomainException("Service Booking is not in Assign or Book status.");
+
+            ctx.SummaryText.AppendLine("# Assign Supplier");
+            
+            var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { ctx.Command.SupplierCode }, ctx.CancellationToken)
+                ?? throw new InvalidOperationException("Supplier not found.");
+
+            ctx.SummaryText.AppendLine($"* Code: {supplier.Code}");
+            ctx.SummaryText.AppendLine($"* Name: {supplier.Name}");
+
+            self.Assign(ctx.Command.SupplierCode);
+        }
+    }
 }

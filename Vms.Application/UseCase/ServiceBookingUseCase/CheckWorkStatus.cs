@@ -18,11 +18,19 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new(); 
+    
     ServiceBookingRole? ServiceBooking;
+    Guid Id;
+    TaskCheckWorkStatusCommand Command = null!;
+    CancellationToken CancellationToken;
 
     public async Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        Id = id;
+        Command = command ?? throw new ArgumentNullException(nameof(command));  
+        CancellationToken = cancellationToken;
+
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Check Work Status");
@@ -30,39 +38,58 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
         switch (command.Result)
         {
             case TaskCheckWorkStatusCommand.TaskResult.Complete:
-                ServiceBooking.Complete();
+                await ServiceBooking.Complete();
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.NotComplete:
-                ServiceBooking.NotComplete(Helper.CombineDateAndTime(command.NextChaseDate!.Value, command.NextChaseTime!.Value));
+                ServiceBooking.NotComplete();
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule(Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value), command.RescheduleReason!);
+                ServiceBooking.Reschedule();
                 break;
         }
 
-        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
-        TaskLogger.Log(id, "Check Work Status", command);
+        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
+        TaskLogger.Log(Id, "Check Work Status", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)
     {
-        public void Complete()
+        public async Task Complete()
         {
             ctx.SummaryText.AppendLine("## Complete");
-            self.ChangeStatus(ServiceBookingStatus.NotifyCustomer);
+
+            var motEvent = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(e => e.ServiceBookingId == self.Id && e.IsCurrent);
+
+            if (motEvent is not null)
+            {
+                motEvent.IsCurrent = false;
+
+                // next MOT is 1 year from either last MOT date or this MOT completion date, whichever is later
+                var nextMotDate = ((ctx.Command.CompletionDate!.Value > motEvent.Due)
+                    ? ctx.Command.CompletionDate!.Value
+                    : motEvent.Due).AddYears(1);
+
+                var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
+                ctx.DbContext.MotEvents.Add(nextMotEvent);
+            }
+
+            self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, DateTime.Now);
+
+            
         }
-        public void NotComplete(DateTime nextChase)
+        public void NotComplete()
         {
+            var nextChase = ctx.Command.NextChaseDate!.Value.ToDateTime(ctx.Command.NextChaseTime!.Value);
             ctx.SummaryText.AppendLine("## Not Complete");
             self.EstimatedCompletion = nextChase;
-            self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay);
+            self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay, DateTime.Now);
 
         }
-
-        public void Reschedule(DateTime rescheduleTime, string reason)
+        public void Reschedule()
         {
+            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{reason}'.");
+            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
             self.RescheduleTime = rescheduleTime;
         }
     }

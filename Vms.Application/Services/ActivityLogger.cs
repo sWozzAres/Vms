@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Services;
 using Vms.DomainApplication.Services;
 
@@ -6,29 +7,32 @@ namespace Vms.Application.Services;
 
 public interface IActivityLogger
 {
-    Task LogAsync(Guid id, StringBuilder log, CancellationToken cancellationToken);
+    Task AddAsync(Guid id, StringBuilder log, CancellationToken cancellationToken);
 }
 
 public class ActivityLogger(VmsDbContext dbContext, IUserProvider userProvider, IEmailSender emailSender) : IActivityLogger
 {
-    readonly VmsDbContext _dbContext = dbContext;
-    readonly IUserProvider _userProvider = userProvider;
-    readonly IEmailSender _emailSender = emailSender;
-
-    public async Task LogAsync(Guid id, StringBuilder log, CancellationToken cancellationToken)
+    public async Task AddAsync(Guid id, StringBuilder log, CancellationToken cancellationToken)
     {
-        var followers = await _dbContext.Followers.AsNoTracking()
-            .Where(f => f.DocumentId == id)
-            .ToListAsync(cancellationToken);
+        await NotifyFollowers(id, log, cancellationToken);
+        LogActivity(id, log);
+    }
 
-        if (followers.Count != 0)
+    private void LogActivity(Guid id, StringBuilder log)
+    {
+        dbContext.ActivityLog.Add(new ActivityLog(id, log.ToString(), userProvider.UserId, userProvider.UserName));
+    }
+
+    private async Task NotifyFollowers(Guid id, StringBuilder log, CancellationToken cancellationToken)
+    {
+        foreach (var follower in await GetFollowersForDocument())
         {
-            foreach (var f in followers)
-            {
-                _emailSender.Send(f.EmailAddress, "Activity", log.ToString());
-            }
+            emailSender.Send(follower.EmailAddress, "Activity", log.ToString());
         }
 
-        _dbContext.ActivityLog.Add(new ActivityLog(id, log.ToString(), _userProvider.UserId, _userProvider.UserName));
+        async Task<List<Follower>> GetFollowersForDocument()
+            => await dbContext.Followers.AsNoTracking()
+                .Where(f => f.DocumentId == id)
+                .ToListAsync(cancellationToken);
     }
 }

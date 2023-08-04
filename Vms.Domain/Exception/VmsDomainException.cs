@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Vms.Domain.Exceptions;
+﻿namespace Vms.Domain.Exceptions;
 
 public class VmsDomainException : Exception
 {

@@ -70,7 +70,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Code");
 
-                    b.ToTable("Company", (string)null);
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>
@@ -93,7 +93,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Customer", (string)null);
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.CustomerNetwork", b =>
@@ -117,7 +117,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "CustomerCode");
 
-                    b.ToTable("CustomerNetwork", (string)null);
+                    b.ToTable("CustomerNetworks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Driver", b =>
@@ -173,7 +173,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasAlternateKey("CompanyCode", "EmailAddress");
 
-                    b.ToTable("Driver", (string)null);
+                    b.ToTable("Drivers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.DriverVehicle", b =>
@@ -242,7 +242,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Fleet", (string)null);
+                    b.ToTable("Fleets", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.FleetNetwork", b =>
@@ -266,7 +266,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "NetworkCode");
 
-                    b.ToTable("FleetNetwork", (string)null);
+                    b.ToTable("FleetNetworks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Login", b =>
@@ -312,7 +312,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Network", (string)null);
+                    b.ToTable("Networks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.NetworkSupplier", b =>
@@ -330,7 +330,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("SupplierCode");
 
-                    b.ToTable("NetworkSupplier", (string)null);
+                    b.ToTable("NetworkSuppliers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.RescheduleReason", b =>
@@ -389,7 +389,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("DocumentId", "UserId");
 
@@ -438,11 +439,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsUnique()
                         .HasFilter("[ServiceBookingId] IS NOT NULL");
 
-                    b.ToTable("MotEvent", (string)null);
+                    b.ToTable("MotEvents", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
                             {
-                                ttb.UseHistoryTable("MotEventHistory");
+                                ttb.UseHistoryTable("MotEventsHistory");
                                 ttb
                                     .HasPeriodStart("ValidFrom")
                                     .HasColumnName("ValidFrom");
@@ -604,7 +605,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("SupplierCode");
 
-                    b.ToTable("ServiceBooking", (string)null);
+                    b.ToTable("ServiceBookings", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingLock", b =>
@@ -632,7 +633,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasIndex("ServiceBookingId")
                         .IsUnique();
 
-                    b.ToTable("ServiceBookingLock", (string)null);
+                    b.ToTable("ServiceBookingLocks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Supplier", b =>
@@ -653,7 +654,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Code");
 
-                    b.ToTable("Supplier", (string)null);
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.TaskLog", b =>
@@ -760,7 +761,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("Make", "Model");
 
-                    b.ToTable("Vehicle", (string)null);
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.VehicleMake", b =>
@@ -773,7 +774,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("Make")
                         .HasName("PK_Make");
 
-                    b.ToTable("VehicleMake", (string)null);
+                    b.ToTable("VehicleMakes", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.VehicleModel", b =>
@@ -791,7 +792,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("Make", "Model")
                         .HasName("PK_Model");
 
-                    b.ToTable("VehicleModel", (string)null);
+                    b.ToTable("VehicleModels", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Entity.Customer", b =>
@@ -800,7 +801,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("Customers")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_Customer_Company");
+                        .HasConstraintName("FK_Customers_Companies");
 
                     b.Navigation("CompanyCodeNavigation");
                 });
@@ -811,13 +812,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("CustomerNetworks")
                         .HasForeignKey("CompanyCode", "CustomerCode")
                         .IsRequired()
-                        .HasConstraintName("FK_CustomerNetwork_Customer");
+                        .HasConstraintName("FK_CustomerNetworks_Customers");
 
                     b.HasOne("Vms.Domain.Entity.Network", "Network")
                         .WithMany("CustomerNetworks")
                         .HasForeignKey("CompanyCode", "NetworkCode")
                         .IsRequired()
-                        .HasConstraintName("FK_CustomerNetwork_Network");
+                        .HasConstraintName("FK_CustomerNetworks_Networks");
 
                     b.Navigation("C");
 
@@ -830,7 +831,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("Drivers")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_Driver_Company");
+                        .HasConstraintName("FK_Drivers_Companies");
 
                     b.Navigation("CompanyCodeNavigation");
                 });
@@ -843,14 +844,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasPrincipalKey("CompanyCode", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_DriverVehicles_Driver");
+                        .HasConstraintName("FK_DriverVehicles_Drivers");
 
                     b.HasOne("Vms.Domain.Entity.Vehicle", "Vehicle")
                         .WithMany("DriverVehicles")
                         .HasForeignKey("CompanyCode", "VehicleId")
                         .HasPrincipalKey("CompanyCode", "Id")
                         .IsRequired()
-                        .HasConstraintName("FK_DriverVehicles_Vehicle");
+                        .HasConstraintName("FK_DriverVehicles_Vehicles");
 
                     b.Navigation("Driver");
 
@@ -863,7 +864,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("Fleets")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_Fleet_Company");
+                        .HasConstraintName("FK_Fleets_Companies");
 
                     b.Navigation("CompanyCodeNavigation");
                 });
@@ -874,13 +875,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("FleetNetworks")
                         .HasForeignKey("CompanyCode", "FleetCode")
                         .IsRequired()
-                        .HasConstraintName("FK_FleetNetwork_Fleet");
+                        .HasConstraintName("FK_FleetNetworks_Fleets");
 
                     b.HasOne("Vms.Domain.Entity.Network", "Network")
                         .WithMany("FleetNetworks")
                         .HasForeignKey("CompanyCode", "NetworkCode")
                         .IsRequired()
-                        .HasConstraintName("FK_FleetNetwork_Network");
+                        .HasConstraintName("FK_FleetNetworks_Networks");
 
                     b.Navigation("Fleet");
 
@@ -904,7 +905,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("Networks")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_Network_Company");
+                        .HasConstraintName("FK_Networks_Companies");
 
                     b.Navigation("CompanyCodeNavigation");
                 });
@@ -915,13 +916,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("NetworkSuppliers")
                         .HasForeignKey("SupplierCode")
                         .IsRequired()
-                        .HasConstraintName("FK_NetworkSupplier_Supplier");
+                        .HasConstraintName("FK_NetworkSuppliers_Suppliers");
 
                     b.HasOne("Vms.Domain.Entity.Network", "Network")
                         .WithMany("NetworkSuppliers")
                         .HasForeignKey("CompanyCode", "NetworkCode")
                         .IsRequired()
-                        .HasConstraintName("FK_NetworkSupplier_Network");
+                        .HasConstraintName("FK_NetworkSuppliers_Networks");
 
                     b.Navigation("Network");
 
@@ -934,7 +935,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("RescheduleReasons")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_RescheduleReason_Company");
+                        .HasConstraintName("FK_RescheduleReasons_Companies");
 
                     b.Navigation("Company");
                 });
@@ -945,7 +946,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("ConfirmBookedRefusalReasons")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_ConfirmBookedRefusalReason_Company");
+                        .HasConstraintName("FK_ConfirmBookedRefusalReasons_Companies");
 
                     b.Navigation("Company");
                 });
@@ -975,7 +976,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("NonArrivalReasons")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_NonArrivalReason_Company");
+                        .HasConstraintName("FK_NonArrivalReasons_Companies");
 
                     b.Navigation("Company");
                 });
@@ -986,7 +987,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("NotCompleteReasons")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_NotCompleteReason_Company");
+                        .HasConstraintName("FK_NotCompleteReasons_Companies");
 
                     b.Navigation("Company");
                 });
@@ -997,7 +998,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("RefusalReasons")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_RefusalReason_Company");
+                        .HasConstraintName("FK_RefusalReasons_Companies");
 
                     b.Navigation("Company");
                 });
@@ -1030,7 +1031,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasPrincipalKey("CompanyCode", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_ServiceBookings_Vehicle");
+                        .HasConstraintName("FK_ServiceBookings_Vehicles");
 
                     b.OwnsOne("Vms.Domain.Entity.ServiceBookingEntity.ServiceBookingContact", "Contact", b1 =>
                         {
@@ -1061,11 +1062,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("ServiceBookingId");
 
-                            b1.ToTable("ServiceBookingContact", (string)null);
+                            b1.ToTable("ServiceBookingContacts", (string)null);
 
                             b1.ToTable(tb => tb.IsTemporal(ttb =>
                                     {
-                                        ttb.UseHistoryTable("ServiceBookingContactHistory");
+                                        ttb.UseHistoryTable("ServiceBookingContactsHistory");
                                         ttb
                                             .HasPeriodStart("ValidFrom")
                                             .HasColumnName("ValidFrom");
@@ -1076,7 +1077,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.WithOwner("ServiceBooking")
                                 .HasForeignKey("ServiceBookingId")
-                                .HasConstraintName("FK_ServiceBooking_ServiceBookingContact");
+                                .HasConstraintName("FK_ServiceBookings_ServiceBookingContacts");
 
                             b1.Navigation("ServiceBooking");
                         });
@@ -1110,11 +1111,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("ServiceBookingId");
 
-                            b1.ToTable("ServiceBookingDriver", (string)null);
+                            b1.ToTable("ServiceBookingDrivers", (string)null);
 
                             b1.ToTable(tb => tb.IsTemporal(ttb =>
                                     {
-                                        ttb.UseHistoryTable("ServiceBookingDriverHistory");
+                                        ttb.UseHistoryTable("ServiceBookingDriversHistory");
                                         ttb
                                             .HasPeriodStart("ValidFrom")
                                             .HasColumnName("ValidFrom");
@@ -1125,7 +1126,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.WithOwner("ServiceBooking")
                                 .HasForeignKey("ServiceBookingId")
-                                .HasConstraintName("FK_ServiceBooking_ServiceBookingDriver");
+                                .HasConstraintName("FK_ServiceBookings_ServiceBookingDrivers");
 
                             b1.Navigation("ServiceBooking");
                         });
@@ -1195,7 +1196,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("SupplierCode");
 
-                            b1.ToTable("Supplier");
+                            b1.ToTable("Suppliers");
 
                             b1.WithOwner()
                                 .HasForeignKey("SupplierCode");
@@ -1213,7 +1214,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasIndex("Franchise");
 
-                            b1.ToTable("SupplierFranchise", (string)null);
+                            b1.ToTable("SupplierFranchises", (string)null);
 
                             b1.HasOne("Vms.Domain.Entity.VehicleMake", "Make")
                                 .WithMany()
@@ -1241,23 +1242,23 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("Vehicles")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
-                        .HasConstraintName("FK_Vehicle_Company");
+                        .HasConstraintName("FK_Vehicles_Companies");
 
                     b.HasOne("Vms.Domain.Entity.Customer", "C")
                         .WithMany("Vehicles")
                         .HasForeignKey("CompanyCode", "CustomerCode")
-                        .HasConstraintName("FK_Vehicle_Customer");
+                        .HasConstraintName("FK_Vehicles_Customers");
 
                     b.HasOne("Vms.Domain.Entity.Fleet", "Fleet")
                         .WithMany("Vehicles")
                         .HasForeignKey("CompanyCode", "FleetCode")
-                        .HasConstraintName("FK_Vehicle_Fleet");
+                        .HasConstraintName("FK_Vehicles_Fleets");
 
                     b.HasOne("Vms.Domain.Entity.VehicleModel", "M")
                         .WithMany("Vehicles")
                         .HasForeignKey("Make", "Model")
                         .IsRequired()
-                        .HasConstraintName("FK_Vehicle_VehicleModel");
+                        .HasConstraintName("FK_Vehicles_VehicleModels");
 
                     b.OwnsOne("Vms.Domain.Entity.Address", "Address", b1 =>
                         {
@@ -1294,7 +1295,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicle");
+                            b1.ToTable("Vehicles");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
@@ -1310,11 +1311,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("VehicleMot", (string)null);
+                            b1.ToTable("VehicleMots", (string)null);
 
                             b1.WithOwner("Vehicle")
                                 .HasForeignKey("VehicleId")
-                                .HasConstraintName("FK_Vehicle_VehicleMot");
+                                .HasConstraintName("FK_Vehicles_VehicleMots");
 
                             b1.Navigation("Vehicle");
                         });
@@ -1341,11 +1342,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("VehicleVrm", (string)null);
+                            b1.ToTable("VehicleVrms", (string)null);
 
                             b1.ToTable(tb => tb.IsTemporal(ttb =>
                                     {
-                                        ttb.UseHistoryTable("VehicleVrmHistory");
+                                        ttb.UseHistoryTable("VehicleVrmsHistory");
                                         ttb
                                             .HasPeriodStart("ValidFrom")
                                             .HasColumnName("ValidFrom");
@@ -1356,7 +1357,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.WithOwner("Vehicle")
                                 .HasForeignKey("VehicleId")
-                                .HasConstraintName("FK_Vehicle_VehicleVrm");
+                                .HasConstraintName("FK_Vehicles_VehicleVrms");
 
                             b1.Navigation("Vehicle");
                         });

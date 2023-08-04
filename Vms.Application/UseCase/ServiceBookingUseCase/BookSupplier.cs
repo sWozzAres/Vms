@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using Vms.Application.Services;
-using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
 using Vms.DomainApplication.Services;
 using Vms.Web.Shared;
 
@@ -20,63 +18,72 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
+    
     ServiceBookingRole? ServiceBooking;
+    TaskBookSupplierCommand Command = null!;
+    CancellationToken CancellationToken;
+    Guid Id;
 
     public async Task BookAsync(Guid id, TaskBookSupplierCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = await Load(id, cancellationToken);
+        Id = id;
+        Command = command ?? throw new ArgumentNullException(nameof(command));
+        CancellationToken = cancellationToken;
+
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
+            ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Book Supplier");
 
-        switch (command.Result)
+        switch (Command.Result)
         {
             case TaskBookSupplierCommand.TaskResult.Booked:
-                await ServiceBooking.BookAsync(command.BookedDate!.Value, cancellationToken);
+                await ServiceBooking.BookAsync();
                 break;
             case TaskBookSupplierCommand.TaskResult.Refused:
-                await ServiceBooking.Refuse(command.RefusalReason!, cancellationToken);
+                await ServiceBooking.Refuse();
                 break;
             case TaskBookSupplierCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule(
-                    Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value),
-                    command.RescheduleReason!);
+                ServiceBooking.Reschedule();
                 break;
         }
 
-        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
-        TaskLogger.Log(id, "Book Supplier", command);
+        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
+        TaskLogger.Log(Id, "Book Supplier", Command);
     }
-
-    async Task<ServiceBookingRole> Load(Guid id, CancellationToken cancellationToken)
-        => new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
-            ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
     class ServiceBookingRole(ServiceBooking self, BookSupplier ctx)
     {
-        public async Task BookAsync(DateOnly bookedDate, CancellationToken cancellationToken)
+        public async Task BookAsync()
         {
+            if (self.SupplierCode is null)
+                throw new VmsDomainException("Service Booking is not assigned.");
+
             ctx.SummaryText.AppendLine("## Booked");
 
-            self.Book(bookedDate);
+            self.BookedDate = ctx.Command.BookedDate!.Value;
+            self.ChangeStatus(ServiceBookingStatus.Confirm, DateTime.Now);
 
-            if (self.SupplierCode is null)
-                throw new InvalidOperationException("Supplier code is null.");
+            await NotifyDriver();
 
-            var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, cancellationToken)
-                ?? throw new VmsDomainException("Failed to load supplier.");
+            async Task NotifyDriver()
+            {
+                var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, ctx.CancellationToken)
+                    ?? throw new VmsDomainException("Failed to load supplier.");
 
-            var drivers = await ctx.DbContext.DriverVehicles
-                .Include(d => d.Driver)
-                .Where(d => d.VehicleId == self.VehicleId)
-                .Select(dv => dv.Driver)
-                .ToListAsync(cancellationToken);
+                var drivers = await ctx.DbContext.DriverVehicles
+                    .Include(d => d.Driver)
+                    .Where(d => d.VehicleId == self.VehicleId)
+                    .Select(dv => dv.Driver)
+                    .ToListAsync(ctx.CancellationToken);
 
-            var recipients = string.Join(";", drivers.Select(d => d.EmailAddress));
-            ctx.EmailSender.Send(recipients, "Your service is booked",
-                $"Your service is booked with {supplier.Name} on {bookedDate}.");
+                var recipients = string.Join(";", drivers.Select(d => d.EmailAddress));
+                ctx.EmailSender.Send(recipients, "Your service is booked",
+                    $"Your service is booked with {supplier.Name} on {self.BookedDate}.");
+            }
         }
 
-        public async Task Refuse(string code, CancellationToken cancellationToken)
+        public async Task Refuse()
         {
             ctx.SummaryText.AppendLine("## Refused");
 
@@ -84,7 +91,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
                 throw new VmsDomainException("Service Booking is not assigned.");
 
             // TODO
-            var rr = await ctx.DbContext.RefusalReasons.FindAsync(new object[] { self.CompanyCode, code }, cancellationToken)
+            var rr = await ctx.DbContext.RefusalReasons.FindAsync(new object[] { self.CompanyCode, ctx.Command.RefusalReason! }, ctx.CancellationToken)
                 ?? throw new InvalidOperationException("Failed to load refusal reason.");
 
             ctx.SummaryText.AppendLine($"* Reason Code: {rr.Code}");
@@ -94,10 +101,11 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
             self.Unassign();
         }
 
-        public void Reschedule(DateTime rescheduleTime, string reason)
+        public void Reschedule()
         {
+            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{reason}'.");
+            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
             self.RescheduleTime = rescheduleTime;
         }
     }

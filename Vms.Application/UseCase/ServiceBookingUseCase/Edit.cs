@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
 using Vms.Application.Services;
-using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Web.Shared;
 
@@ -26,9 +19,6 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
 
     public async Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken)
     {
-        //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(id, cancellationToken)
-        //    ?? throw new InvalidOperationException("Failed to load service booking."), this);
-
         var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
@@ -121,13 +111,13 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
         if (serviceBooking.Status == ServiceBookingStatus.None && serviceBooking.IsValid)
         {
             SummaryText.AppendLine($"* Status: {ServiceBookingStatus.Assign.ToString()}");
-            serviceBooking.ChangeStatus(ServiceBookingStatus.Assign);
+            serviceBooking.ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
             isModified = true;
         }
 
         if (isModified)
         {
-            await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
+            await ActivityLog.AddAsync(id, SummaryText, cancellationToken);
             TaskLogger.Log(id, "Edit", command);
         }
 

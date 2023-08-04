@@ -35,7 +35,7 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             entity.HasOne(d => d.Company).WithMany(p => p.NotCompleteReasons)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_NotCompleteReason_Company");
+                .HasConstraintName("FK_NotCompleteReasons_Companies");
         }
     }
 }

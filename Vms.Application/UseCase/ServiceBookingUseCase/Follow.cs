@@ -11,7 +11,7 @@ public interface IFollow
 public class Follow(VmsDbContext dbContext, IUserProvider userProvider) : IFollow
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IUserProvider UserProvider = userProvider;
+    readonly IUserProvider UserProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
     ServiceBookingRole? ServiceBooking;
 
     public async Task FollowAsync(Guid id, CancellationToken cancellationToken)
@@ -19,20 +19,14 @@ public class Follow(VmsDbContext dbContext, IUserProvider userProvider) : IFollo
         ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
-        ServiceBooking.Follow();
+        ServiceBooking.AddFollower(UserProvider);
     }
 
     class ServiceBookingRole(ServiceBooking self, Follow ctx)
     {
-        public void Follow()
+        public void AddFollower(IUserProvider userProvider)
         {
-            var f = new Follower()
-            {
-                UserId = ctx.UserProvider.UserId,
-                DocumentId = self.Id,
-                EmailAddress = ctx.UserProvider.EmailAddress
-            };
-
+            var f = new Follower(self.Id, userProvider.UserId, userProvider.EmailAddress);
             ctx.DbContext.Followers.Add(f);
         }
     }

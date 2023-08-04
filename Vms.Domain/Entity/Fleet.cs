@@ -27,7 +27,7 @@ namespace Vms.Domain.Entity.Configuration
     {
         public void Configure(EntityTypeBuilder<Fleet> entity)
         {
-            entity.ToTable("Fleet");
+            entity.ToTable("Fleets");
 
             entity.HasKey(e => new { e.CompanyCode, e.Code });
 
@@ -45,7 +45,7 @@ namespace Vms.Domain.Entity.Configuration
                 //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Fleet_Company");
+                .HasConstraintName("FK_Fleets_Companies");
         }
     }
 }

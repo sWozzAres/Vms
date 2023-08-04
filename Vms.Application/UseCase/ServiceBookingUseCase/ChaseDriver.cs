@@ -17,11 +17,19 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
     readonly StringBuilder SummaryText = new();
+    
     ServiceBookingRole? ServiceBooking;
+    Guid Id;
+    TaskChaseDriverCommand Command = null!;
+    CancellationToken CancellationToken;
 
     public async Task ChaseAsync(Guid id, TaskChaseDriverCommand command, CancellationToken cancellationToken)
     {
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        Id = id;
+        Command = command ?? throw new ArgumentNullException(nameof(command));
+        CancellationToken = cancellationToken;
+
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Chase Driver");
@@ -35,13 +43,12 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
                 ServiceBooking.NotGoing();
                 break;
             case TaskChaseDriverCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule(
-                    Helper.CombineDateAndTime(command.RescheduleDate!.Value, command.RescheduleTime!.Value), command.RescheduleReason!);
+                ServiceBooking.Reschedule();
                 break;
         }
 
-        await ActivityLog.LogAsync(id, SummaryText, cancellationToken);
-        TaskLogger.Log(id, "Chase Driver", command);
+        await ActivityLog.AddAsync(Id, SummaryText, CancellationToken);
+        TaskLogger.Log(Id, "Chase Driver", Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, ChaseDriver ctx)
@@ -49,17 +56,19 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
         public void StillGoing()
         {
             ctx.SummaryText.AppendLine("## Still Going");
-            self.ChangeStatus(ServiceBookingStatus.CheckArrival);
+            // TODO log when they expect to arrive then reschedule for that
+            self.ChangeStatus(ServiceBookingStatus.CheckArrival, DateTime.Now.AddMinutes(30));
         }
         public void NotGoing()
         {
             ctx.SummaryText.AppendLine("## Not Going");
-            self.ChangeStatus(ServiceBookingStatus.RebookDriver);
+            self.ChangeStatus(ServiceBookingStatus.RebookDriver, DateTime.Now);
         }
-        public void Reschedule(DateTime rescheduleTime, string reason)
+        public void Reschedule()
         {
+            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{reason}'.");
+            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
             self.RescheduleTime = rescheduleTime;
         }
     }

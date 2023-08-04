@@ -243,7 +243,7 @@ public record CreateServiceBookingCommand(
     Guid? ServiceId,
     List<Guid>? RepairIds);
 
-public enum ServiceLevel : int
+public enum ServiceLevelDto : int
 {
     None = 0,
     Mobile = 1,
@@ -262,9 +262,9 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
     public DateOnly? PreferredDate1 { get; set; }
     public DateOnly? PreferredDate2 { get; set; }
     public DateOnly? PreferredDate3 { get; set; }
-    [Range(typeof(ServiceLevel), nameof(ServiceLevel.Mobile), nameof(ServiceLevel.DropOffWithCourtesyCar), 
+    [Range(typeof(ServiceLevelDto), nameof(ServiceLevelDto.Mobile), nameof(ServiceLevelDto.DropOffWithCourtesyCar), 
         ErrorMessage = "You must select a service level.")]
-    public ServiceLevel ServiceLevel { get; set; }
+    public ServiceLevelDto ServiceLevel { get; set; }
     public string? AssignedToUserId { get; set; }
     [StringLength(41)]
     public string? Driver_Name { get; set; }
@@ -365,7 +365,7 @@ public class ServiceBookingFullDto
     public DateOnly? PreferredDate2 { get; set; }
     public DateOnly? PreferredDate3 { get; set; }
     public ServiceBookingDtoStatus Status { get; set; }
-    public ServiceLevel ServiceLevel { get; set; }
+    public ServiceLevelDto ServiceLevel { get; set; }
     public string? Supplier_Code { get; set; }
     public string? Supplier_Name { get; set; }
     public Guid? MotEvent_Id { get; set; }
