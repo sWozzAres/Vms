@@ -272,18 +272,6 @@ table thead th {
   border: 1px solid var(--border-color);
 }
 
-.related-list {
-  background: #f2f3f8;
-}
-
-.related-item {
-  background: #ffffff;
-}
-.related-item .content > p {
-  font-style: italic;
-  margin: 0;
-}
-
 .related50 {
   display: grid;
   flex-direction: row;
@@ -291,20 +279,17 @@ table thead th {
   column-gap: 1em;
 }
 
+.related-list {
+  background: #f2f3f8;
+}
+
+.related-item {
+  background: #ffffff;
+}
+
 .related-section {
-  padding: 1em;
-  margin: 1em 0 1em 0;
   border-radius: var(--border-radius);
   border: 2px solid var(--border-color);
-}
-.related-section .header {
-  display: flex;
-  align-items: center;
-  gap: 1em;
-}
-.related-section .header .icon {
-  display: flex;
-  align-items: center;
 }
 .related-section .header .icon div {
   padding: 0.5em;
@@ -317,90 +302,9 @@ table thead th {
 .related-section .header .buttons button {
   color: var(--a-visited-text);
 }
-.related-section .header > h1 {
-  font-size: 100%;
-  flex-grow: 1;
-  font-weight: 600;
-}
-.related-section .content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1em;
-}
-.related-section .content article {
-  display: inline;
-  font-size: smaller;
-  width: 50ch;
-}
-.related-section .content article .content-header {
-  display: flex;
-}
-.related-section .content article .content-header h1 {
-  flex-grow: 1;
-}
-.related-section .content article h1 {
-  font-size: 120%;
-  margin: 0;
-}
-.related-section .content article dl {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 1em;
-  margin: 0.5em 0 0 0;
-}
-.related-section .content article dd {
-  margin: 0;
-  font-weight: 500;
-}
 
 .page-header {
-  display: flex;
-  gap: 1em;
-  flex-wrap: wrap;
   background-color: var(--page-header-background-color);
-  padding: 0.5em;
-  border-bottom: 2px solid var(--border-color);
-}
-.page-header .icon {
-  display: flex;
-  align-items: center;
-}
-.page-header .icon div {
-  padding: 0.5em;
-  border-radius: 5px;
-}
-.page-header .icon div > svg {
-  height: 2em;
-  fill: white;
-}
-.page-header .info {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-.page-header .info h1 {
-  font-size: small;
-  margin: 0;
-  text-transform: uppercase;
-}
-.page-header .info h2 {
-  margin: 0;
-  display: flex;
-  align-items: flex-end;
-  column-gap: 0.5em;
-  font-weight: 500;
-}
-.page-header .info h2 button {
-  padding-inline: 0.2em;
-  padding-block: 0;
-}
-.page-header .info h2 .combo .combo-input {
-  padding: 0;
-}
-.page-header .buttons {
-  justify-items: flex-end;
-  align-self: end;
 }
 .page-header .buttons button {
   color: var(--a-visited-text);
@@ -409,60 +313,11 @@ table thead th {
 .view-header {
   background-color: #ffffff;
   border-bottom: 1px solid var(--border-color);
-}
-.view-header dl {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2em;
-  padding: 1em;
-}
-.view-header dl .namevalue {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.5;
-}
-.view-header dl .namevalue dt {
-  font-size: smaller;
-}
-.view-header dl .namevalue dd {
-  margin: 0;
-  font-weight: 500;
+  border-top: 2px solid var(--border-color);
 }
 
 .list-info {
-  display: flex;
-  align-items: baseline;
   background-color: var(--page-header-background-color);
-  padding: 0.5em;
-}
-.list-info .list-description {
-  flex-grow: 1;
-}
-.list-info .list-description .paginator {
-  border: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-.list-dropdown-holder {
-  position: relative;
-}
-
-/*.list-dropdown {
-    position: absolute;
-    background-color: #ffffff;
-
-    ul > li {
-        cursor: pointer;
-    }
-}*/
-/*.list-card {
-    padding: 0;
-    margin: 0;
-    background-color: #fafaf9;
-}*/
-.list-data .col-title {
-  padding: 0 !important;
 }
 
 .combo.header-combo {
@@ -911,10 +766,6 @@ a:visited {
   color: red;
 }
 
-h1:focus {
-  outline: none;
-}
-
 .content {
   padding-top: 1.1rem;
 }
@@ -925,7 +776,12 @@ h1:focus {
   border-color: #86b7fe;*/
   outline: 0;
   box-shadow: 0 0 0 var(--outline-size) rgba(13, 110, 253, 0.25);
-  z-index: 100 !important;
+  /*z-index: 100 !important;*/
+}
+
+h1:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 #blazor-error-ui {

@@ -1,5 +1,5 @@
 ﻿@inject ServerApiHttpClient Api
-<EditFormTemplate2 TModel="ServiceBookingDto" @ref="editForm" OnLoad="LoadModel" OnSave="SaveModel">
+<EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" OnLoad="LoadModel" OnSave="SaveModel">
     <DataAnnotationsValidator />
     @if (isLoaded)
     {
@@ -59,13 +59,13 @@
         <div class="form-section">
         </div>
     }
-</EditFormTemplate2>
+</EditFormTemplate>
 
 @code {
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
-    EditFormTemplate2<ServiceBookingDto> editForm = null!;
+    EditFormTemplate<ServiceBookingDto> editForm = null!;
 
     List<SelectOption<Vms.Web.Shared.ServiceLevelDto>> serviceLevelOptions = null!;
     List<SelectOption<string?>> userOptions = null!;

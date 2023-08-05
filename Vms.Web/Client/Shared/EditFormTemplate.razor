@@ -9,11 +9,7 @@
 
 @if (loadingException is not null)
 {
-    <div class="error">
-        <p>An error occured loading the page.</p>
-        <p>@loadingException.Message</p>
-        <button @onclick="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)">Retry</button>
-    </div>
+    <RetryLoad Exception="loadingException" OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
 }
 else if (Model is not null)
 {
@@ -32,14 +28,12 @@ else if (Model is not null)
 
 @code {
     public delegate Task<TModel> LoadModel();
-
+    public delegate Task<PostResponse> SaveModel(TModel model);
     [Parameter, EditorRequired] public LoadModel OnLoad { get; set; } = null!;
-
+    [Parameter, EditorRequired] public SaveModel OnSave { get; set; } = null!;
 
     [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
     public TModel Model { get; set; } = null!;
-    [Parameter, EditorRequired] public string ApiUrl { get; set; } = null!;
-    [Parameter] public string Id { get; set; } = null!;
 
     EditContext editContext { get; set; } = null!;
     ValidationMessageStore messageStore = null!;
@@ -73,41 +67,61 @@ else if (Model is not null)
             Logger.LogInformation("HandleSubmit called: Form is INVALID: {vm}.", vm);
         }
     }
-    private async Task HandleValidSubmit()
+
+    async Task Load()
+    {
+        try
+        {
+            Model = await OnLoad();
+            editContext = new EditContext(Model);
+            messageStore = new ValidationMessageStore(editContext);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed.");
+            loadingException = ex;
+        }
+    }
+
+    async Task HandleValidSubmit()
     {
         Logger.LogInformation("Submitting form {model}", Model);
         isPosting = true;
         try
         {
-    
+            var result = await OnSave(Model);
 
-            var response = await Http.PutAsJsonAsync($"{ApiUrl}/{Id}", Model);
-
-            if (response.IsSuccessStatusCode)
+            if (result is PostResponse.Success)
             {
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var content = await response.Content.ReadFromJsonAsync<TModel>();
-                    if (content is null)
-                    {
-                        throw new InvalidOperationException("Failed to deserialize model.");
-                    }
-                    originalModel.CopyFrom(content);
-
-                    inEditMode = false;
-                }
-                else if (response.StatusCode == HttpStatusCode.NoContent)
-                {
-                    //TODO
-                }
-                else
-                {
-                    Logger.LogError("Form submission returned unexpected status code '{statusCode}'.", response.StatusCode);
-                }
+                await Load();
+                
+                originalModel.CopyFrom(Model);
+                inEditMode = false;
             }
             else
             {
-                Logger.LogError("Form submission failed with error '{ReasonPhrase}'.", response.ReasonPhrase);
+                messageStore.Clear();
+
+                if (result is PostResponse.UnprocessableEntity ue)
+                {
+                    foreach (var error in ue.ValidationErrors)
+                    {
+                        messageStore.Add(editContext.Field(error.Key), error.Value);
+                    }
+                }
+                else
+                {
+                    if (result is PostResponse.BadRequest br)
+                    {
+                        messageStore.Add(editContext.Field(""), br.ErrorMessage);
+                    }
+                    else// if (result is PostResponse.Failure)
+                    {
+                        messageStore.Add(editContext.Field(""), "There was a problem sending your request.");
+                    }
+                }
+
+                editContext.NotifyValidationStateChanged();
             }
         }
         finally
@@ -135,64 +149,8 @@ else if (Model is not null)
         }
     }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        Logger.LogInformation("SetParametersAsync({parameters})", parameters.ToDictionary());
-        await base.SetParametersAsync(parameters);
-        //await Task.Delay(1000);
-    }
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("OnInitialized()");
-        base.OnInitialized();
-    }
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("OnInitializedAsync()");
-        await base.OnInitializedAsync();
-        try
-        {
-            Model = await OnLoad();// ?? throw new InvalidOperationException("Failed to load.");
-            editContext = new EditContext(Model);
-            messageStore = new ValidationMessageStore(editContext);
-        }
-        catch (AccessTokenNotAvailableException ex)
-        {
-            ex.Redirect();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed.");
-            loadingException = ex;
-        }
-    }
-    protected override void OnParametersSet()
-    {
-        Logger.LogInformation("OnParametersSet() Model is {model}", Model);
-        base.OnParametersSet();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogInformation("OnParametersSetAsync()");
-        await base.OnParametersSetAsync();
-        //await Task.Delay(1000);
-
-
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
-        base.OnAfterRender(firstRender);
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-
-        }
+        await Load();
     }
 }

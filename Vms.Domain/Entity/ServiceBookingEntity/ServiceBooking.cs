@@ -95,7 +95,6 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public bool IsValid
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 
-        //public void ChangeStatus(ServiceBookingStatus status) => Status = status;
         public void ChangeStatus(ServiceBookingStatus status, DateTime? rescheduleTime = null)
         {
             Status = status;

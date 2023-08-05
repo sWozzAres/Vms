@@ -114,17 +114,12 @@
 
     bool contentVisible = false;
     
-
     IDisposable? registration;
 
     void GoHome() => NavigationManager.NavigateTo("/");
 
     void Toggle() => contentVisible = !contentVisible;
     
-
-    
-
-
     void BeginLogOut()
     {
         NavigationManager.NavigateToLogout("authentication/logout");
@@ -151,10 +146,6 @@
         NavigationManager.LocationChanged += LocationChanged;
         base.OnInitialized();
     }
-
-    //IEnumerable<string> history = null!;
-
-    
 
     protected override void OnAfterRender(bool firstRender)
     {

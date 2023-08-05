@@ -1,0 +1,42 @@
+.list-info {
+    display: flex;
+    align-items: baseline;
+    padding: 0.5em;
+}
+    .list-info .list-description {
+        flex-grow: 1;
+    }
+        ::deep .paginator {
+            border: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+
+
+.list-info .list-info-buttons {
+}
+
+
+
+.list-dropdown-holder {
+    position: relative;
+}
+/*.list-dropdown {
+    position: absolute;
+    background-color: #ffffff;
+
+    ul > li {
+        cursor: pointer;
+    }
+}*/
+/*.list-card {
+    padding: 0;
+    margin: 0;
+    background-color: #fafaf9;
+}*/
+
+::deep .col-title
+{
+    padding: 0 !important;
+}

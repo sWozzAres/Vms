@@ -4,28 +4,28 @@
 
 <PageTitle>Vehicles</PageTitle>
 
-    <ListTemplate2 TGridItem="VehicleListDto" Options="listOptions" ApiUrl="/api/vehicle">
-        <IconContent>
-            <div class="entity-svg-vehicle">
-                <svg viewBox="0 0 512 512">
-                    <use xlink:href="icons/solid.svg#car" />
-                </svg>
-            </div>
-        </IconContent>
-        <Buttons>
-            <button @onclick="() => isCreating = true">New</button>
-            <button>Import</button>
-            <button>Add to Campaign</button>
-        </Buttons>
-        <GridColumns>
-            <PropertyColumn Property="x=>x!.CompanyCode" Title="Company" />
-            <TemplateColumn Title="Vrm">
-                <a href="/vehicle/view/@context!.Id">@context.Vrm</a>
-            </TemplateColumn>
-            <PropertyColumn Property="p=>p!.Make" />
-            <PropertyColumn Property="p=>p!.Model" Class="w100" />
-        </GridColumns>
-    </ListTemplate2>
+<ListTemplate TGridItem="VehicleListDto" Options="listOptions" ApiUrl="/api/vehicle" Key="ListPage_Vehicle">
+    <IconContent>
+        <div class="entity-svg-vehicle">
+            <svg viewBox="0 0 512 512">
+                <use xlink:href="icons/solid.svg#car" />
+            </svg>
+        </div>
+    </IconContent>
+    <Buttons>
+        <button @onclick="() => isCreating = true">New</button>
+        <button>Import</button>
+        <button>Add to Campaign</button>
+    </Buttons>
+    <GridColumns>
+        <PropertyColumn Property="x=>x!.CompanyCode" Title="Company" />
+        <TemplateColumn Title="Vrm">
+            <a href="/vehicle/view/@context!.Id">@context.Vrm</a>
+        </TemplateColumn>
+        <PropertyColumn Property="p=>p!.Make" />
+        <PropertyColumn Property="p=>p!.Model" Class="w100" />
+    </GridColumns>
+</ListTemplate>
 
 
 @if (isCreating)

@@ -1,18 +1,19 @@
-﻿<div class="page-header">
-    <div class="icon">
+﻿<PageHeader>
+    <IconContent>
         @IconContent
-    </div>
-    <div class="info">
+    </IconContent>
+    <InfoContent>
         <h1>@TypeName</h1>
         <h2>@Title &nbsp;</h2>
-    </div>
-    <div class="buttons btn-group">
+    </InfoContent>
+    <Buttons>
         @Buttons
-    </div>
-</div>
-<div class="view-header">
+    </Buttons>
+</PageHeader>
+
+<ViewHeader>
     @HeaderContent
-</div>
+</ViewHeader>
 @ChildContent
 @code {
     [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;

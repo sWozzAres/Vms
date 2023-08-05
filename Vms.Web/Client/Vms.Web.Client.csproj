@@ -25,9 +25,6 @@
 	<ItemGroup>
 	  <Content Remove="compilerconfig.json" />
 	  <Content Remove="Pages\Company\View.razor" />
-	  <Content Remove="Pages\People\Create.razor" />
-	  <Content Remove="Pages\People\View.razor" />
-	  <Content Remove="Shared\ListTemplate.razor" />
 	  <Content Remove="Shared\SelectOnlyCombobox.razor" />
 	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
 	</ItemGroup>
@@ -57,8 +54,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Application\Utopia.Blazor.Application.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
+		<ProjectReference Include="..\..\Vms.Blazor.Application\Vms.Blazor.Application.csproj" />
 		<ProjectReference Include="..\Shared\Vms.Web.Shared.csproj" />
 	</ItemGroup>
 
@@ -69,10 +68,6 @@
 	  <Content Update="Shared\NavMenu.razor">
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Pages\People\" />
 	</ItemGroup>
 
 </Project>

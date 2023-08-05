@@ -1,0 +1,58 @@
+.page-header {
+    display: flex;
+    gap: 1em;
+    flex-wrap: wrap;
+    padding: 0.5em;
+}
+
+    .page-header .icon {
+        display: flex;
+        align-items: center;
+    }
+
+        .page-header .icon ::deep div {
+            padding: 0.5em;
+            border-radius: 5px;
+        }
+
+            .page-header .icon ::deep div > svg {
+                height: 2em;
+                fill: white;
+            }
+
+
+    .page-header .info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+        .page-header .info ::deep h1 {
+            font-size: small;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .page-header .info ::deep h2 {
+            margin: 0;
+            display: flex;
+            align-items: flex-end;
+            column-gap: 0.5em;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+            .page-header .info ::deep h2 button {
+                padding-inline: 0.2em;
+                padding-block: 0;
+            }
+
+            .page-header .info ::deep h2 .combo .combo-input {
+                padding: 0;
+            }
+
+    .page-header .buttons {
+        justify-items: flex-end;
+        align-self: end;
+    }

@@ -276,8 +276,6 @@ else
     // }
     protected override async Task OnInitializedAsync()
     {
-        //Logger.LogInformation("OnInitializedAsync()");
-        //await base.OnInitializedAsync();
         ArgumentNullException.ThrowIfNull(Id);
         await LoadServiceBooking();
     }

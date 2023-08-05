@@ -8,7 +8,7 @@
 
 @if (loadingException is not null)
 {
-    <RetryLoad Exception="loadingException" OnRetry="Load" />
+    <RetryLoad Exception="loadingException" OnRetry="LoadVehicle" />
 }
 else
 {
@@ -55,14 +55,14 @@ else
             {
                 <TabControl Title="Vehicle Tabs" TitleVisible="false">
                     <TabPage Text="Details">
-                            <Edit Id="@Id.ToString()" OnLoad="async () => await Task.FromResult(vehicle.ToDto())" />
+                            <Edit Vehicle="@vehicle" OnAfterSave="LoadVehicle" />
                     </TabPage>
                     <TabPage Text="Related">
                         <div class="related50">
-                        <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="Load" />
-                        <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="Load" />
+                        <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="LoadVehicle" />
+                        <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="LoadVehicle" />
                         </div>
-                        <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="Load" />
+                        <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="LoadVehicle" />
                     </TabPage>
                     <TabPage Text="Work">
                         <WorkList Id="Id" />
@@ -80,7 +80,7 @@ else
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
 
-    async Task Load()
+    async Task LoadVehicle()
     {
         try
         {
@@ -92,7 +92,7 @@ else
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to load service booking.");
+            Logger.LogError(ex, "Failed to load vehicle.");
             loadingException = ex;
         }
     }
@@ -107,46 +107,10 @@ else
         await Task.CompletedTask;
     }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        Logger.LogInformation("SetParametersAsync()");
-        await base.SetParametersAsync(parameters);
-        //await Task.Delay(1000);
-    }
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("OnInitialized()");
-        base.OnInitialized();
-    }
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("OnInitializedAsync()");
-        await base.OnInitializedAsync();
-        
         ArgumentNullException.ThrowIfNull(Id);
 
-        await Load();
-    }
-    protected override void OnParametersSet()
-    {
-        Logger.LogInformation("OnParametersSet()");
-        base.OnParametersSet();
-    }
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogInformation("OnParametersSetAsync()");
-        await base.OnParametersSetAsync();
-        //await Task.Delay(1000);
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
-        base.OnAfterRender(firstRender);
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
-        await base.OnAfterRenderAsync(firstRender);
-        //await Task.Delay(1000);
+        await LoadVehicle();
     }
 }

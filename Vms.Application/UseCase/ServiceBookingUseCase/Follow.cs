@@ -14,7 +14,7 @@ public interface IFollow
 public class Follow(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog) : IFollow
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IUserProvider UserProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
+    readonly IUserProvider UserProvider = userProvider;
     readonly StringBuilder SummaryText = new();
 
     ServiceBookingRole? ServiceBooking;
@@ -26,16 +26,16 @@ public class Follow(VmsDbContext dbContext, IUserProvider userProvider, IActivit
 
         SummaryText.AppendLine("# Follow");
 
-        ServiceBooking.AddFollower(UserProvider);
+        ServiceBooking.AddFollower();
 
         await activityLog.AddAsync(id, SummaryText, cancellationToken);
     }
 
     class ServiceBookingRole(ServiceBooking self, Follow ctx)
     {
-        public void AddFollower(IUserProvider userProvider)
+        public void AddFollower()
         {
-            var f = new Follower(self.Id, userProvider.UserId, userProvider.EmailAddress);
+            var f = new Follower(self.Id, ctx.UserProvider.UserId, ctx.UserProvider.EmailAddress);
             ctx.DbContext.Followers.Add(f);
         }
     }

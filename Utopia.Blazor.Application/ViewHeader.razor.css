@@ -1,0 +1,20 @@
+.view-header ::deep dl {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+    padding: 1em;
+}
+
+    .view-header ::deep dl .namevalue {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.5;
+    }
+        .view-header ::deep dl .namevalue dt {
+            font-size: smaller;
+        }
+        .view-header ::deep dl .namevalue dd {
+            margin: 0;
+            font-weight: 500;
+        }

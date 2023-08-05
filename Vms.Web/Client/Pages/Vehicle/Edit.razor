@@ -1,6 +1,5 @@
 ﻿@inject ServerApiHttpClient Api
-
-<EditFormTemplate TModel="VehicleDto" @ref="editForm" Id="@Id.ToString()" ApiUrl="/api/Vehicle" OnLoad="OnLoad">
+<EditFormTemplate TModel="VehicleDto" @ref="editForm" OnLoad="LoadModel" OnSave="SaveModel">
     <DataAnnotationsValidator />
     @if (isLoaded)
     {
@@ -64,8 +63,8 @@
 </EditFormTemplate>
 
 @code {
-    [Parameter, EditorRequired] public string Id { get; set; } = null!;
-    [Parameter, EditorRequired] public EditFormTemplate<VehicleDto>.LoadModel OnLoad { get; set; } = null!;
+    [Parameter, EditorRequired] public VehicleFullDto Vehicle { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
     EditFormTemplate<VehicleDto> editForm = null!;
 
@@ -84,8 +83,8 @@
 
     protected override void OnInitialized()
     {
-        ArgumentNullException.ThrowIfNull(Id);
-        ArgumentNullException.ThrowIfNull(OnLoad);
+        ArgumentNullException.ThrowIfNull(Vehicle);
+        if (!OnAfterSave.HasDelegate) throw new ArgumentNullException(nameof(OnAfterSave));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -116,5 +115,19 @@
             isLoaded = true;
             StateHasChanged();
         }
+    }
+
+    async Task<VehicleDto> LoadModel()
+        => await Task.FromResult(Vehicle.ToDto());
+
+
+    async Task<PostResponse> SaveModel(VehicleDto model)
+    {
+         var result = await Api.SaveVehicle(Vehicle.Id, model);
+        if (result is PostResponse.Success)
+        {
+            await OnAfterSave.InvokeAsync();
+        }
+        return result;
     }
 }

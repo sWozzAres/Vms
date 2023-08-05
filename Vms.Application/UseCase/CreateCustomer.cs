@@ -20,12 +20,12 @@ public class CreateCustomer(VmsDbContext dbContext, ISearchManager searchManager
         return customer;
     }
 
-    class CompanyRole(Company self, CreateCustomer context)
+    class CompanyRole(Company self, CreateCustomer ctx)
     {
         public Customer CreateCustomer(string code, string name)
         {
             var customer = new Customer(self.Code, code, name);
-            context.DbContext.Customers.Add(customer);
+            ctx.DbContext.Customers.Add(customer);
             return customer;
         }
     }

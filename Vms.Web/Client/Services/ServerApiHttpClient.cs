@@ -1,11 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using Vms.Web.Shared;
-using static System.Net.WebRequestMethods;
 
 namespace Vms.Web.Client.Services;
 
@@ -264,6 +260,11 @@ public class ServerApiHttpClient(HttpClient http)
     }
     #endregion
     #region /api/vehicle
+    public async Task<PostResponse> SaveVehicle(Guid id, VehicleDto request)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/vehicle/{id}/edit", request));
+    }
     public async Task<OpenEvents> GetOpenEvents(Guid id)
     {
         http.DefaultRequestHeaders.Accept.Clear();

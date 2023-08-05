@@ -12,20 +12,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0-preview.6.23329.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0-preview.6.23329.11" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
+    <ProjectReference Include="..\Utopia.Blazor.Application\Utopia.Blazor.Application.csproj" />
     <ProjectReference Include="..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="RelatedItem.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
   </ItemGroup>
 
 </Project>

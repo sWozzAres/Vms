@@ -75,7 +75,7 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
             ctx.SummaryText.AppendLine("## Not Going");
 
             // remove work items from booking
-            //(await MotEvents()).ForEach(e => e.ServiceBookingId = null);
+            
             var motEvent = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(e => e.ServiceBookingId == self.Id && e.IsCurrent);
             if (motEvent is not null)
             {
@@ -83,9 +83,6 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
             }
 
             self.ChangeStatus(ServiceBookingStatus.Cancelled);
-
-            //async Task<List<MotEvent>> MotEvents()
-            //    => await ctx.DbContext.MotEvents.Where(e => e.ServiceBookingId == self.Id).ToListAsync(ctx.CancellationToken);
         }
 
         public void Reschedule()

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
+using Utopia.Blazor.Application.Shared;
 using Vms.Application.Services;
 using Vms.Application.UseCase;
 using Vms.Application.UseCase.VehicleUseCase;

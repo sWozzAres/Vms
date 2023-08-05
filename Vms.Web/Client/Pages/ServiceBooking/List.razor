@@ -4,7 +4,7 @@
 
 <PageTitle>Service Bookings</PageTitle>
 
-<ListTemplate2 TGridItem="ServiceBookingListDto" Options="listOptions" ApiUrl="/api/servicebooking">
+<ListTemplate TGridItem="ServiceBookingListDto" Options="listOptions" ApiUrl="/api/servicebooking" Key="ListPage_ServiceBooking">
     <IconContent>
         <div class="entity-svg-vehicle">
             <svg viewBox="0 0 512 512">
@@ -25,21 +25,15 @@
         <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g"/>
         <PropertyColumn Property="x=>x.StatusText" Title="Status" />
     </GridColumns>
-</ListTemplate2>
-
-@* @if (isCreating)
-{
-    <Create OnClose="() => isCreating = false"/>
-} *@
+</ListTemplate>
 
 @code {
     List<SelectOption<int?>> listOptions = new()
     {
         new (0, "All Service Bookings"),
         new (1, "Recently Viewed"),
-        new (2, "Pinned"),
+        new (2, "Following"),
         new (3, "Assigned"),
-        new (4, "Owned"),
     };
 
     bool isCreating;

@@ -1,0 +1,11 @@
+﻿<div class="view-header">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(ChildContent);
+    }
+}

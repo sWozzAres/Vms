@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Utopia.Blazor.Application.Shared;
 using Vms.Application.Services;
 using Vms.Application.UseCase.ServiceBookingUseCase;
 using Vms.Domain.Entity;
@@ -339,12 +340,28 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetServiceBookings(int list, int start, int take,
+    public async Task<IActionResult> GetServiceBookings(
+        int list, int start, int take,
+        IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        int totalCount = await context.ServiceBookings.CountAsync(cancellationToken);
+        var serviceBookings = context.ServiceBookings.AsQueryable();
 
-        var result = await context.ServiceBookings
+        if (list == 2)
+        {
+            serviceBookings = from x in serviceBookings 
+                              join f in context.Followers on x.Id equals f.DocumentId
+                              where f.UserId == userProvider.UserId
+                              select x;
+        }
+        else if (list == 3)
+        {
+            serviceBookings = serviceBookings.Where(s => s.AssignedToUserId == userProvider.UserId);
+        }
+
+        int totalCount = await serviceBookings.CountAsync(cancellationToken);
+
+        var result = await serviceBookings
             .Include(s => s.Vehicle)
             .Skip(start)
             .Take(take)

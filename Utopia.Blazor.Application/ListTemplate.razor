@@ -1,15 +1,15 @@
 ﻿@typeparam TGridItem
-
+@inject ILocalStorageService LocalStorage
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@inject ILogger<ListTemplate2<TGridItem>> Logger
+@inject ILogger<ListTemplate<TGridItem>> Logger
 @attribute [CascadingTypeParameter(nameof(TGridItem))]
 
-<div class="page-header">
-    <div class="icon">
+<PageHeader>
+    <IconContent>
         @IconContent
-    </div>
-    <div class="info">
+    </IconContent>
+    <InfoContent>
         <h1>Vehicles</h1>
         <div class="list-dropdown-holder">
             <h2>
@@ -17,11 +17,11 @@
                                     @bind-SelectedValue="selectedList" @bind-SelectedValue:after="Refresh" class="header-combo" />
             </h2>
         </div>
-    </div>
-    <div class="buttons btn-group">
+    </InfoContent>
+    <Buttons>
         @Buttons
-    </div>
-</div>
+    </Buttons>
+</PageHeader>
 
 <div class="list-info">
     <div class="list-description">
@@ -70,22 +70,43 @@
     [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment GridColumns { get; set; } = null!;
+    [Parameter, EditorRequired] public string Key { get; set; } = null!;
 
     GridItemsProvider<TGridItem> itemsProvider { get; set; } = null!;
     PaginationState pagination = new() { ItemsPerPage = 50 };
     QuickGrid<TGridItem> grid = null!;
     int? selectedList = 0;
+    ListPageConfig pageConfig = null!;
 
-    async Task Refresh() => await grid.RefreshDataAsync();
+    async Task Refresh()
+    {
+        await grid.RefreshDataAsync();
+
+        if (selectedList.HasValue)
+        {
+            pageConfig.ListIndex = selectedList.Value;
+            await LocalStorage.SetItemAsync(Key, pageConfig);
+        }
+    }
+
     bool error;
+    bool isLoaded;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         ArgumentNullException.ThrowIfNull(Options);
         ArgumentNullException.ThrowIfNull(ApiUrl);
         ArgumentNullException.ThrowIfNull(IconContent);
         ArgumentNullException.ThrowIfNull(Buttons);
         ArgumentNullException.ThrowIfNull(GridColumns);
+        ArgumentNullException.ThrowIfNull(Key);
+
+        // load page configuration from local storage
+        pageConfig = await LocalStorage.GetItemAsync<ListPageConfig>(Key) ?? new();
+
+        // default selected list, if it is a valid option
+        if (Options.Select(x => x.Value == pageConfig.ListIndex) is not null)
+            selectedList = pageConfig.ListIndex;
 
         itemsProvider = async req =>
         {

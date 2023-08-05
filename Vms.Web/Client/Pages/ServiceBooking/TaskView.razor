@@ -56,6 +56,10 @@
             {
                 <button @onclick="CheckWorkStatus" class="btn-next-task">Check Work Status</button>
             }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.RebookDriver)
+            {
+                <button @onclick="RebookDriver" class="btn-next-task">Rebook Driver</button>
+            }
             else if (ServiceBooking.Status == ServiceBookingDtoStatus.NotifyCustomer)
             {
                 <button @onclick="NotifyCustomer" class="btn-next-task">Notify Customer</button>
