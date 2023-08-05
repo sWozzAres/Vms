@@ -1,7 +1,7 @@
 ﻿@inject ServerApiHttpClient Api
 
 <div class="taskview">
-    @if (ServiceBooking.Status == 0)
+    @if (ServiceBooking.Status == ServiceBookingDtoStatus.None)
     {
         <Alert Style="Alert.AlertStyle.Info">You must complete the booking details.</Alert>
     }
@@ -29,7 +29,7 @@
                 <button @onclick="UnbookSupplier" class="btn-prev-task">Unbook</button>
             }
 
-            @if(ServiceBooking.RescheduleTime is not null)
+            @if (ServiceBooking.RescheduleTime is not null)
             {
                 <strong>
                     @RescheduleTimeDisplay(ServiceBooking.RescheduleTime.Value)
@@ -73,8 +73,6 @@
     }
 </div>
 
-
-
 @code {
     [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<string> OnSelectTask { get; set; }
@@ -93,31 +91,14 @@
         "Rebook Driver"
 
     };
-    string selectedItem = string.Empty;
     bool isOverdue;
     string className => isOverdue ? "btn-next-task" : "btn-next-task-due";
 
     string RescheduleTimeDisplay(DateTime rescheduleTime)
-    {
-        if (DateTime.Now > rescheduleTime)
-        {
-            return "The next task is overdue";
-        }
-        else
-            return $"The next task is scheduled for {DateText()} at {rescheduleTime.ToString("t")}";
-
-        string DateText()
-        {
-            if (rescheduleTime.Date == DateTime.Today)
-                return "today";
-            else if (rescheduleTime.Date == DateTime.Today.AddDays(1))
-                return "tommorrow";
-            else if (rescheduleTime.Date == DateTime.Today.AddDays(-1))
-                return "yesterday";
-            else
-                return rescheduleTime.ToString("d");
-        }
-    }
+        => DateTime.Now > rescheduleTime
+            ? "The next task is overdue"
+            : $"The next task is scheduled for {rescheduleTime.ToFriendlyText()}";
+    
 
     public async Task AssignSupplier() => await OnSelectTask.InvokeAsync("Assign Supplier");
     public async Task BookSupplier() => await OnSelectTask.InvokeAsync("Book Supplier");

@@ -1,0 +1,57 @@
+﻿@inject ServerApiHttpClient Api
+
+<SupplierSelector TItem="SupplierLocatorDto" Id="Id"
+                  OnSelected="SupplierDialogSelect"
+                  OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
+                  OnClose="() => OnCompleted.InvokeAsync(false)">
+    <TableHeader>
+        <th>Distance</th>
+        <th>Code</th>
+        <th>Name</th>
+    </TableHeader>
+    <RowTemplate>
+        <td>@context.DistanceInMiles.ToString("0.00")</td>
+        <td>@context.Code</td>
+        <td>@context.Name</td>
+    </RowTemplate>
+</SupplierSelector>
+
+@code {
+    [Parameter, EditorRequired]public Guid Id { get; set; }
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+
+    async Task SupplierDialogSelect(SupplierLocatorDto item)
+    {
+        var result = await Api.AssignSupplier(Id, new TaskAssignSupplierCommand() { SupplierCode = item.Code });
+
+        if (result is PostResponse.Success)
+        {
+            await OnCompleted.InvokeAsync(true);
+        }
+        else
+        {
+            if (result is PostResponse.UnprocessableEntity ue)
+            {
+                //TODO should never happen but if it does should we show errors? Probably not.
+                throw new InvalidOperationException("Validation error.");
+            }
+            else
+            {
+                if (result is PostResponse.BadRequest br)
+                {
+                    throw new VmsDomainException(br.ErrorMessage);
+                }
+                else// if (result is PostResponse.Failure)
+                {
+                    throw new InvalidOperationException("There was a problem sending your request.");
+                }
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
+    }
+}

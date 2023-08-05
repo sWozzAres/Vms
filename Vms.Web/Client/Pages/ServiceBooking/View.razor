@@ -83,21 +83,7 @@ else
 
 @if (displayTask == "Assign Supplier")
 {
-    <SupplierSelector TItem="SupplierLocatorDto" Id="Id"
-                      OnSelected="SupplierDialogSelect"
-                      OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
-                      OnClose="() => displayTask = null">
-        <TableHeader>
-            <th>Distance</th>
-            <th>Code</th>
-            <th>Name</th>
-        </TableHeader>
-        <RowTemplate>
-            <td>@context.DistanceInMiles.ToString("0.00")</td>
-            <td>@context.Code</td>
-            <td>@context.Name</td>
-        </RowTemplate>
-    </SupplierSelector>
+    <TaskAssignSupplier Id="serviceBooking!.Id" OnCompleted="TaskCompleted"/>
 }
 
 @code {
@@ -118,36 +104,6 @@ else
         if (saved)
         {
             await LoadServiceBooking();
-        }
-    }
-
-    async Task SupplierDialogSelect(SupplierLocatorDto item)
-    {
-        var result = await Api.AssignSupplier(Id, new TaskAssignSupplierCommand() { SupplierCode = item.Code });
-
-        if (result is PostResponse.Success)
-        {
-            displayTask = null;
-            await LoadServiceBooking();
-        }
-        else
-        {
-            if (result is PostResponse.UnprocessableEntity ue)
-            {
-                //TODO should never happen but if it does should we show errors? Probably not.
-                throw new InvalidOperationException("Validation error.");
-            }
-            else
-            {
-                if (result is PostResponse.BadRequest br)
-                {
-                    throw new VmsDomainException(br.ErrorMessage);
-                }
-                else// if (result is PostResponse.Failure)
-                {
-                    throw new InvalidOperationException("There was a problem sending your request.");
-                }
-            }
         }
     }
 
