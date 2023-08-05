@@ -27,7 +27,7 @@ else if (Model is not null)
 }
 
 @code {
-    public delegate Task<TModel> LoadModel();
+    public delegate TModel LoadModel();
     public delegate Task<PostResponse> SaveModel(TModel model);
     [Parameter, EditorRequired] public LoadModel OnLoad { get; set; } = null!;
     [Parameter, EditorRequired] public SaveModel OnSave { get; set; } = null!;
@@ -68,11 +68,11 @@ else if (Model is not null)
         }
     }
 
-    async Task Load()
+    void Load()
     {
         try
         {
-            Model = await OnLoad();
+            Model = OnLoad();
             editContext = new EditContext(Model);
             messageStore = new ValidationMessageStore(editContext);
         }
@@ -93,7 +93,7 @@ else if (Model is not null)
 
             if (result is PostResponse.Success)
             {
-                await Load();
+                Load();
                 
                 originalModel.CopyFrom(Model);
                 inEditMode = false;
@@ -149,8 +149,8 @@ else if (Model is not null)
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await Load();
+        Load();
     }
 }

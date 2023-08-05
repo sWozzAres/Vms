@@ -60,7 +60,7 @@ else
                 <div class="grid-2">
                     <TabControl Title="Service Booking Tabs" TitleVisible="false">
                         <TabPage Text="Details">
-                            <Edit ServiceBooking="@serviceBooking" OnAfterSave="LoadServiceBooking" />
+                            <Edit ServiceBooking="serviceBooking" OnAfterSave="LoadServiceBooking" />
                         </TabPage>
                         <TabPage Text="Events">
                             <Events ServiceBooking="serviceBooking" />

@@ -1,67 +1,75 @@
 ﻿@inject ServerApiHttpClient Api
-<EditFormTemplate TModel="VehicleDto" @ref="editForm" OnLoad="LoadModel" OnSave="SaveModel">
-    <DataAnnotationsValidator />
-    @if (isLoaded)
-    {
-        <div class="form-section">
-            <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
-            <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
+@inject NavigationManager NavigationManager
 
-            <label for="vrm">Vrm</label>
-            <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
-            <ValidationMessage For="@(() => editForm.Model.Vrm)" />
+@if (loadingException is not null)
+{
+    <RetryLoad Exception="loadingException" OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+}
+else
+{
+    <EditFormTemplate TModel="VehicleDto" @ref="editForm" OnLoad="() => Vehicle.ToDto()" OnSave="SaveModel">
+        <DataAnnotationsValidator />
+        @if (isLoaded)
+        {
+            <div class="form-section">
+                <InputSelectOnlyCombobox Options="@companyOptions" LabelText="Company" @bind-Value="editForm.Model.CompanyCode" />
+                <ValidationMessage For="@(() => editForm.Model.CompanyCode)" />
 
-            <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
-            <ValidationMessage For="@(() => editForm.Model.Make)" />
+                <label for="vrm">Vrm</label>
+                <InputText id="vrm" @bind-Value="editForm.Model.Vrm" />
+                <ValidationMessage For="@(() => editForm.Model.Vrm)" />
 
-            <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
-            <ValidationMessage For="@(() => editForm.Model.Model)" />
+                <InputSelectOnlyCombobox Options="@makeOptions" LabelText="Make" @bind-Value="editForm.Model.Make" @bind-Value:after="OnMakeChanged" />
+                <ValidationMessage For="@(() => editForm.Model.Make)" />
 
-            <label for="chassis">Chassis Number</label>
-            <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
-            <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
+                <InputSelectOnlyCombobox Options="@modelOptions" LabelText="Model" @bind-Value="editForm.Model.Model" />
+                <ValidationMessage For="@(() => editForm.Model.Model)" />
 
-            <label for="datereg">First Registered</label>
-            <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
-            <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
+                <label for="chassis">Chassis Number</label>
+                <InputText id="chassis" @bind-Value="editForm.Model.ChassisNumber" />
+                <ValidationMessage For="@(() => editForm.Model.ChassisNumber)" />
 
-            <label for="motdue">MOT Due</label>
-            <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
-            <ValidationMessage For="@(() => editForm.Model.MotDue)" />
+                <label for="datereg">First Registered</label>
+                <InputDate id="datereg" @bind-Value="editForm.Model.DateFirstRegistered" />
+                <ValidationMessage For="@(() => editForm.Model.DateFirstRegistered)" />
 
-        </div>
-        <div class="form-section">
-            <fieldset>
-                <legend>Address</legend>
+                <label for="motdue">MOT Due</label>
+                <InputDate id="motdue" @bind-Value="editForm.Model.MotDue" />
+                <ValidationMessage For="@(() => editForm.Model.MotDue)" />
 
-                <label for="street">Street</label>
-                <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+            </div>
+            <div class="form-section">
+                <fieldset>
+                    <legend>Address</legend>
 
-                <label for="locality">Locality</label>
-                <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+                    <label for="street">Street</label>
+                    <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+                    <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
 
-                <label for="town">Town</label>
-                <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+                    <label for="locality">Locality</label>
+                    <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+                    <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
 
-                <label for="postcode">Postcode</label>
-                <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+                    <label for="town">Town</label>
+                    <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+                    <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
 
-                <label for="latitude">Latitude</label>
-                <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+                    <label for="postcode">Postcode</label>
+                    <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+                    <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
 
-                <label for="longitude">Longitude</label>
-                <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-            </fieldset>
-        </div>
-    }
-</EditFormTemplate>
+                    <label for="latitude">Latitude</label>
+                    <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
 
+                    <label for="longitude">Longitude</label>
+                    <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+                    <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
+                </fieldset>
+            </div>
+        }
+    </EditFormTemplate>
+}
 @code {
     [Parameter, EditorRequired] public VehicleFullDto Vehicle { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
@@ -72,6 +80,7 @@
     List<SelectOption<string?>> modelOptions = null!;
     List<SelectOption<string?>> companyOptions = null!;
     bool isLoaded;
+    Exception? loadingException;
 
     async Task OnMakeChanged()
     {
@@ -91,39 +100,42 @@
     {
         if (firstRender)
         {
-            var companies = Api.GetCompaniesShortAsync();
-            var makes = Api.GetMakesShortAsync();
-
-            if (editForm.Model.Make is not null)
+            try
             {
-                var models = Api.GetModelsShortAsync(editForm.Model.Make);
+                var companies = Api.GetCompaniesShortAsync();
+                var makes = Api.GetMakesShortAsync();
 
-                await Task.WhenAll(companies, makes, models);
+                if (editForm.Model.Make is not null)
+                {
+                    var models = Api.GetModelsShortAsync(editForm.Model.Make);
 
-                modelOptions = UIOptions.BuildModelOptions(models.Result);
+                    await Task.WhenAll(companies, makes, models);
+
+                    modelOptions = UIOptions.BuildModelOptions(models.Result);
+                }
+                else
+                {
+                    await Task.WhenAll(companies, makes);
+
+                    modelOptions = UIOptions.BuildModelOptions(null);
+                }
+
+                companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
+                makeOptions = UIOptions.BuildMakeOptions(makes.Result);
+
+                isLoaded = true;
+                StateHasChanged();
             }
-            else
+            catch (Exception ex)
             {
-                await Task.WhenAll(companies, makes);
-
-                modelOptions = UIOptions.BuildModelOptions(null);
+                loadingException = ex;
             }
-
-            companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
-            makeOptions = UIOptions.BuildMakeOptions(makes.Result);
-
-            isLoaded = true;
-            StateHasChanged();
         }
     }
 
-    async Task<VehicleDto> LoadModel()
-        => await Task.FromResult(Vehicle.ToDto());
-
-
     async Task<PostResponse> SaveModel(VehicleDto model)
     {
-         var result = await Api.SaveVehicle(Vehicle.Id, model);
+        var result = await Api.SaveVehicle(Vehicle.Id, model);
         if (result is PostResponse.Success)
         {
             await OnAfterSave.InvokeAsync();
