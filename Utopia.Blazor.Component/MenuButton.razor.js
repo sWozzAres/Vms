@@ -9,7 +9,7 @@ export function menuButtonInit(menuButtonNode, buttonNode, menuNode, objRef) {
     };
 
     const buttonKeydown = (event) => {
-        console.log('keydown: ', event.key);
+        //console.debug('keydown: ', event.key);
 
         function stopEvent() {
             event.stopPropagation();
@@ -116,15 +116,15 @@ export function menuButtonInit(menuButtonNode, buttonNode, menuNode, objRef) {
 
     return {
         install: () => {
-            console.info('installing');
+            //console.debug('installing');
             window.addEventListener('mousedown', callback);
         },
         uninstall: () => {
-            console.info('uninstalling');
+            //console.debug('uninstalling');
             window.removeEventListener('mousedown', callback);
         },
         stop: () => {
-            console.info('stopping');
+            //console.debug('stopping');
             menuNode.removeEventListener('keydown', itemKeydown);
             buttonNode.removeEventListener('keydown', buttonKeydown);
             window.removeEventListener('mousedown', callback);

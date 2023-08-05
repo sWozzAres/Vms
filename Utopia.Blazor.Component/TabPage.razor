@@ -19,7 +19,7 @@
 
     protected override void OnInitialized()
     {
-        Logger.LogInformation("OnInitialized() {index}", Index);
+        Logger.LogDebug("OnInitialized() {index}", Index);
 
         ArgumentNullException.ThrowIfNull(Parent);
         ArgumentNullException.ThrowIfNull(Text);
@@ -30,40 +30,40 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        Logger.LogInformation("SetParametersAsync() {index}", Index);
+        Logger.LogDebug("SetParametersAsync() {index}", Index);
         await base.SetParametersAsync(parameters);
         //await Task.Delay(1000);
     }
     // protected override void OnInitialized()
     // {
-    //     Logger.LogInformation("OnInitialized()");
+    //     Logger.LogDebug("OnInitialized()");
     //     base.OnInitialized();
     // }
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("OnInitializedAsync() {index}", Index);
+        Logger.LogDebug("OnInitializedAsync() {index}", Index);
         await base.OnInitializedAsync();
         //await Task.Delay(1000);
     }
     protected override void OnParametersSet()
     {
-        Logger.LogInformation("OnParametersSet() {index}", Index);
+        Logger.LogDebug("OnParametersSet() {index}", Index);
         base.OnParametersSet();
     }
     protected override async Task OnParametersSetAsync()
     {
-        Logger.LogInformation("OnParametersSetAsync() {index}", Index);
+        Logger.LogDebug("OnParametersSetAsync() {index}", Index);
         await base.OnParametersSetAsync();
         //await Task.Delay(1000);
     }
     protected override void OnAfterRender(bool firstRender)
     {
-        Logger.LogInformation("OnAfterRender({firstRender}) {index}", firstRender, Index);
+        Logger.LogDebug("OnAfterRender({firstRender}) {index}", firstRender, Index);
         base.OnAfterRender(firstRender);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Logger.LogInformation("OnAfterRenderAsync({firstRender}) {index}", firstRender, Index);
+        Logger.LogDebug("OnAfterRenderAsync({firstRender}) {index}", firstRender, Index);
         await base.OnAfterRenderAsync(firstRender);
         //await Task.Delay(1000);
     }

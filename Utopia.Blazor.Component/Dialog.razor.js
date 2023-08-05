@@ -1,5 +1,5 @@
 export function dialogInit(element) {
-    console.log('dialogInit: ', element);
+    //console.debug('dialogInit: ', element);
     return {
         show: () => {
             element.show();

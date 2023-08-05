@@ -171,16 +171,16 @@ public class ServerApiHttpClient(HttpClient http)
         var response = await http.DeleteAsync($"/api/servicebooking/{id}/follow");
         return response.IsSuccessStatusCode;
     }
-    public async Task<PostResponse> AddNote(Guid id, AddNoteDto request)
+    public async Task<PostResponse> AddNote(Guid id, string note)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/activity", request));
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/activity", new AddNoteDto(note)));
     }
-    public async Task<List<ActivityLogDto>> GetActivity(Guid id)
+    public Task<List<ActivityLogDto>?> GetActivity(Guid id)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<ActivityLogDto>>($"/api/servicebooking/{id}/activity")
-            ?? throw new InvalidOperationException("Failed to load activity.");
+        return http.GetFromJsonAsync<List<ActivityLogDto>>($"/api/servicebooking/{id}/activity");
+            //?? throw new InvalidOperationException("Failed to load activity.");
     }
     public async Task<PostResponse> SaveServiceBooking(Guid id, ServiceBookingDto request)
     {

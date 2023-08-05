@@ -67,7 +67,7 @@
     [JSInvokable]
     public int moveFocusToPreviousTabJS()
     {
-        Logger.LogInformation("moveFocusToPreviousTabJS()");
+        Logger.LogDebug("moveFocusToPreviousTabJS()");
         if (focusIndex > 0)
         {
             focusIndex--;
@@ -81,7 +81,7 @@
     [JSInvokable]
     public int moveFocusToNextTabJS()
     {
-        Logger.LogInformation("moveFocusToNextTabJS()");
+        Logger.LogDebug("moveFocusToNextTabJS()");
         if (focusIndex < Pages.Count() - 1)
         {
             focusIndex++;
@@ -96,7 +96,7 @@
     [JSInvokable]
     public int moveFocusToFirstTabJS()
     {
-        Logger.LogInformation("moveFocusToFirstTabJS()");
+        Logger.LogDebug("moveFocusToFirstTabJS()");
         if (focusIndex > 0)
         {
             focusIndex = 0;
@@ -110,7 +110,7 @@
     [JSInvokable]
     public int moveFocusToLastTabJS()
     {
-        Logger.LogInformation("moveFocusToLastTabJS()");
+        Logger.LogDebug("moveFocusToLastTabJS()");
         if (focusIndex < Pages.Count() - 1)
         {
             focusIndex = Pages.Count() - 1;
@@ -124,13 +124,13 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        Logger.LogInformation("SetParametersAsync()");
+        Logger.LogDebug("SetParametersAsync()");
         await base.SetParametersAsync(parameters);
         //await Task.Delay(1000);
     }
     protected override void OnInitialized()
     {
-        Logger.LogInformation("OnInitialized()");
+        Logger.LogDebug("OnInitialized()");
         base.OnInitialized();
 
         ArgumentNullException.ThrowIfNull(ChildContent);
@@ -140,24 +140,24 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("OnInitializedAsync()");
+        Logger.LogDebug("OnInitializedAsync()");
         await base.OnInitializedAsync();
         //await Task.Delay(1000);
     }
     protected override void OnParametersSet()
     {
-        Logger.LogInformation("OnParametersSet()");
+        Logger.LogDebug("OnParametersSet()");
         base.OnParametersSet();
     }
     protected override async Task OnParametersSetAsync()
     {
-        Logger.LogInformation("OnParametersSetAsync()");
+        Logger.LogDebug("OnParametersSetAsync()");
         await base.OnParametersSetAsync();
         //await Task.Delay(1000);
     }
     protected override void OnAfterRender(bool firstRender)
     {
-        Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
+        Logger.LogDebug("OnAfterRender({firstRender})", firstRender);
         base.OnAfterRender(firstRender);
 
         if (firstRender)
@@ -169,7 +169,7 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
+        Logger.LogDebug("OnAfterRenderAsync({firstRender})", firstRender);
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {

@@ -46,6 +46,10 @@ SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSingleton<CurrentTime>();
+builder.Services.AddScoped<ITimeService>(provider => new TimeFreeze(provider.GetRequiredService<CurrentTime>()));
+
 builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
 builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();

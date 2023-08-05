@@ -10,7 +10,7 @@
         @IconContent
     </IconContent>
     <InfoContent>
-        <h1>Vehicles</h1>
+        <h1>@Title</h1>
         <div class="list-dropdown-holder">
             <h2>
                 <SelectOnlyCombobox Items="Options" Label="List" LabelHidden="true"
@@ -71,6 +71,7 @@
     [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment GridColumns { get; set; } = null!;
     [Parameter, EditorRequired] public string Key { get; set; } = null!;
+    [Parameter, EditorRequired] public string Title { get; set; } = null!;
 
     GridItemsProvider<TGridItem> itemsProvider { get; set; } = null!;
     PaginationState pagination = new() { ItemsPerPage = 50 };
@@ -100,6 +101,7 @@
         ArgumentNullException.ThrowIfNull(Buttons);
         ArgumentNullException.ThrowIfNull(GridColumns);
         ArgumentNullException.ThrowIfNull(Key);
+        ArgumentNullException.ThrowIfNull(Title);
 
         // load page configuration from local storage
         pageConfig = await LocalStorage.GetItemAsync<ListPageConfig>(Key) ?? new();

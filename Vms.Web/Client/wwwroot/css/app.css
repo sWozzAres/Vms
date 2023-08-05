@@ -388,10 +388,6 @@ input[type=radio] {
   height: 1em;
 }
 
-.details {
-  display: grid;
-  grid-template-columns: 1fr auto;
-}
 form label {
   margin: 0.5em 0 0.5em 0;
   font-size: 80%;
@@ -404,30 +400,6 @@ form .validation-message {
 
 form.edit-form {
   font-size: 1rem;
-  /* input:disabled, .combo-input.disabled {
-      background-color: rgba(239, 239, 239, 0.3);
-      color: rgb(84, 84, 84);
-      border: 0;
-  }*/
-  /*fieldset.form-grid:disabled {
-      input, .combo-input {
-          background-color: #ffffff;
-          color: rgb(84, 84, 84);
-          border: 1px solid #ffffff;
-          border-bottom: 1px solid var(--border-color);
-          border-radius: 0;
-      }
-
-      .combo-input {
-          span {
-              border-right-color: #ffffff;
-          }
-
-          svg {
-              visibility: hidden
-          }
-      }
-  }*/
 }
 form.edit-form fieldset.form-grid {
   container-type: inline-size;
@@ -469,7 +441,7 @@ form.edit-form .buttons {
   text-align: start;
 }
 
-fieldset:disabled input, fieldset:disabled .combo-input {
+fieldset:disabled input, fieldset:disabled select, fieldset:disabled textarea, fieldset:disabled .combo-input {
   background-color: #ffffff;
   color: rgb(84, 84, 84);
   border: 1px solid #ffffff;
@@ -708,17 +680,9 @@ dialog.list-selector .dialog-container .dialog-footer {
   margin-top: 1em;
 }
 
-.activitylog form {
-  display: flex;
-  gap: 1em;
-  flex-direction: column;
-}
-.activitylog article {
-  padding-bottom: 1em;
-  border-bottom: 1px solid var(--border-color);
-}
-.activitylog article footer {
-  font-size: small;
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr auto;
 }
 
 .retry-load {

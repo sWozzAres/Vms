@@ -17,15 +17,6 @@ input[type='radio'] {
     height: 1em;
 }
 
-.details {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    
-
-    .task {
-    }
-}
-
 form {
     label {
         margin: 0.5em 0 0.5em 0;
@@ -41,30 +32,6 @@ form {
 
 form.edit-form {
     font-size: 1rem;
-    /* input:disabled, .combo-input.disabled {
-        background-color: rgba(239, 239, 239, 0.3);
-        color: rgb(84, 84, 84);
-        border: 0;
-    }*/
-    /*fieldset.form-grid:disabled {
-        input, .combo-input {
-            background-color: #ffffff;
-            color: rgb(84, 84, 84);
-            border: 1px solid #ffffff;
-            border-bottom: 1px solid var(--border-color);
-            border-radius: 0;
-        }
-
-        .combo-input {
-            span {
-                border-right-color: #ffffff;
-            }
-
-            svg {
-                visibility: hidden
-            }
-        }
-    }*/
 
     fieldset.form-grid {
         container-type: inline-size;
@@ -120,7 +87,7 @@ form.edit-form {
 }
 
 fieldset:disabled {
-    input, .combo-input {
+    input, select, textarea, .combo-input {
         background-color: #ffffff;
         color: rgb(84, 84, 84);
         border: 1px solid #ffffff;

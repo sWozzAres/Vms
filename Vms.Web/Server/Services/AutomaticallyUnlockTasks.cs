@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Vms.Web.Server.Services;
 
-public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<AutomaticallyUnlockTasks> logger) : BackgroundService
+public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<AutomaticallyUnlockTasks> logger,
+    CurrentTime timeService) : BackgroundService
 {
     const int CheckTimeSeconds = 60;
 
@@ -16,7 +17,7 @@ public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<Auto
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogDebug("AutomaticallyUnlockTasks background task is doing background work.");
+            logger.LogDebug("AutomaticallyUnlockTasks background task is doing background work. Time is '{time}'.", timeService.GetTime());
 
             using var conn = new SqlConnection(options.VmsDbConnection);
             try
@@ -25,7 +26,7 @@ public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<Auto
 
                 await conn.ExecuteAsync("""
                 DELETE FROM ServiceBookingLocks WHERE DATEDIFF(second, Granted, @now) > @checkTime
-                """, new { now = DateTime.Now, checkTime = CheckTimeSeconds });
+                """, new { now = timeService.GetTime(), checkTime = CheckTimeSeconds });
             }
             catch (SqlException exception)
             {

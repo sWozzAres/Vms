@@ -20,7 +20,7 @@ public class ActivityLogger(VmsDbContext dbContext, IUserProvider userProvider, 
 
     private void LogActivity(Guid id, StringBuilder log)
     {
-        dbContext.ActivityLog.Add(new ActivityLog(id, log.ToString(), userProvider.UserId, userProvider.UserName));
+        dbContext.ActivityLog.Add(new ActivityLog(id, log.ToString(), userProvider.UserId, userProvider.UserName, DateTime.Now));
     }
 
     private async Task NotifyFollowers(Guid id, StringBuilder log, CancellationToken cancellationToken)

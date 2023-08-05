@@ -11,6 +11,7 @@ using Vms.Domain.Entity;
 using Vms.Domain.Entity.ServiceBookingEntity;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Services;
+using Vms.Web.Server.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
@@ -19,7 +20,7 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class ServiceBookingController(ILogger<ServiceBookingController> logger, VmsDbContext context) : ControllerBase
+public class ServiceBookingController(ILogger<ServiceBookingController> logger, VmsDbContext context, ITimeService timeService) : ControllerBase
 {
     readonly ILogger<ServiceBookingController> _logger = logger ?? throw new ArgumentNullException(nameof(context));
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -54,7 +55,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName);
+        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName, timeService.GetTime());
         _context.ServiceBookingLocks.Add(lck);
 
         try
@@ -81,7 +82,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return NotFound();
         }
 
-        lck.Granted = DateTime.Now;
+        lck.Granted = timeService.GetTime();
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -319,7 +320,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
-        var entry = new ActivityLog(id, request.Text, userProvider.UserId, userProvider.UserName);
+        var entry = new ActivityLog(id, request.Text, userProvider.UserId, userProvider.UserName, timeService.GetTime());
         _context.ActivityLog.Add(entry);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -500,5 +501,6 @@ public static partial class DomainExtensions
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);
 
-    public static ActivityLogDto ToDto(this ActivityLog activityLog) => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
+    public static ActivityLogDto ToDto(this ActivityLog activityLog) 
+        => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
 }

@@ -78,18 +78,13 @@
                     </div>
                 </fieldset>
             }
-
-
         </div>
         <div class="buttons dialog-footer">
             <button type="button" disabled="@isPosting" @onclick="OnClose">Close</button>
             <button type="submit" disabled="@isPosting" @onclick="()=> createMode = CreateMode.Create">Create</button>
             <button type="submit" disabled="@isPosting" @onclick="() => createMode = CreateMode.CreateAndNew">Create & New</button>
         </div>
-
     </EditForm>
-
-
 </Dialog>
 
 @code {
@@ -165,7 +160,6 @@
         companyOptions = UIOptions.BuildCompanyOptions(companies.Result);
         makeOptions = UIOptions.BuildMakeOptions(makes.Result);
 
-        await Task.Delay(3000);
         isLoaded = true;
     }
 }

@@ -22,14 +22,7 @@ else
         <Buttons>
             @if (serviceBooking is not null)
             {
-                if (serviceBooking.IsFollowing)
-                {
-                    <button @onclick="Unfollow" disabled="@followBtnDisabled">Unfollow</button>
-                }
-                else
-                {
-                    <button @onclick="Follow" disabled="@followBtnDisabled">Follow</button>
-                }
+                <FollowButton Id="serviceBooking.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="serviceBooking.IsFollowing" />
             }
         </Buttons>
         <HeaderContent>
@@ -64,57 +57,22 @@ else
             {
                 <TaskView ServiceBooking="serviceBooking" OnSelectTask="SelectTask" />
 
-                <div class="details">
+                <div class="grid-2">
                     <TabControl Title="Service Booking Tabs" TitleVisible="false">
                         <TabPage Text="Details">
-
                             <Edit ServiceBooking="@serviceBooking" OnAfterSave="LoadServiceBooking" />
-
-
                         </TabPage>
                         <TabPage Text="Events">
                             <Events ServiceBooking="serviceBooking" />
                         </TabPage>
                         <TabPage Text="Activity">
-                            <Activity Id="serviceBooking.Id" />
+                            <Activity Id="serviceBooking.Id" OnLoadActivities="Api.GetActivity" OnAddNote="Api.AddNote" />
                         </TabPage>
                     </TabControl>
                     <div class="task">
-                        @if (displayTask == "Book Supplier")
+                        @if (taskType is not null)
                         {
-                            <TaskBookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Unbook Supplier")
-                        {
-                            <TaskUnbookSupplier ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Confirm Booked")
-                        {
-                            <TaskConfirmBooked ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Check Arrival")
-                        {
-                            <TaskCheckArrival ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Check Work Status")
-                        {
-                            <TaskCheckWorkStatus ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Notify Customer")
-                        {
-                            <TaskNotifyCustomer ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Notify Customer Delay")
-                        {
-                            <TaskNotifyCustomerDelay ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Chase Driver")
-                        {
-                            <TaskChaseDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
-                        }
-                        else if (displayTask == "Rebook Driver")
-                        {
-                            <TaskRebookDriver ServiceBooking="serviceBooking" OnCompleted="TaskCompleted" />
+                            <DynamicComponent Type="@taskType" Parameters="@taskParameters" />
                         }
                     </div>
                 </div>
@@ -150,10 +108,13 @@ else
     Exception? loadingException;
     ServiceBookingFullDto? serviceBooking;
     string Title => serviceBooking is null ? "" : serviceBooking.Ref;
+    Type? taskType;
+    Dictionary<string, object> taskParameters = new();
 
     async Task TaskCompleted(bool saved)
     {
         displayTask = null;
+        taskType = null;
         if (saved)
         {
             await LoadServiceBooking();
@@ -192,31 +153,31 @@ else
 
     void SelectTask(string name)
     {
-        //Logger.LogWarning("Selecting {name}", name);
         displayTask = name;
+
+        taskType = name switch
+        {
+            "Book Supplier" => typeof(TaskBookSupplier),
+            "Unbook Supplier" => typeof(TaskUnbookSupplier),
+            "Confirm Booked" => typeof(TaskConfirmBooked),
+            "Check Arrival" => typeof(TaskCheckArrival),
+            "Check Work Status" => typeof(TaskCheckWorkStatus),
+            "Notify Customer" => typeof(TaskNotifyCustomer),
+            "Notify Customer Delay" => typeof(TaskNotifyCustomerDelay),
+            "Chase Driver" => typeof(TaskChaseDriver),
+            "Rebook Driver" => typeof(TaskRebookDriver),
+            "Assign Supplier" => null,
+            _ => throw new ArgumentOutOfRangeException(nameof(name), name)
+        };
     }
-
-    // async Task<PostResponse> SaveModel(ServiceBookingDto model)
-    // {
-    //     var result = await Api.SaveServiceBooking(Id, model);
-    //     if (result is PostResponse.Success)
-    //     {
-    //         await LoadServiceBooking();
-    //         StateHasChanged();
-    //     }
-    //     return result;
-    // }
-
-    // async Task<ServiceBookingDto> LoadModel()
-    // {
-    //     return await Task.FromResult(serviceBooking!.ToDto());
-    // }
 
     async Task LoadServiceBooking()
     {
+        loadingException = null;
         try
         {
             serviceBooking = await Api.GetServiceBookingFullAsync(Id);
+            taskParameters["ServiceBooking"] = serviceBooking;
         }
         catch (AccessTokenNotAvailableException ex)
         {
@@ -229,76 +190,12 @@ else
         }
     }
 
-    bool followBtnDisabled;
-
-    async Task Follow()
-    {
-        followBtnDisabled = true;
-        try {
-            var response = await Api.Follow(serviceBooking!.Id);
-            if (response is PostResponse.Success)
-            {
-                serviceBooking.IsFollowing = true;
-            }
-        }
-        finally
-        {
-            followBtnDisabled = false;
-        }
-    }
-    async Task Unfollow()
-    {
-        followBtnDisabled = true;
-        try
-        {
-            var response = await Api.Unfollow(serviceBooking!.Id);
-            if (response)
-            {
-                serviceBooking.IsFollowing = false;
-            }
-        }
-        finally
-        {
-            followBtnDisabled = false;
-        }
-    }
-
-    // public override async Task SetParametersAsync(ParameterView parameters)
-    // {
-    //     Logger.LogInformation("SetParametersAsync()");
-    //     await base.SetParametersAsync(parameters);
-    //     //await Task.Delay(1000);
-    // }
-    // protected override void OnInitialized()
-    // {
-    //     Logger.LogInformation("OnInitialized()");
-    //     base.OnInitialized();
-    // }
     protected override async Task OnInitializedAsync()
     {
         ArgumentNullException.ThrowIfNull(Id);
+
+        taskParameters.Add("OnCompleted", EventCallback.Factory.Create<bool>(this, TaskCompleted));
+        taskParameters.Add("ServiceBooking", serviceBooking!);
         await LoadServiceBooking();
     }
-    // protected override void OnParametersSet()
-    // {
-    //     Logger.LogInformation("OnParametersSet()");
-    //     base.OnParametersSet();
-    // }
-    // protected override async Task OnParametersSetAsync()
-    // {
-    //     Logger.LogInformation("OnParametersSetAsync()");
-    //     await base.OnParametersSetAsync();
-    //     //await Task.Delay(1000);
-    // }
-    // protected override void OnAfterRender(bool firstRender)
-    // {
-    //     Logger.LogInformation("OnAfterRender({firstRender})", firstRender);
-    //     base.OnAfterRender(firstRender);
-    // }
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     Logger.LogInformation("OnAfterRenderAsync({firstRender})", firstRender);
-    //     await base.OnAfterRenderAsync(firstRender);
-    //     //await Task.Delay(1000);
-    // }
 }

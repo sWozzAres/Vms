@@ -137,6 +137,7 @@
 
         await LoadEvents();
     }
+
     enum EventSelectType { Mot, Service, Repair }
     record EventSelect(Guid Id, EventSelectType Type, DateOnly Due, string Description)
     {

@@ -80,7 +80,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
             return;
 
         selectedIndex = index;
-        Logger.LogInformation("Selected index {index}.", index);
+        Logger.LogDebug("Selected index {index}.", index);
 
         SelectedValue = SelectItems[selectedIndex].Value;
         await SelectedValueChanged.InvokeAsync(SelectedValue);
@@ -89,7 +89,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     #region ComboInput events
     async Task OnComboInputBlur()
     {
-        Logger.LogInformation("onComboInputBlur() {ignoreBlur}", ignoreBlur);
+        Logger.LogDebug("onComboInputBlur() {ignoreBlur}", ignoreBlur);
         if (ignoreBlur)
         {
             ignoreBlur = false;
@@ -117,7 +117,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     #region ComboMenu events
     async Task OnComboMenuClick(int index)
     {
-        Logger.LogInformation("OnComboMenuClick('{index}')", index);
+        Logger.LogDebug("OnComboMenuClick('{index}')", index);
         OnOptionChange(index);
 
         await UpdateMenuState(false);
@@ -125,14 +125,14 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     }
     void OnComboMenuMouseDown()
     {
-        Logger.LogInformation("onComboMenuMouseDown()");
+        Logger.LogDebug("onComboMenuMouseDown()");
         ignoreBlur = true;
     }
     #endregion
 
     string GetSearchString(string key)
     {
-        Logger.LogInformation("getSearchString({key})", key);
+        Logger.LogDebug("getSearchString({key})", key);
 
 
         timer?.Dispose();
@@ -140,7 +140,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
         timer = new System.Threading.Timer((state) =>
         {
             searchString = string.Empty;
-            Logger.LogInformation("Timer tick.");
+            Logger.LogDebug("Timer tick.");
         }, null, TimeSpan.FromMilliseconds(5000), Timeout.InfiniteTimeSpan);
 
         if (key == "Backspace")
@@ -157,7 +157,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
             searchString += key[0];
         }
 
-        Logger.LogInformation("SearchString '{searchString}'", searchString);
+        Logger.LogDebug("SearchString '{searchString}'", searchString);
 
         return searchString;
     }
@@ -170,7 +170,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
         var searchIndex = getIndexByLetter(searchString1, activeIndex + 1);
         if (searchIndex >= 0)
         {
-            Logger.LogInformation("Found index {index}.", searchIndex);
+            Logger.LogDebug("Found index {index}.", searchIndex);
 
             OnOptionChange(searchIndex);
 
@@ -191,7 +191,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
             var orderedOptions = SelectItems.Where(item => item.Key >= index)
                 .Concat(SelectItems.Where(item => item.Key < index));
 
-            Logger.LogInformation("orderedOptions {o}", orderedOptions.Select(x => x.Value.Name));
+            Logger.LogDebug("orderedOptions {o}", orderedOptions.Select(x => x.Value.Name));
 
             var firstMatch = orderedOptions.Where(x => x.Value.Name.StartsWith(ss, StringComparison.OrdinalIgnoreCase));
 
@@ -225,7 +225,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
     [JSInvokable]
     public void OnOptionChangeJS(int actionInt)
     {
-        Logger.LogInformation("onOptionChangeJS({action})", actionInt);
+        Logger.LogDebug("onOptionChangeJS({action})", actionInt);
 
         SelectAction action = (SelectAction)actionInt;
         OnOptionChange(getUpdatedIndex(activeIndex, SelectItems.Count - 1, action));
@@ -277,7 +277,7 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
                 Logger.LogWarning("'class' parameter is invalid.");
         }
 
-        Logger.LogInformation("classNameAddition {a}", classNameAddition);
+        Logger.LogDebug("classNameAddition {a}", classNameAddition);
         // labelClassName = LabelHidden ? $"combo-label hidden" : $"combo-label";
         // comboClassName = open ? $"combo open" : $"combo";
 

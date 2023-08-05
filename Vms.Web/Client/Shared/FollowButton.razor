@@ -1,0 +1,68 @@
+﻿@if (IsFollowing)
+{
+    <button @onclick="UnfollowClick" disabled="@followBtnDisabled">Unfollow</button>
+}
+else
+{
+    <button @onclick="FollowClick" disabled="@followBtnDisabled">Follow</button>
+}
+
+@code {
+    [Parameter, EditorRequired]public Guid Id { get; set; }
+    [Parameter, EditorRequired]public bool IsFollowing { get; set; }
+    [Parameter]public EventCallback<bool> IsFollowingChanged { get; set; }
+
+    public delegate Task<PostResponse> Follow(Guid id);
+    [Parameter, EditorRequired] public Follow OnFollow { get; set; } = null!;
+    public delegate Task<bool> Unfollow(Guid id);
+    [Parameter, EditorRequired] public Unfollow OnUnfollow { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(Id);
+        ArgumentNullException.ThrowIfNull(IsFollowing);
+        ArgumentNullException.ThrowIfNull(OnFollow);
+        ArgumentNullException.ThrowIfNull(OnUnfollow);
+    }
+
+    async Task UpdateIsFollowing(bool value)
+    {
+        await IsFollowingChanged.InvokeAsync(value);
+    }
+
+    bool followBtnDisabled;
+
+    async Task FollowClick()
+    {
+        followBtnDisabled = true;
+        try
+        {
+            var response = await OnFollow(Id);
+            if (response is PostResponse.Success)
+            {
+                await UpdateIsFollowing(true);
+            }
+        }
+        finally
+        {
+            followBtnDisabled = false;
+        }
+    }
+
+    async Task UnfollowClick()
+    {
+        followBtnDisabled = true;
+        try
+        {
+            var response = await OnUnfollow(Id);
+            if (response)
+            {
+                await UpdateIsFollowing(false);
+            }
+        }
+        finally
+        {
+            followBtnDisabled = false;
+        }
+    }
+}

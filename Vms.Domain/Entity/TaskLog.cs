@@ -9,7 +9,7 @@ namespace Vms.Domain.Entity
         public Guid DocumentId { get; set; }
         public string TaskName { get; set; } = null!;
         public string Log { get; set; } = null!;
-        public DateTime EntryDate { get; set; }
+        public DateTimeOffset EntryDate { get; set; }
     }
 }
 

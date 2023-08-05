@@ -5,7 +5,7 @@
 @import "_buttons.custom.css";
 
 @import "_tables.scss";
-@import "_list.scss";
+@import "_utopia_blazor_application.scss";
 @import "_combos.scss";
 @import "_forms.scss";
 @import "_entity.scss";
@@ -15,21 +15,9 @@
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
-.activitylog {
-    form {
-        display: flex;
-        gap: 1em;
-        flex-direction: column;
-    }
-
-    article {
-        padding-bottom: 1em;
-        border-bottom: 1px solid var(--border-color);
-
-        footer {
-            font-size: small;
-        }
-    }
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr auto;
 }
 
 .retry-load {

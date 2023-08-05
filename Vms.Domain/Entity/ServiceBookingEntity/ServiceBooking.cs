@@ -154,14 +154,14 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
         public string UserId { get; set; } = null!;
         public string UserName { get; set; } = null!;
         public DateTime Granted { get; set; }
-        public static ServiceBookingLock Create(Guid serviceBookingId, string userId, string userName)
+        public static ServiceBookingLock Create(Guid serviceBookingId, string userId, string userName, DateTime granted)
         => new()
         {
             Id = Guid.NewGuid(),
             ServiceBookingId = serviceBookingId,
             UserId = userId,
             UserName = userName,
-            Granted = DateTime.Now,
+            Granted = granted,
         };
     }
 }
