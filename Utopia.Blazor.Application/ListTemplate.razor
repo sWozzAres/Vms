@@ -25,9 +25,7 @@
 
 <div class="list-info">
     <div class="list-description">
-        <Paginator State="pagination">
-
-        </Paginator>
+        <ListPaginator State="pagination" @ref="listPaginator" />
     </div>
     <div class="list-info-buttons">
         <button>
@@ -78,6 +76,7 @@
     QuickGrid<TGridItem> grid = null!;
     int? selectedList = 0;
     ListPageConfig pageConfig = null!;
+    ListPaginator listPaginator = default!;
 
     async Task Refresh()
     {
@@ -114,8 +113,13 @@
         {
             try
             {
+                await listPaginator.StopTimer();
+
                 var response = await Http.GetFromJsonAsync<ListResult<TGridItem>>($"{ApiUrl}?list={selectedList}&start={req.StartIndex}&take={req.Count}")
                     ?? throw new InvalidOperationException("Failed to load data.");
+
+                listPaginator.StartTimer();
+
                 error = false;
                 return GridItemsProviderResult.From(response.Items, response.TotalCount);
             }

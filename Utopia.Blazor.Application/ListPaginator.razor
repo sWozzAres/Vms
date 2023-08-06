@@ -1,0 +1,56 @@
+﻿@implements IDisposable
+
+<Paginator State="State">
+    <SummaryTemplate>
+        @_message
+    </SummaryTemplate>
+</Paginator>
+
+@code {
+    [Parameter, EditorRequired]public PaginationState State { get; set; } = default!;
+
+    private Timer? _timer;
+    private const string LastUpdatedMessage = "Updated";
+    private string _message = "Loading...";
+    private const int TimerDuration = 1000;
+    private DateTime _timerStarted = default!;
+
+    private string GetMessage()
+    {
+        var elapsed = DateTime.Now - _timerStarted;
+
+        var itemCountMessage = $"{State.TotalItemCount} item{(State.TotalItemCount == 1 ? "" : "s")}";
+
+        if (elapsed.Days > 0)
+            return $"{itemCountMessage}, {LastUpdatedMessage} {elapsed.Days} day{(elapsed.Days == 1 ? "" : "s")} ago";
+        else if (elapsed.Hours > 0)
+            return $"{itemCountMessage}, {LastUpdatedMessage} {elapsed.Hours} hour{(elapsed.Hours == 1 ? "" : "s")} ago";
+        else if (elapsed.Minutes > 0)
+            return $"{itemCountMessage}, {LastUpdatedMessage} {elapsed.Minutes} minute{(elapsed.Minutes == 1 ? "" : "s")} ago";
+        else
+            return $"{itemCountMessage}, {LastUpdatedMessage} {elapsed.Seconds} second{(elapsed.Seconds == 1 ? "" : "s")} ago";
+    }
+    public async Task StopTimer()
+    {
+        if (_timer is not null)
+        {
+            await _timer.DisposeAsync();
+            _timer = null;
+        }
+    }
+    public void StartTimer()
+    {
+        _timerStarted = DateTime.Now;
+        _message = GetMessage();
+        _timer = new Timer(((stateInfo) =>
+        {
+            _message = GetMessage();
+            StateHasChanged();
+        }), new AutoResetEvent(false), 0, TimerDuration);
+    }
+    void IDisposable.Dispose()
+    {
+        _timer?.Dispose();
+        _timer = null;
+    }
+}

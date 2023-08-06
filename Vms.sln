@@ -48,9 +48,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utopia.Blazor.Application",
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "vms.web.driverportal", "Vms.Web.DriverPortal\vms.web.driverportal.esproj", "{4020D052-FCE4-4B0F-A8A3-C88D8B42D083}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utopia.Blazor.Application.Shared", "Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj", "{1E0DA74C-DB19-4EF8-981E-2DC628F8F8A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utopia.Blazor.Application.Shared", "Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj", "{1E0DA74C-DB19-4EF8-981E-2DC628F8F8A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vms.Blazor.Application", "Vms.Blazor.Application\Vms.Blazor.Application.csproj", "{1E818404-FC15-48A3-8BEB-86C653625696}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Blazor.Application", "Vms.Blazor.Application\Vms.Blazor.Application.csproj", "{1E818404-FC15-48A3-8BEB-86C653625696}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
