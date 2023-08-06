@@ -1,6 +1,6 @@
 ﻿@inject ServerApiHttpClient Api
 
-<SupplierSelector TItem="SupplierLocatorDto" Id="Id"
+<SupplierSelector TItem="SupplierLocatorDto" Id="ServiceBooking.Id"
                   OnSelected="SupplierDialogSelect"
                   OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
                   OnClose="() => OnCompleted.InvokeAsync(false)">
@@ -17,12 +17,12 @@
 </SupplierSelector>
 
 @code {
-    [Parameter, EditorRequired]public Guid Id { get; set; }
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
 
     async Task SupplierDialogSelect(SupplierLocatorDto item)
     {
-        var result = await Api.AssignSupplier(Id, new TaskAssignSupplierCommand() { SupplierCode = item.Code });
+        var result = await Api.AssignSupplier(ServiceBooking.Id, new TaskAssignSupplierCommand() { SupplierCode = item.Code });
 
         if (result is PostResponse.Success)
         {
@@ -51,7 +51,7 @@
 
     protected override void OnInitialized()
     {
-        if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
     }
 }

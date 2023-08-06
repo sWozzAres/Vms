@@ -6,10 +6,8 @@
 
 <ListTemplate TGridItem="ServiceBookingListDto" Options="listOptions" ApiUrl="/api/servicebooking" Key="ListPage_ServiceBooking" Title="Service Bookings">
     <IconContent>
-        <div class="entity-svg-vehicle">
-            <svg viewBox="0 0 512 512">
-                <use xlink:href="icons/solid.svg#car" />
-            </svg>
+        <div class="svg-large svg-servicebooking">
+            <img alt="Service Booking" src="icons/servicebooking.svg" />
         </div>
     </IconContent>
     <Buttons>
@@ -22,7 +20,7 @@
             <a href="/servicebooking/view/@context!.Id">@context.Ref</a>
         </TemplateColumn>
         <PropertyColumn Property="x=>x.Vrm" Title="Vrm" />
-        <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g"/>
+        <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g" />
         <PropertyColumn Property="x=>x.StatusText" Title="Status" />
     </GridColumns>
 </ListTemplate>

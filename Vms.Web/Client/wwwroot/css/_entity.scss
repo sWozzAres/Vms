@@ -1,6 +1,7 @@
-﻿.entity-svg-vehicle {
+﻿.svg-vehicle {
     background: green;
 }
+
 .entity-svg-person {
     background: blue;
 }
@@ -8,17 +9,52 @@
 .entity-svg-company {
     background: #a094ed;
 }
+
 .entity-svg-customer {
     background: purple;
 }
+
 .entity-svg-fleet {
     background: #4a3fad;
 }
 
-.entity-svg-servicebooking {
+.svg-servicebooking {
     background: #cc2974;
 }
 
 .entity-svg-mot {
     background: yellow;
+}
+
+.svg-xlarge {
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+
+    img {
+        height: 3em;
+    }
+}
+
+.svg-large {
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+
+    img {
+        height: 2em;
+    }
+}
+
+.svg-medium {
+    padding: 5px;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+
+    img {
+        height: 1em;
+    }
 }

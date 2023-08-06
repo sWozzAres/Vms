@@ -291,13 +291,19 @@ table thead th {
   border-radius: var(--border-radius);
   border: 2px solid var(--border-color);
 }
-.related-section .header .icon div {
-  padding: 0.5em;
-  border-radius: 5px;
-}
-.related-section .header .icon div > svg {
-  height: 1em;
-  fill: white;
+.related-section .header {
+  /*  .icon {
+
+        div {
+            padding: 0.5em;
+            border-radius: 5px;
+
+            > svg {
+                height: 1em;
+                fill: white;
+            }
+        }
+    }*/
 }
 .related-section .header .buttons button {
   color: var(--a-visited-text);
@@ -485,7 +491,7 @@ form.fullresponse fieldset.form-grid {
   }
 }
 
-.entity-svg-vehicle {
+.svg-vehicle {
   background: green;
 }
 
@@ -505,12 +511,42 @@ form.fullresponse fieldset.form-grid {
   background: #4a3fad;
 }
 
-.entity-svg-servicebooking {
+.svg-servicebooking {
   background: #cc2974;
 }
 
 .entity-svg-mot {
   background: yellow;
+}
+
+.svg-xlarge {
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+}
+.svg-xlarge img {
+  height: 3em;
+}
+
+.svg-large {
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+}
+.svg-large img {
+  height: 2em;
+}
+
+.svg-medium {
+  padding: 5px;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+}
+.svg-medium img {
+  height: 1em;
 }
 
 .tabs {
@@ -678,6 +714,26 @@ dialog.list-selector .dialog-container .dialog-footer {
   justify-content: end;
   column-gap: 0.5em;
   margin-top: 1em;
+}
+
+.tile-container {
+  display: grid;
+  grid-auto-columns: auto;
+  grid-auto-rows: auto;
+  gap: 1em;
+}
+
+.tile-container .tile {
+  max-width: 20ch;
+  padding: 1em;
+}
+
+.tile-container .tile .title {
+  color: white;
+  display: flex;
+  justify-content: center;
+  font-size: 150%;
+  text-align: center;
 }
 
 .grid-2 {

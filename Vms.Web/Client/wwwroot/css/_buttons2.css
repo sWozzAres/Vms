@@ -35,11 +35,11 @@ button[type=submit] {
   border: 0;
   border-radius: 0;
 }
-.btn-group > :first-child {
+.btn-group > :first-child, .btn-group :first-child button {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
-.btn-group > :last-child {
+.btn-group > :last-child, .btn-group :last-child button {
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }

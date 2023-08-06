@@ -13,16 +13,17 @@ else
 {
     <ViewTemplate TypeName="Service Booking" Title="@Title">
         <IconContent>
-            <div class="entity-svg-servicebooking">
-                <svg viewBox="0 0 448 512">
-                    <use xlink:href="icons/solid.svg#book" />
-                </svg>
-            </div>
+             <div class="svg-large svg-servicebooking">
+                 <img alt="Service Booking" src="icons/servicebooking.svg" />
+            </div> 
         </IconContent>
         <Buttons>
             @if (serviceBooking is not null)
             {
                 <FollowButton Id="serviceBooking.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="serviceBooking.IsFollowing" />
+                <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="SelectTask">
+                    Task
+                </MenuButton>
             }
         </Buttons>
         <HeaderContent>
@@ -81,25 +82,31 @@ else
     </ViewTemplate>
 }
 
-@if (displayTask == "Assign Supplier")
-{
-    <TaskAssignSupplier Id="serviceBooking!.Id" OnCompleted="TaskCompleted"/>
-}
-
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
-
-    string? displayTask;
 
     Exception? loadingException;
     ServiceBookingFullDto? serviceBooking;
     string Title => serviceBooking is null ? "" : serviceBooking.Ref;
     Type? taskType;
     Dictionary<string, object> taskParameters = new();
+    private string[] items = new string[]
+    {
+        "Notify Customer Delay",
+        "Assign Supplier",
+        "Unbook Supplier",
+        "Book Supplier",
+        "Confirm Booked",
+        "Check Arrival",
+        "Check Work Status",
+        "Notify Customer",
+        "Chase Driver",
+        "Rebook Driver"
+
+    };
 
     async Task TaskCompleted(bool saved)
     {
-        displayTask = null;
         taskType = null;
         if (saved)
         {
@@ -109,8 +116,6 @@ else
 
     void SelectTask(string name)
     {
-        displayTask = name;
-
         taskType = name switch
         {
             "Book Supplier" => typeof(TaskBookSupplier),
@@ -122,7 +127,7 @@ else
             "Notify Customer Delay" => typeof(TaskNotifyCustomerDelay),
             "Chase Driver" => typeof(TaskChaseDriver),
             "Rebook Driver" => typeof(TaskRebookDriver),
-            "Assign Supplier" => null,
+            "Assign Supplier" => typeof(TaskAssignSupplier),
             _ => throw new ArgumentOutOfRangeException(nameof(name), name)
         };
     }
