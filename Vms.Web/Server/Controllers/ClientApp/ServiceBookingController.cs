@@ -345,22 +345,28 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
     [HttpGet]
     public async Task<IActionResult> GetServiceBookings(
-        int list, int start, int take,
+        ServiceBookingListOptions list, int start, int take,
         IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        var serviceBookings = context.ServiceBookings.AsQueryable();
+        var serviceBookings = context.ServiceBookings
+            .Include(s=>s.Lock)
+            .AsQueryable();
 
-        if (list == 2)
+        if (list == ServiceBookingListOptions.Following)
         {
             serviceBookings = from x in serviceBookings 
                               join f in context.Followers on x.Id equals f.DocumentId
                               where f.UserId == userProvider.UserId
                               select x;
         }
-        else if (list == 3)
+        else if (list == ServiceBookingListOptions.Assigned)
         {
             serviceBookings = serviceBookings.Where(s => s.AssignedToUserId == userProvider.UserId);
+        }
+        else if (list == ServiceBookingListOptions.Due)
+        {
+            serviceBookings = serviceBookings.Where(s => s.RescheduleTime <= DateTime.Now);
         }
 
         int totalCount = await serviceBookings.CountAsync(cancellationToken);
@@ -369,7 +375,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             .Include(s => s.Vehicle)
             .Skip(start)
             .Take(take)
-            .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm, x.RescheduleTime, (ServiceBookingDtoStatus)x.Status))
+            .OrderBy(s=>s.RescheduleTime)
+            .Where(s=>s.Status > 0)
+            .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm, 
+                x.RescheduleTime, (ServiceBookingDtoStatus)x.Status,
+                x.Lock == null ? null : x.Lock.UserName, x.Lock == null ? null : x.Lock.Granted
+                ))
             .ToListAsync(cancellationToken);
 
         return Ok(new ListResult<ServiceBookingListDto>(totalCount, result));
@@ -417,10 +428,12 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             	    END AS IsFollowing,
                     sb.AssignedToUserId, sb.Ref, sb.RescheduleTime,
                     sbd.Name 'Driver_Name', sbd.EmailAddress 'Driver_EmailAddress', sbd.MobileNumber 'Driver_MobileNumber',
-                    sbc.Name 'Contact_Name', sbc.EmailAddress 'Contact_EmailAddress', sbc.MobileNumber 'Contact_MobileNumber'
+                    sbc.Name 'Contact_Name', sbc.EmailAddress 'Contact_EmailAddress', sbc.MobileNumber 'Contact_MobileNumber',
+                    sbl.UserName 'Worker_Name', sbl.Granted 'WorkStarted'
                 FROM ServiceBookings sb
                 LEFT JOIN ServiceBookingDrivers sbd ON sb.Id = sbd.ServiceBookingId
                 LEFT JOIN ServiceBookingContacts sbc ON sb.Id = sbc.ServiceBookingId
+                LEFT JOIN ServiceBookingLocks sbl ON sb.Id = sbl.ServiceBookingId
                 JOIN Vehicles v ON sb.VehicleId = v.Id
                 JOIN VehicleVrms vv ON v.Id = vv.VehicleId
                 LEFT JOIN Suppliers s ON sb.SupplierCode = s.Code
@@ -431,8 +444,6 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpGet]
     [Route("{id}")]
     [AcceptHeader("application/vnd.full")]
-    [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetServiceBookingFull(Guid id,
         IUserProvider userProvider,
         CancellationToken cancellationToken)

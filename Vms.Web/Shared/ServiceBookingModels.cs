@@ -306,7 +306,17 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
 //    SupplierShortDto? Supplier, MotEventShortDto? MotEvent, bool IsFollowing)
 //{
 //}
-public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm, DateTime? rescheduleTime, ServiceBookingDtoStatus status)
+public enum ServiceBookingListOptions
+{
+    All = 0,
+    Recent = 1,
+    Following = 2,
+    Assigned = 3,
+    Due = 4
+}
+public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm, 
+    DateTime? rescheduleTime, ServiceBookingDtoStatus status,
+    string? workerName, DateTime? workStarted)
 {
     public Guid Id { get; set; } = id;
     public Guid VehicleId { get; set; } = vehicleId;
@@ -314,6 +324,8 @@ public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string 
     public string Vrm { get; set; } = vrm;
     public DateTime? RescheduleTime { get; set; } = rescheduleTime;
     public ServiceBookingDtoStatus Status { get; set; } = status;
+    public string? WorkerName { get; set; } = workerName;
+    public DateTime? WorkStarted { get; set; } = workStarted;
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 }
@@ -379,6 +391,8 @@ public class ServiceBookingFullDto
     public string? Contact_Name { get; set; }
     public string? Contact_EmailAddress { get; set; }
     public string? Contact_MobileNumber { get; set; }
+    public string? Worker_Name { get; set; }
+    public DateTime? WorkStarted { get; set; }
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 

@@ -15,7 +15,7 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
     readonly VmsDbContext DbContext = dbContext;
     readonly IActivityLogger ActivityLog = activityLog;
     readonly ITaskLogger TaskLogger = taskLogger;
-    readonly ISupplierLocator Locator = locator;
+    readonly ISupplierLocator SupplierLocator = locator;
     ServiceBookingRole? ServiceBooking;
 
     public async Task<bool> Assign(Guid id, CancellationToken cancellationToken = default)
@@ -30,7 +30,7 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
     {
         public async Task<bool> AutoAssign(CancellationToken cancellationToken)
         {
-            var list = await ctx.Locator.GetSuppliers(self, cancellationToken);
+            var list = await ctx.SupplierLocator.GetSuppliers(self, cancellationToken);
             if (!list.Any())
             {
                 return false;

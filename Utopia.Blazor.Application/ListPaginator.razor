@@ -7,15 +7,15 @@
 </Paginator>
 
 @code {
-    [Parameter, EditorRequired]public PaginationState State { get; set; } = default!;
+    [Parameter, EditorRequired]public PaginationState State { get; set; } = null!;
 
-    private Timer? _timer;
-    private const string LastUpdatedMessage = "Updated";
-    private string _message = "Loading...";
-    private const int TimerDuration = 1000;
-    private DateTime _timerStarted = default!;
+    Timer? _timer;
+    const string LastUpdatedMessage = "Updated";
+    string _message = "Loading...";
+    const int TimerDuration = 1000;
+    DateTime _timerStarted = default!;
 
-    private string GetMessage()
+    string GetMessage()
     {
         var elapsed = DateTime.Now - _timerStarted;
 
@@ -42,7 +42,7 @@
     {
         _timerStarted = DateTime.Now;
         _message = GetMessage();
-        _timer = new Timer(((stateInfo) =>
+        _timer = new Timer((_ =>
         {
             _message = GetMessage();
             StateHasChanged();

@@ -17,7 +17,7 @@
         AlertStyle.Info => "alert-info",
         AlertStyle.Light => "alert-light",
         AlertStyle.Dark => "alert-dark",
-        _ => throw new ArgumentOutOfRangeException(nameof(Style))
+        _ => throw new NotSupportedException($"Unknown style '{Style}'.")
     };
 
     protected override void OnInitialized()

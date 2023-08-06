@@ -5,6 +5,8 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
 {
     public class RefusalReason(string companyCode, string code, string name)
     {
+        public const int Code_MaxLength = 10;
+        public const int Name_MaxLength = 32;
         public string CompanyCode { get; set; } = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
         public string Code { get; set; } = code ?? throw new ArgumentNullException(nameof(code));
         public string Name { get; set; } = name ?? throw new ArgumentNullException(nameof(name));
@@ -23,13 +25,13 @@ namespace Vms.Domain.Entity.ServiceBookingEntity
             entity.HasKey(e => new { e.CompanyCode, e.Code });
 
             entity.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
+                .HasMaxLength(Company.Code_MaxLength)
                 .IsFixedLength();
             entity.Property(e => e.Code)
-                .HasMaxLength(10)
+                .HasMaxLength(RefusalReason.Code_MaxLength)
                 .IsFixedLength();
             entity.Property(e => e.Name)
-                .HasMaxLength(32)
+                .HasMaxLength(RefusalReason.Name_MaxLength)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Company).WithMany(p => p.RefusalReasons)

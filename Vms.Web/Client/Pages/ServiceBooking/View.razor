@@ -13,15 +13,15 @@ else
 {
     <ViewTemplate TypeName="Service Booking" Title="@Title">
         <IconContent>
-             <div class="svg-large svg-servicebooking">
-                 <img alt="Service Booking" src="icons/servicebooking.svg" />
-            </div> 
+            <div class="svg-large svg-servicebooking">
+                <img alt="Service Booking" src="icons/servicebooking.svg" />
+            </div>
         </IconContent>
         <Buttons>
             @if (serviceBooking is not null)
             {
                 <FollowButton Id="serviceBooking.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="serviceBooking.IsFollowing" />
-                <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="SelectTask">
+                <MenuButton Items="@taskNames" Align="MenuButton.Alignment.Right" OnSelectCallback="StartTask">
                     Task
                 </MenuButton>
             }
@@ -56,7 +56,7 @@ else
         <ChildContent>
             @if (serviceBooking is not null)
             {
-                <TaskView ServiceBooking="serviceBooking" OnSelectTask="SelectTask" />
+                <TaskView ServiceBooking="serviceBooking" OnSelectTask="StartTask" />
 
                 <div class="grid-2">
                     <TabControl Title="Service Booking Tabs" TitleVisible="false">
@@ -90,20 +90,21 @@ else
     string Title => serviceBooking is null ? "" : serviceBooking.Ref;
     Type? taskType;
     Dictionary<string, object> taskParameters = new();
-    private string[] items = new string[]
+    Dictionary<string, Type> tasks = new()
     {
-        "Notify Customer Delay",
-        "Assign Supplier",
-        "Unbook Supplier",
-        "Book Supplier",
-        "Confirm Booked",
-        "Check Arrival",
-        "Check Work Status",
-        "Notify Customer",
-        "Chase Driver",
-        "Rebook Driver"
-
+        { "Assign Supplier" , typeof(TaskAssignSupplier) },
+        { "Book Supplier", typeof(TaskBookSupplier) },
+        { "Unbook Supplier" , typeof(TaskUnbookSupplier) },
+        { "Confirm Booked" , typeof(TaskConfirmBooked) },
+        { "Check Arrival" , typeof(TaskCheckArrival) },
+        { "Check Work Status" , typeof(TaskCheckWorkStatus) },
+        { "Notify Customer" , typeof(TaskNotifyCustomer) },
+        { "Notify Customer Delay" , typeof(TaskNotifyCustomerDelay) },
+        { "Chase Driver" , typeof(TaskChaseDriver) },
+        { "Rebook Driver" , typeof(TaskRebookDriver) },
     };
+
+    string[] taskNames = null!;
 
     async Task TaskCompleted(bool saved)
     {
@@ -114,23 +115,7 @@ else
         }
     }
 
-    void SelectTask(string name)
-    {
-        taskType = name switch
-        {
-            "Book Supplier" => typeof(TaskBookSupplier),
-            "Unbook Supplier" => typeof(TaskUnbookSupplier),
-            "Confirm Booked" => typeof(TaskConfirmBooked),
-            "Check Arrival" => typeof(TaskCheckArrival),
-            "Check Work Status" => typeof(TaskCheckWorkStatus),
-            "Notify Customer" => typeof(TaskNotifyCustomer),
-            "Notify Customer Delay" => typeof(TaskNotifyCustomerDelay),
-            "Chase Driver" => typeof(TaskChaseDriver),
-            "Rebook Driver" => typeof(TaskRebookDriver),
-            "Assign Supplier" => typeof(TaskAssignSupplier),
-            _ => throw new ArgumentOutOfRangeException(nameof(name), name)
-        };
-    }
+    void StartTask(string name) => taskType = tasks[name];
 
     async Task LoadServiceBooking()
     {
@@ -154,6 +139,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         ArgumentNullException.ThrowIfNull(Id);
+
+        taskNames = tasks.Select(t => t.Key).ToArray();
 
         taskParameters.Add("OnCompleted", EventCallback.Factory.Create<bool>(this, TaskCompleted));
         taskParameters.Add("ServiceBooking", serviceBooking!);

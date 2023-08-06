@@ -5,6 +5,10 @@
     {
         <Alert Style="Alert.AlertStyle.Info">You must complete the booking details.</Alert>
     }
+    else if (ServiceBooking.Worker_Name is not null)
+    {
+        <Alert Style="Alert.AlertStyle.Danger">@ServiceBooking.Worker_Name is currently working on this booking.</Alert>
+    }
     else
     {
         <div class="task-content">
@@ -47,6 +51,10 @@
             else if (ServiceBooking.Status == ServiceBookingDtoStatus.CheckArrival)
             {
                 <button @onclick="CheckArrival" class="@className">Check Arrival</button>
+            }
+            else if (ServiceBooking.Status == ServiceBookingDtoStatus.ChaseDriver)
+            {
+                <button @onclick="ChaseDriver" class="@className">Chase Driver</button>
             }
             else if (ServiceBooking.Status == ServiceBookingDtoStatus.CheckWorkStatus)
             {

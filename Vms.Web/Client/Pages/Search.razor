@@ -38,7 +38,7 @@
         EntityTagKindDto.Supplier => "/supplier/view",
         EntityTagKindDto.ServiceBooking => "/servicebooking/view",
         EntityTagKindDto.Driver => "/driver/view",
-        _ => throw new ArgumentOutOfRangeException(nameof(tag))
+        _ => throw new NotSupportedException($"Unknown kind '{tag.Kind}'.")
     };
 
     protected override async Task OnParametersSetAsync()

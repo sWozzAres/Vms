@@ -62,15 +62,17 @@
     {
         errorMessage = null;
 
-
         var saveUrl = string.Join("/", Url, Id.ToString(), Task);
 
-        //var result = await OnSave(Model);
         Http.DefaultRequestHeaders.Accept.Clear();
         var result = PostResponse.Create(await Http.PostAsJsonAsync(saveUrl, Model));
 
         if (result is PostResponse.Success)
         {
+            // TODO unlock the document in the server when the task is successfully saved to save this additional network call
+            await Api.Unlock(lockUrl, lockId!.Value);
+            lockId = null;
+
             await OnCompleted.InvokeAsync(true);
         }
         else
@@ -120,10 +122,11 @@
         {
             lockId = await Api.Lock(lockUrl);
 
+            const int LockRefreshIntervalSeconds = 19;
             timer = new System.Threading.Timer(async (object? state) =>
             {
                 await Api.RefreshLock(lockUrl, lockId.Value);
-            }, null, 0, 19000);
+            }, null, 0, LockRefreshIntervalSeconds * 1000);
 
         }
         catch

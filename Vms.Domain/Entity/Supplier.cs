@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Vms.Domain.Entity.ServiceBookingEntity;
 
 namespace Vms.Domain.Entity
 {
     public partial class Supplier
     {
+        public const int Code_MaxLength = 8;
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public Address Address { get; set; } = null!;
@@ -13,6 +15,7 @@ namespace Vms.Domain.Entity
         public virtual ICollection<SupplierFranchise> Franchises { get; set; } = new List<SupplierFranchise>();
         public virtual ICollection<Network> Networks { get; set; } = new List<Network>();
         public virtual ICollection<NetworkSupplier> NetworkSuppliers { get; set; } = new List<NetworkSupplier>();
+        public ICollection<SupplierRefusal> ServiceBookingRefusals { get; set; } = new List<SupplierRefusal>();
         private Supplier() { }
         public Supplier(string code, string name, Address address, bool isIndependent)
         {
@@ -32,10 +35,36 @@ namespace Vms.Domain.Entity
         private SupplierFranchise() { }
         public SupplierFranchise(string supplierCode, string franchise) => (SupplierCode, Franchise) = (supplierCode, franchise);
     }
+
+    public class SupplierRefusal(string supplierCode, string companyCode, string code, string name, Guid serviceBookingId)
+    {
+        public long Id { get; private set; }
+        public string SupplierCode { get; set; } = supplierCode;
+        public string CompanyCode { get; set; } = companyCode;
+        public string Code { get; set; } = code;
+        public string Name { get; set; } = name;
+        public Guid ServiceBookingId { get; set; } = serviceBookingId;
+        public Supplier Supplier { get; set; } = null!;
+    }
 }
 
 namespace Vms.Domain.Entity.Configuration
 {
+    public class SupplierRefusalEntityTypeConfiguration : IEntityTypeConfiguration<SupplierRefusal>
+    {
+        public void Configure(EntityTypeBuilder<SupplierRefusal> entity)
+        {
+            entity.ToTable("SupplierRefusals");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            entity.Property(e => e.CompanyCode).HasMaxLength(Company.Code_MaxLength);
+            entity.Property(e => e.Code).HasMaxLength(RefusalReason.Code_MaxLength);
+            entity.Property(e => e.Name).HasMaxLength(RefusalReason.Name_MaxLength);
+
+            entity.HasOne(e => e.Supplier).WithMany(s => s.ServiceBookingRefusals);
+        }
+    }
     public class SupplierEntityTypeConfiguration : IEntityTypeConfiguration<Supplier>
     {
         public void Configure(EntityTypeBuilder<Supplier> builder)
@@ -46,7 +75,7 @@ namespace Vms.Domain.Entity.Configuration
             //builder.HasIndex(e => e.Location, "SPATIAL_Supplier");
 
             builder.Property(e => e.Code)
-                .HasMaxLength(8)
+                .HasMaxLength(Supplier.Code_MaxLength)
                 .IsUnicode(false);
 
             builder.Property(e => e.Name)

@@ -22,16 +22,20 @@
         <PropertyColumn Property="x=>x.Vrm" Title="Vrm" />
         <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g" />
         <PropertyColumn Property="x=>x.StatusText" Title="Status" />
+        <TemplateColumn Title="Worker">
+            @context.WorkerName
+        </TemplateColumn>
     </GridColumns>
 </ListTemplate>
 
 @code {
     List<SelectOption<int?>> listOptions = new()
     {
-        new (0, "All Service Bookings"),
-        new (1, "Recently Viewed"),
-        new (2, "Following"),
-        new (3, "Assigned"),
+        new ((int)ServiceBookingListOptions.All, "All Service Bookings"),
+        new ((int)ServiceBookingListOptions.Recent, "Recently Viewed"),
+        new ((int)ServiceBookingListOptions.Following, "Following"),
+        new ((int)ServiceBookingListOptions.Assigned, "Assigned"),
+        new ((int)ServiceBookingListOptions.Due, "Due"),
     };
 
     bool isCreating;

@@ -68,7 +68,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
                 if (!string.IsNullOrEmpty(self.Driver.EmailAddress))
                 {
                     var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, ctx.CancellationToken)
-                        ?? throw new VmsDomainException("Failed to load supplier.");
+                        ?? throw new VmsDomainException("Failed to find supplier.");
 
                     var recipient = self.Driver.EmailAddress;
 
@@ -92,7 +92,12 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
 
             ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
             ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
-            
+
+            // log the refusal
+            //var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, ctx.CancellationToken);
+            var supplierRefusal = new SupplierRefusal(self.SupplierCode, self.CompanyCode, reason.Code, reason.Name, self.Id);
+            ctx.DbContext.SupplierRefusals.Add(supplierRefusal);
+
             self.Unassign();
         }
 

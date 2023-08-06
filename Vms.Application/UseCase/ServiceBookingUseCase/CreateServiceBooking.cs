@@ -48,10 +48,12 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         public async Task<ServiceBooking> CreateBooking(CreateServiceBookingCommand request, CancellationToken cancellationToken)
         {
+            // load default driver
             var driver = await (from dv in ctx.DbContext.DriverVehicles
                                 where dv.VehicleId == self.Id
                                 select dv.Driver).FirstOrDefaultAsync(cancellationToken);
 
+            // create the booking
             var booking = new ServiceBooking(
                 self.CompanyCode,
                 self.Id,
@@ -69,6 +71,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
             ctx.DbContext.ServiceBookings.Add(booking);
 
+            // add Mot
             if (request.MotId is not null)
             {
                 var motEntry = await ctx.DbContext.MotEvents.SingleAsync(m => m.Id == request.MotId, cancellationToken);
@@ -76,8 +79,10 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 motEntry.ServiceBooking = booking;
             }
 
+            // auto assign
             if (request.AutoAssign)
             {
+                booking.ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
                 var assigned = await ctx.AssignSupplierUseCase.Assign(booking.Id, cancellationToken);
 
                 if (assigned)

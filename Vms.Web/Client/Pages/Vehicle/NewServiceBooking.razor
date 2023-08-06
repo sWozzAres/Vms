@@ -4,67 +4,89 @@
 @inject NavigationManager NavigationManager
 
 <Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector scroll-content">
-    <div class="dialog-container">
-        <div class="dialog-header">
-            <h1>New Service Booking</h1>
-        </div>
-        <div class="dialog-content">
-            @if (loadException is not null)
-            {
-                <RetryLoad Exception="loadException" OnRetry="LoadEvents" />
-            }
-            else
-            {
-                <table>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Event</th>
-                            <th>Due</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (openEvents is not null)
-                        {
-                            for (int index = 0; index < openEvents.Count(); index++)
-                            {
-                                var idx = index;
-                                var item = openEvents.ElementAt(index);
-                                <tr @onclick="() => SelectItem(idx)">
-                                    <td><input checked="@isSelected(idx)" type="checkbox" /></td>
-                                    <td>@item.TypeString</td>
-                                    <td>@item.Due</td>
-                                    <td>@item.Description</td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            }
-        </div>
-        <div class="dialog-footer">
-            <div class="dialog-controls">
-                <button @onclick="CloseDialog" disabled="@formIsDisabled">Close</button>
-                <button type="submit" @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+    <EditForm Model="Model" OnValidSubmit="OkDialog">
+        <div class="dialog-container">
+            <div class="dialog-header">
+                <h1>New Service Booking</h1>
             </div>
-            @if (okErrorMessage is not null)
-            {
-                <p class="error">@okErrorMessage</p>
-            }
+            <div class="dialog-content">
+                @if (loadException is not null)
+                {
+                    <RetryLoad Exception="loadException" OnRetry="LoadEvents" />
+                }
+                else
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Event</th>
+                                <th>Due</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (openEvents is not null)
+                            {
+                                for (int index = 0; index < openEvents.Count(); index++)
+                                {
+                                    var idx = index;
+                                    var item = openEvents.ElementAt(index);
+                                    <tr @onclick="() => SelectItem(idx)">
+                                        <td><input checked="@isSelected(idx)" type="checkbox" /></td>
+                                        <td>@item.TypeString</td>
+                                        <td>@item.Due</td>
+                                        <td>@item.Description</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <div class="dialog-form-controls">
+                        <div class="form-control">
+                            <label for="autoassign">Auto Assign</label>
+                            <InputCheckbox id="autoassign" @bind-Value="Model.AutoAssign" />
+                        </div>
+                        <div class="form-control">
+                            <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="Model.ServiceLevel" />
+                            <ValidationMessage For="@(() => Model.ServiceLevel)" />
+                            </div>
+                    </div>
+                }
+            </div>
+            <div class="dialog-footer">
+                <div class="dialog-controls">
+                    <button @onclick="CloseDialog" disabled="@formIsDisabled">Close</button>
+                    <button type="submit" disabled="@isOkButtonDisabled">OK</button>
+                </div>
+                @if (okErrorMessage is not null)
+                {
+                    <p class="error">@okErrorMessage</p>
+                }
+            </div>
         </div>
-    </div>
+    </EditForm>
 </Dialog>
 
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
     [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
 
+    class CreateBookingModel
+    {
+        public bool AutoAssign { get; set; }
+        [Range(typeof(ServiceLevelDto), nameof(ServiceLevelDto.Mobile), nameof(ServiceLevelDto.DropOffWithCourtesyCar),
+        ErrorMessage = "You must select a service level.")]
+        public ServiceLevelDto ServiceLevel { get; set; }
+    }
+    CreateBookingModel Model { get; set; } = new();
+
     bool formIsDisabled;
     string? okErrorMessage;
     Exception? loadException;
     bool isOkButtonDisabled => openEvents is null ? true : !openEvents.Any(e => e.Selected);
     List<EventSelect>? openEvents;
+    List<SelectOption<Vms.Web.Shared.ServiceLevelDto>> serviceLevelOptions = null!;
 
     void SelectItem(int index)
     {
@@ -86,7 +108,8 @@
                 null,
                 null,
                 null,
-                false, motId, null, null);
+                Model.AutoAssign,
+                motId, null, null);
 
             var result = await Api.CreateServiceBookingAsync(request);
             if (result is PostResponse.Created)
@@ -156,6 +179,8 @@
     {
         if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
         if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
+
+        serviceLevelOptions = UIOptions.GetServiceLevelOptions();
 
         await LoadEvents();
     }
