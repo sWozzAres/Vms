@@ -1,5 +1,5 @@
 ﻿@page "/servicebooking/view/{id:guid}"
-@inject ServerApiHttpClient Api
+@inject ServiceBookingApiClient Api
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
@@ -70,7 +70,7 @@ else
                             <Activity Id="serviceBooking.Id" OnLoadActivities="Api.GetActivity" OnAddNote="Api.AddNote" />
                         </TabPage>
                     </TabControl>
-                    <div class="task">
+                    <div class="task-container">
                         @if (taskType is not null)
                         {
                             <DynamicComponent Type="@taskType" Parameters="@taskParameters" />

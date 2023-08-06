@@ -53,12 +53,12 @@ else
             {
                 <TabControl Title="Vehicle Tabs" TitleVisible="false">
                     <TabPage Text="Details">
-                            <Edit Vehicle="@vehicle" OnAfterSave="LoadVehicle" />
+                        <Edit Vehicle="@vehicle" OnAfterSave="LoadVehicle" />
                     </TabPage>
                     <TabPage Text="Related">
                         <div class="related50">
-                        <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="LoadVehicle" />
-                        <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="LoadVehicle" />
+                            <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="LoadVehicle" />
+                            <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="LoadVehicle" />
                         </div>
                         <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="LoadVehicle" />
                     </TabPage>
@@ -74,7 +74,7 @@ else
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
-    Exception? loadingException;  
+    Exception? loadingException;
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;
 

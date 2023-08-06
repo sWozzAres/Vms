@@ -1,4 +1,5 @@
-﻿@inject ServerApiHttpClient Api
+﻿@inject ServiceBookingApiClient Api
+@inject ServerApiHttpClient Http
 @inject ILogger<NewServiceBooking> Logger
 @inject NavigationManager NavigationManager
 
@@ -12,7 +13,7 @@
             {
                 <RetryLoad Exception="loadException" OnRetry="LoadEvents" />
             }
-            else 
+            else
             {
                 <table>
                     <thead>
@@ -86,8 +87,29 @@
                 null,
                 null,
                 false, motId, null, null);
-            var serviceBooking = await Api.CreateServiceBookingAsync(request);
-            NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
+
+            var result = await Api.CreateServiceBookingAsync(request);
+            if (result is PostResponse.Created)
+            {
+                var serviceBooking = await result.Response.Content.ReadFromJsonAsync<ServiceBookingDto>()
+                    ?? throw new InvalidOperationException("Failed to deserialize response.");
+
+                NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
+            }
+            else if (result is PostResponse.UnprocessableEntity ue)
+            {
+                //TODO should never happen but if it does should we show errors? Probably not.
+                throw new InvalidOperationException("Validation error.");
+            }
+            else if (result is PostResponse.BadRequest br)
+            {
+                throw new VmsDomainException(br.ErrorMessage);
+            }
+            else// if (result is PostResponse.Failure)
+            {
+                throw new InvalidOperationException("There was a problem sending your request.");
+            }
+
         }
         catch (VmsDomainException ex)
         {
@@ -111,7 +133,7 @@
         openEvents = null;
         try
         {
-            var events = await Api.GetOpenEvents(Id);
+            var events = await Http.GetOpenEvents(Id);
 
             openEvents = events.Mots.Select(m => new EventSelect(m.Id, EventSelectType.Mot, m.Due, ""))
                 .ToList();

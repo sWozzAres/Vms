@@ -1,4 +1,4 @@
-﻿@inject ServerApiHttpClient Http
+﻿@inject ServiceBookingApiClient Api
 @inject NavigationManager NavigationManager
 @inject ILogger<WorkList> Logger;
 
@@ -61,7 +61,7 @@
     {
         if (serviceBookings is null && IsActive)
         {
-            serviceBookings = await Http.GetServiceBookingsForVehicleFullAsync(Id);
+            serviceBookings = await Api.GetServiceBookingsForVehicleFullAsync(Id);
             StateHasChanged();
         }
     }

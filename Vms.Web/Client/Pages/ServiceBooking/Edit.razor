@@ -1,4 +1,5 @@
-﻿@inject ServerApiHttpClient Api
+﻿@inject ServiceBookingApiClient Api
+@inject ServerApiHttpClient Http
 @inject NavigationManager NavigationManager
 
 @if (loadingException is not null)
@@ -83,7 +84,7 @@ else
         serviceLevelOptions = UIOptions.GetServiceLevelOptions();
         try
         {
-            var users = await Api.GetUsersForCompany(ServiceBooking.CompanyCode);
+            var users = await Http.GetUsersForCompany(ServiceBooking.CompanyCode);
             userOptions = UIOptions.BuildUserOptions(users);
 
             isLoaded = true;
