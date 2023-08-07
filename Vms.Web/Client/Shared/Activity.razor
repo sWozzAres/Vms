@@ -8,16 +8,9 @@
     }
     else
     {
-        @* <h1>Activity Log</h1> *@
-        <EditForm Model="noteModel" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <InputTextArea @bind-Value="noteModel.Note" rows="5" placeholder="Enter note..." />
-            <ValidationMessage For="@(() => noteModel.Note)" />
-            <div class="buttons">
-                <button type="submit" disabled="@buttonsDisabled">Add Note</button>
-                <button type="button" disabled="@buttonsDisabled" @onclick="Refresh">Refresh</button>
-            </div>
-        </EditForm>
+        <div class="buttons">
+            <button type="button" disabled="@buttonsDisabled" @onclick="Refresh">Refresh</button>
+        </div>
 
         @if (entries is not null)
         {
@@ -40,18 +33,18 @@
 
     [Parameter, EditorRequired] public Guid Id { get; set; }
     public delegate Task<List<ActivityLogDto>?> LoadActivities(Guid id);
-    public delegate Task<PostResponse> AddNote(Guid id, string note);
+    //public delegate Task<PostResponse> AddNote(Guid id, string note);
     [Parameter, EditorRequired] public LoadActivities OnLoadActivities { get; set; } = null!;
-    [Parameter, EditorRequired] public AddNote OnAddNote { get; set; } = null!;
+    //[Parameter, EditorRequired] public AddNote OnAddNote { get; set; } = null!;
 
     bool IsActive => TabControl.ActivePage == TabPage;
     List<ActivityLogDto> entries = new();
-    NoteModel noteModel = new();
+    //NoteModel noteModel = new();
     bool buttonsDisabled => isWaitingForApi;
     bool isWaitingForApi;
     bool loaded;
     Exception? loadingException;
-
+   
     async Task Refresh()
     {
         loadingException = null;
@@ -71,32 +64,32 @@
         }
     }
 
-    public async Task HandleValidSubmit()
-    {
-        isWaitingForApi = true;
-        try
-        {
-            var response = await OnAddNote(Id, noteModel.Note);
-            if (response is PostResponse.Created)
-            {
-                var result = await response.Response.Content.ReadFromJsonAsync<ActivityLogDto>()
-                    ?? throw new InvalidOperationException("Failed to read response.");
+    // public async Task HandleValidSubmit()
+    // {
+    //     isWaitingForApi = true;
+    //     try
+    //     {
+    //         var response = await OnAddNote(Id, noteModel.Note);
+    //         if (response is PostResponse.Created)
+    //         {
+    //             var result = await response.Response.Content.ReadFromJsonAsync<ActivityLogDto>()
+    //                 ?? throw new InvalidOperationException("Failed to read response.");
 
-                entries.Add(result);
-                noteModel.Note = string.Empty;
-            }
-        }
-        finally
-        {
-            isWaitingForApi = false;
-        }
-    }
+    //             entries.Add(result);
+    //             noteModel.Note = string.Empty;
+    //         }
+    //     }
+    //     finally
+    //     {
+    //         isWaitingForApi = false;
+    //     }
+    // }
 
     protected override void OnInitialized()
     {
         if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
         ArgumentNullException.ThrowIfNull(OnLoadActivities);
-        ArgumentNullException.ThrowIfNull(OnAddNote);
+        //ArgumentNullException.ThrowIfNull(OnAddNote);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -109,9 +102,9 @@
     }
 
 
-    class NoteModel
-    {
-        [Required, StringLength(1024)]
-        public string Note { get; set; } = string.Empty;
-    }
+    // class NoteModel
+    // {
+    //     [Required, StringLength(1024)]
+    //     public string Note { get; set; } = string.Empty;
+    // }
 }

@@ -21,6 +21,7 @@ else
             @if (serviceBooking is not null)
             {
                 <FollowButton Id="serviceBooking.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="serviceBooking.IsFollowing" />
+                <button @onclick="() => addingNote = true">Add Note</button>
                 <MenuButton Items="@taskNames" Align="MenuButton.Alignment.Right" OnSelectCallback="StartTask">
                     Task
                 </MenuButton>
@@ -67,7 +68,7 @@ else
                             <Events ServiceBooking="serviceBooking" />
                         </TabPage>
                         <TabPage Text="Activity">
-                            <Activity Id="serviceBooking.Id" OnLoadActivities="Api.GetActivity" OnAddNote="Api.AddNote" />
+                            <Activity Id="serviceBooking.Id" OnLoadActivities="Api.GetActivity" />
                         </TabPage>
                     </TabControl>
                     <div class="task-container">
@@ -80,7 +81,13 @@ else
             }
         </ChildContent>
     </ViewTemplate>
+
+    @if (serviceBooking is not null && addingNote)
+    {
+        <AddNoteDialog OnClose="() => addingNote = false" Id="@serviceBooking.Id.ToString()" OnAddNote="Api.AddNote" />
+    }
 }
+
 
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
@@ -103,8 +110,8 @@ else
         { "Chase Driver" , typeof(TaskChaseDriver) },
         { "Rebook Driver" , typeof(TaskRebookDriver) },
     };
-
     string[] taskNames = null!;
+    bool addingNote;
 
     async Task TaskCompleted(bool saved)
     {

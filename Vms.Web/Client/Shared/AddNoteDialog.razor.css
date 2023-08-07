@@ -1,0 +1,10 @@
+::deep textarea {
+    width: 100%;
+}
+
+::deep .preview {
+    min-height: 10em;
+    background: #ffffff;
+    padding: 1em;
+    border: 1px solid var(--border-color);
+}

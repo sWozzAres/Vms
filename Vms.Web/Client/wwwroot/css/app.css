@@ -7,6 +7,7 @@
   --table-header-color: #42444c;
   --form-legend-background-color: #f3f2f2;
   --page-header-background-color: #f7f9fb;
+  --dialog-footer-background-color: #f7f9fb;
   --tabs-highlight: rgb(0 132 255);
   --outline-size: 5px;
   --bg-light: #ffffff;
@@ -624,22 +625,31 @@ form.fullresponse fieldset.form-grid {
     }
 }
 */
+dialog {
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: #fafafa;
+}
+dialog .dialog-header {
+  border-bottom: 2px solid var(--border-color);
+}
+dialog .dialog-container .dialog-header {
+  background: #ffffff;
+}
+dialog .dialog-container .dialog-header h1 {
+  margin: 0;
+}
+dialog .dialog-footer {
+  border-top: 2px solid var(--border-color);
+  background-color: var(--dialog-footer-background-color);
+}
+
 dialog.create-dialog {
   /*max-inline-size: 60ch;*/
   /*width: clamp(40ch, 70ch, 70ch);*/
   min-block-size: min(70ch, 90vh);
   width: calc(100% - 2em);
   max-width: calc(1024px - 2em);
-  background: #fafafa;
-}
-dialog.create-dialog .dialog-container .dialog-header {
-  background: #ffffff;
-}
-dialog.create-dialog .dialog-container .dialog-header h1 {
-  margin: 0;
-}
-dialog.create-dialog .dialog-container .dialog-footer {
-  background: #f2f3f8;
 }
 
 @media (min-width: 1024px) {
@@ -670,9 +680,6 @@ dialog.list-selector .dialog-container .dialog-content .search-wrapper > input {
 dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector .dialog-container .dialog-content td {
   padding: 8px;
   cursor: pointer;
-}
-dialog.list-selector .dialog-container .dialog-footer {
-  background-color: #ffffff;
 }
 
 .task-form {

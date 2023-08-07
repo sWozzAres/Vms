@@ -1,6 +1,4 @@
 dialog {
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
     padding: 0;
 }
 
@@ -21,7 +19,6 @@ dialog {
 
 ::deep .dialog-header {
     padding: 1em;
-    border-bottom: 2px solid var(--border-color);
     margin-bottom: 1em;
     text-align: center;
     justify-content: center;
@@ -33,7 +30,7 @@ dialog {
 
 ::deep .dialog-footer {
     padding: 1em;
-    border-top: 2px solid var(--border-color);
+    
     margin-top: 1em;
 }
 
@@ -64,4 +61,5 @@ dialog.scroll-content {
     overflow-y: auto;
     max-block-size: 100%; /* safari */
     overscroll-behavior-y: contain;
+    height: 100%;
 }

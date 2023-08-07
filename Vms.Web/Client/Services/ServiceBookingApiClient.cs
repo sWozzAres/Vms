@@ -26,7 +26,7 @@ public class ServiceBookingApiClient(HttpClient http)
         var response = await http.DeleteAsync($"/api/servicebooking/{id}/follow");
         return response.IsSuccessStatusCode;
     }
-    public async Task<PostResponse> AddNote(Guid id, string note)
+    public async Task<PostResponse> AddNote(string id, string note)
     {
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/activity", new AddNoteDto(note)));
