@@ -249,7 +249,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
         var distances = await supplierLocator.GetSuppliers(serviceBooking, cancellationToken);
 
-        var suppliers = distances.Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Distance));
+        var suppliers = distances.Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Distance, s.RefusalCode, s.RefusalName));
 
         //var vehicle = await _context.Vehicles.FindAsync(serviceBooking.VehicleId, cancellationToken);
         //if (vehicle is null)
