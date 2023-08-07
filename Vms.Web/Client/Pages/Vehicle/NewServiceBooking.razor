@@ -26,12 +26,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (openEvents is not null)
+                            @if (vehicleEvents is not null)
                             {
-                                for (int index = 0; index < openEvents.Count(); index++)
+                                for (int index = 0; index < vehicleEvents.Count(); index++)
                                 {
                                     var idx = index;
-                                    var item = openEvents.ElementAt(index);
+                                    var item = vehicleEvents.ElementAt(index);
                                     <tr @onclick="() => SelectItem(idx)">
                                         <td><input checked="@isSelected(idx)" type="checkbox" /></td>
                                         <td>@item.TypeString</td>
@@ -84,17 +84,17 @@
     bool formIsDisabled;
     string? okErrorMessage;
     Exception? loadException;
-    bool isOkButtonDisabled => openEvents is null ? true : !openEvents.Any(e => e.Selected);
-    List<EventSelect>? openEvents;
+    bool isOkButtonDisabled => vehicleEvents is null ? true : !vehicleEvents.Any(e => e.Selected);
+    List<EventSelect>? vehicleEvents;
     List<SelectOption<Vms.Web.Shared.ServiceLevelDto>> serviceLevelOptions = null!;
 
     void SelectItem(int index)
     {
-        var element = openEvents!.ElementAt(index);
+        var element = vehicleEvents!.ElementAt(index);
         element.Selected = !element.Selected;
     }
 
-    bool isSelected(int index) => openEvents!.ElementAt(index).Selected;
+    bool isSelected(int index) => vehicleEvents!.ElementAt(index).Selected;
 
     async Task CloseDialog() => await OnClose.InvokeAsync();
     async Task OkDialog()
@@ -102,7 +102,7 @@
         formIsDisabled = true;
         try
         {
-            var motId = openEvents!.FirstOrDefault(e => e.Type == EventSelectType.Mot && e.Selected)?.Id;
+            var motId = vehicleEvents!.FirstOrDefault(e => e.Type == EventSelectType.Mot && e.Selected)?.Id;
 
             var request = new CreateServiceBookingCommand(Id,
                 null,
@@ -153,12 +153,12 @@
     async Task LoadEvents()
     {
         loadException = null;
-        openEvents = null;
+        vehicleEvents = null;
         try
         {
-            var events = await Http.GetOpenEvents(Id);
+            var events = await Http.GetEvents(Id);
 
-            openEvents = events.Mots.Select(m => new EventSelect(m.Id, EventSelectType.Mot, m.Due, ""))
+            vehicleEvents = events.Mots.Select(m => new EventSelect(m.Id, EventSelectType.Mot, m.Due, ""))
                 .ToList();
 
             // openEvents = new();

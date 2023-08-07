@@ -493,7 +493,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
 public record ServiceBookingFull(Guid Id, Guid VehicleId, string CompanyCode, string Vrm, string Make, string Model,
         DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3, ServiceBookingDtoStatus Status,
-        Domain.Entity.ServiceBookingEntity.ServiceLevel ServiceLevel, Supplier? Supplier, MotEvent? MotEvent, Follower? Follower);
+        Domain.Entity.ServiceBookingEntity.ServiceLevel ServiceLevel, Supplier? Supplier, Domain.Entity.ServiceBookingEntity.MotEvent? MotEvent, Follower? Follower);
 
 public static partial class DomainExtensions
 {
@@ -510,7 +510,7 @@ public static partial class DomainExtensions
         };
     }
 
-    public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new(motEvent.Id, motEvent.Due);
+    public static MotEventShortDto ToShortDto(this Domain.Entity.ServiceBookingEntity.MotEvent motEvent) => new(motEvent.Id, motEvent.Due);
 
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);

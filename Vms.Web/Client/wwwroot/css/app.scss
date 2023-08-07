@@ -15,9 +15,38 @@
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.user-dropdown-button {
+    .panel {
+        border: 1px solid var(--border-color);
+        background: #ffffff;
+        border-radius: var(--border-radius);
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                margin: 0.5em;
+
+                a {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5em;
+                    white-space: nowrap;
+                }
+            }
+        }
+
+        hr {
+            margin: 1em 0 1em 0;
+        }
+    }
+}
+
 .tile-container {
     display: grid;
-    grid-auto-columns:auto;
+    grid-auto-columns: auto;
     grid-auto-rows: auto;
     gap: 1em;
 }
@@ -26,6 +55,7 @@
     max-width: 20ch;
     padding: 1em;
 }
+
 .tile-container .tile .title {
     color: white;
     display: flex;
@@ -44,7 +74,10 @@
     place-content: center;
     background: #ffffff;
 
-    p {color:red;}
+    p {
+        color: red;
+    }
+
     .content {
         display: flex;
         flex-direction: column;
@@ -60,7 +93,9 @@
     visibility: hidden;
 }
 
-.w100 { width: 100%; }
+.w100 {
+    width: 100%;
+}
 
 a {
     color: var(--a-normal-text);
@@ -97,10 +132,12 @@ a {
     box-shadow: 0 0 0 var(--outline-size) rgba(13,110,253,.25);
     /*z-index: 100 !important;*/
 }
+
 h1:focus {
     outline: none;
-    box-shadow:none;
+    box-shadow: none;
 }
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -162,9 +199,6 @@ h1:focus {
 .loading-progress-text:after {
     content: var(--blazor-load-percentage-text, "Loading");
 }
-
-
-
 /*main > section {
     background-color: var(--section-bg);
     padding: 1em;
@@ -174,7 +208,6 @@ h1:focus {
     flex-direction: column;
     flex-grow: 1;
 }*/
-
 /*.view-card {
     padding: 0;
     margin: 0;
@@ -293,11 +326,10 @@ h1:focus {
         height: 1.5em;
     }
 
-    svg.down 
-    {
+    svg.down {
         display: none;
     }
-    
+
     button {
         margin: 0;
         padding: 6px;

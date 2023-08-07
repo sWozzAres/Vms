@@ -716,6 +716,29 @@ dialog.list-selector .dialog-container .dialog-footer {
   margin-top: 1em;
 }
 
+.user-dropdown-button .panel {
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border-radius: var(--border-radius);
+}
+.user-dropdown-button .panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.user-dropdown-button .panel ul li {
+  margin: 0.5em;
+}
+.user-dropdown-button .panel ul li a {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  white-space: nowrap;
+}
+.user-dropdown-button .panel hr {
+  margin: 1em 0 1em 0;
+}
+
 .tile-container {
   display: grid;
   grid-auto-columns: auto;

@@ -31,14 +31,19 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
         public async Task<bool> AutoAssign(CancellationToken cancellationToken)
         {
             var list = await ctx.SupplierLocator.GetSuppliers(self, cancellationToken);
-            if (!list.Any())
+
+            // only include suppliers that have not previously refused this booking
+            // TODO optimize by adding this to a parameter to .GetSuppliers()
+            var notPreviouslyRefused = list.Where(s => s.RefusalCode is null);
+
+            if (!notPreviouslyRefused.Any())
             {
                 return false;
             }
 
-            //self.SupplierCode = list.First().Code;
             await new AssignSupplierUseCase(ctx.DbContext, ctx.ActivityLog, ctx.TaskLogger)
-                .AssignAsync(self.Id, new TaskAssignSupplierCommand() { SupplierCode = list.First().Code }, cancellationToken);
+                .AssignAsync(self.Id, new TaskAssignSupplierCommand() { SupplierCode = notPreviouslyRefused.First().Code }, cancellationToken);
+            
             return true;
         }
     }

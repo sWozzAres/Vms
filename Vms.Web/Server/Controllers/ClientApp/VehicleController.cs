@@ -24,15 +24,17 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpGet]
-    [Route("{id}/openevents")]
-    public async Task<IActionResult> GetOpenEvents(Guid id, CancellationToken cancellationToken)
+    [Route("{id}/events/{serviceBookingId?}")]
+    public async Task<IActionResult> GetEvents(Guid id, 
+        Guid? serviceBookingId,
+        CancellationToken cancellationToken)
     {
         var motEvents = await _context.MotEvents
-            .Where(e => e.VehicleId == id && e.ServiceBookingId == null)
-            .Select(e => new OpenMotEvent(e.Id, e.Due))
+            .Where(e => e.VehicleId == id && e.ServiceBookingId == serviceBookingId)
+            .Select(e => new MotEvent(e.Id, e.Due))
             .ToListAsync(cancellationToken);
 
-        return Ok(new OpenEvents(motEvents));
+        return Ok(new VehicleEvents(motEvents));
     }
 
     //[HttpGet]

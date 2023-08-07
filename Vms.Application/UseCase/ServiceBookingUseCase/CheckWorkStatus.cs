@@ -65,7 +65,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
                     ? ctx.Command.CompletionDate!.Value
                     : motEvent.Due).AddYears(1);
 
-                var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
+                var nextMotEvent = new Domain.Entity.ServiceBookingEntity.MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
                 ctx.DbContext.MotEvents.Add(nextMotEvent);
             }
 

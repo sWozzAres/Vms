@@ -2,8 +2,8 @@
 
 namespace Vms.Web.Shared;
 public record MotEventShortDto(Guid Id, DateOnly Due);
-public record OpenEvents(List<OpenMotEvent> Mots);
-public record OpenMotEvent(Guid Id, DateOnly Due);
+public record VehicleEvents(List<MotEvent> Mots);
+public record MotEvent(Guid Id, DateOnly Due);
 
 public record AssignCustomerToVehicleCommand(string CustomerCode);
 public record AssignFleetToVehicleCommand(string FleetCode);

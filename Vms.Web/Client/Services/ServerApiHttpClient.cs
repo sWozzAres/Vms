@@ -149,10 +149,13 @@ public class ServerApiHttpClient(HttpClient http)
         http.DefaultRequestHeaders.Accept.Clear();
         return PostResponse.Create(await http.PostAsJsonAsync($"/api/vehicle/{id}/edit", request));
     }
-    public async Task<OpenEvents> GetOpenEvents(Guid id)
+    public async Task<VehicleEvents> GetEvents(Guid id, Guid? serviceBookingId = null)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<OpenEvents>($"/api/vehicle/{id}/openevents")
+        string url = $"/api/vehicle/{id}/events";
+        if (serviceBookingId is not null)
+            url += $"/{serviceBookingId}";
+        return await http.GetFromJsonAsync<VehicleEvents>(url)
             ?? throw new InvalidOperationException("Failed to load open events.");
     }
     public async Task<VehicleFullDto> GetVehicleFullAsync(Guid id)

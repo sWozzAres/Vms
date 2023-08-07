@@ -11,8 +11,18 @@
         /*flex-grow: 1;*/
     }
 
-    .taskview .menu-button-actions {
-    }
+.previous-task, .next-task {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+.previous-task {
+
+}
+
+.next-task {
+    margin-left: auto;
+}
 
 .btn-prev-task {
     background: #1f78cf;
