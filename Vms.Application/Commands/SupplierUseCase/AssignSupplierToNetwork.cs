@@ -17,7 +17,7 @@ public class AssignSupplierToNetwork(VmsDbContext dbContext) : IAssignSupplierTo
         Supplier = new(await DbContext.Suppliers.FindAsync(new object[] { code }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load supplier."), this);
 
-        var assigned = await Supplier.AssignAsync(companyCode, networkCode);
+        await Supplier.AssignAsync(companyCode, networkCode);
 
         // TODO log activity etc
     }
@@ -26,8 +26,8 @@ public class AssignSupplierToNetwork(VmsDbContext dbContext) : IAssignSupplierTo
     {
         public async Task<bool> AssignAsync(string companyCode, string networkCode)
         {
-            //var ns = await ctx.DbContext.NetworkSuppliers.FindAsync(new object[] { companyCode, networkCode, self.Code }, ctx.CancellationToken);
-            //if (ns is null) 
+            var ns = await ctx.DbContext.NetworkSuppliers.FindAsync(new object[] { companyCode, networkCode, self.Code }, ctx.CancellationToken);
+            if (ns is null) 
             {
                 ctx.DbContext.NetworkSuppliers.Add(new NetworkSupplier(self.Code, companyCode, networkCode));
                 return true;

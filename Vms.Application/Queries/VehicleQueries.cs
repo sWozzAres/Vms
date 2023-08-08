@@ -44,6 +44,7 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
     public async Task<VehicleFullDto?> GetVehicleFull(Guid id,
         CancellationToken cancellationToken)
     {
+#pragma warning disable IDE0031 // Use null propagation
         var query = from v in context.Vehicles.AsNoTracking()
                         .Include(v => v.C)
                         .Include(v => v.Fleet)
@@ -80,6 +81,7 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
                         Drivers = v.DriverVehicles.Select(x => x.Driver),
                         IsFollowing = f.UserId != default
                     };
+#pragma warning restore IDE0031 // Use null propagation
 
         var vehicle = await query.SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
         if (vehicle is null)
