@@ -353,7 +353,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
     [HttpGet]
     [Route("{id}/suppliers")]
-    public async Task<IActionResult> GetSuppliers(Guid id,
+    public async Task<IActionResult> GetSuppliers(Guid id, string? filter,
         [FromServices] ISupplierLocator supplierLocator,
         CancellationToken cancellationToken)
     {
@@ -363,7 +363,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return NotFound();
         }
 
-        var distances = await supplierLocator.GetSuppliers(serviceBooking, cancellationToken);
+        var distances = await supplierLocator.GetSuppliers(serviceBooking, filter, cancellationToken);
         return Ok(distances.Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Distance, s.RefusalCode, s.RefusalName)));
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Globalization;
+using System.Net.Http.Json;
 using Vms.Web.Client.Common.Extensions;
 using Vms.Web.Shared;
 
@@ -97,10 +98,10 @@ public class ServiceBookingApiClient(HttpClient http)
     //    http.DefaultRequestHeaders.Accept.Clear();
     //    return PostResponse.Create(await http.PostAsJsonAsync($"/api/servicebooking/{id}/unbooksupplier", request));
     //}
-    public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id)
+    public async Task<List<SupplierLocatorDto>?> GetSuppliersForServiceBookingShortAsync(Guid id, string filter)
     {
         http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.short");
-        return await http.GetFromJsonAsync<List<SupplierLocatorDto>>($"/api/servicebooking/{id}/suppliers");
+        return await http.GetFromJsonAsync<List<SupplierLocatorDto>>($"/api/servicebooking/{id}/suppliers?filter={filter}");
     }
     public async Task<ServiceBookingFullDto> GetServiceBookingFullAsync(Guid id)
     {

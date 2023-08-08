@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Vms.Application.Commands;
+using Vms.Application.Commands.SupplierUseCase;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Services;
 using Vms.Domain.Common;
@@ -240,7 +241,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
-                    new Address("", "", "", "", new Point(51.73021720095717, -2.204244578769126) { SRID = 4326 }),
+                    new Address("", "", "", "", new Point(-2.3554702709792426, 51.69082531225236) { SRID = 4326 }),
                     null, null));
 
             var driver = await new CreateDriver(_context, _searchManager)
@@ -372,6 +373,25 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     new Address("", "", "", "", RandomPoint()),
                     true));
         }
+
+        // assign suppliers to networks
+        //var allSuppliers = _context.ChangeTracker.Entries<Supplier>().Select(x => x.Entity).ToList();
+        //var allNetworks = _context.ChangeTracker.Entries<Network>().Select(x => x.Entity).ToList();
+
+        //foreach(var network in allNetworks)
+        //{
+        //    var idx = rnd.Next(0, 5);
+        //    while (idx < allSuppliers.Count)
+        //    {
+        //        var supplier = allSuppliers.ElementAt(idx);
+
+        //        await new AssignSupplierToNetwork(_context)
+        //            .AssignAsync(supplier.Code, network.CompanyCode, network.Code);
+
+        //        idx += rnd.Next(1, 5);
+        //    }
+        //}
+        
 
         await Task.CompletedTask;
     }

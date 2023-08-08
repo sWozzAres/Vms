@@ -54,7 +54,7 @@
 
 @code {
     [Parameter, EditorRequired]public Guid Id { get; set; }
-    public delegate Task<List<TItem>?> GetItems(Guid id);
+    public delegate Task<List<TItem>?> GetItems(Guid id, string filter);
     [Parameter, EditorRequired] public GetItems OnGetItems { get; set; } = null!;
 
     [Parameter, EditorRequired] public EventCallback<TItem> OnSelected { get; set; }
@@ -104,7 +104,7 @@
         formIsDisabled = true;
         try
         {
-            items = await OnGetItems(Id) ?? Enumerable.Empty<TItem>().ToList();
+            items = await OnGetItems(Id, searchValue) ?? Enumerable.Empty<TItem>().ToList();
             selectedIndex = -1;
             findErrorMessage = null;
         }

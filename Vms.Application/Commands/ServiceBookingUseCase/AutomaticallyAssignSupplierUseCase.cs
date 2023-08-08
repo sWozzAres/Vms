@@ -28,7 +28,7 @@ public class AutomaticallyAssignSupplierUseCase(VmsDbContext dbContext, ISupplie
     {
         public async Task<bool> AutoAssign(CancellationToken cancellationToken)
         {
-            var list = await ctx.SupplierLocator.GetSuppliers(self, cancellationToken);
+            var list = await ctx.SupplierLocator.GetSuppliers(self, null, cancellationToken);
 
             // only include suppliers that have not previously refused this booking
             // TODO optimize by adding this to a parameter to .GetSuppliers()

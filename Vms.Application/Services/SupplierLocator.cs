@@ -4,33 +4,35 @@ namespace Vms.Application.Services;
 
 public interface ISupplierLocator
 {
-    Task<IEnumerable<(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName)>> GetSuppliers(ServiceBooking serviceBooking, CancellationToken cancellationToken);
+    Task<IEnumerable<(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName)>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken);
 }
 
 public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
 {
-    public async Task<IEnumerable<(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName)>> GetSuppliers(ServiceBooking serviceBooking, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName)>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken = default)
     {
         var vehicle = await dbContext.Vehicles.FindAsync(new object[] { serviceBooking.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found.");
 
-        var result = await GetSupplierDistances(vehicle, serviceBooking.Id, cancellationToken);
+        var result = await GetSupplierDistances(vehicle, serviceBooking.Id, filter, cancellationToken);
 
         return result.Select(x => (x.Code, x.Name, x.Distance, x.RefusalCode, x.RefusalName));
     }
 
-    async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, Guid serviceBookingId, CancellationToken cancellationToken)
+    async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, Guid serviceBookingId, string? filter, CancellationToken cancellationToken)
     {
         var customerList = vehicle.CustomerCode is null
             ? Enumerable.Empty<SupplierDistance>().ToList()
             : await SuppliersOnCustomerNetwork(vehicle.Address.Location,
             serviceBookingId,
+            filter,
             (vehicle.CompanyCode, vehicle.CustomerCode)).ToListAsync(cancellationToken);
 
         var fleetList = vehicle.FleetCode is null
             ? Enumerable.Empty<SupplierDistance>().ToList()
             : await SuppliersOnFleetNetwork(vehicle.Address.Location,
             serviceBookingId,
+            filter,
             (vehicle.CompanyCode, vehicle.FleetCode)).ToListAsync(cancellationToken);
 
         //const double MetresInMile = 1609.344d;
@@ -47,6 +49,7 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
 
     private IQueryable<SupplierDistance> SuppliersOnCustomerNetwork(Geometry location,
         Guid serviceBookingId,
+        string? filter,
         (string CompanyCode, string CustomerCode) customer)
         => from s in dbContext.Suppliers
            join ns in dbContext.NetworkSuppliers on s.Code equals ns.SupplierCode
@@ -57,13 +60,14 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
            on s.Code equals _sr.SupplierCode into __sr
            from sr in __sr.Take(1).DefaultIfEmpty()
 
-           where cs.CompanyCode == customer.CompanyCode && cs.CustomerCode == customer.CustomerCode
+           where (cs.CompanyCode == customer.CompanyCode && cs.CustomerCode == customer.CustomerCode) && (filter == null || s.Name.StartsWith(filter))
            //&& s.Address.Location.Distance(serviceBooking.VehicleLocation) < 50
            orderby s.Address.Location.Distance(location)
            select new SupplierDistance(s.Code, s.Name, s.Address.Location.Distance(location), sr.Code, sr.Name);
 
     private IQueryable<SupplierDistance> SuppliersOnFleetNetwork(Geometry location,
         Guid serviceBookingId,
+        string? filter,
         (string CompanyCode, string FleetCode) fleet)
         => from s in dbContext.Suppliers
            join ns in dbContext.NetworkSuppliers on s.Code equals ns.SupplierCode
@@ -74,7 +78,7 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
            on s.Code equals _sr.SupplierCode into __sr
            from sr in __sr.Take(1).DefaultIfEmpty()
 
-           where fs.CompanyCode == fleet.CompanyCode && fs.FleetCode == fleet.FleetCode
+           where (fs.CompanyCode == fleet.CompanyCode && fs.FleetCode == fleet.FleetCode) && (filter == null || s.Name.StartsWith(filter))
            //&& s.Address.Location.Distance(serviceBooking.VehicleLocation) < 50
            orderby s.Address.Location.Distance(location)
            select new SupplierDistance(s.Code, s.Name, s.Address.Location.Distance(location), sr.Code, sr.Name);
