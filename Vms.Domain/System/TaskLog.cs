@@ -1,12 +1,13 @@
 ﻿namespace Vms.Domain.System
 {
-    public class TaskLog
+    public class TaskLog(Guid documentId, string taskName, string log, DateTimeOffset entryDate, string userId)
     {
-        public long Id { get; set; }
-        public Guid DocumentId { get; set; }
-        public string TaskName { get; set; } = null!;
-        public string Log { get; set; } = null!;
-        public DateTimeOffset EntryDate { get; set; }
+        public long Id { get; private set; }
+        public Guid DocumentId { get; set; } = documentId;
+        public string TaskName { get; set; } = taskName;
+        public string Log { get; set; } = log;
+        public DateTimeOffset EntryDate { get; set; } = entryDate;
+        public string UserId { get; set; } = userId;
     }
 }
 
@@ -29,6 +30,10 @@ namespace Vms.Domain.System.Configuration
             entity.Property(e => e.Log)
                 .HasMaxLength(4000)
                 .IsUnicode();
+
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId);
         }
     }
 }

@@ -25,6 +25,9 @@ namespace Vms.Domain.System.Configuration
 
             entity.Property(t => t.Text).HasMaxLength(1024).IsRequired();
             //entity.Property(t => t.CompanyCode).HasMaxLength(Company.Code_MaxLength);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId);
         }
     }
 }

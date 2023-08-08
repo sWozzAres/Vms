@@ -7,17 +7,11 @@ public interface ITaskLogger
     void Log<T>(Guid id, string taskName, T task);
 }
 
-public class TaskLogger(VmsDbContext dbContext) : ITaskLogger
+public class TaskLogger(VmsDbContext dbContext, IUserProvider userProvider) : ITaskLogger
 {
     public void Log<T>(Guid id, string taskName, T task)
     {
-        var taskLog = new TaskLog()
-        {
-            DocumentId = id,
-            TaskName = taskName,
-            Log = JsonSerializer.Serialize(task),
-            EntryDate = DateTime.Now,
-        };
+        var taskLog = new TaskLog(id, taskName, JsonSerializer.Serialize(task), DateTime.Now, userProvider.UserId);
         dbContext.TaskLogs.Add(taskLog);
     }
 }

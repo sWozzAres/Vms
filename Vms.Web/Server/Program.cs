@@ -53,6 +53,7 @@ builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<ISearchManager, SearchManager>();
+builder.Services.AddScoped<IRecentViewLogger, RecentViewLogger>();
 
 builder.Services.AddScoped<IVehicleQueries, VehicleQueries>();
 builder.Services.AddScoped<IFollowVehicle, FollowVehicle>();
@@ -89,11 +90,12 @@ builder.Services.AddDbContext<VmsDbContext>(options =>
         sqlOptions.EnableRetryOnFailure();
     });
 
-}, ServiceLifetime.Scoped);
+});
 
 builder.Services.AddApplicationSecurity();
 
-builder.Services.AddHostedService<AutomaticallyUnlockTasks>();
+builder.Services.AddHostedService<UnlockTaskBackgroundService>();
+builder.Services.AddHostedService<RemoveRecentViewsBackgroundService>();
 
 //builder.Services.AddControllersWithViews()
 //    .ConfigureApiBehaviorOptions(options =>

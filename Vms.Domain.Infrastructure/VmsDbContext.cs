@@ -42,6 +42,7 @@ public class VmsDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Login> Logins => Set<Login>();
     public DbSet<EntityTag> EntityTags => Set<EntityTag>();
+    public DbSet<RecentView> RecentViews => Set<RecentView>();
 
     protected readonly IUserProvider _userProvider;
     readonly ILogger<VmsDbContext> _logger;

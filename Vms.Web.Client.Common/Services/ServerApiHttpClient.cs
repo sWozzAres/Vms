@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Vms.Web.Client.Common.Extensions;
 using Vms.Web.Shared;
 
@@ -9,7 +8,7 @@ public class ServerApiHttpClient(HttpClient http)
 {
     readonly HttpClient http = http;
 
-    
+
     #region App
     public async Task<PostResponse> RegisterLogin()
     {
@@ -127,8 +126,8 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<DriverShortDto>($"/api/driver/{id}");
     }
     #endregion
-   
-    
+
+
     #region /api/vehiclemake
     public async Task<List<VehicleMakeShortListModel>> GetMakesShortAsync()
     {

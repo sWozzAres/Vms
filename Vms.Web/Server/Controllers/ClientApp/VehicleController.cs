@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Utopia.Blazor.Application.Shared;
-using Vms.Application.Commands.ServiceBookingUseCase;
 using Vms.Application;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Queries;
+using Vms.Application.Services;
 using Vms.Domain.Common;
-using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -21,9 +20,6 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Produces("application/json")]
 public class VehicleController(ILogger<VehicleController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<VehicleController> _logger = logger;
-    readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
-
     #region Follow
     [HttpPost]
     [Route("{id}/follow")]
@@ -32,7 +28,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         CancellationToken cancellationToken)
     {
         await follow.FollowAsync(id, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -45,7 +41,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         if (!await unfollow.UnfollowAsync(id, cancellationToken))
             return NotFound();
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
     #endregion
@@ -55,7 +51,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         Guid? serviceBookingId,
         CancellationToken cancellationToken)
     {
-        var motEvents = await _context.MotEvents
+        var motEvents = await context.MotEvents
             .Where(e => e.VehicleId == id && e.ServiceBookingId == serviceBookingId)
             .Select(e => new MotEventDto(e.Id, e.Due))
             .ToListAsync(cancellationToken);
@@ -86,7 +82,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     public async Task<IActionResult> GetVehicle(Guid id,
         CancellationToken cancellationToken)
     {
-        var vehicle = await _context.Vehicles.AsNoTracking()
+        var vehicle = await context.Vehicles.AsNoTracking()
                 .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return vehicle is null ? NotFound() : Ok(vehicle.ToDto());
@@ -98,12 +94,20 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicleFull(Guid id,
-        [FromServices]IVehicleQueries queries,
+        [FromServices] IVehicleQueries queries,
+        [FromServices] IRecentViewLogger recentViewLogger,
         CancellationToken cancellationToken)
     {
         var vehicle = await queries.GetVehicleFull(id, cancellationToken);
+        if (vehicle is null)
+        {
+            return NotFound();
+        }
 
-        return vehicle is null ? NotFound() : Ok(vehicle);
+        await recentViewLogger.LogAsync(vehicle.Id);
+        await context.SaveChangesAsync(cancellationToken);
+        
+        return Ok(vehicle);
     }
 
     [HttpGet]
@@ -124,9 +128,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         Guid id, Guid driverId,
         CancellationToken cancellationToken)
     {
-        var r = await new RemoveDriverFromVehicle(_context).RemoveAsync(id, driverId, cancellationToken);
+        var r = await new RemoveDriverFromVehicle(context).RemoveAsync(id, driverId, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return r ? Accepted()
             : NotFound();
@@ -140,9 +144,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         [FromBody] AddDriverToVehicleCommand request,
         CancellationToken cancellationToken)
     {
-        await new AddDriverToVehicle(_context)
+        await new AddDriverToVehicle(context)
             .AddAsync(id, request, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -154,9 +158,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         [FromBody] AssignCustomerToVehicleCommand request,
         CancellationToken cancellationToken)
     {
-        await new AssignCustomerToVehicle(_context)
+        await new AssignCustomerToVehicle(context)
             .AssignAsync(id, request, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -167,9 +171,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         Guid id,
         CancellationToken cancellationToken)
     {
-        await new RemoveCustomerFromVehicle(_context)
+        await new RemoveCustomerFromVehicle(context)
             .RemoveAsync(id, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -181,9 +185,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         [FromBody] AssignFleetToVehicleCommand request,
         CancellationToken cancellationToken)
     {
-        await new AssignFleetToVehicle(_context)
+        await new AssignFleetToVehicle(context)
             .AssignAsync(id, request, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -194,9 +198,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         Guid id,
         CancellationToken cancellationToken)
     {
-        await new RemoveFleetFromVehicle(_context)
+        await new RemoveFleetFromVehicle(context)
             .RemoveAsync(id, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
 
@@ -221,7 +225,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         var vehicle = await createVehicle.CreateAsync(request, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle.ToDto());
     }
@@ -244,9 +248,9 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
             return BadRequest();
         }
 
-        _logger.LogInformation("Put vehicle, id {id}.", id);
+        logger.LogDebug("Put vehicle, id {id}.", id);
 
-        var vehicle = await _context.Vehicles
+        var vehicle = await context.Vehicles
             .Include(v => v.MotEvents.Where(e => e.IsCurrent))
             .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
         //.FindAsync(id, cancellationToken);
@@ -265,19 +269,19 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
             if (request.MotDue.HasValue)
                 mot.Due = request.MotDue.Value;
             else
-                _context.MotEvents.Remove(mot);
+                context.MotEvents.Remove(mot);
         }
         else
         {
             if (request.MotDue.HasValue)
                 //vehicle.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
-                _context.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
+                context.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
         }
 
         vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
             new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326 });
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return Ok(vehicle.ToDto());
 

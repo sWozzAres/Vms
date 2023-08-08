@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230808173343_Initial3")]
+    partial class Initial3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -849,9 +852,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("DocumentId", "UserId")
-                        .IsUnique();
 
                     b.ToTable("RecentViews", "System");
                 });

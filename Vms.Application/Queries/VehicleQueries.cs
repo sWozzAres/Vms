@@ -1,6 +1,4 @@
-﻿using Vms.Domain.Core;
-
-namespace Vms.Application.Queries;
+﻿namespace Vms.Application.Queries;
 
 public interface IVehicleQueries
 {
@@ -20,6 +18,13 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         {
             vehicles = from x in vehicles
                        join f in context.Followers on x.Id equals f.DocumentId
+                       where f.UserId == userProvider.UserId
+                       select x;
+        }
+        else if (list == VehicleListOptions.Recent)
+        {
+            vehicles = from x in vehicles
+                       join f in context.RecentViews on x.Id equals f.DocumentId
                        where f.UserId == userProvider.UserId
                        select x;
         }
@@ -85,8 +90,8 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         var dto = new VehicleFullDto(vehicle.CompanyCode, vehicle.Id, vehicle.Vrm, vehicle.Make, vehicle.Model,
             vehicle.ChassisNumber, vehicle.DateFirstRegistered, vehicle.MotDue,
             new(vehicle.Street, vehicle.Locality, vehicle.Town, vehicle.Postcode, new(vehicle.X, vehicle.Y)),
-            new(vehicle.Customer_CompanyCode, vehicle.Customer_Code, vehicle.Customer_Name),
-            new(vehicle.Fleet_CompanyCode, vehicle.Fleet_Code, vehicle.Fleet_Name),
+            vehicle.Customer_Code == null ? null : new(vehicle.Customer_CompanyCode, vehicle.Customer_Code, vehicle.Customer_Name),
+            vehicle.Fleet_Code == null ? null : new(vehicle.Fleet_CompanyCode, vehicle.Fleet_Code, vehicle.Fleet_Name),
             vehicle.Drivers.Select(d => d.ToShortDto()).ToList(),
             vehicle.IsFollowing);
 

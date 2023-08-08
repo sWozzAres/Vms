@@ -112,7 +112,7 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
             .Select(r => new RescheduleReasonDto(r.Code, r.Name))
             .ToListAsync(cancellationToken));
     #endregion
-    
+
     [HttpGet]
     [AcceptHeader("application/vnd.short")]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Vms.Web.Server.Services;
 
-public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<AutomaticallyUnlockTasks> logger,
+public class UnlockTaskBackgroundService(IConfiguration configuration, ILogger<UnlockTaskBackgroundService> logger,
     CurrentTime timeService) : BackgroundService
 {
     const int CheckTimeSeconds = 60;
@@ -13,11 +13,11 @@ public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<Auto
     {
         var options = GetOptions(configuration);
 
-        stoppingToken.Register(() => logger.LogDebug("AutomaticallyUnlockTasks background task is stopping."));
+        stoppingToken.Register(() => logger.LogDebug("UnlockTaskBackgroundService is stopping."));
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogDebug("AutomaticallyUnlockTasks background task is doing background work. Time is '{time}'.", timeService.GetTime());
+            logger.LogDebug("UnlockTaskBackgroundService is doing background work. Time is '{time}'.", timeService.GetTime());
 
             using var conn = new SqlConnection(options.VmsDbConnection);
             try
@@ -36,7 +36,7 @@ public class AutomaticallyUnlockTasks(IConfiguration configuration, ILogger<Auto
             await Task.Delay(CheckTimeSeconds * 1000, stoppingToken);
         }
 
-        logger.LogDebug("AutomaticallyUnlockTasks background task is stopping.");
+        logger.LogDebug("UnlockTaskBackgroundService is stopping.");
     }
 
     static ConnectionStringOptions GetOptions(IConfiguration configuration)

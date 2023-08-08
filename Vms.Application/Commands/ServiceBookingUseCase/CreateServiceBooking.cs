@@ -25,6 +25,10 @@ public class CreateServiceBooking(VmsDbContext dbContext,
         Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { command.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle not found."), this);
 
+        // remember task time, or the included use case (assign) will end up in the log
+        // before the creation of the booking 
+        var taskTime = DateTime.Now;
+
         SummaryText.AppendLine("# Create Service Booking");
 
         var serviceBooking = await Vehicle.CreateBooking(command, cancellationToken);
@@ -32,7 +36,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
         searchManager.Add(serviceBooking.CompanyCode, serviceBooking.Id.ToString(), EntityKind.ServiceBooking, serviceBooking.Ref,
             string.Join(" ", Vehicle.Vrm, serviceBooking.Ref));
 
-        await activityLog.AddAsync(serviceBooking.Id, SummaryText, cancellationToken);
+        await activityLog.AddAsync(serviceBooking.Id, SummaryText, taskTime, cancellationToken);
         taskLogger.Log(serviceBooking.Id, "Create Service Booking", command);
 
         return serviceBooking;
@@ -86,8 +90,6 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
                 }
             }
-
-            //TODO
 
             return booking;
         }

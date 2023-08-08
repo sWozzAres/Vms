@@ -34,6 +34,13 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
         {
             serviceBookings = serviceBookings.Where(s => s.RescheduleTime <= DateTime.Now);
         }
+        else if (list == ServiceBookingListOptions.Recent)
+        {
+            serviceBookings = from x in serviceBookings
+                              join f in context.RecentViews on x.Id equals f.DocumentId
+                              where f.UserId == userProvider.UserId
+                              select x;
+        }
 
         int totalCount = await serviceBookings.CountAsync(cancellationToken);
 

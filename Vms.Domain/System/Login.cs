@@ -4,7 +4,7 @@
     {
         public long Id { get; private set; }
         public string UserId { get; private set; } = null!;
-        public User User { get; private set; } = null!;
+        //public User User { get; private set; } = null!;
         public DateTime LoginTime { get; private set; }
         public Login(string userId, DateTime loginTime)
             => (UserId, LoginTime) = (userId, loginTime);
@@ -24,7 +24,7 @@ namespace Vms.Domain.System.Configuration
             entity.Property(e => e.UserId)
                 .HasMaxLength(User.UserId_MaxLength);
 
-            entity.HasOne(e => e.User)
+            entity.HasOne<User>()
                 .WithMany()
                 .HasForeignKey(e => e.UserId);
         }

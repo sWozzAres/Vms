@@ -395,10 +395,19 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [AcceptHeader("application/vnd.full")]
     public async Task<IActionResult> GetServiceBookingFull(Guid id,
         IServiceBookingQueries queries,
+        [FromServices] IRecentViewLogger recentViewLogger,
         CancellationToken cancellationToken)
     {
         var serviceBooking = await queries.GetServiceBookingFull(id, cancellationToken);
-        return serviceBooking is null ? NotFound() : Ok(serviceBooking);
+        if (serviceBooking is null)
+        {
+            return NotFound();
+        }
+
+        await recentViewLogger.LogAsync(serviceBooking.Id);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Ok(serviceBooking);
     }
 
     [HttpGet]
