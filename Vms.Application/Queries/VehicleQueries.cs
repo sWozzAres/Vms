@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Queries;
+﻿using Vms.Domain.Core;
+
+namespace Vms.Application.Queries;
 
 public interface IVehicleQueries
 {
@@ -27,10 +29,11 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         var result = await vehicles
             .Skip(start)
             .Take(take)
-            .Select(x => new VehicleListDto(x.Id, x.CompanyCode, x.Vrm, x.Make, x.Model))
+            .Select(x => new VehicleListDto(x.Id, x.CompanyCode, x.VehicleVrm.Vrm, x.Make, x.Model))
             .ToListAsync(cancellationToken);
 
         return (totalCount, result);
+
     }
 
     public async Task<VehicleFullDto?> GetVehicleFull(Guid id,
@@ -43,10 +46,50 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
                         .Include(v => v.MotEvents.Where(e => e.IsCurrent))
                     join _f in context.Followers on new { v.Id, userProvider.UserId } equals new { Id = _f.DocumentId, _f.UserId } into __f
                     from f in __f.DefaultIfEmpty()
-                    select new { v, IsFollowing = f.UserId != default };
+                    select new
+                    {
+                        v.CompanyCode,
+                        v.Id,
+                        v.VehicleVrm.Vrm,
+                        v.Make,
+                        v.Model,
+                        v.ChassisNumber,
+                        v.DateFirstRegistered,
+                        MotDue = v.Mot.Due,
 
-        var vehicle = await query.SingleOrDefaultAsync(v => v.v.Id == id, cancellationToken);
+                        v.Address.Street,
+                        v.Address.Locality,
+                        v.Address.Town,
+                        v.Address.Postcode,
+                        v.Address.Location.Coordinate.X,
+                        v.Address.Location.Coordinate.Y,
 
-        return vehicle is null ? null : vehicle.v.ToFullDto(vehicle.IsFollowing);
+                        Customer_CompanyCode = v.C == null ? null : v.C.CompanyCode,
+                        Customer_Code = v.C == null ? null : v.C.Code,
+                        Customer_Name = v.C == null ? null : v.C.Name,
+
+                        Fleet_CompanyCode = v.Fleet == null ? null : v.Fleet.CompanyCode,
+                        Fleet_Code = v.Fleet == null ? null : v.Fleet.Code,
+                        Fleet_Name = v.Fleet == null ? null : v.Fleet.Name,
+
+                        Drivers = v.DriverVehicles.Select(x => x.Driver),
+                        IsFollowing = f.UserId != default
+                    };
+
+        var vehicle = await query.SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+        if (vehicle is null)
+        {
+            return null;
+        }
+
+        var dto = new VehicleFullDto(vehicle.CompanyCode, vehicle.Id, vehicle.Vrm, vehicle.Make, vehicle.Model,
+            vehicle.ChassisNumber, vehicle.DateFirstRegistered, vehicle.MotDue,
+            new(vehicle.Street, vehicle.Locality, vehicle.Town, vehicle.Postcode, new(vehicle.X, vehicle.Y)),
+            new(vehicle.Customer_CompanyCode, vehicle.Customer_Code, vehicle.Customer_Name),
+            new(vehicle.Fleet_CompanyCode, vehicle.Fleet_Code, vehicle.Fleet_Name),
+            vehicle.Drivers.Select(d => d.ToShortDto()).ToList(),
+            vehicle.IsFollowing);
+
+        return dto;//.ToFullDto(vehicle.IsFollowing);
     }
 }
