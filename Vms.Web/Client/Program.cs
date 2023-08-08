@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Vms.Web.Client;
+using Vms.Web.Client.Common.Services;
 using Vms.Web.Client.Security;
 using Vms.Web.Client.Services;
 
@@ -28,6 +29,10 @@ builder.Services.AddHttpClient<ServerApiHttpClient>(client => client.BaseAddress
     .ConfigureHandler(authorizedUrls, scopes));
 
 builder.Services.AddHttpClient<ServiceBookingApiClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
+    .ConfigureHandler(authorizedUrls, scopes));
+
+builder.Services.AddHttpClient<VehicleApiClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(authorizedUrls, scopes));
 

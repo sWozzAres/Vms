@@ -1,4 +1,4 @@
-﻿using Vms.Domain.Services;
+﻿using Vms.Domain.Infrastructure.Services;
 using Vms.Web.Server.Extensions;
 
 namespace Vms.Web.Server.Services;

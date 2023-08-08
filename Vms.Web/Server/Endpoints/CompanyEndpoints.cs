@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Vms.Domain.Infrastructure;
-using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Endpoints;
 
@@ -18,7 +17,7 @@ public static class CompanyEndpoints
             [Authorize(Policy = "ClientPolicy")] async (int list, int start, int take, VmsDbContext context, CancellationToken cancellationToken) =>
         {
             //int totalCount = await context.Companies.CountAsync();
-          
+
             var result = await context.Companies
                 .Skip(start)
                 .Take(take)

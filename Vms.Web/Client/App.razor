@@ -1,16 +1,19 @@
 ﻿<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="new[] { typeof(Vms.Blazor.Application.Pages.TestApp).Assembly}">
+    <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="new[]
+        { typeof(Vms.Blazor.Application.Pages.TestApp).Assembly,
+         typeof(Vms.Web.Client.ServiceBookingProcess.Pages.View).Assembly}
+    ">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)
-                    {
-                        <RedirectToLogin />
-                    }
-                    else
-                    {
-                        <p role="alert">You are not authorized to access this resource.</p>
-                    }
+                        {
+                    <RedirectToLogin />
+                        }
+                        else
+                        {
+                    <p role="alert">You are not authorized to access this resource.</p>
+                        }
                 </NotAuthorized>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />

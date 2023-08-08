@@ -1,4 +1,11 @@
-﻿global using Microsoft.EntityFrameworkCore;
-global using Vms.Domain.Entity;
-global using Vms.Domain.Exceptions;
+﻿global using System.Text;
+global using Microsoft.EntityFrameworkCore;
+global using NetTopologySuite.Geometries;
+global using Vms.Application.Services;
+global using Vms.Domain.Common;
+global using Vms.Domain.Core;
+global using Vms.Domain.Core.Exceptions;
 global using Vms.Domain.Infrastructure;
+global using Vms.Domain.Infrastructure.Services;
+global using Vms.Domain.System;
+global using Vms.Web.Shared;

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Vms.Web.Server.Configuration;
 
@@ -24,7 +24,7 @@ public static class ApplicationSecurityConfiguration
                     ClockSkew = TimeSpan.FromSeconds(5)
                 };
 
-                
+
             });
         services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
         services.AddAuthorization(options =>

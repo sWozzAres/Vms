@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Vms.Domain.Entity;
+using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 

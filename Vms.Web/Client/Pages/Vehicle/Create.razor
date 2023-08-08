@@ -1,5 +1,6 @@
 ﻿@page "/vehicle/create"
 @inject ServerApiHttpClient Http
+@inject VehicleApiClient Api
 @inject ILogger<Create> Logger
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
@@ -120,7 +121,7 @@
         isPosting = true;
         try
         {
-            var response = await Http.CreateVehicleAsync(vehicle);
+            var response = await Api.CreateVehicleAsync(vehicle);
             switch (createMode)
             {
                 case CreateMode.Create:

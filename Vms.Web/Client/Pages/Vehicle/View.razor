@@ -1,6 +1,7 @@
 ﻿@page "/vehicle/view/{id:guid}"
 @using System.Diagnostics;
 @inject ServerApiHttpClient Http
+@inject VehicleApiClient Api
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
@@ -19,7 +20,10 @@ else
             </div>
         </IconContent>
         <Buttons>
-            <button onclick="Follow">Follow</button>
+            @if(vehicle is not null)
+            {
+                <FollowButton Id="vehicle.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="vehicle.IsFollowing" />
+            }
         </Buttons>
         <HeaderContent>
             @if (vehicle is not null)
@@ -57,8 +61,8 @@ else
                     </TabPage>
                     <TabPage Text="Related">
                         <div class="related50">
-                            <CustomerRelated Customer="vehicle.Customer" VehicleId="@Id" OnChanged="LoadVehicle" />
-                            <FleetRelated Fleet="vehicle.Fleet" VehicleId="@Id" OnChanged="LoadVehicle" />
+                            <CustomerRelated Customer="vehicle.Customer" Vehicle="vehicle" OnChanged="LoadVehicle" />
+                            <FleetRelated Fleet="vehicle.Fleet" Vehicle="vehicle" OnChanged="LoadVehicle" />
                         </div>
                         <DriverRelatedList Items="vehicle.Drivers" VehicleId="@Id" OnChanged="LoadVehicle" />
                     </TabPage>
@@ -82,7 +86,7 @@ else
     {
         try
         {
-            vehicle = await Http.GetVehicleFullAsync(Id);
+            vehicle = await Api.GetVehicleFullAsync(Id);
         }
         catch (AccessTokenNotAvailableException ex)
         {

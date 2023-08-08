@@ -2,27 +2,7 @@
 
 namespace Vms.Web.Shared;
 
-public interface ICopyable<T>
-{
-    public void CopyFrom(T source);
-    //public void CopyFrom(T source)
-    //{
-    //    Type recordType = typeof(T);
-    //    PropertyInfo[] properties = recordType.GetProperties();
 
-    //    foreach (PropertyInfo property in properties)
-    //    {
-    //        if (!IsCustomClassProperty(property.PropertyType))
-    //        {
-    //            object? sourceValue = property.GetValue(source);
-    //            property.SetValue(this, sourceValue);
-    //        }
-    //    }
-    //}
-
-    //private bool IsCustomClassProperty(Type propertyType)
-    //    => !propertyType.IsPrimitive && !propertyType.IsEnum && propertyType != typeof(string) && !propertyType.IsArray;
-}
 
 public static class TypeHelper
 {
@@ -76,7 +56,7 @@ public static class TypeHelper
         }
     }
 
-    
+
 
     public static T? DeepClone<T>(T? obj)
     {
@@ -90,7 +70,7 @@ public static class TypeHelper
 
         if (type.IsArray)
         {
-            Type elementType = Type.GetType(type.FullName?.Replace("[]", string.Empty) ?? throw new InvalidOperationException("Type has no fullname.")) 
+            Type elementType = Type.GetType(type.FullName?.Replace("[]", string.Empty) ?? throw new InvalidOperationException("Type has no fullname."))
                 ?? throw new InvalidOperationException("Unknown array type.");
             var array = obj as Array;
             Array copiedArray = Array.CreateInstance(elementType, array!.Length);

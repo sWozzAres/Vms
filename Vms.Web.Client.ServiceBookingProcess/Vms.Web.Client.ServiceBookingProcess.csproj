@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0-preview.6.23329.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0-preview.6.23329.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.0-preview.6.23329.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
+    <ProjectReference Include="..\Utopia.Blazor.Application\Utopia.Blazor.Application.csproj" />
+    <ProjectReference Include="..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
+    <ProjectReference Include="..\Vms.Web.Client.Common\Vms.Web.Client.Common.csproj" />
+    <ProjectReference Include="..\Vms.Web\Shared\Vms.Web.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

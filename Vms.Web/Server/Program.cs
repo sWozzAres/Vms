@@ -1,25 +1,21 @@
 using System.Reflection;
 using Dapper;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using Vms.Application.Commands.ServiceBookingUseCase;
+using Vms.Application.Commands.VehicleUseCase;
+using Vms.Application.Queries;
 using Vms.Application.Services;
-using Vms.Application.UseCase;
-using Vms.Application.UseCase.ServiceBookingUseCase;
-using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Infrastructure.Seed;
-using Vms.Domain.Services;
-using Vms.DomainApplication.Services;
+using Vms.Domain.Infrastructure.Services;
 using Vms.Web.Server;
 using Vms.Web.Server.Configuration;
 using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
 using Vms.Web.Server.Helpers;
-using Vms.Web.Server.Hubs;
-using Vms.Web.Server.Middleware;
 using Vms.Web.Server.Services;
 
 const string AppName = "Vms.Web.Server";
@@ -50,16 +46,22 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<CurrentTime>();
 builder.Services.AddScoped<ITimeService>(provider => new TimeFreeze(provider.GetRequiredService<CurrentTime>()));
 
+builder.Services.AddScoped<IServiceBookingQueries, ServiceBookingQueries>();
+
 builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
 builder.Services.AddScoped<ITaskLogger, TaskLogger>();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<ISearchManager, SearchManager>();
 
+builder.Services.AddScoped<IVehicleQueries, VehicleQueries>();
+builder.Services.AddScoped<IFollowVehicle, FollowVehicle>();
+builder.Services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
+
 builder.Services.AddScoped<ICreateVehicle, CreateVehicle>();
 builder.Services.AddScoped<IEdit, Edit>();
-builder.Services.AddScoped<IFollow, Follow>();
-builder.Services.AddScoped<IUnfollow, Unfollow>();
+builder.Services.AddScoped<IFollowServiceBooking, FollowServiceBooking>();
+builder.Services.AddScoped<IUnfollowServiceBooking, UnfollowServiceBooking>();
 builder.Services.AddScoped<IBookSupplier, BookSupplier>();
 builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
 builder.Services.AddScoped<ICheckArrival, CheckArrival>();

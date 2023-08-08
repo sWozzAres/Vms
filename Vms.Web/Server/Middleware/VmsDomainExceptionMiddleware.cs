@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
-using Vms.Domain.Exceptions;
+using Vms.Domain.Core.Exceptions;
 
 namespace Vms.Web.Server;
 
@@ -25,7 +25,7 @@ public class VmsDomainExceptionMiddleware(RequestDelegate next, ILogger<VmsDomai
         catch (Exception ex)
         {
             logger.LogError("VmsDomainException handler {exception}", ex);
-            context.Response.Clear(); 
+            context.Response.Clear();
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(

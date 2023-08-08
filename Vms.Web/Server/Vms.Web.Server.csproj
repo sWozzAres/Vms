@@ -27,6 +27,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Vms.Application\Vms.Application.csproj" />
+		<ProjectReference Include="..\..\Vms.Domain.Infrastructure\Vms.Domain.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Vms.Domain\Vms.Domain.csproj" />
 		<ProjectReference Include="..\Client\Vms.Web.Client.csproj" />
 		<ProjectReference Include="..\Shared\Vms.Web.Shared.csproj" />

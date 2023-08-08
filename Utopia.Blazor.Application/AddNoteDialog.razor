@@ -1,0 +1,76 @@
+﻿@using Markdig;
+@inject ServerApiHttpClient Http
+@inject ILogger<AddNoteDialog> Logger
+@inject NavigationManager NavigationManager
+
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="create-dialog scroll-content">
+    <EditForm Model="noteModel" OnValidSubmit="HandleValidSubmit" class="edit-form dialog-container">
+        <div class="dialog-header">
+            <h1>Add Note</h1>
+        </div>
+        <div class="dialog-content">
+
+            <DataAnnotationsValidator />
+            <InputTextArea @oninput="OnInput" @bind-Value="noteModel.Note" rows="5" placeholder="Enter note..." />
+            <ValidationMessage For="@(() => noteModel.Note)" />
+
+            <h3>Preview</h3>
+            <div class="preview">
+                @((MarkupString)previewText)
+            </div>
+        </div>
+        <div class="buttons dialog-footer">
+            <button type="button" disabled="@isPosting" @onclick="OnClose">Close</button>
+            <button type="submit" disabled="@isPosting">Add</button>
+        </div>
+    </EditForm>
+</Dialog>
+
+@code {
+    [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
+    [Parameter, EditorRequired] public string Id { get; set; } = null!;
+    public delegate Task<PostResponse> AddNote(string id, string note);
+    [Parameter, EditorRequired] public AddNote OnAddNote { get; set; } = null!;
+
+    NoteModel noteModel = new();
+
+    bool isPosting;
+
+    string previewText = string.Empty;
+
+    void OnInput(ChangeEventArgs e)
+    {
+        previewText = e.Value is null ? "" : Markdown.ToHtml(e.Value.ToString()!);
+    }
+
+    protected override void OnInitialized()
+    {
+        if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
+        ArgumentNullException.ThrowIfNull(Id);
+        ArgumentNullException.ThrowIfNull(OnAddNote);
+    }
+
+    async Task HandleValidSubmit()
+    {
+        isPosting = true;
+        try
+        {
+            var response = await OnAddNote(Id, noteModel.Note);
+            if (response is PostResponse.Created)
+            {
+                await OnClose.InvokeAsync();    
+            }
+        }
+        finally
+        {
+            isPosting = false;
+        }
+    }
+
+    class NoteModel
+    {
+        [Required, StringLength(1024)]
+        public string Note { get; set; } = string.Empty;
+    }
+}
+

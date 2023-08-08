@@ -4,8 +4,10 @@ public record DriverShortDto(Guid Id, string CompanyCode, string EmailAddress, s
 
 public record VehicleFullDto(string CompanyCode, Guid Id, string Vrm, string Make, string Model, string? ChassisNumber,
     DateOnly DateFirstRegistered, DateOnly? MotDue, AddressFullDto Address, CustomerShortDto? Customer,
-    FleetShortDto? Fleet, List<DriverShortDto> Drivers)
-{ 
+    FleetShortDto? Fleet, List<DriverShortDto> Drivers, bool IsFollowing)
+{
+    public bool IsFollowing { get; set; } = IsFollowing;
+
     public VehicleDto ToDto()
         => new()
         {

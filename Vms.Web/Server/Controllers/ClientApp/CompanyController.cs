@@ -2,12 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Vms.Web.Shared;
+using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
-using Vms.Domain.Entity;
-using Microsoft.VisualBasic;
-using Vms.Domain.Entity.ServiceBookingEntity;
-using Microsoft.Identity.Client;
+using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
 
@@ -19,7 +16,63 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
 {
     readonly ILogger<CompanyController> _logger = logger;
     readonly VmsDbContext _context = context;
+    #region Customers
+    [HttpGet]
+    [Route("{companyCode}/customers/{code}")]
+    [AcceptHeader("application/vnd.short")]
+    [ProducesResponseType(typeof(CustomerShortDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetCustomerShort(string companyCode, string code, CancellationToken cancellationToken)
+    {
+        var customer = await _context.Customers.AsNoTracking()
+            .SingleOrDefaultAsync(d => d.CompanyCode == companyCode && d.Code == code, cancellationToken);
 
+        if (customer is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new CustomerShortDto(customer.CompanyCode, customer.Code, customer.Name));
+    }
+    [HttpGet]
+    [Route("{code}/customers")]
+    [AcceptHeader("application/vnd.short")]
+    [ProducesResponseType(typeof(CustomerShortDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCustomersShort(string code, string filter, CancellationToken cancellationToken)
+        => Ok(await _context.Customers.AsNoTracking()
+                .Where(d => d.CompanyCode == code && d.Name.StartsWith(filter))
+                .Select(d => new CustomerShortDto(d.CompanyCode, d.Code, d.Name))
+                .ToListAsync(cancellationToken));
+    #endregion
+    #region Fleets
+    [HttpGet]
+    [Route("{companyCode}/fleet/{code}")]
+    [AcceptHeader("application/vnd.short")]
+    [ProducesResponseType(typeof(FleetShortDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetFleetShort(string companyCode, string code, CancellationToken cancellationToken)
+    {
+        var fleet = await _context.Fleets.AsNoTracking()
+            .SingleOrDefaultAsync(d => d.CompanyCode == companyCode && d.Code == code, cancellationToken);
+
+        if (fleet is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new FleetShortDto(fleet.CompanyCode, fleet.Code, fleet.Name));
+    }
+    [HttpGet]
+    [Route("{code}/fleets")]
+    [AcceptHeader("application/vnd.short")]
+    [ProducesResponseType(typeof(FleetShortDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFleetsShort(string code, string filter, CancellationToken cancellationToken)
+        => Ok(await _context.Fleets.AsNoTracking()
+                .Where(f => f.CompanyCode == code && f.Name.StartsWith(filter))
+                .Select(f => f.ToShortDto())
+                .ToListAsync(cancellationToken));
+    #endregion
+    #region Reasons
     [HttpGet]
     [Route("{companyCode}/confirmbookedrefusalreasons")]
     public async Task<IActionResult> GetConfirmBookedRefusalReasons(string companyCode, CancellationToken cancellationToken)
@@ -32,8 +85,8 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
     [Route("{companyCode}/refusalreasons")]
     public async Task<IActionResult> GetRefusalReasons(string companyCode, CancellationToken cancellationToken)
         => Ok(await _context.RefusalReasons
-            .Where(r=>r.CompanyCode == companyCode)
-            .Select(r=>new RefusalReasonDto(r.Code, r.Name))
+            .Where(r => r.CompanyCode == companyCode)
+            .Select(r => new RefusalReasonDto(r.Code, r.Name))
             .ToListAsync(cancellationToken));
 
     [HttpGet]
@@ -58,46 +111,10 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
             .Where(r => r.CompanyCode == companyCode)
             .Select(r => new RescheduleReasonDto(r.Code, r.Name))
             .ToListAsync(cancellationToken));
-
-
+    #endregion
+    
     [HttpGet]
-    [Route("{companyCode}/customer/{code}")]
     [AcceptHeader("application/vnd.short")]
-    [ProducesResponseType(typeof(CustomerShortDto), StatusCodes.Status200OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetCustomerShort(string companyCode, string code, CancellationToken cancellationToken)
-    {
-        var customer = await _context.Customers.AsNoTracking()
-            .SingleOrDefaultAsync(d => d.CompanyCode == companyCode && d.Code == code, cancellationToken);
-
-        if (customer is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(new CustomerShortDto(customer.CompanyCode, customer.Code, customer.Name));
-    }
-
-    [HttpGet]
-    [Route("{companyCode}/fleet/{code}")]
-    [AcceptHeader("application/vnd.short")]
-    [ProducesResponseType(typeof(FleetShortDto), StatusCodes.Status200OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetFleetShort(string companyCode, string code, CancellationToken cancellationToken)
-    {
-        var fleet = await _context.Fleets.AsNoTracking()
-            .SingleOrDefaultAsync(d => d.CompanyCode == companyCode && d.Code == code, cancellationToken);
-
-        if (fleet is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(new FleetShortDto(fleet.CompanyCode, fleet.Code, fleet.Name));
-    }
-
-    [HttpGet]
-    [AcceptHeader("application/vnd.short")]  
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
         var result = await _context.Companies

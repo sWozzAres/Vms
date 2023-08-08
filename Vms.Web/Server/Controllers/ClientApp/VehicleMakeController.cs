@@ -38,6 +38,6 @@ public class VehicleMakeController(VmsDbContext context) : ControllerBase
             .Include(m => m.VehicleModels)
             .Where(m => m.Make == make)
             .SelectMany(x => x.VehicleModels)
-            .Select(m=> new VehicleModelShortListModel(m.Model))
+            .Select(m => new VehicleModelShortListModel(m.Model))
             .ToListAsync(cancellationToken));
 }

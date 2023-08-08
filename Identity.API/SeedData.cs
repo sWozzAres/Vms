@@ -5,9 +5,9 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
-using IdentityModel;
 using Identity.API.Data;
 using Identity.API.Models;
+using IdentityModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

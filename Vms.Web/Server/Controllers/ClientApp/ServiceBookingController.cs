@@ -1,16 +1,17 @@
 ﻿using System.Net;
-using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Utopia.Blazor.Application.Shared;
+using Vms.Application.Commands.ServiceBookingUseCase;
+using Vms.Application.Queries;
 using Vms.Application.Services;
-using Vms.Application.UseCase.ServiceBookingUseCase;
-using Vms.Domain.Entity;
-using Vms.Domain.Entity.ServiceBookingEntity;
+using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
-using Vms.Domain.Services;
+using Vms.Domain.Infrastructure.Services;
+using Vms.Domain.ServiceBookingProcess;
+using Vms.Domain.System;
 using Vms.Web.Server.Services;
 using Vms.Web.Shared;
 
@@ -25,10 +26,11 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     readonly ILogger<ServiceBookingController> _logger = logger ?? throw new ArgumentNullException(nameof(context));
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
+    #region Follow
     [HttpPost]
     [Route("{id}/follow")]
     public async Task<IActionResult> Follow(Guid id,
-        [FromServices] IFollow follow,
+        [FromServices] IFollowServiceBooking follow,
         CancellationToken cancellationToken)
     {
         await follow.FollowAsync(id, cancellationToken);
@@ -39,16 +41,17 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpDelete]
     [Route("{id}/follow")]
     public async Task<IActionResult> Unfollow(Guid id,
-        [FromServices] IUnfollow unfollow,
+        [FromServices] IUnfollowServiceBooking unfollow,
         CancellationToken cancellationToken)
     {
         if (!await unfollow.UnfollowAsync(id, cancellationToken))
             return NotFound();
-        
+
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
-
+    #endregion
+    #region Locking
     [HttpPost]
     [Route("{id}/lock")]
     public async Task<IActionResult> Lock(Guid id,
@@ -72,7 +75,6 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     [Route("{id}/lock/{lockId}/refresh")]
     public async Task<IActionResult> RefreshLock(Guid id, Guid lockId,
-        //[FromServices] IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
         var lck = await _context.ServiceBookingLocks
@@ -116,7 +118,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         }
 
     }
-
+    #endregion
+    #region Tasks
     [HttpPost]
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
@@ -234,73 +237,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
-
-    [HttpGet]
-    [Route("{id}/suppliers")]
-    public async Task<IActionResult> GetSuppliers(Guid id,
-        [FromServices] ISupplierLocator supplierLocator,
-        CancellationToken cancellationToken)
-    {
-        var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken);
-        if (serviceBooking is null)
-        {
-            return NotFound();
-        }
-
-        var distances = await supplierLocator.GetSuppliers(serviceBooking, cancellationToken);
-
-        var suppliers = distances.Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Distance, s.RefusalCode, s.RefusalName));
-
-        //var vehicle = await _context.Vehicles.FindAsync(serviceBooking.VehicleId, cancellationToken);
-        //if (vehicle is null)
-        //{
-        //    return NotFound();
-        //}
-
-        //var suppliers = await _context.Suppliers.AsNoTracking()
-        //    //.Where(s => s.Address.Location.Distance(vehicle.Address.Location) > 0)
-        //    .OrderBy(s => s.Address.Location.Distance(vehicle.Address.Location))
-        //    .Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Address.Location.Distance(vehicle.Address.Location)))
-        //    .ToListAsync(cancellationToken);
-
-        return Ok(suppliers);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateServiceBooking(
-        [FromBody] CreateServiceBookingCommand request,
-        //[FromServices] IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
-        [FromServices] ICreateServiceBooking createServiceBooking,
-        CancellationToken cancellationToken)
-    {
-        //return UnprocessableEntity("Error happened!");
-        //throw new Domain.Exceptions.VmsDomainException("Domain Error");
-
-        int tries = 1;
-        while (true)
-        {
-            try
-            {
-                var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
-                    .CreateAsync(request, cancellationToken);
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is SqlException && ex.InnerException.Message.Contains("UQ_ServiceBooking_Ref"))
-            {
-                if (tries == 3)
-                {
-                    logger.LogCritical("Failed to create service booking with unique ref.");
-                    throw;
-                }
-
-                tries++;
-            }
-        }
-    }
-
+    #endregion
+    #region Activity
     [HttpGet]
     [Route("{id}/activity")]
     public async Task<IActionResult> GetActivities(Guid id, CancellationToken cancellationToken)
@@ -342,136 +280,42 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
         return activityLog is null ? NotFound() : Ok(activityLog.ToDto());
     }
-
-    [HttpGet]
-    public async Task<IActionResult> GetServiceBookings(
-        ServiceBookingListOptions list, int start, int take,
-        IUserProvider userProvider,
+    #endregion
+    #region CRUD
+    [HttpPost]
+    public async Task<IActionResult> CreateServiceBooking(
+        [FromBody] CreateServiceBookingCommand request,
+        //[FromServices] IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
+        [FromServices] ICreateServiceBooking createServiceBooking,
         CancellationToken cancellationToken)
     {
-        var serviceBookings = context.ServiceBookings
-            .Include(s=>s.Lock)
-            .AsQueryable();
+        //return UnprocessableEntity("Error happened!");
+        //throw new Domain.Exceptions.VmsDomainException("Domain Error");
 
-        if (list == ServiceBookingListOptions.Following)
+        int tries = 1;
+        while (true)
         {
-            serviceBookings = from x in serviceBookings 
-                              join f in context.Followers on x.Id equals f.DocumentId
-                              where f.UserId == userProvider.UserId
-                              select x;
+            try
+            {
+                var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
+                    .CreateAsync(request, cancellationToken);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException && ex.InnerException.Message.Contains("UQ_ServiceBooking_Ref"))
+            {
+                if (tries == 3)
+                {
+                    logger.LogCritical("Failed to create service booking with unique ref.");
+                    throw;
+                }
+
+                tries++;
+            }
         }
-        else if (list == ServiceBookingListOptions.Assigned)
-        {
-            serviceBookings = serviceBookings.Where(s => s.AssignedToUserId == userProvider.UserId);
-        }
-        else if (list == ServiceBookingListOptions.Due)
-        {
-            serviceBookings = serviceBookings.Where(s => s.RescheduleTime <= DateTime.Now);
-        }
-
-        int totalCount = await serviceBookings.CountAsync(cancellationToken);
-
-        var result = await serviceBookings
-            .Include(s => s.Vehicle)
-            .Skip(start)
-            .Take(take)
-            .OrderBy(s=>s.RescheduleTime)
-            .Where(s=>s.Status > 0)
-            .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm, 
-                x.RescheduleTime, (ServiceBookingDtoStatus)x.Status,
-                x.Lock == null ? null : x.Lock.UserName, x.Lock == null ? null : x.Lock.Granted
-                ))
-            .ToListAsync(cancellationToken);
-
-        return Ok(new ListResult<ServiceBookingListDto>(totalCount, result));
     }
-
-    [HttpGet]
-    [Route("{id}")]
-    [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetServiceBooking(Guid id,
-        CancellationToken cancellationToken)
-    {
-        var serviceBooking = await _context.ServiceBookings.AsNoTracking()
-                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
-
-        return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToDto());
-    }
-
-    //[HttpDelete]
-    //[Route("{id}/activity/{activityId}")]
-    //public async Task<IActionResult> DeleteActivity(Guid id, Guid activityId,
-    //    CancellationToken cancellationToken)
-    //{
-    //    var serviceBooking = await _context.ServiceBookings.AsNoTracking()
-    //            .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
-
-    //    if (serviceBooking is null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    //ActivityLog al = new ActivityLog(activityId)
-    //    return NoContent();
-    //}
-
-    static string GetServiceBookingQueryText()
-    {
-        return """
-                SELECT sb.Id, sb.VehicleId, sb.CompanyCode, vv.Vrm, v.Make, v.Model, sb.PreferredDate1, sb.PreferredDate2, sb.PreferredDate3, sb.Status, sb.ServiceLevel,
-            	    s.Code 'Supplier_Code', s.Name 'Supplier_Name',
-            	    mo.Id 'MotEvent_Id', mo.Due 'MotEvent_Due',
-            	    CASE 
-            		    WHEN EXISTS (SELECT 1 FROM Followers f WHERE sb.Id = f.DocumentId AND f.UserId = @userId) THEN 1
-            		    ELSE 0
-            	    END AS IsFollowing,
-                    sb.AssignedToUserId, sb.Ref, sb.RescheduleTime,
-                    sbd.Name 'Driver_Name', sbd.EmailAddress 'Driver_EmailAddress', sbd.MobileNumber 'Driver_MobileNumber',
-                    sbc.Name 'Contact_Name', sbc.EmailAddress 'Contact_EmailAddress', sbc.MobileNumber 'Contact_MobileNumber',
-                    sbl.UserName 'Worker_Name', sbl.Granted 'WorkStarted'
-                FROM ServiceBookings sb
-                LEFT JOIN ServiceBookingDrivers sbd ON sb.Id = sbd.ServiceBookingId
-                LEFT JOIN ServiceBookingContacts sbc ON sb.Id = sbc.ServiceBookingId
-                LEFT JOIN ServiceBookingLocks sbl ON sb.Id = sbl.ServiceBookingId
-                JOIN Vehicles v ON sb.VehicleId = v.Id
-                JOIN VehicleVrms vv ON v.Id = vv.VehicleId
-                LEFT JOIN Suppliers s ON sb.SupplierCode = s.Code
-                LEFT JOIN MotEvents mo ON sb.MotEventId = mo.Id
-                WHERE (@tenantId = '*' OR @tenantId = sb.CompanyCode)
-            """;
-    }
-    [HttpGet]
-    [Route("{id}")]
-    [AcceptHeader("application/vnd.full")]
-    public async Task<IActionResult> GetServiceBookingFull(Guid id,
-        IUserProvider userProvider,
-        CancellationToken cancellationToken)
-    {
-        var serviceBooking = (await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition($"{GetServiceBookingQueryText()} AND sb.Id = @id",
-                new { id, userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken)))
-            .SingleOrDefault();
-
-        return serviceBooking is null ? NotFound() : Ok(serviceBooking);
-    }
-
-    [HttpGet]
-    [Route("vehicle/{id}")]
-    [AcceptHeader("application/vnd.full")]
-    [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetServiceBookingsFullByVehicle(Guid id,
-        IUserProvider userProvider,
-        CancellationToken cancellationToken)
-    {
-        var serviceBookings = await _context.Database.GetDbConnection().QueryAsync<ServiceBookingFullDto>(
-            new CommandDefinition($"{GetServiceBookingQueryText()} AND v.Id = @id",
-                new { id, userId = userProvider.UserId, tenantId = userProvider.TenantId }, cancellationToken: cancellationToken));
-
-        return Ok(serviceBookings.ToList());
-    }
-
     [HttpPost]
     [Route("{id}/edit")]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
@@ -489,11 +333,91 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
 
         return Ok();
     }
+    //[HttpDelete]
+    //[Route("{id}/activity/{activityId}")]
+    //public async Task<IActionResult> DeleteActivity(Guid id, Guid activityId,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var serviceBooking = await _context.ServiceBookings.AsNoTracking()
+    //            .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+    //    if (serviceBooking is null)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    //ActivityLog al = new ActivityLog(activityId)
+    //    return NoContent();
+    //}
+    #endregion
+
+    [HttpGet]
+    [Route("{id}/suppliers")]
+    public async Task<IActionResult> GetSuppliers(Guid id,
+        [FromServices] ISupplierLocator supplierLocator,
+        CancellationToken cancellationToken)
+    {
+        var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken);
+        if (serviceBooking is null)
+        {
+            return NotFound();
+        }
+
+        var distances = await supplierLocator.GetSuppliers(serviceBooking, cancellationToken);
+        return Ok(distances.Select(s => new SupplierLocatorDto(s.Code, s.Name, s.Distance, s.RefusalCode, s.RefusalName)));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetServiceBookings(
+        ServiceBookingListOptions list, int start, int take,
+        IServiceBookingQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var (totalCount, result) = await queries.GetServiceBookings(list, start, take, cancellationToken);
+        return Ok(new ListResult<ServiceBookingListDto>(totalCount, result));
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetServiceBooking(Guid id,
+        CancellationToken cancellationToken)
+    {
+        var serviceBooking = await _context.ServiceBookings.AsNoTracking()
+                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+        return serviceBooking is null ? NotFound() : Ok(serviceBooking.ToDto());
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    [AcceptHeader("application/vnd.full")]
+    public async Task<IActionResult> GetServiceBookingFull(Guid id,
+        IServiceBookingQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var serviceBooking = await queries.GetServiceBookingFull(id, cancellationToken);
+        return serviceBooking is null ? NotFound() : Ok(serviceBooking);
+    }
+
+    [HttpGet]
+    [Route("vehicle/{id}")]
+    [AcceptHeader("application/vnd.full")]
+    [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> GetServiceBookingsFullByVehicle(Guid id,
+        IServiceBookingQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var serviceBookings = await queries.GetServiceBookingsFullByVehicle(id, cancellationToken);
+        return Ok(serviceBookings.ToList());
+    }
 }
 
 public record ServiceBookingFull(Guid Id, Guid VehicleId, string CompanyCode, string Vrm, string Make, string Model,
         DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3, ServiceBookingDtoStatus Status,
-        Domain.Entity.ServiceBookingEntity.ServiceLevel ServiceLevel, Supplier? Supplier, Domain.Entity.ServiceBookingEntity.MotEvent? MotEvent, Follower? Follower);
+        ServiceLevel ServiceLevel, Supplier? Supplier, MotEvent? MotEvent, Follower? Follower);
 
 public static partial class DomainExtensions
 {
@@ -510,11 +434,11 @@ public static partial class DomainExtensions
         };
     }
 
-    public static MotEventShortDto ToShortDto(this Domain.Entity.ServiceBookingEntity.MotEvent motEvent) => new(motEvent.Id, motEvent.Due);
+    public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new(motEvent.Id, motEvent.Due);
 
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);
 
-    public static ActivityLogDto ToDto(this ActivityLog activityLog) 
+    public static ActivityLogDto ToDto(this ActivityLog activityLog)
         => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
 }

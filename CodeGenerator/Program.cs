@@ -9,7 +9,7 @@ const string DatabaseName = "Vms_Test";
 var db = srv.Databases[DatabaseName] ?? throw new InvalidOperationException($"Database {DatabaseName} not found.");
 
 
-foreach(Table table in db.Tables)
+foreach (Table table in db.Tables)
 {
     Console.WriteLine(table.Name);
 }

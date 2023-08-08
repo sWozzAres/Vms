@@ -1,4 +1,5 @@
 ﻿@inject ServerApiHttpClient Api
+@inject VehicleApiClient VehicleApi
 @inject NavigationManager NavigationManager
 
 @if (loadingException is not null)
@@ -135,7 +136,7 @@ else
 
     async Task<PostResponse> SaveModel(VehicleDto model)
     {
-        var result = await Api.SaveVehicle(Vehicle.Id, model);
+        var result = await VehicleApi.SaveVehicle(Vehicle.Id, model);
         if (result is PostResponse.Success)
         {
             await OnAfterSave.InvokeAsync();

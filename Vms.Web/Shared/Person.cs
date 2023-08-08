@@ -25,7 +25,7 @@ public class Person : ICopyable<Person>
     [Required]
     public string? Notes { get; set; } = null!;
 
-    [Required, Range(0,1)]
+    [Required, Range(0, 1)]
     public int? Status { get; set; }
 
     [Required]

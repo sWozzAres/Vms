@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Utopia.Blazor.Application.Shared;
-using Vms.Application.Services;
-using Vms.Application.UseCase;
-using Vms.Application.UseCase.VehicleUseCase;
-using Vms.Domain.Entity;
-using Vms.Domain.Exceptions;
+using Vms.Application.Commands.ServiceBookingUseCase;
+using Vms.Application;
+using Vms.Application.Commands.VehicleUseCase;
+using Vms.Application.Queries;
+using Vms.Domain.Common;
+using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -23,15 +24,40 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     readonly ILogger<VehicleController> _logger = logger;
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
+    #region Follow
+    [HttpPost]
+    [Route("{id}/follow")]
+    public async Task<IActionResult> Follow(Guid id,
+        [FromServices] IFollowVehicle follow,
+        CancellationToken cancellationToken)
+    {
+        await follow.FollowAsync(id, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("{id}/follow")]
+    public async Task<IActionResult> Unfollow(Guid id,
+        [FromServices] IUnfollowVehicle unfollow,
+        CancellationToken cancellationToken)
+    {
+        if (!await unfollow.UnfollowAsync(id, cancellationToken))
+            return NotFound();
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
+    #endregion
     [HttpGet]
     [Route("{id}/events/{serviceBookingId?}")]
-    public async Task<IActionResult> GetEvents(Guid id, 
+    public async Task<IActionResult> GetEvents(Guid id,
         Guid? serviceBookingId,
         CancellationToken cancellationToken)
     {
         var motEvents = await _context.MotEvents
             .Where(e => e.VehicleId == id && e.ServiceBookingId == serviceBookingId)
-            .Select(e => new MotEvent(e.Id, e.Due))
+            .Select(e => new MotEventDto(e.Id, e.Due))
             .ToListAsync(cancellationToken);
 
         return Ok(new VehicleEvents(motEvents));
@@ -72,31 +98,21 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicleFull(Guid id,
+        [FromServices]IVehicleQueries queries,
         CancellationToken cancellationToken)
     {
-        var vehicle = await _context.Vehicles.AsNoTracking()
-                .Include(v => v.C)
-                .Include(v => v.Fleet)
-                .Include(v => v.DriverVehicles).ThenInclude(dv => dv.Driver)
-                .Include(v=>v.MotEvents.Where(e=>e.IsCurrent))
-                .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+        var vehicle = await queries.GetVehicleFull(id, cancellationToken);
 
-        return vehicle is null ? NotFound() : Ok(vehicle.ToFullDto());
+        return vehicle is null ? NotFound() : Ok(vehicle);
     }
 
     [HttpGet]
-    //[Route("{list}/{start}/{take}")]
     [ProducesResponseType(typeof(ListResult<VehicleListDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetVehicles(int list, int start, int take, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetVehicles(VehicleListOptions list, int start, int take,
+        [FromServices] IVehicleQueries queries,
+        CancellationToken cancellationToken)
     {
-        int totalCount = await context.Vehicles.CountAsync(cancellationToken);
-
-        var result = await context.Vehicles
-            .Skip(start)
-            .Take(take)
-            .Select(x => new VehicleListDto(x.Id, x.CompanyCode, x.Vrm, x.Make, x.Model))
-            .ToListAsync(cancellationToken);
-
+        var (totalCount, result) = await queries.GetVehicles(list, start, take, cancellationToken);
         return Ok(new ListResult<VehicleListDto>(totalCount, result));
     }
 
@@ -111,7 +127,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         var r = await new RemoveDriverFromVehicle(_context).RemoveAsync(id, driverId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
-            
+
         return r ? Accepted()
             : NotFound();
     }
@@ -184,7 +200,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         return Ok();
     }
 
-    
+
 
     [HttpPost]
     public async Task<IActionResult> CreateVehicle(
@@ -192,7 +208,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         [FromServices] ICreateVehicle createVehicle,
         CancellationToken cancellationToken)
     {
-        var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm, 
+        var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm,
             vehicleDto.Make!, vehicleDto.Model!,
             vehicleDto.DateFirstRegistered, vehicleDto.MotDue,
             new Address(vehicleDto.Address.Street,
@@ -233,7 +249,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         var vehicle = await _context.Vehicles
             .Include(v => v.MotEvents.Where(e => e.IsCurrent))
             .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
-            //.FindAsync(id, cancellationToken);
+        //.FindAsync(id, cancellationToken);
         if (vehicle is null)
         {
             return NotFound();
@@ -259,7 +275,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         }
 
         vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
-            new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326});
+            new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326 });
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -284,57 +300,10 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         //    //HttpContext.SetETag(product.RowVersion);
 
-           
+
         //}
 
         //// return NoContent to signify no changes
         //return NoContent();
     }
-}
-public static partial class DomainExtensions
-{
-    
-    public static VehicleFullDto ToFullDto(this Vehicle vehicle)
-    => new(
-            vehicle.CompanyCode,
-            vehicle.Id,
-            vehicle.Vrm,
-            vehicle.Make,
-            vehicle.Model,
-            vehicle.ChassisNumber,
-            vehicle.DateFirstRegistered,
-            //vehicle.Mot.Due,
-            vehicle.MotEvents.FirstOrDefault()?.Due,
-            vehicle.Address.ToFullDto(),
-            vehicle.C is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.C.Code, vehicle.C.Name),
-            vehicle.Fleet is null ? null : new FleetShortDto(vehicle.CompanyCode, vehicle.Fleet.Code, vehicle.Fleet.Name),
-            vehicle.DriverVehicles.Select(x => x.Driver.ToShortDto()).ToList()
-            );
-
-
-    public static AddressFullDto ToFullDto(this Address address)
-        => new(address.Street, address.Locality, address.Town, address.Postcode, address.Location.ToFullDto());
-
-    public static GeometryFullDto ToFullDto(this Geometry geometry)
-        => new(geometry.Coordinate.X, geometry.Coordinate.Y);
-
-    public static VehicleDto ToDto(this Vehicle vehicle)
-        => new(
-            vehicle.CompanyCode,
-            vehicle.Id,
-            vehicle.Vrm,
-            vehicle.Make,
-            vehicle.Model,
-            vehicle.ChassisNumber,
-            vehicle.DateFirstRegistered,
-            vehicle.Address.ToDto(),
-            vehicle.CustomerCode,
-            vehicle.FleetCode
-            );
-
-    public static AddressDto ToDto(this Address address)
-        => new(address.Street, address.Locality, address.Town, address.Postcode, address.Location.ToDto());
-
-    public static GeometryDto ToDto(this Geometry geometry)
-        => new(geometry.Coordinate.X, geometry.Coordinate.Y);
 }

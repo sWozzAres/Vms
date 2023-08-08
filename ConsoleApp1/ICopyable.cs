@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace ConsoleApp1;
+﻿namespace ConsoleApp1;
 
 public interface ICopyable<T>
 {

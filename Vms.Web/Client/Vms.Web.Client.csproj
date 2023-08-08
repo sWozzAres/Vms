@@ -42,7 +42,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
-		<PackageReference Include="Markdig" Version="0.31.0" />
+		<PackageReference Include="Markdig" Version="0.32.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0-preview.6.23329.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0-preview.6.23329.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0-preview.6.23329.11" PrivateAssets="all" />
@@ -58,6 +58,8 @@
 		<ProjectReference Include="..\..\Utopia.Blazor.Application\Utopia.Blazor.Application.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
 		<ProjectReference Include="..\..\Vms.Blazor.Application\Vms.Blazor.Application.csproj" />
+		<ProjectReference Include="..\..\Vms.Web.Client.Common\Vms.Web.Client.Common.csproj" />
+		<ProjectReference Include="..\..\Vms.Web.Client.ServiceBookingProcess\Vms.Web.Client.ServiceBookingProcess.csproj" />
 		<ProjectReference Include="..\Shared\Vms.Web.Shared.csproj" />
 	</ItemGroup>
 
@@ -68,6 +70,10 @@
 	  <Content Update="Shared\NavMenu.razor">
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Extensions\" />
 	</ItemGroup>
 
 </Project>

@@ -6,7 +6,7 @@ namespace Vms.Web.Server.Extensions
 {
     public static class IHostExtensions
     {
-        public static WebApplication MigrateDbContext<TContext>(this WebApplication host, 
+        public static WebApplication MigrateDbContext<TContext>(this WebApplication host,
             Action<TContext, IServiceProvider> seeder) where TContext : DbContext
         {
             using (var scope = host.Services.CreateScope())
@@ -40,8 +40,8 @@ namespace Vms.Web.Server.Extensions
             return host;
         }
 
-        private static void InvokeSeeder<TContext, IServiceProvider>(Action<TContext, IServiceProvider> seeder, 
-            TContext context, 
+        private static void InvokeSeeder<TContext, IServiceProvider>(Action<TContext, IServiceProvider> seeder,
+            TContext context,
             IServiceProvider services)
             where TContext : DbContext
         {

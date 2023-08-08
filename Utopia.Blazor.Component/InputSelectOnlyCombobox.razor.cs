@@ -27,7 +27,7 @@ public partial class InputSelectOnlyCombobox<TValue>
         }
         else
         {
-            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, 
+            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage,
                 DisplayName ?? FieldIdentifier.FieldName);
             return false;
         }

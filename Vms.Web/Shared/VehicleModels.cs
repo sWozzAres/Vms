@@ -1,13 +1,17 @@
-﻿using Vms.Web.Shared.DataAnnotations;
-
-namespace Vms.Web.Shared;
+﻿namespace Vms.Web.Shared;
 public record MotEventShortDto(Guid Id, DateOnly Due);
-public record VehicleEvents(List<MotEvent> Mots);
-public record MotEvent(Guid Id, DateOnly Due);
+public record VehicleEvents(List<MotEventDto> Mots);
+public record MotEventDto(Guid Id, DateOnly Due);
 
 public record AssignCustomerToVehicleCommand(string CustomerCode);
 public record AssignFleetToVehicleCommand(string FleetCode);
 public record AddDriverToVehicleCommand(Guid DriverId);
+public enum VehicleListOptions
+{
+    All = 0,
+    Recent = 1,
+    Following = 2,
+}
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
 
 public partial class VehicleDto : ICopyable<VehicleDto>
@@ -24,7 +28,7 @@ public partial class VehicleDto : ICopyable<VehicleDto>
     [StringLength(18)]
     public string? ChassisNumber { get; set; }
     public DateOnly DateFirstRegistered { get; set; }
-    [DateOnlyRange(2000,1,1,2050,1,1, true)]
+    [DateOnlyRange(2000, 1, 1, 2050, 1, 1, true)]
     public DateOnly? MotDue { get; set; }
     public AddressDto Address { get; set; } = new();//"", "", "", "", new(0, 0));
     [StringLength(10)]

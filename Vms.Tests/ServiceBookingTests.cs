@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Vms.Application.UseCase;
-using Vms.Application.UseCase.VehicleUseCase;
+using Vms.Application.Commands.VehicleUseCase;
 using VmsTesting;
 
 namespace Vms.Tests;
@@ -26,7 +25,7 @@ public class ServiceBookingTests //: IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task Test1()
     {
-        
+
         using var context = TestDatabaseFixture.CreateContext();
 
         var vehicles = await context.Vehicles.ToListAsync();

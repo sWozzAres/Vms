@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
-using Polly;
+using Vms.Application.Commands;
+using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Services;
-using Vms.Application.UseCase;
-using Vms.Application.UseCase.VehicleUseCase;
-using Vms.Domain.Entity;
-using Vms.Domain.Entity.ServiceBookingEntity;
+using Vms.Domain.Common;
+using Vms.Domain.Core;
+using Vms.Domain.ServiceBookingProcess;
 using Vms.Web.Server;
 
 namespace Vms.Domain.Infrastructure.Seed;

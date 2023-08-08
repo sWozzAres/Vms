@@ -7,7 +7,7 @@ public class MyClaimsTransformation : IClaimsTransformation
 {
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        ClaimsIdentity claimsIdentity = new ();
+        ClaimsIdentity claimsIdentity = new();
         var claimType = "custom_claim";
         if (!principal.HasClaim(claim => claim.Type == claimType))
         {

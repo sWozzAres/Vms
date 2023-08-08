@@ -262,7 +262,7 @@ public class ServiceBookingDto : ICopyable<ServiceBookingDto>
     public DateOnly? PreferredDate1 { get; set; }
     public DateOnly? PreferredDate2 { get; set; }
     public DateOnly? PreferredDate3 { get; set; }
-    [Range(typeof(ServiceLevelDto), nameof(ServiceLevelDto.Mobile), nameof(ServiceLevelDto.DropOffWithCourtesyCar), 
+    [Range(typeof(ServiceLevelDto), nameof(ServiceLevelDto.Mobile), nameof(ServiceLevelDto.DropOffWithCourtesyCar),
         ErrorMessage = "You must select a service level.")]
     public ServiceLevelDto ServiceLevel { get; set; }
     public string? AssignedToUserId { get; set; }
@@ -314,7 +314,7 @@ public enum ServiceBookingListOptions
     Assigned = 3,
     Due = 4
 }
-public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm, 
+public class ServiceBookingListDto(Guid id, Guid vehicleId, string @ref, string vrm,
     DateTime? rescheduleTime, ServiceBookingDtoStatus status,
     string? workerName, DateTime? workStarted)
 {

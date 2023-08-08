@@ -1,7 +1,7 @@
 ﻿@using System.Diagnostics.CodeAnalysis;
 @inject ILogger<CustomerRelated> Logger
 @inject ServerApiHttpClient Api
-
+@inject VehicleApiClient VehicleApi
 <RelatedItem TypeName="Customer" Item="Customer" Context="customer">
     <IconContent>
         <div class="entity-svg-customer">
@@ -56,7 +56,7 @@
 {
     <ListSelector TItem="CustomerShortDto" Title="Find Customer"
                   OnSelected="CustomerSearchDialogSelect"
-                  OnGetItems="Api.GetCustomersShortAsync"
+                  OnGetItems="FindCustomers"
                   OnClose="() => addCustomerDialogActive = false">
         <TableHeader>
             <th>Code</th>
@@ -71,7 +71,7 @@
 
 @code {
     [Parameter, EditorRequired] public CustomerShortDto? Customer { get; set; } = null!;
-    [Parameter, EditorRequired] public Guid VehicleId { get; set; }
+    [Parameter, EditorRequired] public VehicleFullDto Vehicle { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback OnChanged { get; set; }
 
     bool addCustomerDialogActive = false;
@@ -90,9 +90,12 @@
         }
     }
 
+    Task<List<CustomerShortDto>?> FindCustomers(string filter) 
+        => Api.GetCustomersShortAsync(Vehicle.CompanyCode, filter);
+
     async Task CustomerSearchDialogSelect(CustomerShortDto item)
     {
-        await Api.AssignCustomerToVehicleAsync(VehicleId, item.Code);
+        await VehicleApi.AssignCustomerToVehicleAsync(Vehicle.Id, item.Code);
 
         await OnChanged.InvokeAsync();
 
@@ -103,7 +106,7 @@
     {
         try
         {
-            await Api.RemoveCustomerFromVehicleAsync(VehicleId);
+            await VehicleApi.RemoveCustomerFromVehicleAsync(Vehicle.Id);
 
             if (OnChanged.HasDelegate)
             {
@@ -121,7 +124,7 @@
 
     protected override void OnInitialized()
     {
-        ArgumentNullException.ThrowIfNull(VehicleId);
+        ArgumentNullException.ThrowIfNull(Vehicle);
         if (!OnChanged.HasDelegate) throw new ArgumentNullException(nameof(OnChanged));
     }
 }

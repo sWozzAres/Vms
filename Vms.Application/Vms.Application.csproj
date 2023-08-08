@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.143" />
     <PackageReference Include="ProjNet" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Vms.Domain.Infrastructure\Vms.Domain.Infrastructure.csproj" />
     <ProjectReference Include="..\Vms.Domain\Vms.Domain.csproj" />
     <ProjectReference Include="..\Vms.Web\Shared\Vms.Web.Shared.csproj" />
   </ItemGroup>

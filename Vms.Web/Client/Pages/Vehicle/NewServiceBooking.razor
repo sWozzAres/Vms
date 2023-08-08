@@ -1,5 +1,6 @@
 ﻿@inject ServiceBookingApiClient Api
 @inject ServerApiHttpClient Http
+@inject VehicleApiClient VehicleApi
 @inject ILogger<NewServiceBooking> Logger
 @inject NavigationManager NavigationManager
 
@@ -156,7 +157,7 @@
         vehicleEvents = null;
         try
         {
-            var events = await Http.GetEvents(Id);
+            var events = await VehicleApi.GetEvents(Id);
 
             vehicleEvents = events.Mots.Select(m => new EventSelect(m.Id, EventSelectType.Mot, m.Due, ""))
                 .ToList();

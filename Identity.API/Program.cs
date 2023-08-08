@@ -1,4 +1,6 @@
-﻿using Identity.API.Data;
+﻿using System;
+using System.IO;
+using Identity.API.Data;
 using Identity.API.Extensions;
 using Identity.API.Models;
 using IdentityServer4.EntityFramework.DbContexts;
@@ -11,8 +13,6 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using System;
-using System.IO;
 
 namespace Identity.API
 {
@@ -118,7 +118,7 @@ namespace Identity.API
 
             return builder.Build();
         }
-        
+
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             // Default Builder Settings:
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-5.0#default-builder-settings
@@ -129,7 +129,7 @@ namespace Identity.API
                     webBuilder.CaptureStartupErrors(false);
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
-                    
+
                     //webBuilder.UseConfiguration(Configuration);
                 });
     }

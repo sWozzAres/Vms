@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\CodeGen\CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
 	</ItemGroup>
 
   <ItemGroup>

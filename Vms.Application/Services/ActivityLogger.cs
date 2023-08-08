@@ -1,9 +1,4 @@
-﻿using System.Text;
-using Vms.Domain.Entity.ServiceBookingEntity;
-using Vms.Domain.Services;
-using Vms.DomainApplication.Services;
-
-namespace Vms.Application.Services;
+﻿namespace Vms.Application.Services;
 
 public interface IActivityLogger
 {

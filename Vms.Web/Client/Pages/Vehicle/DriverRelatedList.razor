@@ -1,6 +1,7 @@
 ﻿@using System.Diagnostics.CodeAnalysis;
 @inject ILogger<DriverRelatedList> Logger
 @inject ServerApiHttpClient Api
+@inject VehicleApiClient VehicleApi
 
 <RelatedList TypeName="Drivers" Items="Items" Context="driver">
     <IconContent>
@@ -87,7 +88,7 @@
     // }
     public async Task DriverSearchDialogSelect(DriverShortDto item)
     {
-        await Api.AddDriverToVehicleAsync(VehicleId, item.Id);
+        await VehicleApi.AddDriverToVehicleAsync(VehicleId, item.Id);
         // if (response.IsSuccessStatusCode)
         // {
         //     var driver = await Api.GetDriverShortAsync(item.Id);
@@ -121,7 +122,7 @@
     {
         try
         {
-            await Api.RemoveDriverFromVehicleAsync(VehicleId, selectedDriver.Id);
+            await VehicleApi.RemoveDriverFromVehicleAsync(VehicleId, selectedDriver.Id);
 
             if (OnChanged.HasDelegate)
             {

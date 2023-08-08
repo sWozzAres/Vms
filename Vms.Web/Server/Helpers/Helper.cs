@@ -1,7 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-using System;
-
-namespace Vms.Web.Server.Helpers;
+﻿namespace Vms.Web.Server.Helpers;
 
 public static class Helper
 {

@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Identity.API.Models;
+using IdentityModel;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Identity.API.Models;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
-using IdentityModel;
 
 namespace Identity.API.Data
 {
@@ -123,7 +123,7 @@ namespace Identity.API.Data
                 UserName = "alice",
                 Email = "AliceSmith@email.com",
                 EmailConfirmed = true,
-                
+
             };
 
             user.PasswordHash = _passwordHasher.HashPassword(user, "Pass@word1");

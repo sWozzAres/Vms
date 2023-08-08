@@ -1,6 +1,7 @@
 ﻿@using System.Diagnostics.CodeAnalysis;
 @inject ILogger<FleetRelated> Logger
 @inject ServerApiHttpClient Api
+@inject VehicleApiClient VehicleApi
 
 <RelatedItem TypeName="Fleet" Item="Fleet" Context="customer">
     <IconContent>
@@ -56,7 +57,7 @@
 {
     <ListSelector TItem="FleetShortDto" Title="Find Fleet"
                   OnSelected="FleetSearchDialogSelect"
-                  OnGetItems="Api.GetFleetsShortAsync"
+                  OnGetItems="FindFleets"
                   OnClose="() => addFleetDialogActive = false">
         <TableHeader>
             <th>Code</th>
@@ -71,7 +72,7 @@
 
 @code {
     [Parameter, EditorRequired] public FleetShortDto? Fleet { get; set; } = null!;
-    [Parameter, EditorRequired] public Guid VehicleId { get; set; }
+    [Parameter, EditorRequired] public VehicleFullDto Vehicle { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback OnChanged { get; set; }
 
     bool addFleetDialogActive = false;
@@ -90,9 +91,12 @@
         }
     }
 
+    Task<List<FleetShortDto>?> FindFleets(string filter)
+        => Api.GetFleetsShortAsync(Vehicle.CompanyCode, filter);
+
     async Task FleetSearchDialogSelect(FleetShortDto item)
     {
-        await Api.AssignFleetToVehicleAsync(VehicleId, item.Code);
+        await VehicleApi.AssignFleetToVehicleAsync(Vehicle.Id, item.Code);
 
         await OnChanged.InvokeAsync();
 
@@ -103,7 +107,7 @@
     {
         try
         {
-            await Api.RemoveFleetFromVehicleAsync(VehicleId);
+            await VehicleApi.RemoveFleetFromVehicleAsync(Vehicle.Id);
 
             if (OnChanged.HasDelegate)
             {
@@ -121,7 +125,7 @@
 
     protected override void OnInitialized()
     {
-        ArgumentNullException.ThrowIfNull(VehicleId);
+        ArgumentNullException.ThrowIfNull(Vehicle);
         if (!OnChanged.HasDelegate) throw new ArgumentNullException(nameof(OnChanged));
     }
 }

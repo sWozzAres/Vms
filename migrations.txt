@@ -1,15 +1,15 @@
 dotnet ef migrations add Initial3 -o Infrastructure\Migrations\CatalogDb -c CatalogContext
 
-add-migration -Name Initial2 -o Infrastructure\VmsDb -Context VmsDbContext -Project Vms.Domain -StartupProject Vms.Domain
-update-database -Context VmsDbContext -Project Vms.Domain -StartupProject Vms.Domain
-remove-migration -Context VmsDbContext -Project Vms.Domain -StartupProject Vms.Domain
+add-migration -Name Initial -o VmsDb -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
+update-database -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
+remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 
 migrationBuilder.Sql(
     sql: "CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;",
     suppressTransaction: true);
 
 migrationBuilder.Sql(
-    sql: "CREATE FULLTEXT INDEX ON EntityTags(Content) KEY INDEX PK_EntityTags;",
+    sql: "CREATE FULLTEXT INDEX ON System.EntityTags(Content) KEY INDEX PK_EntityTags;",
     suppressTransaction: true);
 
 

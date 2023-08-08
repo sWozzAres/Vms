@@ -2,11 +2,11 @@
 
 public class TimeFreeze : ITimeService
 {
-    DateTime _time;
+    readonly DateTime _time;
     public TimeFreeze(DateTime time)
     {
-        _time = time.Kind == DateTimeKind.Local 
-            ? time 
+        _time = time.Kind == DateTimeKind.Local
+            ? time
             : throw new ArgumentException("Time must be Local.", nameof(time));
     }
     public TimeFreeze(ITimeService time)

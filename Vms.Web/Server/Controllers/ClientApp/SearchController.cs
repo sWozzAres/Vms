@@ -17,8 +17,8 @@ public class SearchController(VmsDbContext context) : ControllerBase
     public async Task<IActionResult> Search(string searchString, CancellationToken cancellationToken)
     {
         var results = await (from tag in context.EntityTags
-                      where EF.Functions.FreeText(tag.Content, searchString)
-                      select new EntityTagDto(tag.EntityKey, (EntityTagKindDto)tag.EntityKind, tag.Name)).ToListAsync(cancellationToken);
+                             where EF.Functions.FreeText(tag.Content, searchString)
+                             select new EntityTagDto(tag.EntityKey, (EntityTagKindDto)tag.EntityKind, tag.Name)).ToListAsync(cancellationToken);
 
         return Ok(results);
     }

@@ -20,7 +20,7 @@ public class TransactionMiddleware
         }
         else
         {
-           var strategy = _context.Database.CreateExecutionStrategy();
+            var strategy = _context.Database.CreateExecutionStrategy();
 
             await strategy.ExecuteAsync(async () =>
             {
@@ -36,7 +36,7 @@ public class TransactionMiddleware
 
                         _logger.LogInformation("----- Commit transaction {TransactionId}", transaction.TransactionId);
 
-                       await transaction.CommitAsync();
+                        await transaction.CommitAsync();
 
                         return true;
                     }

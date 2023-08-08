@@ -1,10 +1,8 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Polly;
-using Vms.Domain.Entity;
+using Vms.Application;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -44,9 +42,4 @@ public class DriverController(VmsDbContext context) : ControllerBase
 
         return Ok(driver.ToShortDto());
     }
-}
-public static partial class DomainExtensions
-{
-    public static DriverShortDto ToShortDto(this Driver driver)
-        => new(driver.Id, driver.CompanyCode, driver.EmailAddress, driver.FullName, driver.MobileNumber);
 }

@@ -1,7 +1,7 @@
 ﻿//https://github.com/DapperLib/Dapper/issues/1715
 
-using Dapper;
 using System.Data;
+using Dapper;
 
 namespace Vms.Web.Server.Helpers;
 

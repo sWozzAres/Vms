@@ -1,4 +1,4 @@
-﻿namespace Vms.DomainApplication.Services;
+﻿namespace Vms.Application.Services;
 
 public interface IEmailSender
 {

@@ -1,4 +1,4 @@
-﻿using Vms.Domain.Services;
+﻿using Vms.Domain.Infrastructure.Services;
 
 namespace Vms.Tests;
 

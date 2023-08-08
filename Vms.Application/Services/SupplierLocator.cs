@@ -1,5 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-using Vms.Domain.Entity.ServiceBookingEntity;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Services;
 
@@ -24,13 +23,13 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
     {
         var customerList = vehicle.CustomerCode is null
             ? Enumerable.Empty<SupplierDistance>().ToList()
-            : await SuppliersOnCustomerNetwork(vehicle.Address.Location, 
+            : await SuppliersOnCustomerNetwork(vehicle.Address.Location,
             serviceBookingId,
             (vehicle.CompanyCode, vehicle.CustomerCode)).ToListAsync(cancellationToken);
 
         var fleetList = vehicle.FleetCode is null
             ? Enumerable.Empty<SupplierDistance>().ToList()
-            : await SuppliersOnFleetNetwork(vehicle.Address.Location, 
+            : await SuppliersOnFleetNetwork(vehicle.Address.Location,
             serviceBookingId,
             (vehicle.CompanyCode, vehicle.FleetCode)).ToListAsync(cancellationToken);
 
@@ -46,7 +45,7 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
         return result;
     }
 
-    private IQueryable<SupplierDistance> SuppliersOnCustomerNetwork(Geometry location, 
+    private IQueryable<SupplierDistance> SuppliersOnCustomerNetwork(Geometry location,
         Guid serviceBookingId,
         (string CompanyCode, string CustomerCode) customer)
         => from s in dbContext.Suppliers
@@ -54,7 +53,7 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
            join n in dbContext.Networks on new { ns.CompanyCode, Code = ns.NetworkCode } equals new { n.CompanyCode, n.Code }
            join cs in dbContext.CustomerNetworks on new { n.CompanyCode, n.Code } equals new { cs.CompanyCode, Code = cs.NetworkCode }
 
-           join _sr in dbContext.SupplierRefusals.OrderByDescending(x => x.Id).Where(r => r.ServiceBookingId == serviceBookingId) 
+           join _sr in dbContext.SupplierRefusals.OrderByDescending(x => x.Id).Where(r => r.ServiceBookingId == serviceBookingId)
            on s.Code equals _sr.SupplierCode into __sr
            from sr in __sr.Take(1).DefaultIfEmpty()
 
@@ -64,7 +63,7 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
            select new SupplierDistance(s.Code, s.Name, s.Address.Location.Distance(location), sr.Code, sr.Name);
 
     private IQueryable<SupplierDistance> SuppliersOnFleetNetwork(Geometry location,
-        Guid serviceBookingId, 
+        Guid serviceBookingId,
         (string CompanyCode, string FleetCode) fleet)
         => from s in dbContext.Suppliers
            join ns in dbContext.NetworkSuppliers on s.Code equals ns.SupplierCode

@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
-using Vms.Application.UseCase;
-using Vms.Application.UseCase.VehicleUseCase;
 using Vms.Tests;
 
 namespace VmsTesting;
@@ -13,7 +10,7 @@ public class TestDatabaseFixture : IAsyncLifetime
         "Server=SKYLAKE\\SQL2019;Database=Vms_Test;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False";
 
     //private static readonly object _lock = new();
-    private static bool _databaseInitialized;
+    private static readonly bool _databaseInitialized;
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
