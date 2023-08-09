@@ -24,7 +24,7 @@ public class ServerApiHttpClient(HttpClient http)
     public async Task<List<EntityTagDto>> Search(string searchString)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<EntityTagDto>>($"/api/search/{searchString}")
+        return await http.GetFromJsonAsync<List<EntityTagDto>>($"/api/search?term={searchString}")
             ?? throw new InvalidOperationException("Failed to get search.");
     }
     #endregion

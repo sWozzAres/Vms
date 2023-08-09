@@ -17,7 +17,7 @@ public class RemoveRecentViewsBackgroundService(IConfiguration configuration, IL
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogDebug("RemoveRecentViewsBackgroundService is doing background work. Time is '{time}'.", timeService.GetTime());
+            logger.LogDebug("RemoveRecentViewsBackgroundService is doing background work.");
 
             using var conn = new SqlConnection(options.VmsDbConnection);
             try

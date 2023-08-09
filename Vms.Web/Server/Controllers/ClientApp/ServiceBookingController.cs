@@ -124,7 +124,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
         [FromBody] TaskAssignSupplierCommand request,
-        [FromServices] IAssignSupplierUseCase assignSupplierUseCase,
+        [FromServices] IAssignSupplier assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
         await assignSupplierUseCase.AssignAsync(id, request, cancellationToken);

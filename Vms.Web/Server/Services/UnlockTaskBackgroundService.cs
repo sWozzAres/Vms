@@ -17,7 +17,7 @@ public class UnlockTaskBackgroundService(IConfiguration configuration, ILogger<U
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogDebug("UnlockTaskBackgroundService is doing background work. Time is '{time}'.", timeService.GetTime());
+            logger.LogDebug("UnlockTaskBackgroundService is doing background work.");
 
             using var conn = new SqlConnection(options.VmsDbConnection);
             try

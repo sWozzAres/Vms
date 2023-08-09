@@ -1,14 +1,17 @@
-﻿using Vms.Application.Commands.VehicleUseCase;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Application.Commands.VehicleUseCase;
 
 namespace Vms.Application.Commands;
 
-public class CreateDriver(VmsDbContext dbContext, ISearchManager searchManager)
+public class CreateDriver(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     VehicleRole? Vehicle;
 
     public async Task<Driver> CreateAsync(CreateDriverRequest request, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Creating driver {driverfirstname} {driverlastname}", request.FirstName, request.LastName);
+
         Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { request.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found."), this);
 

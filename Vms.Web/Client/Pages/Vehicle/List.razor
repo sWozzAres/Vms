@@ -21,7 +21,9 @@
             <a href="/vehicle/view/@context!.Id">@context.Vrm</a>
         </TemplateColumn>
         <PropertyColumn Property="p=>p!.Make" />
-        <PropertyColumn Property="p=>p!.Model" Class="w100" />
+        <PropertyColumn Property="p=>p!.Model" />
+        <PropertyColumn Property="p=>p!.CustomerName" Title="Customer" />
+        <PropertyColumn Property="p=>p!.FleetName" Title="Fleet" />
     </GridColumns>
 </ListTemplate>
 

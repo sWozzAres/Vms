@@ -24,6 +24,7 @@ public class CustomerQueries(VmsDbContext context, IUserProvider userProvider) :
         int totalCount = await customers.CountAsync(cancellationToken);
 
         var result = await customers
+            .OrderBy(c => c.CompanyCode).ThenBy(c => c.Code)
             .Skip(start)
             .Take(take)
             .Select(x => new CustomerListDto(x.CompanyCode, x.Code, x.Name))

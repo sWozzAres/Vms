@@ -12,7 +12,9 @@ public enum VehicleListOptions
     Recent = 1,
     Following = 2,
 }
-public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model);
+public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model, 
+    string? CustomerCode, string? CustomerName,
+    string? FleetCode, string? FleetName);
 
 public partial class VehicleDto : ICopyable<VehicleDto>
 {

@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -7,7 +8,8 @@ public interface ICheckArrival
     Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken);
 }
 
-public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : ICheckArrival
+public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+    ILogger<CheckArrival> logger) : ICheckArrival
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
@@ -19,6 +21,8 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
 
     public async Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("CheckArrival task for service booking {servicebookingid}, command: {@taskcheckarrivalcommand}.", id, command);
+
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;

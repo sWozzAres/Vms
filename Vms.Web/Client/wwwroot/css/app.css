@@ -542,6 +542,7 @@ form.fullresponse fieldset.form-grid {
 }
 .svg-xlarge img {
   height: 3em;
+  width: 3em;
 }
 
 .svg-large {
@@ -552,6 +553,7 @@ form.fullresponse fieldset.form-grid {
 }
 .svg-large img {
   height: 2em;
+  width: 2em;
 }
 
 .svg-medium {
@@ -562,6 +564,7 @@ form.fullresponse fieldset.form-grid {
 }
 .svg-medium img {
   height: 1em;
+  width: 1em;
 }
 
 .tabs {

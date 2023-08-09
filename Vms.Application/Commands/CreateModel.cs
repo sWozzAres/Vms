@@ -1,12 +1,16 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateModel(VmsDbContext dbContext)
+namespace Vms.Application.Commands;
+
+public class CreateModel(VmsDbContext dbContext, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     MakeRole? Make;
 
     public async Task<VehicleModel> CreateAsync(CreateModelRequest request, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Creating model {vehiclemake}/{vehiclemodel}", request.Make, request.Model);
+
         Make = new(await DbContext.VehicleMakes.FindAsync(new object[] { request.Make }, cancellationToken)
             ?? throw new VmsDomainException("Make not found."), this);
 

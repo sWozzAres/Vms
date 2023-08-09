@@ -24,6 +24,7 @@ public class SupplierQueries(VmsDbContext context, IUserProvider userProvider) :
         int totalCount = await suppliers.CountAsync(cancellationToken);
 
         var result = await suppliers
+            .OrderBy(s => s.Code)
             .Skip(start)
             .Take(take)
             .Select(x => new SupplierListDto(x.Code, x.Name))

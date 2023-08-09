@@ -1,4 +1,4 @@
-﻿@page "/search/{SearchString}"
+﻿@page "/search"
 @inject IJSRuntime JSRuntime
 @inject ILogger<Search> Logger
 @inject ServerApiHttpClient Api
@@ -22,7 +22,7 @@
 </section>
 
 @code {
-    [Parameter]
+    [Parameter, SupplyParameterFromQuery(Name ="SearchString")]
     public string SearchString { get; set; } = null!;
 
     QuickGrid<EntityTagDto> grid = null!;

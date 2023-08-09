@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -7,13 +8,15 @@ public interface IEdit
     Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken);
 }
 
-public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IEdit
+public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, ILogger<Edit> logger) : IEdit
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
 
     public async Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Edit task for service booking {servicebookingid}, command: {@servicebookingdto}.", id, command);
+
         var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 

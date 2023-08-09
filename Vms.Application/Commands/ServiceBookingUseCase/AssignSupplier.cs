@@ -1,13 +1,15 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IAssignSupplierUseCase
+public interface IAssignSupplier
 {
     Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
 }
 
-public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IAssignSupplierUseCase
+public class AssignSupplier(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, 
+    ILogger<AssignSupplier> logger) : IAssignSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
@@ -19,6 +21,8 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
 
     public async Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("AssignSupplier task for service booking {servicebookingid}, command: {@taskassignsuppliercommand}", id, command);
+
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
@@ -32,7 +36,7 @@ public class AssignSupplierUseCase(VmsDbContext dbContext, IActivityLogger activ
         taskLogger.Log(id, "Assign Supplier", Command);
     }
 
-    class ServiceBookingRole(ServiceBooking self, AssignSupplierUseCase ctx)
+    class ServiceBookingRole(ServiceBooking self, AssignSupplier ctx)
     {
         public async Task Assign()
         {

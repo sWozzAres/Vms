@@ -24,8 +24,10 @@ public class CompanyQueries(VmsDbContext context, IUserProvider userProvider) : 
         int totalCount = await companies.CountAsync(cancellationToken);
 
         var result = await companies
+            .OrderBy(c => c.Code)
             .Skip(start)
             .Take(take)
+
             .Select(x => new CompanyListDto(x.Code, x.Name))
             .ToListAsync(cancellationToken);
 

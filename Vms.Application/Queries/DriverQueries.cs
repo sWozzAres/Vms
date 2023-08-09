@@ -24,12 +24,14 @@ public class DriverQueries(VmsDbContext context, IUserProvider userProvider) : I
         int totalCount = await drivers.CountAsync(cancellationToken);
 
         var query = await drivers
+            .OrderBy(d => d.Id)
             .Skip(start)
             .Take(take)
+
             .Select(x => new { x.Id, x.Salutation, x.FirstName, x.MiddleNames, x.LastName })
             .ToListAsync(cancellationToken);
 
-        var result = query.Select(q => new DriverListDto(q.Id, 
+        var result = query.Select(q => new DriverListDto(q.Id,
             string.Join(" ", new string?[] { q.Salutation, q.FirstName, q.MiddleNames, q.LastName }
                 .Where(x => !string.IsNullOrEmpty(x))))).ToList();
 

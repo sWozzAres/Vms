@@ -1,12 +1,16 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateNetwork(VmsDbContext dbContext, ISearchManager searchManager)
+namespace Vms.Application.Commands;
+
+public class CreateNetwork(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
 
     public async Task<Network> CreateAsync(CreateNetworkRequest request, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Creating network {networkcode} {networkname}", request.Code, request.Name);
+
         Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 

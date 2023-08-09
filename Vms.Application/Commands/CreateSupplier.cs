@@ -1,15 +1,20 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateSupplier(VmsDbContext dbContext)
+namespace Vms.Application.Commands;
+
+public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
 
     public Supplier Create(CreateSupplierRequest request)
     {
+        logger.LogInformation("Creating supplier {suppliercode} {suppliername}", request.Code, request.Name);
+
         var supplier = new Supplier(request.Code, request.Name, request.Address, request.IsIndependant);
         DbContext.Add(supplier);
 
-        //await DbContext.SaveChangesAsync(cancellationToken);
+        searchManager.Add(null, supplier.Code, EntityKind.Supplier, supplier.Name,
+            string.Join(" ", supplier.Code, supplier.Name));
 
         return supplier;
     }

@@ -1,12 +1,16 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateCustomer(VmsDbContext dbContext, ISearchManager searchManager)
+namespace Vms.Application.Commands;
+
+public class CreateCustomer(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
 
     public async Task<Customer> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Creating customer {customercode} {customername}", request.Code, request.Name);
+
         Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 

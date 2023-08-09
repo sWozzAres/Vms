@@ -24,6 +24,7 @@ public class FleetQueries(VmsDbContext context, IUserProvider userProvider) : IF
         int totalCount = await fleets.CountAsync(cancellationToken);
 
         var result = await fleets
+            .OrderBy(f => f.CompanyCode).ThenBy(f => f.Code)
             .Skip(start)
             .Take(take)
             .Select(x => new FleetListDto(x.CompanyCode, x.Code, x.Name))

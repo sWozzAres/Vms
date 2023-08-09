@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -7,7 +8,8 @@ public interface IBookSupplier
     Task BookAsync(Guid id, TaskBookSupplierCommand request, CancellationToken cancellationToken);
 }
 
-public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IActivityLogger activityLog, ITaskLogger taskLogger) : IBookSupplier
+public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IActivityLogger activityLog,
+    ITaskLogger taskLogger, ILogger<BookSupplier> logger) : IBookSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IEmailSender EmailSender = emailSender;
@@ -20,6 +22,8 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
 
     public async Task BookAsync(Guid id, TaskBookSupplierCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("BookSupplier task for service booking {servicebookingid}, command: {@taskbooksuppliercommand}.", id, command);
+
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;

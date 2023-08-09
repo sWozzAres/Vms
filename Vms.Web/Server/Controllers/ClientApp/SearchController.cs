@@ -13,11 +13,15 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 public class SearchController(VmsDbContext context) : ControllerBase
 {
     [HttpGet]
-    [Route("{searchString}")]
-    public async Task<IActionResult> Search(string searchString, CancellationToken cancellationToken)
+    public async Task<IActionResult> Search(string? term, CancellationToken cancellationToken)
     {
+        if (term is null)
+        {
+            return NotFound();
+        }
+
         var results = await (from tag in context.EntityTags
-                             where EF.Functions.FreeText(tag.Content, searchString)
+                             where EF.Functions.FreeText(tag.Content, term)
                              select new EntityTagDto(tag.EntityKey, (EntityTagKindDto)tag.EntityKind, tag.Name)).ToListAsync(cancellationToken);
 
         return Ok(results);

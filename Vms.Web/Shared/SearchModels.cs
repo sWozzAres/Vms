@@ -23,6 +23,7 @@ public record EntityTagDto(string Key, EntityTagKindDto Kind, string Name)
         EntityTagKindDto.Customer => "Customer",
         EntityTagKindDto.Network => "Network",
         EntityTagKindDto.Supplier => "Supplier",
+        EntityTagKindDto.Driver => "Driver",
         EntityTagKindDto.ServiceBooking => "Service Booking",
         _ => "Unknown"
     };

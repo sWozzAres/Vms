@@ -37,9 +37,21 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         int totalCount = await vehicles.CountAsync(cancellationToken);
 
         var result = await vehicles
+            .Include(v => v.C)
+            .OrderBy(v => v.Id)
             .Skip(start)
             .Take(take)
-            .Select(x => new VehicleListDto(x.Id, x.CompanyCode, x.VehicleVrm.Vrm, x.Make, x.Model))
+            .Select(x => new VehicleListDto(
+                x.Id,
+                x.CompanyCode,
+                x.VehicleVrm.Vrm,
+                x.Make,
+                x.Model,
+                x.C == null ? null : x.C.Code,
+                x.C == null ? null : x.C.Name,
+                x.Fleet == null ? null : x.Fleet.Code,
+                x.Fleet == null ? null : x.Fleet.Name
+            ))
             .ToListAsync(cancellationToken);
 
         return (totalCount, result);

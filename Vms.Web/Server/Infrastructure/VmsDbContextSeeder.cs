@@ -67,7 +67,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     public async Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
     {
-        _logger.LogInformation("Seeding database.");
+        
 
         var strategy = _context.Database.CreateExecutionStrategy();
 
@@ -78,12 +78,11 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             {
                 if (!_context.Companies.Any())
                 {
-                    _logger.LogInformation("Seeding main data.");
+                    _logger.LogInformation("Seeding database.");
                     await SeedData();
                 }
                 else
                 {
-                    // load all companies
                     await _context.Companies.ToListAsync();
                 }
 
@@ -117,7 +116,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         {
             string code = $"TEST{ci:D3}";
             string name = $"Company #{ci}";
-            var company = new CreateCompany(_context, _searchManager)
+            var company = new CreateCompany(_context, _searchManager, _logger)
                 .Create(new CreateCompanyRequest(code, name));
 
             foreach (var fi in Enumerable.Range(1, 50))
@@ -125,7 +124,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string fleetCode = $"FL{ci:D3}{fi:D2}";
                 string fleetName = $"Fleet #{fi:D2} Company #{ci:D3}";
 
-                var fleet1 = await new CreateFleet(_context, _searchManager)
+                var fleet1 = await new CreateFleet(_context, _searchManager, _logger)
                     .CreateAsync(new CreateFleetRequest(company.Code, fleetCode, fleetName));
             }
 
@@ -134,7 +133,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string networkCode = $"NET{ci:D3}{ni:D2}";
                 string networkName = $"Network #{ni:D2} Company #{ci:D3}";
 
-                var fleet = await new CreateNetwork(_context, _searchManager)
+                var fleet = await new CreateNetwork(_context, _searchManager, _logger)
                     .CreateAsync(new CreateNetworkRequest(company.Code, networkCode, networkName));
             }
 
@@ -143,7 +142,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string customerCode = $"CUS{ci:D3}{csi:D3}";
                 string customerName = $"Customer #{csi:D3} Company #{ci:D3}";
 
-                var customer = await new CreateCustomer(_context, _searchManager)
+                var customer = await new CreateCustomer(_context, _searchManager, _logger)
                     .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
 
 
@@ -159,12 +158,12 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         foreach (var makeInfo in makes)
         {
-            new CreateMake(_context)
+            new CreateMake(_context, _logger)
                 .Create(new CreateMakeRequest(makeInfo.Make));
 
             foreach (var modelInfo in makeInfo.Models)
             {
-                await new CreateModel(_context)
+                await new CreateModel(_context, _logger)
                     .CreateAsync(new CreateModelRequest(makeInfo.Make, modelInfo.Model));
             }
         }
@@ -244,7 +243,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     new Address("", "", "", "", new Point(-2.3554702709792426, 51.69082531225236) { SRID = 4326 }),
                     null, null));
 
-            var driver = await new CreateDriver(_context, _searchManager)
+            var driver = await new CreateDriver(_context, _searchManager, _logger)
                 .CreateAsync(new CreateDriverRequest(company.Code,
                     vehicle.Id,
                     driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName,
@@ -334,31 +333,31 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     async Task SeedSuppliers()
     {
-        new CreateSupplier(_context)
+        new CreateSupplier(_context, _searchManager, _logger)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP01",
                     "Thrupp Tyre Co Ltd",
                     new Address("Unit 12 Griffin Mill", "London Rd", "STROUD", "GL52AZ", new Point(-2.204244578769126, 51.73021720095717) { SRID = 4326 }), true));
 
-        new CreateSupplier(_context)
+        new CreateSupplier(_context, _searchManager, _logger)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP02",
                     "Warwick Car Co",
                     new Address("Fromeside Ind Est", "Doctor Newtons Way", "STROUD", "GL53JX", new Point(-2.217698852580117, 51.74259678708762) { SRID = 4326 }), true));
 
-        new CreateSupplier(_context)
+        new CreateSupplier(_context, _searchManager, _logger)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP03",
                     "Blake Services Stroud Ltd",
                     new Address("Hopes Mill Business Centre", "", "STROUD", "GL52SE", new Point(-2.197510975726595, 51.72249258962455) { SRID = 4326 }), true));
 
-        new CreateSupplier(_context)
+        new CreateSupplier(_context, _searchManager, _logger)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP04",
                     "Lansdown Road Motors Ltd",
                     new Address("Lansdown Rd", "", "STROUD", "GL51BW", new Point(-2.210593551187789, 51.74831757007313) { SRID = 4326 }), true));
 
-        new CreateSupplier(_context)
+        new CreateSupplier(_context, _searchManager, _logger)
                 .Create(new CreateSupplierRequest(
                     "TSTSUP05",
                     "Kwik Fit - Dursley",
@@ -366,7 +365,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         foreach (var i in Enumerable.Range(1, 100))
         {
-            new CreateSupplier(_context)
+            new CreateSupplier(_context, _searchManager, _logger)
                 .Create(new CreateSupplierRequest(
                     $"SUP{i:D4}",
                     $"Supplier #{i}",

@@ -80,9 +80,9 @@ builder.Services.AddScoped<INotifyCustomer, NotifyCustomer>();
 builder.Services.AddScoped<INotifyCustomerDelay, NotifyCustomerDelay>();
 builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
 builder.Services.AddScoped<ISupplierLocator, SupplierLocator>();
-builder.Services.AddScoped<IAssignSupplierUseCase, AssignSupplierUseCase>();
+builder.Services.AddScoped<IAssignSupplier, AssignSupplier>();
 builder.Services.AddScoped<IUnbookSupplier, UnbookSupplier>();
-builder.Services.AddScoped<IAutomaticallyAssignSupplierUseCase, AutomaticallyAssignSupplierUseCase>();
+builder.Services.AddScoped<IAutomaticallyAssignSupplier, AutomaticallyAssignSupplier>();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {

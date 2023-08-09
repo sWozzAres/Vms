@@ -6,7 +6,7 @@
 .related-section .header {
     display: flex;
     align-items: center;
-    gap: 1em;
+    gap: 0.5em;
 }
 
     .related-section .header .icon {

@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -7,7 +8,8 @@ public interface INotifyCustomer
     Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken);
 }
 
-public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : INotifyCustomer
+public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+    ILogger<NotifyCustomer> logger) : INotifyCustomer
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
@@ -19,6 +21,8 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
 
     public async Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("NotifyCustomer task for service booking {servicebookingid}, command: {@tasknotifycustomercommand}.", id, command);
+
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;

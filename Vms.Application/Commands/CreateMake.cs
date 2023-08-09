@@ -1,11 +1,15 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateMake(VmsDbContext dbContext)
+namespace Vms.Application.Commands;
+
+public class CreateMake(VmsDbContext dbContext, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
 
     public VehicleMake Create(CreateMakeRequest request)
     {
+        logger.LogInformation("Creating make {vehiclemake}", request.Make);
+
         var make = new VehicleMake(request.Make);
         DbContext.Add(make);
 

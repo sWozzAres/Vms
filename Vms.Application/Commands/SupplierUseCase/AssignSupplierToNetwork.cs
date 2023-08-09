@@ -27,7 +27,7 @@ public class AssignSupplierToNetwork(VmsDbContext dbContext) : IAssignSupplierTo
         public async Task<bool> AssignAsync(string companyCode, string networkCode)
         {
             var ns = await ctx.DbContext.NetworkSuppliers.FindAsync(new object[] { companyCode, networkCode, self.Code }, ctx.CancellationToken);
-            if (ns is null) 
+            if (ns is null)
             {
                 ctx.DbContext.NetworkSuppliers.Add(new NetworkSupplier(self.Code, companyCode, networkCode));
                 return true;

@@ -1,12 +1,16 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateFleet(VmsDbContext dbContext, ISearchManager searchManager)
+namespace Vms.Application.Commands;
+
+public class CreateFleet(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;
 
     public async Task<Fleet> CreateAsync(CreateFleetRequest request, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Creating fleet {fleetcode} {fleetname}", request.Code, request.Name);
+
         Company = new(await DbContext.Companies.FindAsync(new object[] { request.CompanyCode }, cancellationToken)
             ?? throw new VmsDomainException("Company not found."), this);
 

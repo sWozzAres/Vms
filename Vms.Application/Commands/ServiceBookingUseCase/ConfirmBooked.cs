@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -7,7 +8,8 @@ public interface IConfirmBooked
     Task ConfirmAsync(Guid id, TaskConfirmBookedCommand command, CancellationToken cancellationToken);
 }
 
-public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger) : IConfirmBooked
+public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+    ILogger<ConfirmBooked> logger) : IConfirmBooked
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
@@ -19,6 +21,8 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, 
 
     public async Task ConfirmAsync(Guid id, TaskConfirmBookedCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("ConfirmBooked task for service booking {servicebookingid}, command: {@taskconfirmbookedcommand}.", id, command);
+
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;

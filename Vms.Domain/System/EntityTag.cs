@@ -15,10 +15,10 @@ namespace Vms.Domain.System
         Driver = 8
     }
 
-    public class EntityTag(string companyCode, string entityKey, EntityKind entityKind, string name, string content)
+    public class EntityTag(string? companyCode, string entityKey, EntityKind entityKind, string name, string content)
     {
         public Guid Id { get; private set; } = Guid.NewGuid();
-        public string CompanyCode { get; private set; } = companyCode;
+        public string? CompanyCode { get; private set; } = companyCode;
         public string EntityKey { get; private set; } = entityKey;
         public EntityKind EntityKind { get; private set; } = entityKind;
         public string Name { get; private set; } = name;
@@ -36,6 +36,7 @@ namespace Vms.Domain.System.Configuration
             entity.ToTable("EntityTags", "System");
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => new { e.CompanyCode, e.Id, e.EntityKind }).IsUnique();
+            entity.HasIndex(e => new { e.EntityKey, e.EntityKind }).IsUnique();
             entity.Property(e => e.CompanyCode).HasMaxLength(Company.Code_MaxLength);
             entity.Property(e => e.EntityKey).HasMaxLength(64);
             entity.Property(e => e.Name).HasMaxLength(64);

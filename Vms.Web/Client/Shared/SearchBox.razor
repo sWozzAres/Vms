@@ -57,7 +57,8 @@
         {
             Logger.LogInformation("SearchHistory {SearchHistory}", SearchHistory);
             await SearchHistory.AddAsync(searchString);
-            NavigationManager.NavigateTo($"/search/{searchString}", false);
+            var url = $"/search?searchstring={System.Net.WebUtility.UrlEncode(searchString)}";
+            NavigationManager.NavigateTo(url, false);
         }
     }
     void LoadItems()

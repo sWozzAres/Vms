@@ -49,9 +49,9 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
 
         var result = await serviceBookings
             .Include(s => s.Vehicle)
+            .OrderBy(s => s.RescheduleTime)
             .Skip(start)
             .Take(take)
-            .OrderBy(s => s.RescheduleTime)
             .Where(s => s.Status > 0)
             .Select(x => new ServiceBookingListDto(x.Id, x.VehicleId, x.Ref, x.Vehicle.Vrm,
                 x.RescheduleTime, (ServiceBookingDtoStatus)x.Status,

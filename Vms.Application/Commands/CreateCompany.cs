@@ -1,11 +1,15 @@
-﻿namespace Vms.Application.Commands;
+﻿using Microsoft.Extensions.Logging;
 
-public class CreateCompany(VmsDbContext dbContext, ISearchManager searchManager)
+namespace Vms.Application.Commands;
+
+public class CreateCompany(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {
     readonly VmsDbContext DbContext = dbContext;
 
     public Company Create(CreateCompanyRequest request)
     {
+        logger.LogInformation("Creating company {companycode} {companyname}", request.Code, request.Name);
+
         var company = new Company(request.Code, request.Name);
         DbContext.Add(company);
 

@@ -24,6 +24,7 @@ public class NetworkQueries(VmsDbContext context, IUserProvider userProvider) : 
         int totalCount = await networks.CountAsync(cancellationToken);
 
         var result = await networks
+            .OrderBy(n => n.CompanyCode).ThenBy(n => n.Code)
             .Skip(start)
             .Take(take)
             .Select(x => new NetworkListDto(x.CompanyCode, x.Code, x.Name))

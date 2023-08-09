@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Microsoft.Extensions.Logging;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -7,7 +8,8 @@ public interface INotifyCustomerDelay
     Task NotifyAsync(Guid id, TaskNotifyCustomerDelayCommand command, CancellationToken cancellationToken);
 }
 
-public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityLog, ITaskLogger taskLogger) : INotifyCustomerDelay
+public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityLog, ITaskLogger taskLogger,
+    ILogger<NotifyCustomerDelay> logger) : INotifyCustomerDelay
 {
     readonly VmsDbContext DbContext = context;
     readonly StringBuilder SummaryText = new();
@@ -19,6 +21,8 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityL
 
     public async Task NotifyAsync(Guid id, TaskNotifyCustomerDelayCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("NotifyCustomerDelay task for service booking {servicebookingid}, command: {@tasknotifycustomerdelaycommand}.", id, command);
+
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
