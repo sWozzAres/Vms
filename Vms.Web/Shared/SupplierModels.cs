@@ -6,3 +6,9 @@ public record SupplierLocatorDto(string Code, string Name, double Distance, stri
 }
 
 public record SupplierShortDto(string Code, string Name);
+
+public record SupplierListDto(string Code, string Name);
+public enum SupplierListOptions
+{
+    All = 0,
+}

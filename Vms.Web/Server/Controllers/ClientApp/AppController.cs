@@ -12,9 +12,9 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class AppController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
+public class AppController(ILogger<AppController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<CompanyController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    readonly ILogger<AppController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpGet]

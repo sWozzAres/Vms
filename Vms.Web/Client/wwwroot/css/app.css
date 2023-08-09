@@ -237,6 +237,7 @@ h5 + h6 {
 }
 
 .main {
+  padding-left: 0.5em;
   /*padding: 0.5em;*/
   /*background-color: #a7bbdb;*/
 }
@@ -492,28 +493,41 @@ form.fullresponse fieldset.form-grid {
   }
 }
 
+/*https://colorswall.com/palette/123588*/
+.svg-home {
+  background: #fff100;
+}
+
+.svg-company {
+  background: #ff8c00;
+}
+
+.svg-driver {
+  background: #e81123;
+}
+
+.svg-customer {
+  background: #ec008c;
+}
+
+.svg-fleet {
+  background: #68217a;
+}
+
+.svg-network {
+  background: #00188f;
+}
+
+.svg-supplier {
+  background: #00bcf2;
+}
+
 .svg-vehicle {
-  background: green;
-}
-
-.entity-svg-person {
-  background: blue;
-}
-
-.entity-svg-company {
-  background: #a094ed;
-}
-
-.entity-svg-customer {
-  background: purple;
-}
-
-.entity-svg-fleet {
-  background: #4a3fad;
+  background: #00b294;
 }
 
 .svg-servicebooking {
-  background: #cc2974;
+  background: #009e49;
 }
 
 .entity-svg-mot {

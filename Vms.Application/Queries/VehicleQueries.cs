@@ -14,19 +14,24 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         var vehicles = context.Vehicles.AsNoTracking()
             .AsQueryable();
 
-        if (list == VehicleListOptions.Following)
+        switch (list)
         {
-            vehicles = from x in vehicles
-                       join f in context.Followers on x.Id equals f.DocumentId
-                       where f.UserId == userProvider.UserId
-                       select x;
-        }
-        else if (list == VehicleListOptions.Recent)
-        {
-            vehicles = from x in vehicles
-                       join f in context.RecentViews on x.Id equals f.DocumentId
-                       where f.UserId == userProvider.UserId
-                       select x;
+            case VehicleListOptions.All:
+                break;
+            case VehicleListOptions.Following:
+                vehicles = from x in vehicles
+                           join f in context.Followers on x.Id equals f.DocumentId
+                           where f.UserId == userProvider.UserId
+                           select x;
+                break;
+            case VehicleListOptions.Recent:
+                vehicles = from x in vehicles
+                           join f in context.RecentViews on x.Id equals f.DocumentId
+                           where f.UserId == userProvider.UserId
+                           select x;
+                break;
+            default:
+                throw new NotSupportedException($"Unknown list option '{list}'.");
         }
 
         int totalCount = await vehicles.CountAsync(cancellationToken);

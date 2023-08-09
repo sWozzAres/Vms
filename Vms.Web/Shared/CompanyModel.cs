@@ -13,8 +13,13 @@ public class CompanyModel : ICopyable<CompanyModel>
         Name = source.Name;
     }
 }
-public record struct CompanyListResponse(List<CompanyListModel> List, int TotalCount);
-public record CompanyListModel(string Code, string Name);
+public record struct CompanyListResponse(List<CompanyListDto> List, int TotalCount);
+public record CompanyShortDto(string Code, string Name);
+public record CompanyListDto(string Code, string Name);
+public enum CompanyListOptions
+{
+    All = 0,
+}
 public record ConfirmBookedRefusalReasonDto(string Code, string Name);
 public record RefusalReasonDto(string Code, string Name);
 public record NonArrivalReasonDto(string Code, string Name);

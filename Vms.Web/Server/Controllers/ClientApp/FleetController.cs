@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Utopia.Blazor.Application.Shared;
+using Vms.Application.Queries;
 using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
@@ -24,6 +26,16 @@ public class FleetController(VmsDbContext context) : ControllerBase
                 .Where(d => d.Name.StartsWith(filter))
                 .Select(d => d.ToShortDto())
                 .ToListAsync(cancellationToken));
+
+    [HttpGet]
+    public async Task<IActionResult> Get(
+        FleetListOptions list, int start, int take,
+        [FromServices] IFleetQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var (totalCount, result) = await queries.GetFleets(list, start, take, cancellationToken);
+        return Ok(new ListResult<FleetListDto>(totalCount, result));
+    }
 }
 
 public static partial class DomainExtensions

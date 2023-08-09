@@ -1,0 +1,36 @@
+﻿@page "/driver/list"
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Drivers</PageTitle>
+
+<ListTemplate TGridItem="DriverListDto" Options="listOptions" ApiUrl="/api/driver" Key="ListPage_Driver" Title="Drivers">
+    <IconContent>
+        <div class="svg-large svg-driver">
+            <img alt="Driver" src="icons/driver.svg" />
+        </div>
+    </IconContent>
+    <Buttons>
+        <button @onclick="() => isCreating = true">New</button>
+    </Buttons>
+    <GridColumns>
+        <TemplateColumn Title="Name">
+            <a href="/driver/view/@context!.Id">@context.FullName</a>
+        </TemplateColumn>
+    </GridColumns>
+</ListTemplate>
+
+
+@if (isCreating)
+{
+@*    <Create OnClose="() => isCreating = false" />  *@
+}
+
+@code {
+    List<SelectOption<int?>> listOptions = new()
+    {
+        new (0, "All Drivers"),
+    };
+
+    bool isCreating;
+}

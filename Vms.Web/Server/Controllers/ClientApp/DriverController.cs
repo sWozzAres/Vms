@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Utopia.Blazor.Application.Shared;
 using Vms.Application;
+using Vms.Application.Queries;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -41,5 +43,15 @@ public class DriverController(VmsDbContext context) : ControllerBase
         }
 
         return Ok(driver.ToShortDto());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Get(
+        DriverListOptions list, int start, int take,
+        [FromServices] IDriverQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var (totalCount, result) = await queries.GetDrivers(list, start, take, cancellationToken);
+        return Ok(new ListResult<DriverListDto>(totalCount, result));
     }
 }

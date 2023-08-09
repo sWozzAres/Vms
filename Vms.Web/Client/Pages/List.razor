@@ -77,14 +77,14 @@
 </section>
 
 @code {
-    private CompanyListModel[]? companies;
+    private CompanyListDto[]? companies;
 
     protected override async Task OnInitializedAsync()
     {
         Logger.LogInformation("Requesting companies...");
         try
         {
-            companies = await Http.GetFromJsonAsync<CompanyListModel[]>("Company");
+            companies = await Http.GetFromJsonAsync<CompanyListDto[]>("Company");
         }
         catch (AccessTokenNotAvailableException ex)
         {

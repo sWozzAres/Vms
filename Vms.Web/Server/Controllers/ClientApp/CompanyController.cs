@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Utopia.Blazor.Application.Shared;
+using Vms.Application.Queries;
 using Vms.Domain.Core;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
@@ -12,9 +14,9 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class CompanyController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
+public class Company2Controller(ILogger<Company2Controller> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<CompanyController> _logger = logger;
+    readonly ILogger<Company2Controller> _logger = logger;
     readonly VmsDbContext _context = context;
     #region Customers
     [HttpGet]
@@ -114,15 +116,25 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
     #endregion
 
     [HttpGet]
-    [AcceptHeader("application/vnd.short")]
-    public async Task<IActionResult> Get(CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(
+        CompanyListOptions list, int start, int take,
+        [FromServices] ICompanyQueries queries,
+        CancellationToken cancellationToken)
     {
-        var result = await _context.Companies
-            .Select(c => new CompanyListModel(c.Code, c.Name))
-            .ToListAsync(cancellationToken);
-
-        return Ok(result);
+        var (totalCount, result) = await queries.GetCompanies(list, start, take, cancellationToken);
+        return Ok(new ListResult<CompanyListDto>(totalCount, result));
     }
+
+    [HttpGet]
+    [AcceptHeader("application/vnd.short")]
+    public async Task<IActionResult> Get(
+        CancellationToken cancellationToken)
+    {
+        var companies = await _context.Companies.Select(c => new CompanyShortDto(c.Code, c.Name)).ToListAsync(cancellationToken);
+        return Ok(companies);
+    }
+
+
     //[HttpGet]
     //[Route("")]
     //[ProducesResponseType(typeof(IEnumerable<CompanyListModel>), StatusCodes.Status200OK)]
@@ -141,69 +153,70 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
     //    return Ok(result);
     //}
 
-    [HttpGet]
-    [Route("{code}")]
-    [ProducesResponseType(typeof(CompanyModel), StatusCodes.Status200OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<CompanyModel>> GetCompany(string code,
-        [FromServices] VmsDbContext context,
-        CancellationToken cancellationToken)
-    {
-        var company = await context.Companies.FindAsync(new[] { code }, cancellationToken);
-        if (company is null)
-        {
-            return NotFound();
-        }
+    //[HttpGet]
+    //[AcceptHeader("application/vnd.companyfull")]
+    //[Route("{code}")]
+    //[ProducesResponseType(typeof(CompanyModel), StatusCodes.Status200OK)]
+    //[ProducesResponseType((int)HttpStatusCode.NotFound)]
+    //public async Task<ActionResult<CompanyModel>> GetCompany(string code,
+    //    [FromServices] VmsDbContext context,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var company = await context.Companies.FindAsync(new[] { code }, cancellationToken);
+    //    if (company is null)
+    //    {
+    //        return NotFound();
+    //    }
 
-        return company.ToDto();// new CompanyModel(company.Code, company.Name);
-    }
+    //    return company.ToDto();// new CompanyModel(company.Code, company.Name);
+    //}
 
-    [HttpPatch]
-    [Route("{code}")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
-    public async Task<IActionResult> PatchAsync([FromRoute] string code,
-        [FromServices] VmsDbContext context,
-        [FromBody] CompanyModel request,
-        CancellationToken cancellationToken)
-    {
-        var company = await context.Companies.FindAsync(new[] { code }, cancellationToken);
-        if (company is null)
-        {
-            return NotFound();
-        }
+    //[HttpPatch]
+    //[Route("{code}")]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //[ProducesResponseType(StatusCodes.Status404NotFound)]
+    ////[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    //[ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    //[ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
+    //public async Task<IActionResult> PatchAsync([FromRoute] string code,
+    //    [FromServices] VmsDbContext context,
+    //    [FromBody] CompanyModel request,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var company = await context.Companies.FindAsync(new[] { code }, cancellationToken);
+    //    if (company is null)
+    //    {
+    //        return NotFound();
+    //    }
 
-        company.Name = request.Name;
+    //    company.Name = request.Name;
 
-        if (context.Entry(company).State == EntityState.Modified)
-        {
-            try
-            {
-                await context.SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                _logger.LogInformation("Concurrency violation while modifying company, code '{code}'.", company.Code);
+    //    if (context.Entry(company).State == EntityState.Modified)
+    //    {
+    //        try
+    //        {
+    //            await context.SaveChangesAsync(cancellationToken);
+    //        }
+    //        catch (DbUpdateConcurrencyException)
+    //        {
+    //            _logger.LogInformation("Concurrency violation while modifying company, code '{code}'.", company.Code);
 
-                //if (rowVersion is not null)
-                //    return StatusCode(StatusCodes.Status412PreconditionFailed);
+    //            //if (rowVersion is not null)
+    //            //    return StatusCode(StatusCodes.Status412PreconditionFailed);
 
-                //TODO retry?
-                return Problem();
-            }
+    //            //TODO retry?
+    //            return Problem();
+    //        }
 
-            //HttpContext.SetETag(product.RowVersion);
+    //        //HttpContext.SetETag(product.RowVersion);
 
-            return Ok(company.ToDto());
-        }
+    //        return Ok(company.ToDto());
+    //    }
 
-        // return NoContent to signify no changes
-        return NoContent();
-    }
+    //    // return NoContent to signify no changes
+    //    return NoContent();
+    //}
 }
 
 public static partial class DomainExtensions

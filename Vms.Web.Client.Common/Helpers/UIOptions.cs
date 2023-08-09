@@ -5,7 +5,7 @@ namespace Vms.Web.Client.Common.Helpers;
 
 public static class UIOptions
 {
-    public static List<SelectOption<string?>> BuildCompanyOptions(IEnumerable<CompanyListModel>? list)
+    public static List<SelectOption<string?>> BuildCompanyOptions(IEnumerable<CompanyShortDto>? list)
     {
         var options = list is null
             ? new List<SelectOption<string?>>()

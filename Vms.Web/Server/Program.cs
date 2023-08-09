@@ -46,6 +46,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<CurrentTime>();
 builder.Services.AddScoped<ITimeService>(provider => new TimeFreeze(provider.GetRequiredService<CurrentTime>()));
 
+builder.Services.AddScoped<ICompanyQueries, CompanyQueries>();
+builder.Services.AddScoped<IDriverQueries, DriverQueries>();
+builder.Services.AddScoped<ICustomerQueries, CustomerQueries>();
+builder.Services.AddScoped<IFleetQueries, FleetQueries>();
+builder.Services.AddScoped<INetworkQueries, NetworkQueries>();
+builder.Services.AddScoped<ISupplierQueries, SupplierQueries>();
+builder.Services.AddScoped<IVehicleQueries, VehicleQueries>();
 builder.Services.AddScoped<IServiceBookingQueries, ServiceBookingQueries>();
 
 builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
@@ -55,7 +62,7 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<ISearchManager, SearchManager>();
 builder.Services.AddScoped<IRecentViewLogger, RecentViewLogger>();
 
-builder.Services.AddScoped<IVehicleQueries, VehicleQueries>();
+
 builder.Services.AddScoped<IFollowVehicle, FollowVehicle>();
 builder.Services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
 

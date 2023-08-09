@@ -1,13 +1,13 @@
-﻿@page "/company/list"
+﻿@page "/fleet/list"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 
-<PageTitle>Companies</PageTitle>
+<PageTitle>Fleets</PageTitle>
 
-<ListTemplate TGridItem="CompanyListDto" Options="listOptions" ApiUrl="/api/company2" Key="ListPage_Company" Title="Companies">
+<ListTemplate TGridItem="FleetListDto" Options="listOptions" ApiUrl="/api/fleet" Key="ListPage_Fleet" Title="Fleets">
     <IconContent>
-        <div class="svg-large svg-company">
-            <img alt="Company" src="icons/company.svg" />
+        <div class="svg-large svg-fleet">
+            <img alt="Fleet" src="icons/fleet.svg" />
         </div>
     </IconContent>
     <Buttons>
@@ -15,7 +15,7 @@
     </Buttons>
     <GridColumns>
         <TemplateColumn Title="Code">
-            <a href="/company/view/@context!.Code">@context.Code</a>
+            <a href="/fleet/view/@context!.CompanyCode/@context!.Code">@context.Code</a>
         </TemplateColumn>
         <PropertyColumn Property="p=>p!.Name" />
     </GridColumns>
@@ -30,7 +30,7 @@
 @code {
     List<SelectOption<int?>> listOptions = new()
     {
-        new (0, "All Companies"),
+        new (0, "All Fleets"),
     };
 
     bool isCreating;
