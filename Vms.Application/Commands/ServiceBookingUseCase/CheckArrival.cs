@@ -44,7 +44,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
                 break;
         }
 
-        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, "Check Arrival", Command);
     }
 

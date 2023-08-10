@@ -114,7 +114,7 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
 
         if (isModified)
         {
-            await activityLog.AddAsync(id, SummaryText, cancellationToken);
+            _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
             taskLogger.Log(id, "Edit", command);
         }
 

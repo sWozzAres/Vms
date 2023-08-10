@@ -2,6 +2,9 @@
 
 public static partial class DomainExtensions
 {
+    public static ActivityLogDto ToDto(this ActivityLog activityLog)
+        => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
+
     public static VehicleFullDto ToFullDto(this Vehicle vehicle, bool isFollowing)
     => new(
             vehicle.CompanyCode,

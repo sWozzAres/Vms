@@ -241,44 +241,32 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     #region Activity
     [HttpGet]
     [Route("{id}/activity")]
-    public async Task<IActionResult> GetActivities(Guid id, CancellationToken cancellationToken)
-    {
-        var a = await _context.ActivityLog.AsNoTracking()
-            .Where(l => l.DocumentId == id)
-            .OrderBy(l => l.EntryDate)
-            .Select(l => l.ToDto())
-            .ToListAsync(cancellationToken);
+    public async Task<IActionResult> GetActivities(Guid id,
+        [FromServices] IDocumentQueries documentQueries,
+        CancellationToken cancellationToken)
+    => Ok(await documentQueries.GetActivities(id, cancellationToken));
 
-        return Ok(a);
-    }
     [HttpPost]
     [Route("{id}/activity")]
     public async Task<IActionResult> PostNote(Guid id,
         [FromBody] AddNoteDto request,
-        [FromServices] IUserProvider userProvider,
+        [FromServices] IAddNote addNote,
         CancellationToken cancellationToken)
     {
-        var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
-            ?? throw new InvalidOperationException("Failed to load service booking.");
-
-        var entry = new ActivityLog(id, request.Text, userProvider.UserId, userProvider.UserName, timeService.GetTime());
-        _context.ActivityLog.Add(entry);
+        var entry = await addNote.Add(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction(nameof(GetActivity), new { id, aid = entry.Id }, entry.ToDto());
+        return CreatedAtAction(nameof(GetActivity), new { id, aid = entry.Id }, entry);
     }
 
     [HttpGet]
     [Route("{id}/activity/{aid}")]
     public async Task<IActionResult> GetActivity(Guid id, Guid aid,
+        [FromServices] IServiceBookingQueries queries,
         CancellationToken cancellationToken)
     {
-        var activityLog = await (from sb in _context.ServiceBookings
-                                 join ac in _context.ActivityLog on sb.Id equals ac.DocumentId
-                                 where sb.Id == id && ac.DocumentId == aid
-                                 select ac).SingleOrDefaultAsync(cancellationToken);
-
-        return activityLog is null ? NotFound() : Ok(activityLog.ToDto());
+        var activityLog = await queries.GetActivity(id, aid, cancellationToken);
+        return activityLog is null ? NotFound() : Ok(activityLog);
     }
     #endregion
     #region CRUD
@@ -448,6 +436,5 @@ public static partial class DomainExtensions
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);
 
-    public static ActivityLogDto ToDto(this ActivityLog activityLog)
-        => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
+    
 }

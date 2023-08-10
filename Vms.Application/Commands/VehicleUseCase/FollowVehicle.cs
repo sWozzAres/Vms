@@ -22,7 +22,7 @@ public class FollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, I
 
         Vehicle.AddFollower();
 
-        await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
     }
 
     class VehicleRole(Vehicle self, FollowVehicle ctx)

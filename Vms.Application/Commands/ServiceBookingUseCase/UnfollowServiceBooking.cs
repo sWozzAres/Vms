@@ -35,7 +35,7 @@ public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userPr
         bool removed = await ServiceBooking.RemoveFollower();
 
         if (removed)
-            await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+            _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
 
         return removed;
     }

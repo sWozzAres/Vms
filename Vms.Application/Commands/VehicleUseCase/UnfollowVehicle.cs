@@ -33,7 +33,7 @@ public class UnfollowVehicle(VmsDbContext dbContext, IUserProvider userProvider,
         bool removed = await Vehicle.RemoveFollower();
 
         if (removed)
-            await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+            _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
 
         return removed;
     }

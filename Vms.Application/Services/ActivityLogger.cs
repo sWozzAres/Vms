@@ -2,27 +2,30 @@
 
 public interface IActivityLogger
 {
-    Task AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
-    Task AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
+    Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
+    Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
 }
 
 public class ActivityLogger(VmsDbContext dbContext,
     IUserProvider userProvider,
     IEmailSender emailSender,
     INotifyFollowers notifyFollowers,
-    ILogger<ActivityLogger> logger) : IActivityLogger
+    ILogger<ActivityLogger> logger,
+    ITimeService timeService) : IActivityLogger
 {
-    public async Task AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken)
+    public async Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken)
     {
         await NotifyFollowers(documentId, log, cancellationToken);
-        LogActivity(documentId, log, taskTime);
+        return LogActivity(documentId, log, taskTime);
     }
-    public Task AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
-        => AddAsync(documentId, log, DateTime.Now, cancellationToken);
+    public Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
+        => AddAsync(documentId, log, timeService.GetTime(), cancellationToken);
 
-    private void LogActivity(Guid documentId, StringBuilder log, DateTime taskTime)
+    private ActivityLog LogActivity(Guid documentId, StringBuilder log, DateTime taskTime)
     {
-        dbContext.ActivityLog.Add(new ActivityLog(documentId, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime));
+        var entry = new ActivityLog(documentId, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime);
+        dbContext.ActivityLog.Add(entry);
+        return entry;
     }
 
     private async Task NotifyFollowers(Guid documentId, StringBuilder log, CancellationToken cancellationToken)

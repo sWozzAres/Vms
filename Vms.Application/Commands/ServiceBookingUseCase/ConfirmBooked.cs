@@ -44,7 +44,7 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, 
                 break;
         }
 
-        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, "Confirm Booked", Command);
     }
 

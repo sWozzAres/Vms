@@ -1,4 +1,4 @@
-﻿namespace Vms.Web.Server.Services;
+﻿namespace Vms.Application.Services;
 
 public interface ITimeService
 {

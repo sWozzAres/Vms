@@ -44,7 +44,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
                 break;
         }
 
-        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, "Check Work Status", Command);
     }
 

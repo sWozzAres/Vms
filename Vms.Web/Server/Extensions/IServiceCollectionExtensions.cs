@@ -12,6 +12,7 @@ public static class IServiceCollectionExtensions
     public static void AddVmsApplication(this IServiceCollection services)
     {
         // queries
+        services.AddScoped<IDocumentQueries, DocumentQueries>();
         services.AddScoped<ICompanyQueries, CompanyQueries>();
         services.AddScoped<IDriverQueries, DriverQueries>();
         services.AddScoped<ICustomerQueries, CustomerQueries>();
@@ -37,6 +38,7 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ICreateVehicle, CreateVehicle>();
 
         // service booking
+        services.AddScoped<IAddNote, AddNote>();
         services.AddScoped<IEdit, Edit>();
         services.AddScoped<IFollowServiceBooking, FollowServiceBooking>();
         services.AddScoped<IUnfollowServiceBooking, UnfollowServiceBooking>();

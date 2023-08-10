@@ -22,7 +22,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger activityLog,
 
         serviceBooking.Unbook();
 
-        await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
         taskLogger.Log(id, "Unbook Supplier", command);
     }
 }

@@ -123,18 +123,16 @@ UserProvider.InMigration = false;
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+    // NOTE: disabling response compression must be first in the request pipeline
     app.UseResponseCompression();
-}
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseWebAssemblyDebugging();
-}
-else
-{
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    app.UseWebAssemblyDebugging();
 }
 
 app.UseHttpsRedirection();
@@ -185,6 +183,11 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
 
             endpoints.MapControllers();
             endpoints.MapHub<ChatHub>("/ClientApp/chathub");
+            endpoints.Map("/ClientApp/api/{**slug}", (context) =>
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return Task.CompletedTask;
+            });
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",
                 "ClientApp/index.html");
         });

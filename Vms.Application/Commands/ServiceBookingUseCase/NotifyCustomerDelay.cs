@@ -41,7 +41,7 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityL
                 break;
         }
 
-        await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, "Notify Customer Delay", Command);
     }
 

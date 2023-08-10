@@ -27,7 +27,7 @@ public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProv
 
         ServiceBooking.AddFollower();
 
-        await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
     }
 
     class ServiceBookingRole(ServiceBooking self, FollowServiceBooking ctx)

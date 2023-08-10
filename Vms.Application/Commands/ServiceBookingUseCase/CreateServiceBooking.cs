@@ -13,6 +13,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
     IActivityLogger activityLog,
     ITaskLogger taskLogger,
     ISearchManager searchManager,
+    ITimeService timeService,
     ILogger<CreateServiceBooking> logger) : ICreateServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;
@@ -30,7 +31,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         // remember task time, or the included use case (assign) will end up in the log
         // before the creation of the booking 
-        var taskTime = DateTime.Now;
+        var taskTime = timeService.GetTime();
 
         SummaryText.AppendLine("# Create Service Booking");
 
@@ -41,7 +42,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
         searchManager.Add(serviceBooking.CompanyCode, serviceBooking.Id.ToString(), EntityKind.ServiceBooking, serviceBooking.Ref,
             string.Join(" ", Vehicle.Vrm, serviceBooking.Ref));
 
-        await activityLog.AddAsync(serviceBooking.Id, SummaryText, taskTime, cancellationToken);
+        _ = await activityLog.AddAsync(serviceBooking.Id, SummaryText, taskTime, cancellationToken);
         taskLogger.Log(serviceBooking.Id, "Create Service Booking", command);
 
         return serviceBooking;

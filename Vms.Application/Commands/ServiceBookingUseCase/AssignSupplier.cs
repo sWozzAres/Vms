@@ -7,7 +7,9 @@ public interface IAssignSupplier
     Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
 }
 
-public class AssignSupplier(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class AssignSupplier(VmsDbContext dbContext, 
+    IActivityLogger activityLog, 
+    ITaskLogger taskLogger,
     ILogger<AssignSupplier> logger) : IAssignSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
@@ -31,7 +33,7 @@ public class AssignSupplier(VmsDbContext dbContext, IActivityLogger activityLog,
 
         await ServiceBooking.Assign();
 
-        await activityLog.AddAsync(id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(id, SummaryText, CancellationToken);
         taskLogger.Log(id, "Assign Supplier", Command);
     }
 
