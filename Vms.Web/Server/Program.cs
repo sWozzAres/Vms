@@ -15,6 +15,7 @@ using Vms.Web.Server.Helpers;
 using Vms.Web.Server.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Vms.Web.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 const string AppName = "Vms.Web.Server";
 
@@ -88,6 +89,7 @@ builder.Services.AddRazorPages();
 
 // SignalR
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, SubBasedUserIdProvider>();
 
 if (!isDevelopment)
 {

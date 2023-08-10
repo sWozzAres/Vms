@@ -4,6 +4,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IAsyncDisposable
 @attribute [Authorize]
+@inject IAccessTokenProvider TokenProvider
+@using System.IdentityModel.Tokens.Jwt
 
 <PageTitle>Index</PageTitle>
 
@@ -41,14 +43,34 @@
         userName = authState.User.Identity?.Name;
 
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
-            .Build();
+            .WithUrl(Navigation.ToAbsoluteUri("/chathub"), options =>
+            {
+                options.AccessTokenProvider = async () =>
+                {
+                    var accessTokenResult = await TokenProvider.RequestAccessToken();
+                    if (accessTokenResult.TryGetToken(out var token))
+                    {
+                        return token.Value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Failed to get access token.");
+                    }
+                };
+            })
+        .Build();
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
         {
             messages.Add(new ReceivedMessage(user, message));
             StateHasChanged();
         });
+
+        hubConnection.On("ReceiveNotification", () =>
+           {
+               messages.Add(new ReceivedMessage("System", "Notification"));
+               StateHasChanged();
+           });
 
         await hubConnection.StartAsync();
     }

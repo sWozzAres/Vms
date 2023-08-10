@@ -53,5 +53,8 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IAssignSupplier, AssignSupplier>();
         services.AddScoped<IUnbookSupplier, UnbookSupplier>();
         services.AddScoped<IAutomaticallyAssignSupplier, AutomaticallyAssignSupplier>();
+
+        // signalR
+        services.AddScoped<INotifyFollowers, NotifyFollowersViaSignalR>();
     }
 }
