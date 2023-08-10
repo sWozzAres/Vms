@@ -43,7 +43,7 @@ builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton<CurrentTime>();
-builder.Services.AddScoped<ITimeService>(provider => new TimeFreeze(provider.GetRequiredService<CurrentTime>()));
+builder.Services.AddScoped<ITimeService>(provider => new CurrentTime());
 
 builder.Services.AddVmsApplication();
 
@@ -185,7 +185,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
             endpoints.MapHub<ChatHub>("/ClientApp/chathub");
             endpoints.Map("/ClientApp/api/{**slug}", (context) =>
             {
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                context.Response.StatusCode = StatusCodes.Status501NotImplemented;
                 return Task.CompletedTask;
             });
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",

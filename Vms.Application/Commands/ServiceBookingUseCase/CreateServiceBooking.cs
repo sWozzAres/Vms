@@ -9,7 +9,7 @@ public interface ICreateServiceBooking
 
 public class CreateServiceBooking(VmsDbContext dbContext,
     IUserProvider userProvider,
-    IAutomaticallyAssignSupplier assignSupplierUseCase,
+    IAutomaticallyAssignSupplier automaticallyAssignSupplier,
     IActivityLogger activityLog,
     ITaskLogger taskLogger,
     ISearchManager searchManager,
@@ -18,7 +18,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;
-    readonly IAutomaticallyAssignSupplier AssignSupplierUseCase = assignSupplierUseCase;
+    readonly IAutomaticallyAssignSupplier AutomaticallyAssignSupplier = automaticallyAssignSupplier;
     readonly StringBuilder SummaryText = new();
     VehicleRole? Vehicle;
 
@@ -89,11 +89,11 @@ public class CreateServiceBooking(VmsDbContext dbContext,
             if (request.AutoAssign)
             {
                 booking.ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
-                var assigned = await ctx.AssignSupplierUseCase.Assign(booking.Id, cancellationToken);
+                var assigned = await ctx.AutomaticallyAssignSupplier.Assign(booking.Id, cancellationToken);
 
                 if (assigned)
                 {
-
+                    ctx.SummaryText.AppendLine("\r\n**Supplier was automatically assigned.**");
                 }
             }
 

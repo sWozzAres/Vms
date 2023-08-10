@@ -3,3 +3,16 @@
     grid-template-columns: auto 1fr;
 }
 
+::deep .stick {
+    position: sticky;
+    top: 4em;
+}
+
+.stick {
+    position: sticky;
+    top: 4em;
+}
+
+::deep .page-header {
+    z-index:1;
+}

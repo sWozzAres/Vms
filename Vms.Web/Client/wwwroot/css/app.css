@@ -90,9 +90,9 @@ body {
     color: var(--a-normal-text);
     cursor: pointer;
 }*/
-:focus {
+/*:focus {
   z-index: 1;
-}
+}*/
 
 input, textarea, select {
   font: inherit;
