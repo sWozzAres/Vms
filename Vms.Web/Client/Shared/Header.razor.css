@@ -14,49 +14,54 @@
     gap: 0.5em 1em;
 }
 
-/*@media (prefers-color-scheme: dark){
+    /*@media (prefers-color-scheme: dark){
     #header {
     }
 }*/
 
-#header #header-logo {
-    grid-area: logo;
-    display: flex;
-    align-items: center;
-    justify-content: start;
-}
-
-    #header #header-logo .logo-svg {
-        fill: cornflowerblue;
+    #header #header-logo {
+        grid-area: logo;
+        display: flex;
+        align-items: center;
+        justify-content: start;
     }
 
-#header #header-search {
-    grid-area: search;
-    justify-self: center;
-    position: relative;
-}
+        #header #header-logo .logo-svg {
+            fill: cornflowerblue;
+        }
 
-
-
-#header #header-toolbar {
-    grid-area: toolbar;
-    /*padding-left: 1em;*/
-    cursor: pointer;
-    position: relative;
-    display: flex;
-}
-
-    ::deep #header-toolbar svg {
-        fill: var(--header-button-color);
-        height: 1.5em;
-        width: 1.5em;
+    #header #header-search {
+        grid-area: search;
+        justify-self: center;
+        position: relative;
     }
-    /*#header-account:focus-within #header-account-content {
+
+
+
+    #header #header-toolbar {
+        grid-area: toolbar;
+        /*padding-left: 1em;*/
+        cursor: pointer;
+        position: relative;
+        display: flex;
+    }
+
+::deep #header-toolbar button {
+    border: 0;
+    padding-inline: 1ch;
+}
+
+::deep #header-toolbar svg {
+    fill: var(--header-button-color);
+    height: 1.5em;
+    width: 1.5em;
+}
+/*#header-account:focus-within #header-account-content {
         visibility:visible;
     }*/
-    #header-not-authorized {
-        grid-area: toolbar;
-    }
+#header-not-authorized {
+    grid-area: toolbar;
+}
 
 .hidden {
     display: none;

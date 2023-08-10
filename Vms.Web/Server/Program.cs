@@ -93,8 +93,6 @@ builder.Services.AddSingleton<IUserIdProvider, SubBasedUserIdProvider>();
 
 if (!builder.Environment.IsDevelopment())
 {
-    Log.Information("Adding response compression.");
-
     builder.Services.AddResponseCompression(opts =>
     {
         opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -178,7 +176,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
         clientApp.UseAuthorization();
         clientApp.UseEndpoints(endpoints =>
         {
-            CompanyEndpoints.Map(endpoints);
+            //CompanyEndpoints.Map(endpoints);
             VehicleEndpoints.Map(endpoints);
 
             endpoints.MapControllers();

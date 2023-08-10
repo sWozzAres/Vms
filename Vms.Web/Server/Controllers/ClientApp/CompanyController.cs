@@ -14,9 +14,9 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class Company2Controller(ILogger<Company2Controller> logger, VmsDbContext context) : ControllerBase
+public class CompanyController(ILogger<CompanyController> logger, VmsDbContext context) : ControllerBase
 {
-    readonly ILogger<Company2Controller> _logger = logger;
+    readonly ILogger<CompanyController> _logger = logger;
     readonly VmsDbContext _context = context;
     #region Customers
     [HttpGet]

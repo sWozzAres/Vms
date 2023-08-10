@@ -57,60 +57,60 @@ public class ServerApiHttpClient(HttpClient http)
     public async Task<List<ConfirmBookedRefusalReasonDto>> GetConfirmBookedRefusalReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<ConfirmBookedRefusalReasonDto>>($"/api/company2/{companyCode}/confirmbookedrefusalreasons")
+        return await http.GetFromJsonAsync<List<ConfirmBookedRefusalReasonDto>>($"/api/company/{companyCode}/confirmbookedrefusalreasons")
             ?? throw new InvalidOperationException("Failed to get confirm booked refusal reasons.");
     }
     public async Task<List<RefusalReasonDto>> GetRefusalReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<RefusalReasonDto>>($"/api/company2/{companyCode}/refusalreasons")
+        return await http.GetFromJsonAsync<List<RefusalReasonDto>>($"/api/company/{companyCode}/refusalreasons")
             ?? throw new InvalidOperationException("Failed to get refusal reasons.");
     }
     public async Task<List<NonArrivalReasonDto>> GetNonArrivalReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<NonArrivalReasonDto>>($"/api/company2/{companyCode}/nonarrivalreasons")
+        return await http.GetFromJsonAsync<List<NonArrivalReasonDto>>($"/api/company/{companyCode}/nonarrivalreasons")
             ?? throw new InvalidOperationException("Failed to get non-arrival reasons.");
     }
     public async Task<List<NotCompleteReasonDto>> GetNotCompleteReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<NotCompleteReasonDto>>($"/api/company2/{companyCode}/notcompletereasons")
+        return await http.GetFromJsonAsync<List<NotCompleteReasonDto>>($"/api/company/{companyCode}/notcompletereasons")
             ?? throw new InvalidOperationException("Failed to get not-complete reasons.");
     }
     public async Task<List<RescheduleReasonDto>> GetRescheduleReasons(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();
-        return await http.GetFromJsonAsync<List<RescheduleReasonDto>>($"/api/company2/{companyCode}/reschedulereasons")
+        return await http.GetFromJsonAsync<List<RescheduleReasonDto>>($"/api/company/{companyCode}/reschedulereasons")
             ?? throw new InvalidOperationException("Failed to get reschedule reasons.");
     }
     public async Task<List<CompanyShortDto>> GetCompaniesShortAsync()
     {
         http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.short");
-        return await http.GetFromJsonAsync<List<CompanyShortDto>>($"/api/company2")
+        return await http.GetFromJsonAsync<List<CompanyShortDto>>($"/api/company")
             ?? throw new InvalidOperationException("Failed to get list of companies.");
     }
     public async Task<FleetShortDto> GetFleetShortByCompanyAsync(string companyCode, string code)
     {
         http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.short");
-        return await http.GetFromJsonAsync<FleetShortDto>($"/api/company2/{companyCode}/fleet/{code}")
+        return await http.GetFromJsonAsync<FleetShortDto>($"/api/company/{companyCode}/fleet/{code}")
             ?? throw new InvalidOperationException("Failed to get customer.");
     }
     public async Task<List<FleetShortDto>?> GetFleetsShortAsync(string companyCode, string filter)
     {
         http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.short");
-        return await http.GetFromJsonAsync<List<FleetShortDto>>($"/api/company2/{companyCode.Trim()}/fleets?filter={filter}");
+        return await http.GetFromJsonAsync<List<FleetShortDto>>($"/api/company/{companyCode.Trim()}/fleets?filter={filter}");
     }
     public async Task<CustomerShortDto> GetCustomerShortByCompanyAsync(string companyCode, string code)
     {
         http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.short");
-        return await http.GetFromJsonAsync<CustomerShortDto>($"/api/company2/{companyCode}/customers/{code}")
+        return await http.GetFromJsonAsync<CustomerShortDto>($"/api/company/{companyCode}/customers/{code}")
             ?? throw new InvalidOperationException("Failed to get customer.");
     }
     public async Task<List<CustomerShortDto>?> GetCustomersShortAsync(string companyCode, string filter)
     {
         http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.short");
-        return await http.GetFromJsonAsync<List<CustomerShortDto>>($"/api/company2/{companyCode.Trim()}/customers?filter={filter}");
+        return await http.GetFromJsonAsync<List<CustomerShortDto>>($"/api/company/{companyCode.Trim()}/customers?filter={filter}");
     }
     #endregion
 

@@ -19,7 +19,8 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
         return result.Select(x => (x.Code, x.Name, x.Distance, x.RefusalCode, x.RefusalName));
     }
 
-    async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, Guid serviceBookingId, string? filter, CancellationToken cancellationToken)
+    async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, Guid serviceBookingId, string? filter, 
+        CancellationToken cancellationToken)
     {
         var customerList = vehicle.CustomerCode is null
             ? Enumerable.Empty<SupplierDistance>().ToList()
