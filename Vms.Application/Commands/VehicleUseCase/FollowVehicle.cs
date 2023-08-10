@@ -29,7 +29,7 @@ public class FollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, I
     {
         public void AddFollower()
         {
-            var f = new Follower(self.Id, ctx.UserProvider.UserId, ctx.UserProvider.EmailAddress);
+            var f = new Follower(self.Id, ctx.UserProvider.UserId);
             ctx.DbContext.Followers.Add(f);
         }
     }

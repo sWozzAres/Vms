@@ -2,14 +2,13 @@
 
 namespace Vms.Domain.System
 {
-    public class User
+    public class User(string userId, string userName, string tenantId, string emailAddress)
     {
         public const int UserId_MaxLength = 50;
-        public string UserId { get; private set; } = null!;
-        public string UserName { get; set; } = null!;
-        public string TenantId { get; set; } = null!;
-        public User(string userId, string userName, string tenantId)
-            => (UserId, UserName, TenantId) = (userId, userName, tenantId);
+        public string UserId { get; private set; } = userId;
+        public string UserName { get; set; } = userName;
+        public string TenantId { get; set; } = tenantId;
+        public string EmailAddress { get; set; } = emailAddress;
     }
 }
 
@@ -27,6 +26,8 @@ namespace Vms.Domain.System.Configuration
                 .HasMaxLength(Company.Code_MaxLength);
             entity.Property(e => e.UserName)
                 .HasMaxLength(50);
+            entity.Property(e => e.EmailAddress)
+                .HasMaxLength(128);
         }
     }
 }

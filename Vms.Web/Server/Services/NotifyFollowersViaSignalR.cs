@@ -8,7 +8,7 @@ public class NotifyFollowersViaSignalR(
     IHubContext<ChatHub> hubContext, 
     ILogger<NotifyFollowersViaSignalR> logger) : INotifyFollowers
 {
-    public async Task NotifyAsync(List<string> userIds)
+    public async Task NotifyAsync(IEnumerable<string> userIds)
     {
         logger.LogDebug("Notifying followers via signalR {@followers}.", userIds);
 

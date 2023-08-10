@@ -3,6 +3,7 @@
 public interface IEmailSender
 {
     void Send(string recipients, string subject, string body);
+    void Send(IEnumerable<string> recipients, string subject, string body);
 }
 
 public class EmailSender(VmsDbContext context) : IEmailSender
@@ -13,5 +14,12 @@ public class EmailSender(VmsDbContext context) : IEmailSender
     {
         var email = new Email(recipients, subject, body);
         _context.Emails.Add(email);
+    }
+    public void Send(IEnumerable<string> recipients, string subject, string body)
+    {
+        foreach (var recipient in recipients)
+        {
+            Send(recipient, subject, body);
+        }
     }
 }

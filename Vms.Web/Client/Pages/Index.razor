@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager Navigation
 @inject ILogger<Index> Logger
+@attribute [Authorize]
 @using System.ComponentModel.DataAnnotations;
 @using Markdig;
 

@@ -1,11 +1,10 @@
 ﻿namespace Vms.Domain.System
 {
-    public class Follower(Guid documentId, string userId, string emailAddress)
+    public class Follower(Guid documentId, string userId)
     {
         public long Id { get; private set; }
         public Guid DocumentId { get; set; } = documentId;
         public string UserId { get; set; } = userId;
-        public string EmailAddress { get; set; } = emailAddress;
     }
 }
 namespace Vms.Domain.System.Configuration
@@ -18,8 +17,6 @@ namespace Vms.Domain.System.Configuration
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => new { e.DocumentId, e.UserId }).IsUnique();
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.EmailAddress)
-                .HasMaxLength(128);
 
             entity.HasOne<User>()
                 .WithMany()

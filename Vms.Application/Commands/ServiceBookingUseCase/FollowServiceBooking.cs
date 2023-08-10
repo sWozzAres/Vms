@@ -34,7 +34,7 @@ public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProv
     {
         public void AddFollower()
         {
-            var f = new Follower(self.Id, ctx.UserProvider.UserId, ctx.UserProvider.EmailAddress);
+            var f = new Follower(self.Id, ctx.UserProvider.UserId);
             ctx.DbContext.Followers.Add(f);
         }
     }

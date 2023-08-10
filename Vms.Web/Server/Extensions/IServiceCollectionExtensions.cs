@@ -55,6 +55,6 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IAutomaticallyAssignSupplier, AutomaticallyAssignSupplier>();
 
         // signalR
-        services.AddScoped<INotifyFollowers, NotifyFollowersViaSignalR>();
+        services.AddSingleton<INotifyFollowers, NotifyFollowersViaSignalR>();
     }
 }

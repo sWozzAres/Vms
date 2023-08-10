@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.SignalR;
 const string AppName = "Vms.Web.Server";
 
 var builder = WebApplication.CreateBuilder(args);
-var isDevelopment = builder.Environment.IsDevelopment();
+
 builder.Host.UseSerilog();
 
 Log.Logger = new LoggerConfiguration()
@@ -91,7 +91,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, SubBasedUserIdProvider>();
 
-if (!isDevelopment)
+if (!builder.Environment.IsDevelopment())
 {
     Log.Information("Adding response compression.");
 
@@ -103,10 +103,6 @@ if (!isDevelopment)
 }
 
 var app = builder.Build();
-if (!isDevelopment)
-{
-    app.UseResponseCompression();
-}
 
 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
 UserProvider.InMigration = true;
@@ -125,6 +121,11 @@ UserProvider.InMigration = false;
 //app.UseMiddleware<VmsDomainExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseResponseCompression();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();

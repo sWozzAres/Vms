@@ -2,5 +2,5 @@
 
 public interface INotifyFollowers
 {
-    Task NotifyAsync(List<string> userIds);
+    Task NotifyAsync(IEnumerable<string> userIds);
 }

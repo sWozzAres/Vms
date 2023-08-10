@@ -2,50 +2,48 @@
 
 public interface IActivityLogger
 {
-    Task AddAsync(Guid id, StringBuilder log, CancellationToken cancellationToken);
-    Task AddAsync(Guid id, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
+    Task AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
+    Task AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
 }
 
-public class ActivityLogger(VmsDbContext dbContext, 
-    IUserProvider userProvider, 
-    IEmailSender emailSender, 
+public class ActivityLogger(VmsDbContext dbContext,
+    IUserProvider userProvider,
+    IEmailSender emailSender,
     INotifyFollowers notifyFollowers,
     ILogger<ActivityLogger> logger) : IActivityLogger
 {
-    public async Task AddAsync(Guid id, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken)
+    public async Task AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken)
     {
-        await NotifyFollowers(id, log, cancellationToken);
-        LogActivity(id, log, taskTime);
+        await NotifyFollowers(documentId, log, cancellationToken);
+        LogActivity(documentId, log, taskTime);
     }
-    public async Task AddAsync(Guid id, StringBuilder log, CancellationToken cancellationToken)
-    {
-        await NotifyFollowers(id, log, cancellationToken);
-        LogActivity(id, log, DateTime.Now);
-    }
+    public Task AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
+        => AddAsync(documentId, log, DateTime.Now, cancellationToken);
 
-    private void LogActivity(Guid id, StringBuilder log, DateTime taskTime)
+    private void LogActivity(Guid documentId, StringBuilder log, DateTime taskTime)
     {
-        dbContext.ActivityLog.Add(new ActivityLog(id, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime));
+        dbContext.ActivityLog.Add(new ActivityLog(documentId, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime));
     }
 
-    private async Task NotifyFollowers(Guid id, StringBuilder log, CancellationToken cancellationToken)
+    private async Task NotifyFollowers(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
     {
-        var followers = await dbContext.Followers.AsNoTracking()
-                .Where(f => f.DocumentId == id)
-                .Select(f=>new {f.EmailAddress, f.UserId})
-                .ToListAsync(cancellationToken);
+        var followers = await (from f in dbContext.Followers
+                         join u in dbContext.Users on f.UserId equals u.UserId
+                         where f.DocumentId == documentId
+                         select new { f.UserId, u.EmailAddress }).ToListAsync(cancellationToken);
 
-        if (followers.Count != 0)
-        {
-            // send email
-            foreach (var follower in followers)
-            {
-                emailSender.Send(follower.EmailAddress, "Activity", log.ToString());
-            }
+        // TODO dont notify current user
 
-            // send notification (ie via SignalR)
-            await notifyFollowers
-                .NotifyAsync(followers.Select(f => f.UserId).Distinct().ToList());
-        }
+        if (followers.Count == 0)
+            return;
+
+        logger.LogDebug("Notifying followers {@followers},", followers);
+
+        // send email
+        emailSender.Send(followers.Select(f=>f.EmailAddress), "Activity", log.ToString());
+
+        // send notification (ie via SignalR)
+        await notifyFollowers
+            .NotifyAsync(followers.Select(f => f.UserId));
     }
 }

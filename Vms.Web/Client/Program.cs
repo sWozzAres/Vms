@@ -1,7 +1,9 @@
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.SignalR.Client;
 using Vms.Web.Client;
 using Vms.Web.Client.Common.Services;
 using Vms.Web.Client.Security;
@@ -66,6 +68,31 @@ builder.Services.AddScoped<ISearchHistoryProvider, SearchHistoryProvider>();
 //    return service;
 
 //});
+
+builder.Services.AddScoped(sp =>
+{
+    var navMan = sp.GetRequiredService<NavigationManager>();
+    var accessTokenProvider = sp.GetRequiredService<IAccessTokenProvider>();
+    return new HubConnectionBuilder()
+        .WithUrl(navMan.ToAbsoluteUri("/chathub"), options =>
+        {
+            options.AccessTokenProvider = async () =>
+            {
+                var accessTokenResult = await accessTokenProvider.RequestAccessToken();
+                accessTokenResult.TryGetToken(out var accessToken);
+                if (accessTokenResult.TryGetToken(out var token))
+                {
+                    return token.Value;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to get access token.");
+                }
+            };
+        })
+        .WithAutomaticReconnect()
+        .Build();
+});
 
 await builder.Build().RunAsync();
 

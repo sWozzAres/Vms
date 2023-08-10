@@ -1,7 +1,8 @@
-﻿@implements IDisposable
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 @inject ILogger<Header> Logger
-
+@implements IDisposable
+@attribute [Authorize]
+@inject HubConnection HubConnection
 
 <header id="header">
     <div id="header-area">
@@ -57,6 +58,11 @@
     <AuthorizeView>
         <Authorized>
             <div id="header-toolbar">
+                <button class="@notificationButtonClassName" @onclick="NotificationButtonClicked">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z" />
+                    </svg>
+                </button>
                 <ButtonDropdownPanel Align="ButtonDropdownPanel.Alignment.Right" ClassName="user-dropdown-button">
                     <ButtonContent>
                         <svg viewBox="0 0 448 512" height="2em">
@@ -98,26 +104,6 @@
                         </ul>
                     </PanelContent>
                 </ButtonDropdownPanel>
-                @* <MenuButton Items="@items" Align="MenuButton.Alignment.Right" OnSelectCallback="(val) => selectedItem = val">
-                <svg viewBox="0 0 448 512">
-                <use xlink:href="icons/solid.svg#user" />
-                </svg>
-                </MenuButton> *@
-                @* <button id="header-account" @onclick="Toggle">
-                <img src="/icons/user.svg" alt="icon name" height="40">
-                @{
-                var className = contentVisible ? "" : "hidden";
-                }
-
-                <div id="header-account-content">
-                <ul>
-                <li><a href="authentication/profile">@context.User.Identity?.Name</a></li>
-                <li><a href="/claims">Claims</a></li>
-                <li><a href="#" @onclick="BeginLogOut">Sign out</a></li>
-                </ul>
-
-                </div>
-                </button> *@
             </div>
         </Authorized>
         <NotAuthorized>
@@ -129,29 +115,11 @@
     </AuthorizeView>
 </header>
 
-
-
-
 @code {
-    int selectedArea = 1;
+    bool hasNotification;
+    string notificationButtonClassName => string.Join("", "notification-btn", hasNotification ? " hasnotifications" : "");
 
-    private string[] items = new string[]
-    {
-        "Choose a Fruit",
-        "Apple",
-        "Banana",
-        "Blueberry",
-        "Boysenberry",
-        "Cherry",
-        "Cranberry",
-        "Durian",
-        "Eggplant",
-        "Fig",
-        "Grape",
-        "Guava",
-        "Huckleberry"
-    };
-    string selectedItem = string.Empty;
+    int selectedArea = 1;
 
     bool contentVisible = false;
 
@@ -165,7 +133,6 @@
     {
         NavigationManager.NavigateToLogout("authentication/logout");
     }
-
     private ValueTask OnLocationChanging(LocationChangingContext context)
     {
         if (context.TargetLocation.EndsWith("#"))
@@ -175,16 +142,21 @@
 
         return ValueTask.CompletedTask;
     }
-
     private void LocationChanged(object? sender, LocationChangedEventArgs e)
     {
         contentVisible = false;
         StateHasChanged();
     }
-
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += LocationChanged;
+        HubConnection.On("ReceiveNotification", () =>
+          {
+              //Logger.LogWarning("Received notification.");
+
+              hasNotification = true;
+              StateHasChanged();
+          });
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -195,7 +167,10 @@
                 NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
-
+    private void NotificationButtonClicked(MouseEventArgs e)
+    {
+        hasNotification = false;
+    }
     void IDisposable.Dispose()
     {
         registration?.Dispose();

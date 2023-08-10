@@ -44,7 +44,7 @@ public class AppController(ILogger<AppController> logger, VmsDbContext context) 
         var user = await _context.Users.FindAsync(new object[] { userProvider.UserId }, cancellationToken);
         if (user is null)
         {
-            user = new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId);
+            user = new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId, userProvider.EmailAddress);
             _logger.LogInformation("Creating information record for user {user}.", user);
             _context.Users.Add(user);
         }
@@ -59,6 +59,11 @@ public class AppController(ILogger<AppController> logger, VmsDbContext context) 
             if (user.TenantId != userProvider.TenantId)
             {
                 user.TenantId = userProvider.TenantId;
+            }
+
+            if (user.EmailAddress != userProvider.EmailAddress)
+            {
+                user.EmailAddress = userProvider.EmailAddress;
             }
         }
 

@@ -49,6 +49,7 @@
     ::deep #header-toolbar svg {
         fill: var(--header-button-color);
         height: 1.5em;
+        width: 1.5em;
     }
     /*#header-account:focus-within #header-account-content {
         visibility:visible;
@@ -72,6 +73,9 @@
     white-space: nowrap;
 }
 
+.notification-btn.hasnotifications svg {
+    fill: red !important;
+}
 
 @media (max-width: 640px) {
     #header {

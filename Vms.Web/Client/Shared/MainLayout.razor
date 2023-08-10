@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject HubConnection HubConnection
 
 <Header />
 <div class="content">
@@ -7,3 +8,7 @@
         @Body
     </main>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync() => await HubConnection.StartAsync();
+}
