@@ -1,49 +1,52 @@
 ﻿@page "/chat"
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IAsyncDisposable
+@attribute [Authorize]
 
 <PageTitle>Index</PageTitle>
 
-<div class="form-group">
-    <label>
-        User:
-        <input @bind="userInput" />
-    </label>
-</div>
-<div class="form-group">
-    <label>
-        Message:
-        <input @bind="messageInput" size="50" />
-    </label>
-</div>
-<button @onclick="Send" disabled="@(!IsConnected)">Send</button>
-
-<hr>
-
-<ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>@message</li>
-    }
-</ul>
+<AuthorizeView>
+    <Authorized>
+        <div class="send-container">
+            <input id="newmessage" @bind="messageInput" size="50" placeholder="Enter message..." />
+            <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
+        </div>
+        <div class="messages">
+            @foreach (var message in messages.OrderByDescending(m => m.ReceivedTime))
+            {
+                <div class="message">
+                    <h4>@message.UserName</h4>
+                    <p>@message.Text</p>
+                </div>
+            }
+        </div>
+    </Authorized>
+</AuthorizeView>
 
 @code {
-    private HubConnection? hubConnection;
-    private List<string> messages = new List<string>();
-    private string? userInput;
-    private string? messageInput;
+    HubConnection? hubConnection;
+    List<ReceivedMessage> messages = new();
+    string? userName;
+    string? messageInput;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authState is null)
+            throw new InvalidOperationException("Failed to get authentication state.");
+
+        userName = authState.User.Identity?.Name;
+
         hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
             .Build();
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
         {
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
+            messages.Add(new ReceivedMessage(user, message));
             StateHasChanged();
         });
 
@@ -54,7 +57,7 @@
     {
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+            await hubConnection.SendAsync("SendMessage", userName, messageInput);
         }
     }
 
@@ -67,5 +70,13 @@
         {
             await hubConnection.DisposeAsync();
         }
+    }
+
+    class ReceivedMessage(string userName, string text)
+    {
+        public string UserName { get; set; } = userName;
+        public string Text { get; set; } = text;
+        public DateTime ReceivedTime { get; set; } = DateTime.Now;
+
     }
 }

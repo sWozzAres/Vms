@@ -1,0 +1,17 @@
+.messages{
+}
+
+.messages .message {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1em;
+}
+
+.send-container {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    padding: 1em;
+    background-color: cornflowerblue;
+    position: sticky;
+    top: 0;
+}

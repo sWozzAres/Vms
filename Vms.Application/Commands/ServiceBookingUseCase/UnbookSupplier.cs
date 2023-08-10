@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IUnbookSupplier
 {
@@ -15,7 +13,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger activityLog,
 
     public async Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("UnbookSupplier task for service booking {servicebookingid}, command: {@taskunbooksuppliercommand}.", id, command);
+        logger.LogInformation("Unbooking supplier for service booking: {servicebookingid}, command: {@taskunbooksuppliercommand}.", id, command);
 
         var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");

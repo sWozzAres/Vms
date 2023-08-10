@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -21,7 +20,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
 
     public async Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("CheckWorkStatus task for service booking {servicebookingid}, command: {@taskcheckworkstatuscommand}.", id, command);
+        logger.LogInformation("Checking work status for service booking: {servicebookingid}, command: {@taskcheckworkstatuscommand}.", id, command);
 
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));

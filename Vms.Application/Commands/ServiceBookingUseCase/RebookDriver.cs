@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -21,7 +20,7 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, I
 
     public async Task RebookAsync(Guid id, TaskRebookDriverCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("RebookDriver task for service booking {servicebookingid}, command: {@taskrebookdrivercommand}.", id, command);
+        logger.LogInformation("Rebooking with driver for service booking: {servicebookingid}, command: {@taskrebookdrivercommand}.", id, command);
 
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));

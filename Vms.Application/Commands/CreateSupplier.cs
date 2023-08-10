@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Vms.Application.Commands;
+﻿namespace Vms.Application.Commands;
 
 public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {

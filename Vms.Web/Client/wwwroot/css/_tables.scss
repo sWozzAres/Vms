@@ -10,6 +10,9 @@
 
     > thead > tr > th, > tbody > tr > td {
         padding: 10px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     thead {

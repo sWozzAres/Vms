@@ -4,24 +4,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using Vms.Application.Commands.ServiceBookingUseCase;
-using Vms.Application.Commands.VehicleUseCase;
-using Vms.Application.Queries;
 using Vms.Application.Services;
 using Vms.Domain.Infrastructure;
 using Vms.Domain.Infrastructure.Seed;
-using Vms.Domain.Infrastructure.Services;
 using Vms.Web.Server;
 using Vms.Web.Server.Configuration;
 using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
 using Vms.Web.Server.Helpers;
 using Vms.Web.Server.Services;
+using Microsoft.AspNetCore.ResponseCompression;
+using Vms.Web.Server.Hubs;
 
 const string AppName = "Vms.Web.Server";
 
 var builder = WebApplication.CreateBuilder(args);
-
+var isDevelopment = builder.Environment.IsDevelopment();
 builder.Host.UseSerilog();
 
 Log.Logger = new LoggerConfiguration()
@@ -46,43 +44,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<CurrentTime>();
 builder.Services.AddScoped<ITimeService>(provider => new TimeFreeze(provider.GetRequiredService<CurrentTime>()));
 
-builder.Services.AddScoped<ICompanyQueries, CompanyQueries>();
-builder.Services.AddScoped<IDriverQueries, DriverQueries>();
-builder.Services.AddScoped<ICustomerQueries, CustomerQueries>();
-builder.Services.AddScoped<IFleetQueries, FleetQueries>();
-builder.Services.AddScoped<INetworkQueries, NetworkQueries>();
-builder.Services.AddScoped<ISupplierQueries, SupplierQueries>();
-builder.Services.AddScoped<IVehicleQueries, VehicleQueries>();
-builder.Services.AddScoped<IServiceBookingQueries, ServiceBookingQueries>();
-
-builder.Services.AddScoped<IActivityLogger, ActivityLogger>();
-builder.Services.AddScoped<ITaskLogger, TaskLogger>();
-builder.Services.AddScoped<IUserProvider, UserProvider>();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
-builder.Services.AddScoped<ISearchManager, SearchManager>();
-builder.Services.AddScoped<IRecentViewLogger, RecentViewLogger>();
-
-
-builder.Services.AddScoped<IFollowVehicle, FollowVehicle>();
-builder.Services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
-
-builder.Services.AddScoped<ICreateVehicle, CreateVehicle>();
-builder.Services.AddScoped<IEdit, Edit>();
-builder.Services.AddScoped<IFollowServiceBooking, FollowServiceBooking>();
-builder.Services.AddScoped<IUnfollowServiceBooking, UnfollowServiceBooking>();
-builder.Services.AddScoped<IBookSupplier, BookSupplier>();
-builder.Services.AddScoped<IConfirmBooked, ConfirmBooked>();
-builder.Services.AddScoped<ICheckArrival, CheckArrival>();
-builder.Services.AddScoped<ICheckWorkStatus, CheckWorkStatus>();
-builder.Services.AddScoped<IChaseDriver, ChaseDriver>();
-builder.Services.AddScoped<IRebookDriver, RebookDriver>();
-builder.Services.AddScoped<INotifyCustomer, NotifyCustomer>();
-builder.Services.AddScoped<INotifyCustomerDelay, NotifyCustomerDelay>();
-builder.Services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
-builder.Services.AddScoped<ISupplierLocator, SupplierLocator>();
-builder.Services.AddScoped<IAssignSupplier, AssignSupplier>();
-builder.Services.AddScoped<IUnbookSupplier, UnbookSupplier>();
-builder.Services.AddScoped<IAutomaticallyAssignSupplier, AutomaticallyAssignSupplier>();
+builder.Services.AddVmsApplication();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {
@@ -103,6 +65,7 @@ builder.Services.AddApplicationSecurity();
 
 builder.Services.AddHostedService<UnlockTaskBackgroundService>();
 builder.Services.AddHostedService<RemoveRecentViewsBackgroundService>();
+builder.Services.AddHostedService<ChatHubTest>();
 
 //builder.Services.AddControllersWithViews()
 //    .ConfigureApiBehaviorOptions(options =>
@@ -123,15 +86,25 @@ builder.Services.AddHostedService<RemoveRecentViewsBackgroundService>();
 
 builder.Services.AddRazorPages();
 
-//builder.Services.AddSignalR();
-//builder.Services.AddResponseCompression(opts =>
-//{
-//    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-//       new[] { "application/octet-stream" });
-//});
+// SignalR
+builder.Services.AddSignalR();
+
+if (!isDevelopment)
+{
+    Log.Information("Adding response compression.");
+
+    builder.Services.AddResponseCompression(opts =>
+    {
+        opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+           new[] { "application/octet-stream" });
+    });
+}
 
 var app = builder.Build();
-//app.UseResponseCompression();
+if (!isDevelopment)
+{
+    app.UseResponseCompression();
+}
 
 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
 UserProvider.InMigration = true;
@@ -208,7 +181,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
             VehicleEndpoints.Map(endpoints);
 
             endpoints.MapControllers();
-            //endpoints.MapHub<ChatHub>("/ClientApp/chathub");
+            endpoints.MapHub<ChatHub>("/ClientApp/chathub");
             endpoints.MapFallbackToFile("/ClientApp/{*path:nonfile}",
                 "ClientApp/index.html");
         });

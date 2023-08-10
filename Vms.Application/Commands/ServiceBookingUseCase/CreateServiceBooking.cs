@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -24,7 +23,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
     public async Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand command, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("CreateServiceBooking task {@createservicebookingcommand}.", command);
+        logger.LogInformation("Creating service booking: {@createservicebookingcommand}.", command);
 
         Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { command.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException($"Vehicle not found."), this);
@@ -37,7 +36,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         var serviceBooking = await Vehicle.CreateBooking(command, cancellationToken);
 
-        logger.LogInformation("Created service booking {servicebookingid}.", serviceBooking.Id);
+        logger.LogInformation("Created service booking: {servicebookingid}.", serviceBooking.Id);
 
         searchManager.Add(serviceBooking.CompanyCode, serviceBooking.Id.ToString(), EntityKind.ServiceBooking, serviceBooking.Ref,
             string.Join(" ", Vehicle.Vrm, serviceBooking.Ref));

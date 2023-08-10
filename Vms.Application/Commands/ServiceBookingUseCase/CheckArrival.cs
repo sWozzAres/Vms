@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -21,7 +20,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
 
     public async Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("CheckArrival task for service booking {servicebookingid}, command: {@taskcheckarrivalcommand}.", id, command);
+        logger.LogInformation("Checking arrival for service booking: {servicebookingid}, command: {@taskcheckarrivalcommand}.", id, command);
 
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
@@ -56,7 +55,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
             ctx.SummaryText.AppendLine("## Arrived");
 
             // schedule check work status for 4pm on the arrival date
-            TimeOnly time = TimeOnly.FromTimeSpan(new TimeSpan(9, 0, 0));
+            TimeOnly time = TimeOnly.FromTimeSpan(new TimeSpan(16, 0, 0));
             var rescheduleTime = ctx.Command.ArrivalDate!.Value.ToDateTime(time);
             self.ChangeStatus(ServiceBookingStatus.CheckWorkStatus, rescheduleTime);
         }

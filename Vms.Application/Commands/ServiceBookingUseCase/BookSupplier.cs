@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -14,6 +13,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
     readonly VmsDbContext DbContext = dbContext;
     readonly IEmailSender EmailSender = emailSender;
     readonly StringBuilder SummaryText = new();
+    readonly ILogger<BookSupplier> Logger = logger;
 
     ServiceBookingRole? ServiceBooking;
     TaskBookSupplierCommand Command = null!;
@@ -22,7 +22,7 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
 
     public async Task BookAsync(Guid id, TaskBookSupplierCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("BookSupplier task for service booking {servicebookingid}, command: {@taskbooksuppliercommand}.", id, command);
+        Logger.LogInformation("Booking supplier for service booking: {servicebookingid}, command: {@taskbooksuppliercommand}.", id, command);
 
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));
@@ -67,13 +67,15 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IAct
             {
                 if (!string.IsNullOrEmpty(self.Driver.EmailAddress))
                 {
+                    ctx.Logger.LogInformation("Notifying driver {driveremailaddress}.", self.Driver.EmailAddress);
+
                     var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { self.SupplierCode }, ctx.CancellationToken)
                         ?? throw new VmsDomainException("Failed to find supplier.");
 
                     var recipient = self.Driver.EmailAddress;
 
                     ctx.EmailSender.Send(recipient, "Your service is booked",
-                        $"Your service is booked with {supplier.Name} on {self.BookedDate}.");
+                        $"Your service is booked with '{supplier.Name}' on {self.BookedDate}.");
 
                     ctx.SummaryText.AppendLine($"Notification email sent to driver at [{recipient}](mailto://{recipient}).");
                 }

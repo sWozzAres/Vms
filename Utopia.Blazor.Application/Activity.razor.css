@@ -1,14 +1,16 @@
-.activitylog ::deep form {
-    display: flex;
-    gap: 1em;
-    flex-direction: column;
-}
-
 .activitylog article {
-    padding-bottom: 1em;
-    border-bottom: 1px solid var(--border-color);
+    font-size: 80%;
+    margin: 1em 0 1em 0em;
 }
 
     .activitylog article footer {
         font-size: small;
     }
+
+    .activitylog article footer time {
+        font-style: italic;
+    }
+
+.username {
+    font-weight: 600;
+}

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Application.Commands.VehicleUseCase;
+﻿using Vms.Application.Commands.VehicleUseCase;
 
 namespace Vms.Application.Commands;
 

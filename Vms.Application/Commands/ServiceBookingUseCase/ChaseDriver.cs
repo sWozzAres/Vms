@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -21,7 +20,7 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
 
     public async Task ChaseAsync(Guid id, TaskChaseDriverCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("ChaseDriver task for service booking {servicebookingid}, command: {@taskchasedrivercommand}.", id, command);
+        logger.LogInformation("Chasing driver for service booking: {servicebookingid}, command: {@taskchasedrivercommand}.", id, command);
 
         Id = id;
         Command = command ?? throw new ArgumentNullException(nameof(command));

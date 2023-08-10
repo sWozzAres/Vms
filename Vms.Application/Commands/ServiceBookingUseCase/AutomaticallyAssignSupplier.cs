@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -9,7 +8,7 @@ public interface IAutomaticallyAssignSupplier
 }
 
 public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocator locator,
-    IActivityLogger activityLog, ITaskLogger taskLogger, 
+    IActivityLogger activityLog, ITaskLogger taskLogger,
     ILogger<AutomaticallyAssignSupplier> logger,
     IAssignSupplier assignSupplier) : IAutomaticallyAssignSupplier
 {
@@ -23,7 +22,7 @@ public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocato
 
     public async Task<bool> Assign(Guid id, CancellationToken cancellationToken = default)
     {
-        Logger.LogInformation("AutomaticallyAssignSupplier task for service booking {servicebookingid}.", id);
+        Logger.LogInformation("Automatically assigning supplier service booking: {servicebookingid}.", id);
 
         ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new VmsDomainException("Service Booking not found."), this);

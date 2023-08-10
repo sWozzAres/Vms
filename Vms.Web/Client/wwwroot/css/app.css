@@ -212,6 +212,10 @@ h5 + h6 {
   /*background-color: #a7bbdb;*/
 }
 
+#header {
+  border-bottom: 1px solid var(--border-color);
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -237,7 +241,7 @@ h5 + h6 {
 }
 
 .main {
-  padding-left: 0.5em;
+  /*padding-left: 0.5em;*/
   /*padding: 0.5em;*/
   /*background-color: #a7bbdb;*/
 }
@@ -260,6 +264,9 @@ table > thead > tr, table tr {
 }
 table > thead > tr > th, table > tbody > tr > td {
   padding: 10px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 table thead {
   background-color: var(--table-header-background-color);
@@ -272,6 +279,10 @@ table thead .col-title {
 table thead th {
   text-align: start;
   border: 1px solid var(--border-color);
+}
+
+.activitylog article {
+  border-bottom: 1px solid var(--border-color);
 }
 
 .related50 {
@@ -296,16 +307,16 @@ table thead th {
 .related-section .header {
   /*  .icon {
 
-        div {
-            padding: 0.5em;
-            border-radius: 5px;
+      div {
+          padding: 0.5em;
+          border-radius: 5px;
 
-            > svg {
-                height: 1em;
-                fill: white;
-            }
-        }
-    }*/
+          > svg {
+              height: 1em;
+              fill: white;
+          }
+      }
+  }*/
 }
 .related-section .header .buttons button {
   color: var(--a-visited-text);
@@ -316,6 +327,9 @@ table thead th {
 }
 .page-header .buttons button {
   color: var(--a-visited-text);
+}
+.page-header .buttons button svg {
+  fill: var(--a-visited-text);
 }
 
 .view-header {
@@ -831,10 +845,6 @@ a:visited {
 }
 .error p {
   color: red;
-}
-
-.content {
-  padding-top: 1.1rem;
 }
 
 :focus {

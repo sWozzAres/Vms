@@ -17,10 +17,11 @@
             @foreach (var entry in entries.OrderByDescending(e => e.EntryDate))
             {
                 <article class="activity-entry">
-                    @((MarkupString)Markdown.ToHtml(entry.Text))
                     <footer>
-                        @entry.EntryDate.ToLocalTime().ToString("f") - @entry.UserName
+                        <time datetime="@entry.EntryDate.ToLocalTime().ToString("s")">@entry.EntryDate.ToLocalTime().ToString("f")</time>
+                        - <span class="username">@entry.UserName</span>
                     </footer>
+                    @((MarkupString)Markdown.ToHtml(entry.Text))
                 </article>
             }
         }

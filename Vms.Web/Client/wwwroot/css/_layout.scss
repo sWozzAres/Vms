@@ -5,6 +5,9 @@
     /*background-color: #a7bbdb;*/
 }
 
+#header {
+    border-bottom: 1px solid var(--border-color);
+}
 
 .sidebar {
     display: flex;
@@ -35,7 +38,7 @@
 }
 
 .main {
-    padding-left: 0.5em;
+    /*padding-left: 0.5em;*/
     /*padding: 0.5em;*/
     /*background-color: #a7bbdb;*/
 }

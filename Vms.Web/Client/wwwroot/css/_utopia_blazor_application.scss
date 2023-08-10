@@ -1,27 +1,28 @@
+.activitylog article {
+    border-bottom: 1px solid var(--border-color);
+    }
 
+    .related50 {
+        display: grid;
+        flex-direction: row;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1em;
+    }
 
-.related50 {
-    display: grid;
-    flex-direction: row;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 1em;
-}
+    .related-list {
+        background: #f2f3f8;
+    }
 
-.related-list {
-    background: #f2f3f8;
-}
+    .related-item {
+        background: #ffffff;
+    }
 
-.related-item {
-    background: #ffffff;
-}
+    .related-section {
+        border-radius: var(--border-radius);
+        border: 2px solid var(--border-color);
 
-.related-section {
-
-    border-radius: var(--border-radius);
-    border: 2px solid var(--border-color);
-
-    .header {
-      /*  .icon {
+        .header {
+            /*  .icon {
 
             div {
                 padding: 0.5em;
@@ -34,26 +35,30 @@
             }
         }*/
 
-        .buttons button {
-            color: var(--a-visited-text);
+            .buttons button {
+                color: var(--a-visited-text);
+            }
         }
     }
-}
 
-.page-header {
-    background-color: var(--page-header-background-color);
+    .page-header {
+        background-color: var(--page-header-background-color);
 
-    .buttons button {
-        color: var(--a-visited-text);
+        .buttons button {
+            color: var(--a-visited-text);
+
+            svg {
+                fill: var(--a-visited-text);
+            }
+        }
     }
-}
 
-.view-header {
-    background-color: #ffffff;
-    border-bottom: 1px solid var(--border-color);
-    border-top: 2px solid var(--border-color);
-}
+    .view-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--border-color);
+        border-top: 2px solid var(--border-color);
+    }
 
-.list-info {
-    background-color: var(--page-header-background-color);
-}
+    .list-info {
+        background-color: var(--page-header-background-color);
+    }

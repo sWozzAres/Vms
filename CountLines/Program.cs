@@ -29,10 +29,18 @@
 
                     foreach (var file in files)
                     {
-                        var x = File.ReadAllLines(file);
+                        var lines = File.ReadAllLines(file);
+                        foreach (var line in lines)
+                        {
+                            var trimmedLine = line.Trim();
 
-                        Console.WriteLine($"{file} {x.Length}");
-                        totalLines += x.Length;
+                            if (!string.IsNullOrWhiteSpace(trimmedLine))
+                            {
+                                if (trimmedLine != "{" && trimmedLine != "}")
+                                    totalLines++;
+                            }
+                        }
+                        Console.WriteLine($"{file} {lines.Length}");
                     }
                 }
             }

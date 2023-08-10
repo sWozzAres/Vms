@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -19,7 +18,7 @@ public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProv
 
     public async Task FollowAsync(Guid id, CancellationToken cancellationToken)
     {
-        logger.LogInformation("FollowServiceBooking task for service booking {servicebookingid}, user {userid}.", id, UserProvider.UserId);
+        logger.LogInformation("Following service booking: {servicebookingid}, user {userid}.", id, UserProvider.UserId);
 
         ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Vms.Application.Commands;
+﻿namespace Vms.Application.Commands;
 
 public class CreateNetwork(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
 {

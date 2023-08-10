@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IUnfollowServiceBooking
 {
@@ -20,7 +18,7 @@ public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userPr
 
     public async Task<bool> UnfollowAsync(Guid id, CancellationToken cancellationToken)
     {
-        logger.LogInformation("UnfollowServiceBooking task for service booking {servicebookingid}, user {userid}.", id, UserProvider.UserId);
+        logger.LogInformation("Unfollowing service booking: {servicebookingid}, user {userid}.", id, UserProvider.UserId);
         Id = id;
         CancellationToken = cancellationToken;
 
