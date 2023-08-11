@@ -22,6 +22,7 @@
         </TemplateColumn>
         <PropertyColumn Property="p=>p!.Make" />
         <PropertyColumn Property="p=>p!.Model" />
+        <PropertyColumn Property="p=>p!.MotDue" Title="Mot" />
         <PropertyColumn Property="p=>p!.CustomerName" Title="Customer" />
         <PropertyColumn Property="p=>p!.FleetName" Title="Fleet" />
     </GridColumns>
@@ -36,9 +37,10 @@
 @code {
     List<SelectOption<int?>> listOptions = new()
     {
-        new (0, "All Vehicles"),
-        new (1, "Recently Viewed"),
-        new (2, "Following"),
+        new ((int)VehicleListOptions.All, "All Vehicles"),
+        new ((int)VehicleListOptions.Recent, "Recently Viewed"),
+        new ((int)VehicleListOptions.Following, "Following"),
+        new ((int)VehicleListOptions.DueMot, "Mot Due")
     };
 
     bool isCreating;

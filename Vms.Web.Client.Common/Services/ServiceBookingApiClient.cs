@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Vms.Web.Client.Common.Extensions;
 using Vms.Web.Shared;
 

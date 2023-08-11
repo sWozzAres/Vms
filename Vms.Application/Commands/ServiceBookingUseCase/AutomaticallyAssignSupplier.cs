@@ -8,13 +8,10 @@ public interface IAutomaticallyAssignSupplier
 }
 
 public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocator locator,
-    IActivityLogger activityLog, ITaskLogger taskLogger,
     ILogger<AutomaticallyAssignSupplier> logger,
     IAssignSupplier assignSupplier) : IAutomaticallyAssignSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IActivityLogger ActivityLog = activityLog;
-    readonly ITaskLogger TaskLogger = taskLogger;
     readonly ISupplierLocator SupplierLocator = locator;
     readonly ILogger Logger = logger;
     readonly IAssignSupplier AssignSupplier = assignSupplier;
@@ -45,7 +42,8 @@ public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocato
                 return false;
             }
 
-            await ctx.AssignSupplier// new AssignSupplier(ctx.DbContext, ctx.ActivityLog, ctx.TaskLogger, ctx.Logger)
+            ctx.DbContext.ThrowIfNoTransaction();
+            await ctx.AssignSupplier
                 .AssignAsync(self.Id, new TaskAssignSupplierCommand() { SupplierCode = notPreviouslyRefused.First().Code }, cancellationToken);
 
             return true;

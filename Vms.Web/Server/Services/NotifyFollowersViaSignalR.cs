@@ -5,7 +5,7 @@ using Vms.Web.Server.Hubs;
 namespace Vms.Web.Server.Services;
 
 public class NotifyFollowersViaSignalR(
-    IHubContext<ChatHub> hubContext, 
+    IHubContext<ChatHub> hubContext,
     ILogger<NotifyFollowersViaSignalR> logger) : INotifyFollowers
 {
     public async Task NotifyAsync(IEnumerable<string> userIds)

@@ -4,22 +4,22 @@ namespace Vms.Application.Services;
 
 public interface ISupplierLocator
 {
-    Task<IEnumerable<(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName)>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken);
+    Task<IEnumerable<SupplierDistance>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken);
 }
 
 public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
 {
-    public async Task<IEnumerable<(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName)>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<SupplierDistance>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken = default)
     {
         var vehicle = await dbContext.Vehicles.FindAsync(new object[] { serviceBooking.VehicleId }, cancellationToken)
             ?? throw new VmsDomainException("Vehicle not found.");
 
         var result = await GetSupplierDistances(vehicle, serviceBooking.Id, filter, cancellationToken);
 
-        return result.Select(x => (x.Code, x.Name, x.Distance, x.RefusalCode, x.RefusalName));
+        return result;
     }
 
-    async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, Guid serviceBookingId, string? filter, 
+    async Task<List<SupplierDistance>> GetSupplierDistances(Vehicle vehicle, Guid serviceBookingId, string? filter,
         CancellationToken cancellationToken)
     {
         var customerList = vehicle.CustomerCode is null
@@ -83,6 +83,6 @@ public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
            //&& s.Address.Location.Distance(serviceBooking.VehicleLocation) < 50
            orderby s.Address.Location.Distance(location)
            select new SupplierDistance(s.Code, s.Name, s.Address.Location.Distance(location), sr.Code, sr.Name);
-
-    record SupplierDistance(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName);
 }
+
+public record SupplierDistance(string Code, string Name, double Distance, string? RefusalCode, string? RefusalName);

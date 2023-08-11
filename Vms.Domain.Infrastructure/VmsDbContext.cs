@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Vms.Domain.Core;
 using Vms.Domain.Core.Configuration;
@@ -131,4 +133,22 @@ public class VmsDbContext : DbContext
     //    }
     //}
     #endregion
+    /// <summary>
+    /// Executes an action in a transaction using an execution strategy.
+    /// </summary>
+    /// <see cref="https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency#execution-strategies-and-transactions"/>
+    public Task<T> ExecuteInTransaction<T>(Func<Task<T>> action)
+    {
+        var strategy = Database.CreateExecutionStrategy();
+        return strategy.ExecuteAsync<T>(() =>
+        {
+            using var transaction = Database.BeginTransaction();
+
+            Task<T> result = action();
+
+            transaction.Commit();
+
+            return result;
+        });
+    }
 }

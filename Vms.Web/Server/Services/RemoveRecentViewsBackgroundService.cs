@@ -17,7 +17,7 @@ public class RemoveRecentViewsBackgroundService(IConfiguration configuration, IL
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogDebug("RemoveRecentViewsBackgroundService is doing background work.");
+            //logger.LogDebug("RemoveRecentViewsBackgroundService is doing background work.");
 
             using var conn = new SqlConnection(options.VmsDbConnection);
             try
@@ -30,7 +30,7 @@ public class RemoveRecentViewsBackgroundService(IConfiguration configuration, IL
             }
             catch (SqlException exception)
             {
-                logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
+                //logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
             }
 
             await Task.Delay(CheckTimeSeconds * 1000, stoppingToken);

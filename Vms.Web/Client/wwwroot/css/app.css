@@ -213,7 +213,6 @@ h5 + h6 {
 
 #header {
   border-bottom: 1px solid var(--border-color);
-  height: 4em;
 }
 
 .sidebar {

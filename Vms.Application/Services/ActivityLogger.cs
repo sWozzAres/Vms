@@ -5,7 +5,9 @@ public interface IActivityLogger
     Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
     Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
 }
-
+/// <summary>
+/// Logs an activity and notifies any followers.
+/// </summary>
 public class ActivityLogger(VmsDbContext dbContext,
     IUserProvider userProvider,
     IEmailSender emailSender,
@@ -31,9 +33,9 @@ public class ActivityLogger(VmsDbContext dbContext,
     private async Task NotifyFollowers(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
     {
         var followers = await (from f in dbContext.Followers
-                         join u in dbContext.Users on f.UserId equals u.UserId
-                         where f.DocumentId == documentId
-                         select new { f.UserId, u.EmailAddress }).ToListAsync(cancellationToken);
+                               join u in dbContext.Users on f.UserId equals u.UserId
+                               where f.DocumentId == documentId
+                               select new { f.UserId, u.EmailAddress }).ToListAsync(cancellationToken);
 
         // TODO dont notify current user
 
@@ -43,7 +45,7 @@ public class ActivityLogger(VmsDbContext dbContext,
         logger.LogDebug("Notifying followers {@followers},", followers);
 
         // send email
-        emailSender.Send(followers.Select(f=>f.EmailAddress), "Activity", log.ToString());
+        emailSender.Send(followers.Select(f => f.EmailAddress), "Activity", log.ToString());
 
         // send notification (ie via SignalR)
         await notifyFollowers

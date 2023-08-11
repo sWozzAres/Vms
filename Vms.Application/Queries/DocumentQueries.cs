@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace Vms.Application.Queries;
+﻿namespace Vms.Application.Queries;
 
 public interface IDocumentQueries
 {

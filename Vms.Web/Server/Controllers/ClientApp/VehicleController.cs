@@ -106,7 +106,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
 
         await recentViewLogger.LogAsync(vehicle.Id);
         await context.SaveChangesAsync(cancellationToken);
-        
+
         return Ok(vehicle);
     }
 

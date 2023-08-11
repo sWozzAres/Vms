@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Vms.Application.Commands;
-using Vms.Application.Commands.SupplierUseCase;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Services;
 using Vms.Domain.Common;
@@ -67,7 +66,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     public async Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
     {
-        
+
 
         var strategy = _context.Database.CreateExecutionStrategy();
 
@@ -390,7 +389,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         //        idx += rnd.Next(1, 5);
         //    }
         //}
-        
+
 
         await Task.CompletedTask;
     }

@@ -7,8 +7,8 @@ public interface IAssignSupplier
     Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
 }
 
-public class AssignSupplier(VmsDbContext dbContext, 
-    IActivityLogger activityLog, 
+public class AssignSupplier(VmsDbContext dbContext,
+    IActivityLogger activityLog,
     ITaskLogger taskLogger,
     ILogger<AssignSupplier> logger) : IAssignSupplier
 {

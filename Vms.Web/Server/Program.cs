@@ -1,5 +1,7 @@
 using System.Reflection;
 using Dapper;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -12,10 +14,8 @@ using Vms.Web.Server.Configuration;
 using Vms.Web.Server.Endpoints;
 using Vms.Web.Server.Extensions;
 using Vms.Web.Server.Helpers;
-using Vms.Web.Server.Services;
-using Microsoft.AspNetCore.ResponseCompression;
 using Vms.Web.Server.Hubs;
-using Microsoft.AspNetCore.SignalR;
+using Vms.Web.Server.Services;
 
 const string AppName = "Vms.Web.Server";
 
@@ -66,7 +66,7 @@ builder.Services.AddApplicationSecurity();
 
 builder.Services.AddHostedService<UnlockTaskBackgroundService>();
 builder.Services.AddHostedService<RemoveRecentViewsBackgroundService>();
-builder.Services.AddHostedService<ChatHubTest>();
+//builder.Services.AddHostedService<ChatHubTest>();
 
 //builder.Services.AddControllersWithViews()
 //    .ConfigureApiBehaviorOptions(options =>

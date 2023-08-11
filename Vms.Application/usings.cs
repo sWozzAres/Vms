@@ -2,6 +2,7 @@
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
 global using NetTopologySuite.Geometries;
+global using Vms.Application.Extensions;
 global using Vms.Application.Services;
 global using Vms.Domain.Common;
 global using Vms.Domain.Core;

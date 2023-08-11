@@ -8,7 +8,7 @@ public interface IEmailSender
 
 public class EmailSender(VmsDbContext context) : IEmailSender
 {
-    readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+    readonly VmsDbContext _context = context;
 
     public void Send(string recipients, string subject, string body)
     {

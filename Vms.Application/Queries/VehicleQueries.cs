@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Queries;
+﻿using Vms.Domain.ServiceBookingProcess;
+
+namespace Vms.Application.Queries;
 
 public interface IVehicleQueries
 {
@@ -6,7 +8,9 @@ public interface IVehicleQueries
     Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(VehicleListOptions list, int start, int take, CancellationToken cancellationToken);
 }
 
-public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : IVehicleQueries
+public class VehicleQueries(VmsDbContext context, 
+    IUserProvider userProvider,
+    ITimeService timeService) : IVehicleQueries
 {
     public async Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(
         VehicleListOptions list, int start, int take, CancellationToken cancellationToken)
@@ -17,18 +21,30 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         switch (list)
         {
             case VehicleListOptions.All:
+                vehicles = from v in vehicles
+                           orderby v.Id
+                           select v;
                 break;
             case VehicleListOptions.Following:
                 vehicles = from x in vehicles
                            join f in context.Followers on x.Id equals f.DocumentId
                            where f.UserId == userProvider.UserId
+                           orderby f.Id
                            select x;
                 break;
             case VehicleListOptions.Recent:
                 vehicles = from x in vehicles
                            join f in context.RecentViews on x.Id equals f.DocumentId
                            where f.UserId == userProvider.UserId
+                           orderby f.ViewDate descending
                            select x;
+                break;
+            case VehicleListOptions.DueMot:
+                var todayPlus30 = DateOnly.FromDateTime(timeService.GetTime()).AddDays(30);
+                vehicles = from v in vehicles
+                           where v.Mot.Due <= todayPlus30 && !context.MotEvents.Any(m => v.Id == m.VehicleId && m.IsCurrent && m.ServiceBookingId != null)
+                           orderby v.Mot.Due
+                           select v;
                 break;
             default:
                 throw new NotSupportedException($"Unknown list option '{list}'.");
@@ -37,8 +53,7 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
         int totalCount = await vehicles.CountAsync(cancellationToken);
 
         var result = await vehicles
-            .Include(v => v.C)
-            .OrderBy(v => v.Id)
+       
             .Skip(start)
             .Take(take)
             .Select(x => new VehicleListDto(
@@ -50,7 +65,8 @@ public class VehicleQueries(VmsDbContext context, IUserProvider userProvider) : 
                 x.C == null ? null : x.C.Code,
                 x.C == null ? null : x.C.Name,
                 x.Fleet == null ? null : x.Fleet.Code,
-                x.Fleet == null ? null : x.Fleet.Name
+                x.Fleet == null ? null : x.Fleet.Name,
+                x.Mot.Due
             ))
             .ToListAsync(cancellationToken);
 

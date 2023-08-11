@@ -19,7 +19,5 @@ public class RecentViewLogger(VmsDbContext context, IUserProvider userProvider) 
         {
             recentView.ViewDate = DateTime.Now;
         }
-
-        //await context.SaveChangesAsync();
     }
 }

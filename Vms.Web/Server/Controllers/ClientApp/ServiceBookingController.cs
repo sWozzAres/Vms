@@ -12,7 +12,6 @@ using Vms.Domain.Infrastructure;
 using Vms.Domain.Infrastructure.Services;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Domain.System;
-using Vms.Web.Server.Services;
 using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
@@ -256,16 +255,16 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         var entry = await addNote.Add(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction(nameof(GetActivity), new { id, aid = entry.Id }, entry);
+        return CreatedAtAction(nameof(GetActivity), new { id, activityId = entry.Id }, entry);
     }
 
     [HttpGet]
-    [Route("{id}/activity/{aid}")]
-    public async Task<IActionResult> GetActivity(Guid id, Guid aid,
+    [Route("{id}/activity/{activityId}")]
+    public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
         [FromServices] IServiceBookingQueries queries,
         CancellationToken cancellationToken)
     {
-        var activityLog = await queries.GetActivity(id, aid, cancellationToken);
+        var activityLog = await queries.GetActivity(id, activityId, cancellationToken);
         return activityLog is null ? NotFound() : Ok(activityLog);
     }
     #endregion
@@ -280,29 +279,37 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         //return UnprocessableEntity("Error happened!");
         //throw new Domain.Exceptions.VmsDomainException("Domain Error");
 
-        int tries = 1;
-        while (true)
+        //int tries = 1;
+        //while (true)
+        //{
+        //    try
+        //    {
+        var result = await _context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
         {
-            try
-            {
-                var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
+            using var transaction = _context.Database.BeginTransaction();
+
+            var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
                     .CreateAsync(request, cancellationToken);
 
-                await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync();
 
-                return CreatedAtAction("GetServiceBooking", new { id = serviceBooking.Id }, serviceBooking.ToDto());
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is SqlException && ex.InnerException.Message.Contains("UQ_ServiceBooking_Ref"))
-            {
-                if (tries == 3)
-                {
-                    logger.LogCritical("Failed to create service booking with unique ref.");
-                    throw;
-                }
+            return serviceBooking;
+            
+        });
+        return CreatedAtAction("GetServiceBooking", new { id = result.Id }, result.ToDto());
+        //}
+        //catch (DbUpdateException ex) when (ex.InnerException is SqlException && ex.InnerException.Message.Contains("UQ_ServiceBooking_Ref"))
+        //{
+        //    if (tries == 3)
+        //    {
+        //        logger.LogCritical("Failed to create service booking with unique ref.");
+        //        throw;
+        //    }
 
-                tries++;
-            }
-        }
+        //    tries++;
+        //}
+        //}
     }
     [HttpPost]
     [Route("{id}/edit")]
@@ -436,5 +443,5 @@ public static partial class DomainExtensions
     public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
         => new(supplier.Code, supplier.Name);
 
-    
+
 }

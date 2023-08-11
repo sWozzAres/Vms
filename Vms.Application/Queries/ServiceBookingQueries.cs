@@ -1,11 +1,10 @@
 ﻿using Dapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace Vms.Application.Queries;
 
 public interface IServiceBookingQueries
 {
-    Task<ActivityLogDto?> GetActivity(Guid id, Guid aid, CancellationToken cancellationToken);
+    Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId, CancellationToken cancellationToken);
     Task<ServiceBookingFullDto?> GetServiceBookingFull(Guid id, CancellationToken cancellationToken);
     Task<(int TotalCount, List<ServiceBookingListDto> Result)> GetServiceBookings(ServiceBookingListOptions list, int start, int take, CancellationToken cancellationToken);
     Task<IEnumerable<ServiceBookingFullDto>> GetServiceBookingsFullByVehicle(Guid id, CancellationToken cancellationToken);
@@ -13,12 +12,12 @@ public interface IServiceBookingQueries
 
 public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvider) : IServiceBookingQueries
 {
-    public async Task<ActivityLogDto?> GetActivity(Guid id, Guid aid,
+    public async Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId,
         CancellationToken cancellationToken)
     {
         var activityLog = await (from sb in context.ServiceBookings
                                  join ac in context.ActivityLog on sb.Id equals ac.DocumentId
-                                 where sb.Id == id && ac.DocumentId == aid
+                                 where sb.Id == id && ac.DocumentId == activityId
                                  select ac).SingleOrDefaultAsync(cancellationToken);
 
         return activityLog is null ? null : activityLog.ToDto();
