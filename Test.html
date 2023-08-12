@@ -1,45 +1,35 @@
 ﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Test</title>
-    <style>
-        .notification-button {
-            display: flex;
-            align-items: center;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .icon-svg {
-            fill: white;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-        }
-
-        .notification-count {
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Sticky Div Color Change with Intersection Observer</title>
 </head>
 <body>
-    <button class="notification-button">
-        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 2c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm-1 17h-2v-2h2v2zm0-4h-2V7h2v8z" />
-        </svg>
-        <span class="notification-count">3</span>
-    </button>
+    <div id="nav-container-top"></div>
+    <div id="logo-container">
+        Logo Container
+    </div>
+
+    <div id="nav-container">Navigation Container</div>
+    <div id="main-container">
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut tortor pretium viverra suspendisse potenti nullam ac tortor vitae. Pharetra convallis posuere morbi leo urna. In eu mi bibendum neque egestas congue quisque egestas. Faucibus pulvinar elementum integer enim neque volutpat. Non arcu risus quis varius quam quisque id diam. Sit amet nulla facilisi morbi tempus iaculis. Hendrerit gravida rutrum quisque non tellus orci. Arcu ac tortor dignissim convallis. Egestas maecenas pharetra convallis posuere morbi leo urna molestie. Porta non pulvinar neque laoreet. Fringilla urna porttitor rhoncus dolor purus. Urna condimentum mattis pellentesque id nibh tortor id. Ac turpis egestas maecenas pharetra. Nisl tincidunt eget nullam non. Ut pharetra sit amet aliquam id diam maecenas ultricies.
+        </p>
+        <p>
+            In metus vulputate eu scelerisque felis imperdiet proin fermentum. Est ante in nibh mauris cursus mattis molestie a. Placerat orci nulla pellentesque dignissim enim sit amet venenatis. Ultrices dui sapien eget mi proin. Enim ut sem viverra aliquet eget sit amet. Nisi lacus sed viverra tellus in hac habitasse platea dictumst. Elementum tempus egestas sed sed risus pretium quam. A iaculis at erat pellentesque adipiscing commodo. Condimentum mattis pellentesque id nibh tortor id aliquet lectus. Erat imperdiet sed euismod nisi porta. Penatibus et magnis dis parturient montes nascetur.
+        </p>
+        <p>
+            Quam quisque id diam vel quam elementum. Enim nulla aliquet porttitor lacus luctus accumsan tortor. Eu volutpat odio facilisis mauris sit amet massa. At tellus at urna condimentum mattis. Proin fermentum leo vel orci porta non pulvinar. Ac turpis egestas maecenas pharetra convallis posuere. Lorem donec massa sapien faucibus et molestie ac feugiat sed. Dictum sit amet justo donec enim diam vulputate ut. Suspendisse potenti nullam ac tortor. Massa massa ultricies mi quis hendrerit dolor. Bibendum ut tristique et egestas quis ipsum suspendisse. Lorem ipsum dolor sit amet. Enim neque volutpat ac tincidunt vitae. Id eu nisl nunc mi ipsum faucibus. Urna porttitor rhoncus dolor purus non enim praesent.
+        </p>
+        <p>
+            Natoque penatibus et magnis dis parturient montes nascetur ridiculus mus. In est ante in nibh mauris. Tellus id interdum velit laoreet id. Commodo odio aenean sed adipiscing diam donec adipiscing tristique. Tincidunt arcu non sodales neque sodales ut etiam sit amet. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Cras adipiscing enim eu turpis egestas. Mi bibendum neque egestas congue quisque egestas diam. Sed euismod nisi porta lorem. Nunc non blandit massa enim nec dui. Dignissim cras tincidunt lobortis feugiat vivamus at augue. Neque aliquam vestibulum morbi blandit cursus risus at. Consequat semper viverra nam libero justo laoreet sit amet cursus. Nascetur ridiculus mus mauris vitae ultricies leo integer malesuada.
+        </p>
+        <p>
+            Libero volutpat sed cras ornare arcu dui vivamus. Mi sit amet mauris commodo. Ut venenatis tellus in metus vulputate eu scelerisque felis imperdiet. Massa sed elementum tempus egestas sed sed risus pretium. Volutpat commodo sed egestas egestas fringilla. Massa ultricies mi quis hendrerit. Nascetur ridiculus mus mauris vitae ultricies leo integer malesuada nunc. Massa tempor nec feugiat nisl. Ipsum consequat nisl vel pretium lectus. Varius sit amet mattis vulputate enim. Magna eget est lorem ipsum dolor. Adipiscing commodo elit at imperdiet. Ornare aenean euismod elementum nisi. Nisl purus in mollis nunc sed. Non curabitur gravida arcu ac tortor dignissim. Adipiscing elit pellentesque habitant morbi. Ullamcorper dignissim cras tincidunt lobortis. Massa sapien faucibus et molestie ac.
+        </p>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>

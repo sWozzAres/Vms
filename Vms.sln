@@ -10,7 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		js.js = js.js
 		migrations.txt = migrations.txt
 		paradigm.txt = paradigm.txt
+		script.js = script.js
 		sites.txt = sites.txt
+		styles.css = styles.css
 		Test.html = Test.html
 	EndProjectSection
 EndProject

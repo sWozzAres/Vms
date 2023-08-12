@@ -12,7 +12,7 @@
     background-color: var(--header-bg);
     color: var(--header-color);
     gap: 0.5em 1em;
-    height: 3em;
+    height: var(--header-height);
 }
 
     /*@media (prefers-color-scheme: dark){

@@ -1,4 +1,7 @@
-﻿<div class="page-header stick">
+﻿@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="page-header">
     <div class="icon">
         @IconContent
     </div>
@@ -15,10 +18,42 @@
     [Parameter, EditorRequired] public RenderFragment InfoContent { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
 
+    IJSObjectReference? _jsModule;
+    IJSObjectReference? _jsEventDisposable;
+
     protected override void OnInitialized()
     {
         ArgumentNullException.ThrowIfNull(IconContent);
         ArgumentNullException.ThrowIfNull(InfoContent);
         ArgumentNullException.ThrowIfNull(Buttons);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Application/PageHeader.razor.js");
+            _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("init");
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_jsEventDisposable is not null)
+            {
+                await _jsEventDisposable.InvokeVoidAsync("stop");
+                await _jsEventDisposable.DisposeAsync();
+            }
+
+            if (_jsModule is not null)
+            {
+                await _jsModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // The JS side may routinely be gone already if the reason we're disposing is that
+            // the client disconnected. This is not an error.
+        }
     }
 }

@@ -5,12 +5,12 @@
 
 ::deep .stick {
     position: sticky;
-    top: 3em;
+    top: var(--header-height);
 }
 
 .stick {
     position: sticky;
-    top: 3em;
+    top: var(--header-height);
 }
 
 ::deep .page-header {

@@ -20,7 +20,7 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
                                  where sb.Id == id && ac.DocumentId == activityId
                                  select ac).SingleOrDefaultAsync(cancellationToken);
 
-        return activityLog is null ? null : activityLog.ToDto();
+        return activityLog?.ToDto();
     }
     public async Task<(int TotalCount, List<ServiceBookingListDto> Result)> GetServiceBookings(
         ServiceBookingListOptions list, int start, int take,
@@ -33,23 +33,32 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
         switch (list)
         {
             case ServiceBookingListOptions.All:
+                serviceBookings = from x in serviceBookings
+                                  orderby x.Id
+                                  select x;
                 break;
             case ServiceBookingListOptions.Following:
                 serviceBookings = from x in serviceBookings
                                   join f in context.Followers on x.Id equals f.DocumentId
                                   where f.UserId == userProvider.UserId
+                                  orderby x.Id
                                   select x;
                 break;
             case ServiceBookingListOptions.Assigned:
-                serviceBookings = serviceBookings.Where(s => s.AssignedToUserId == userProvider.UserId);
+                serviceBookings = serviceBookings
+                    .Where(s => s.AssignedToUserId == userProvider.UserId)
+                    .OrderBy(s => s.Id);
                 break;
             case ServiceBookingListOptions.Due:
-                serviceBookings = serviceBookings.Where(s => s.RescheduleTime <= DateTime.Now);
+                serviceBookings = serviceBookings
+                    .Where(s => s.RescheduleTime <= DateTime.Now)
+                    .OrderBy(s => s.RescheduleTime);
                 break;
             case ServiceBookingListOptions.Recent:
                 serviceBookings = from x in serviceBookings
                                   join f in context.RecentViews on x.Id equals f.DocumentId
                                   where f.UserId == userProvider.UserId
+                                  orderby f.ViewDate descending
                                   select x;
                 break;
             default:
@@ -59,8 +68,7 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
         int totalCount = await serviceBookings.CountAsync(cancellationToken);
 
         var result = await serviceBookings
-            .Include(s => s.Vehicle)
-            .OrderBy(s => s.RescheduleTime)
+            //.Include(s => s.Vehicle)
             .Skip(start)
             .Take(take)
             .Where(s => s.Status > 0)

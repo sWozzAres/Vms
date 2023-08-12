@@ -10,11 +10,12 @@
         @Buttons
     </Buttons>
 </PageHeader>
-
 <ViewHeader>
     @HeaderContent
 </ViewHeader>
-@ChildContent
+<div class="page-content">
+    @ChildContent
+</div>
 @code {
     [Parameter, EditorRequired] public RenderFragment IconContent { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment Buttons { get; set; } = null!;
