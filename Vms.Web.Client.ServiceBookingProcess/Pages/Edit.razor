@@ -46,6 +46,9 @@ else
                     <ValidationMessage For="@(() => editForm.Model.Driver_MobileNumber)" />
                 </fieldset>
                 <fieldset>
+                    @* <details>
+            <summary><legend>Contact</legend></summary> *@
+
                     <legend>Contact</legend>
 
                     <label for="contact_name">Name</label>
@@ -59,6 +62,7 @@ else
                     <label for="contact_mobile">Mobile Number</label>
                     <InputText id="contact_mobile" @bind-Value="editForm.Model.Contact_MobileNumber" />
                     <ValidationMessage For="@(() => editForm.Model.Contact_MobileNumber)" />
+                    @* </details> *@
                 </fieldset>
             </div>
         }
