@@ -4,6 +4,13 @@ input, select, textarea, .combo-input {
     border-radius: 0.25rem;
     line-height: 1.5;
     font-weight: 500;
+    color: var(--color);
+}
+
+//TODO this doesn't work
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::calendar-picker-indicator {
+    color: var(--color); // calendar icon on 'date' inputs
 }
 
 input[type='checkbox'] {

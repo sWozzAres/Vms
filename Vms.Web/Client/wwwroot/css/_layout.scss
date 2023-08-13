@@ -7,6 +7,9 @@
 }
 
 .main {
-    background-color: #a7bbdb;
+    /*background-color: #a7bbdb;*/
+    background: rgb(124,153,232);
+    /*background: linear-gradient(180deg, rgba(124,153,232,1) 0%, rgba(124,181,232,1) 47%, rgba(124,185,232,1) 100%);*/
+    background: linear-gradient(180deg, rgba(124,153,232,1) 0%, rgba(124,181,232,1) 47%, #a7bbdb 100%);
     min-height: calc(100vh - var(--header-height));
 }

@@ -11,6 +11,9 @@
     --box-shadow-size: 3px;
     --button-border-color: #899294;
     --button-border-radius: 5px;
+    --color: var(--color-light);
+    --color-light: black;
+    --color-dark: white;
     --control-border-color: #000000;
     --control-focus-color: #7aaee4;
     --dialog-footer-background-color: #f7f9fb;
@@ -30,8 +33,10 @@
     --lowlight-text: #9e9e9e;
     --normal-text: #3b3b3b;
     --outline-size: 5px;
-    --page-header-background-color: #f7f9fb;
-    --page-margin: 1em;
+    --page-header-background-color: var(--page-header-background-color-light);
+    --page-header-background-color-dark: #5b5d5e;
+    --page-header-background-color-light: #f7f9fb;
+    --page-margin: 0.5em;
     --section-bg: var(--section-bg-light);
     --section-bg-dark: #2d2f33;
     --section-bg-light: rgb(237 237 237);
@@ -44,14 +49,15 @@
     --task-background-color: #f7f9fb;
 }
 
-/*@media(prefers-color-scheme: dark) {
+@media(prefers-color-scheme: dark) {
     :root {
         --bg: var(--bg-dark);
-        --header-bg: var(--header-bg-dark);
+        --color: var(--color-dark);
+        --page-header-background-color: var(--page-header-background-color-dark);
+        /*--header-bg: var(--header-bg-dark);
         --header-color: var(--header-color-dark);
         --heading-text: var(--heading-text-dark);
         --sidebar-bg: var(--sidebar-bg-dark);
-        --section-bg: var(--section-bg-dark);
+        --section-bg: var(--section-bg-dark);*/
     }
 }
-*/

@@ -10,3 +10,6 @@ svgs
 ----
 C:\Users\markb\Downloads\fontawesome-free-6.4.0-web\fontawesome-free-6.4.0-web\svgs
 https://fontawesome.com/search?o=r&m=free&s=solid&f=classic
+
+sticky
+https://usefulangle.com/post/108/javascript-detecting-element-gets-fixed-in-css-position-sticky

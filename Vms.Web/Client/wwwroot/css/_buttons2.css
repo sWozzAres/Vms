@@ -11,6 +11,7 @@
   border: 2px solid var(--border-color);
   font: inherit;
   border-radius: 5px;
+  color: var(--color);
 }
 button:disabled {
   opacity: 0.5;
