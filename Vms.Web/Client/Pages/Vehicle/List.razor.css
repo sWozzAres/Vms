@@ -1,0 +1,8 @@
+@media (max-width: 1200px){
+    ::deep td.col-customer, ::deep td.col-fleet {
+        display: none;
+    }
+    ::deep th:has(.col-customer), ::deep th:has(.col-fleet) {
+        display: none;
+    }
+}
