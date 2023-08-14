@@ -22,7 +22,18 @@ public class VehicleApiClient(HttpClient http)
             throw new InvalidOperationException("Unexpected response.");
         }
     }
-    #region /api/servicebooking
+    #region /api/vehicle
+    public async Task<PostResponse> AddNote(string id, string note)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await http.PostAsJsonAsync($"/api/vehicle/{id}/activity", new AddNoteDto(note)));
+    }
+    public Task<List<ActivityLogDto>?> GetActivity(Guid id)
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return http.GetFromJsonAsync<List<ActivityLogDto>>($"/api/vehicle/{id}/activity");
+        //?? throw new InvalidOperationException("Failed to load activity.");
+    }
     public async Task<PostResponse> Follow(Guid id)
     {
         http.DefaultRequestHeaders.Accept.Clear();

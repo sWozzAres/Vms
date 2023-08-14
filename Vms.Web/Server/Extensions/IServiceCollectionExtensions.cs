@@ -37,9 +37,13 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
         services.AddScoped<ICreateVehicle, CreateVehicle>();
 
+        // vehicle
+        services.AddScoped<IAddNoteVehicle, AddNoteVehicle>(); 
+        services.AddScoped<IEditVehicle, EditVehicle>();
+        
         // service booking
-        services.AddScoped<IAddNote, AddNote>();
-        services.AddScoped<IEdit, Edit>();
+        services.AddScoped<IAddNoteServiceBooking, AddNoteServiceBooking>();
+        services.AddScoped<IEditServiceBooking, EditServiceBooking>();
         services.AddScoped<IFollowServiceBooking, FollowServiceBooking>();
         services.AddScoped<IUnfollowServiceBooking, UnfollowServiceBooking>();
         services.AddScoped<IBookSupplier, BookSupplier>();

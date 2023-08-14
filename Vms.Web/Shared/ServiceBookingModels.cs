@@ -393,6 +393,8 @@ public class ServiceBookingFullDto
     public string? Contact_MobileNumber { get; set; }
     public string? Worker_Name { get; set; }
     public DateTime? WorkStarted { get; set; }
+    public string? CustomerCode { get; set; }
+    public string? FleetCode { get; set; }
     [JsonIgnore]
     public string StatusText => ServiceBookingHelper.StatusText(Status);
 

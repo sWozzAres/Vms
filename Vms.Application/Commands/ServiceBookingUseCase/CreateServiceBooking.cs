@@ -46,7 +46,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         // log activity and task
         _ = await activityLog.AddAsync(serviceBooking.Id, SummaryText, taskTime, cancellationToken);
-        taskLogger.Log(serviceBooking.Id, "Create Service Booking", Command);
+        taskLogger.Log(serviceBooking.Id, nameof(CreateServiceBooking), Command);
 
         return serviceBooking;
     }

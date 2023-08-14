@@ -42,7 +42,7 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog,
         }
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
-        taskLogger.Log(Id, "Notify Customer", Command);
+        taskLogger.Log(Id, nameof(NotifyCustomer), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx)

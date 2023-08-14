@@ -45,7 +45,7 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, I
         }
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
-        taskLogger.Log(Id, "Check Arrival", Command);
+        taskLogger.Log(Id, nameof(CheckArrival), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckArrival ctx)

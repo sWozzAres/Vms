@@ -30,7 +30,7 @@ public class UnlockTaskBackgroundService(IConfiguration configuration, ILogger<U
             }
             catch (SqlException exception)
             {
-                //logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
+                logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
             }
 
             await Task.Delay(CheckTimeSeconds * 1000, stoppingToken);

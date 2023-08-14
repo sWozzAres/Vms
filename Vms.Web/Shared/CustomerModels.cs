@@ -5,3 +5,5 @@ public enum CustomerListOptions
 {
     All = 0,
 }
+
+public record CustomerShortDto(string CompanyCode, string Code, string Name);

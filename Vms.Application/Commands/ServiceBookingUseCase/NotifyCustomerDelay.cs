@@ -42,7 +42,7 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityL
         }
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
-        taskLogger.Log(Id, "Notify Customer Delay", Command);
+        taskLogger.Log(Id, nameof(NotifyCustomerDelay), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomerDelay ctx)

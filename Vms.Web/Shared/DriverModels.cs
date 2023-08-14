@@ -5,3 +5,5 @@ public enum DriverListOptions
 {
     All = 0,
 }
+
+public record DriverShortDto(Guid Id, string CompanyCode, string EmailAddress, string FullName, string MobileNumber);

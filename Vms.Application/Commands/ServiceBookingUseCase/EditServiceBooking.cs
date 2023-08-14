@@ -2,12 +2,12 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IEdit
+public interface IEditServiceBooking
 {
     Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken);
 }
 
-public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, ILogger<Edit> logger) : IEdit
+public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, ILogger<EditServiceBooking> logger) : IEditServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
@@ -115,7 +115,7 @@ public class Edit(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogg
         if (isModified)
         {
             _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
-            taskLogger.Log(id, "Edit", command);
+            taskLogger.Log(id, nameof(EditServiceBooking), command);
         }
 
         return isModified;

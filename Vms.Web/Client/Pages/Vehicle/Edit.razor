@@ -9,7 +9,7 @@
 else
 {
     <EditFormTemplate TModel="VehicleDto" @ref="editForm" OnLoad="() => Vehicle.ToDto()" OnSave="SaveModel">
-        <DataAnnotationsValidator />
+        <ObjectGraphDataAnnotationsValidator />
         @if (isLoaded)
         {
             <div class="form-section">

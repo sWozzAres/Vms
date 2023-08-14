@@ -13,7 +13,7 @@
 }
 else if (Model is not null)
 {
-    <EditForm EditContext="@editContext" OnSubmit="HandleSubmit" class="edit-form fullresponse">
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" class="edit-form fullresponse">
         <fieldset disabled="@isDisabled" class="form-grid">
             <CascadingValue Value="isDisabled" Name="IsDisabled">
                 @ChildContent
@@ -45,28 +45,28 @@ else if (Model is not null)
     string editButtonText => inEditMode ? "Cancel" : "Edit";
     bool isDisabled => !inEditMode;
 
-    async Task HandleSubmit()
-    {
-        Logger.LogInformation("Handling submit form {model}", Model);
-        if (editContext is null)
-            return;
+    // async Task HandleSubmit()
+    // {
+    //     Logger.LogInformation("Handling submit form {model}", Model);
+    //     if (editContext is null)
+    //         return;
 
-        if (editContext.Validate())
-        {
-            Logger.LogInformation("HandleSubmit called: Form is valid");
+    //     if (editContext.Validate())
+    //     {
+    //         Logger.LogInformation("HandleSubmit called: Form is valid");
 
-            // Process the valid form
-            // await ...
-            //await Task.CompletedTask;
-            await HandleValidSubmit();
-        }
-        else
-        {
-            var vm = editContext.GetValidationMessages();
+    //         // Process the valid form
+    //         // await ...
+    //         //await Task.CompletedTask;
+    //         await HandleValidSubmit();
+    //     }
+    //     else
+    //     {
+    //         var vm = editContext.GetValidationMessages();
 
-            Logger.LogInformation("HandleSubmit called: Form is INVALID: {vm}.", vm);
-        }
-    }
+    //         Logger.LogInformation("HandleSubmit called: Form is INVALID: {vm}.", vm);
+    //     }
+    // }
 
     void Load()
     {
@@ -85,6 +85,12 @@ else if (Model is not null)
 
     async Task HandleValidSubmit()
     {
+        if (!editContext.Validate())
+        {
+            Logger.LogWarning("Form is invalid");
+            return;
+        }
+
         Logger.LogInformation("Submitting form {model}", Model);
         isPosting = true;
         try

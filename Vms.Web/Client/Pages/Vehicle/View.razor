@@ -23,6 +23,7 @@ else
             @if(vehicle is not null)
             {
                 <FollowButton Id="vehicle.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="vehicle.IsFollowing" />
+                <button @onclick="() => addingNote = true">Add Note</button>
             }
         </Buttons>
         <HeaderContent>
@@ -57,7 +58,7 @@ else
             {
                 <TabControl Title="Vehicle Tabs" TitleVisible="false">
                     <TabPage Text="Details">
-                        <Edit Vehicle="@vehicle" OnAfterSave="LoadVehicle" />
+                        <Edit Vehicle="@vehicle" OnAfterSave="@LoadVehicle" />
                     </TabPage>
                     <TabPage Text="Related">
                         <div class="related50">
@@ -69,15 +70,23 @@ else
                     <TabPage Text="Work">
                         <WorkList Id="Id" />
                     </TabPage>
+                    <TabPage Text="Activity">
+                        <Activity Id="vehicle.Id" OnLoadActivities="Api.GetActivity" />
+                    </TabPage>
                 </TabControl>
             }
         </ChildContent>
     </ViewTemplate>
+    @if (vehicle is not null && addingNote)
+    {
+        <AddNoteDialog OnClose="() => addingNote = false" Id="@vehicle.Id.ToString()" OnAddNote="Api.AddNote" />
+    }
 }
 
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
+    bool addingNote;
     Exception? loadingException;
     VehicleFullDto? vehicle;
     string Title => vehicle is null ? "" : vehicle.Vrm;

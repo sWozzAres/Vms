@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
+using Polly;
 using Utopia.Blazor.Application.Shared;
 using Vms.Application;
+using Vms.Application.Commands.ServiceBookingUseCase;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Queries;
 using Vms.Application.Services;
@@ -20,6 +22,37 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Produces("application/json")]
 public class VehicleController(ILogger<VehicleController> logger, VmsDbContext context) : ControllerBase
 {
+    #region Activity
+    [HttpGet]
+    [Route("{id}/activity")]
+    public async Task<IActionResult> GetActivities(Guid id,
+        [FromServices] IDocumentQueries documentQueries,
+        CancellationToken cancellationToken)
+    => Ok(await documentQueries.GetActivities(id, cancellationToken));
+
+    [HttpPost]
+    [Route("{id}/activity")]
+    public async Task<IActionResult> PostNote(Guid id,
+        [FromBody] AddNoteDto request,
+        [FromServices] IAddNoteVehicle addNote,
+        CancellationToken cancellationToken)
+    {
+        var entry = await addNote.Add(id, request, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return CreatedAtAction(nameof(GetActivity), new { id, activityId = entry.Id }, entry);
+    }
+
+    [HttpGet]
+    [Route("{id}/activity/{activityId}")]
+    public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
+        [FromServices] IServiceBookingQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var activityLog = await queries.GetActivity(id, activityId, cancellationToken);
+        return activityLog is null ? NotFound() : Ok(activityLog);
+    }
+    #endregion
     #region Follow
     [HttpPost]
     [Route("{id}/follow")]
@@ -119,7 +152,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         var (totalCount, result) = await queries.GetVehicles(list, start, take, cancellationToken);
         return Ok(new ListResult<VehicleListDto>(totalCount, result));
     }
-
+    #region Driver
     [HttpDelete]
     [Route("{id}/drivers/{driverId}")]
     [ProducesResponseType((int)HttpStatusCode.Accepted)]
@@ -135,7 +168,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         return r ? Accepted()
             : NotFound();
     }
-
+    
     [HttpPost]
     [Route("{id}/drivers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -149,7 +182,8 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
-
+    #endregion
+    #region Customer
     [HttpPost]
     [Route("{id}/customer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -176,7 +210,8 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
-
+    #endregion
+    #region Fleet
     [HttpPost]
     [Route("{id}/fleet")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -203,7 +238,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         await context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
-
+    #endregion
 
 
     [HttpPost]
@@ -230,17 +265,12 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
         return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle.ToDto());
     }
 
-    [HttpPut]
-    [Route("{id}")]
-    [ActionName("Put")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
-    public async Task<IActionResult> Put([FromRoute] Guid id,
+    #region CRUD
+    [HttpPost]
+    [Route("{id}/edit")]
+    public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] VehicleDto request,
+        [FromServices] IEditVehicle edit,
         CancellationToken cancellationToken)
     {
         if (request.Id != id)
@@ -248,66 +278,66 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
             return BadRequest();
         }
 
-        logger.LogDebug("Put vehicle, id {id}.", id);
-
-        var vehicle = await context.Vehicles
-            .Include(v => v.MotEvents.Where(e => e.IsCurrent))
-            .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
-        //.FindAsync(id, cancellationToken);
-        if (vehicle is null)
-        {
-            return NotFound();
-        }
-
-        vehicle.Vrm = request.Vrm;
-        vehicle.UpdateModel(request.Make!, request.Model!);
-        //vehicle.Mot.Due = request.MotDue;
-
-        var mot = vehicle.MotEvents.FirstOrDefault();
-        if (mot is not null)
-        {
-            if (request.MotDue.HasValue)
-                mot.Due = request.MotDue.Value;
-            else
-                context.MotEvents.Remove(mot);
-        }
-        else
-        {
-            if (request.MotDue.HasValue)
-                //vehicle.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
-                context.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
-        }
-
-        vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
-            new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326 });
-
+        await edit.EditAsync(id, request, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        return Ok(vehicle.ToDto());
-
-        //if (_context.Entry(vehicle).State == EntityState.Modified || _context.Entry(vehicle.VehicleVrm).State == EntityState.Modified)
-        //{
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync(cancellationToken);
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        _logger.LogInformation("Concurrency violation while modifying vehicle, id '{id}'.", id);
-
-        //        //if (rowVersion is not null)
-        //        //    return StatusCode(StatusCodes.Status412PreconditionFailed);
-
-        //        //TODO retry?
-        //        return Problem();
-        //    }
-
-        //    //HttpContext.SetETag(product.RowVersion);
-
-
-        //}
-
-        //// return NoContent to signify no changes
-        //return NoContent();
+        return Ok();
     }
+    #endregion
+
+    //[HttpPut]
+    //[Route("{id}")]
+    //[ActionName("Put")]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //[ProducesResponseType(StatusCodes.Status404NotFound)]
+    ////[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    //[ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    //[ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
+    //public async Task<IActionResult> Put([FromRoute] Guid id,
+    //    [FromBody] VehicleDto request,
+    //    CancellationToken cancellationToken)
+    //{
+    //    if (request.Id != id)
+    //    {
+    //        return BadRequest();
+    //    }
+
+    //    logger.LogDebug("Put vehicle, id {id}.", id);
+
+    //    var vehicle = await context.Vehicles
+    //        .Include(v => v.MotEvents.Where(e => e.IsCurrent))
+    //        .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
+    //    //.FindAsync(id, cancellationToken);
+    //    if (vehicle is null)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    vehicle.Vrm = request.Vrm;
+    //    vehicle.UpdateModel(request.Make!, request.Model!);
+    //    //vehicle.Mot.Due = request.MotDue;
+
+    //    var mot = vehicle.MotEvents.FirstOrDefault();
+    //    if (mot is not null)
+    //    {
+    //        if (request.MotDue.HasValue)
+    //            mot.Due = request.MotDue.Value;
+    //        else
+    //            context.MotEvents.Remove(mot);
+    //    }
+    //    else
+    //    {
+    //        if (request.MotDue.HasValue)
+    //            //vehicle.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
+    //            context.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
+    //    }
+
+    //    vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
+    //        new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326 });
+
+    //    await context.SaveChangesAsync(cancellationToken);
+
+    //    return Ok(vehicle.ToDto());
+    //}
 }

@@ -45,7 +45,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog
         }
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
-        taskLogger.Log(Id, "Check Work Status", Command);
+        taskLogger.Log(Id, nameof(CheckWorkStatus), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)

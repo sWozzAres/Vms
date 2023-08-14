@@ -45,7 +45,7 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, IT
         }
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
-        taskLogger.Log(Id, "Chase Driver", Command);
+        taskLogger.Log(Id, nameof(ChaseDriver), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, ChaseDriver ctx)

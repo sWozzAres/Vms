@@ -8,7 +8,7 @@ namespace Vms.Domain.Core
         public Guid Id { get; private set; }
         public string Make { get; private set; } = null!;
         public string Model { get; private set; } = null!;
-        public string? ChassisNumber { get; private set; }
+        public string? ChassisNumber { get; internal set; }
         public DateOnly DateFirstRegistered { get; private set; }
         public Address Address { get; set; } = null!;
         public string? CustomerCode { get; private set; }

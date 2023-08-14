@@ -5,3 +5,5 @@ public enum FleetListOptions
 {
     All = 0,
 }
+
+public record FleetShortDto(string CompanyCode, string Code, string Name);

@@ -1,13 +1,18 @@
 ﻿@inject ServerApiHttpClient Api
 
 <div class="taskview">
-    @if (ServiceBooking.Status == ServiceBookingDtoStatus.None)
+    
+    @if (ServiceBooking.Worker_Name is not null)
+    {
+        <Alert Style="Alert.AlertStyle.Danger">@ServiceBooking.Worker_Name is currently working on this booking.</Alert>
+    }
+    else if (ServiceBooking.Status == ServiceBookingDtoStatus.None)
     {
         <Alert Style="Alert.AlertStyle.Info">You must complete the booking details.</Alert>
     }
-    else if (ServiceBooking.Worker_Name is not null)
+    else if (ServiceBooking.CustomerCode is null && ServiceBooking.FleetCode is null)
     {
-        <Alert Style="Alert.AlertStyle.Danger">@ServiceBooking.Worker_Name is currently working on this booking.</Alert>
+        <Alert Style="Alert.AlertStyle.Warning">The vehicle must be linked to a customer or fleet in order to asssign a supplier.</Alert>
     }
     else
     {

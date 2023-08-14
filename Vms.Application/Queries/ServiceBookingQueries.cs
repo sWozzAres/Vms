@@ -112,7 +112,8 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
                     sb.AssignedToUserId, sb.Ref, sb.RescheduleTime,
                     sbd.Name 'Driver_Name', sbd.EmailAddress 'Driver_EmailAddress', sbd.MobileNumber 'Driver_MobileNumber',
                     sbc.Name 'Contact_Name', sbc.EmailAddress 'Contact_EmailAddress', sbc.MobileNumber 'Contact_MobileNumber',
-                    sbl.UserName 'Worker_Name', sbl.Granted 'WorkStarted'
+                    sbl.UserName 'Worker_Name', sbl.Granted 'WorkStarted',
+                    v.CustomerCode, v.FleetCode
                 FROM ServiceBookings sb
                 LEFT JOIN ServiceBookingDrivers sbd ON sb.Id = sbd.ServiceBookingId
                 LEFT JOIN ServiceBookingContacts sbc ON sb.Id = sbc.ServiceBookingId

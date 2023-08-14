@@ -249,7 +249,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/activity")]
     public async Task<IActionResult> PostNote(Guid id,
         [FromBody] AddNoteDto request,
-        [FromServices] IAddNote addNote,
+        [FromServices] IAddNoteServiceBooking addNote,
         CancellationToken cancellationToken)
     {
         var entry = await addNote.Add(id, request, cancellationToken);
@@ -315,7 +315,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/edit")]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] ServiceBookingDto request,
-        [FromServices] IEdit edit,
+        [FromServices] IEditServiceBooking edit,
         CancellationToken cancellationToken)
     {
         if (request.Id != id)

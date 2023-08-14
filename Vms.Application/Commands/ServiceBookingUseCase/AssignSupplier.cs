@@ -34,7 +34,7 @@ public class AssignSupplier(VmsDbContext dbContext,
         await ServiceBooking.Assign();
 
         _ = await activityLog.AddAsync(id, SummaryText, CancellationToken);
-        taskLogger.Log(id, "Assign Supplier", Command);
+        taskLogger.Log(id, nameof(AssignSupplier), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, AssignSupplier ctx)
