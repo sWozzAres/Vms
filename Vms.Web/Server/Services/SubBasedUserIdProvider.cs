@@ -10,6 +10,6 @@ public class SubBasedUserIdProvider : IUserIdProvider
 {
     public virtual string GetUserId(HubConnectionContext connection)
     {
-        return connection.User?.FindFirst(x => x.Type == "sub")?.Value!;
+        return connection.User?.FindFirst(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" || x.Type == "sub")?.Value!;
     }
 }

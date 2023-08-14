@@ -86,7 +86,8 @@ builder.Services.AddScoped(sp =>
                 }
                 else
                 {
-                    throw new InvalidOperationException("Failed to get access token.");
+                    //throw new InvalidOperationException("Failed to get access token.");
+                    return "";
                 }
             };
         })

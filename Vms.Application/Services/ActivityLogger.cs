@@ -25,6 +25,8 @@ public class ActivityLogger(VmsDbContext dbContext,
 
     private ActivityLog LogActivity(Guid documentId, StringBuilder log, DateTime taskTime)
     {
+        logger.LogDebug("Logging activity for user {user}.", userProvider.UserId);
+
         var entry = new ActivityLog(documentId, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime);
         dbContext.ActivityLog.Add(entry);
         return entry;

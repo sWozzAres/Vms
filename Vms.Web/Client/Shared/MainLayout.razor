@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject HubConnection HubConnection
+@inject ILogger<MainLayout> Logger
 
 <Header />
 <div class="content stick">
@@ -10,5 +11,15 @@
 </div>
 
 @code {
-    protected override async Task OnInitializedAsync() => await HubConnection.StartAsync();
+    protected override async Task OnInitializedAsync() 
+    {
+        try
+        {
+            await HubConnection.StartAsync();
+        }
+        catch(Exception ex)
+        {
+            Logger.LogError(ex, "Failed to start the signalR connection.");
+        }
+    }
 }

@@ -10,9 +10,13 @@
     {
         <Alert Style="Alert.AlertStyle.Info">You must complete the booking details.</Alert>
     }
+    else if (ServiceBooking.Status == ServiceBookingDtoStatus.Complete)
+    {
+        <Alert Style="Alert.AlertStyle.Info">The booking is complete.</Alert>
+    }
     else if (ServiceBooking.CustomerCode is null && ServiceBooking.FleetCode is null)
     {
-        <Alert Style="Alert.AlertStyle.Warning">The vehicle must be linked to a customer or fleet in order to asssign a supplier.</Alert>
+        <Alert Style="Alert.AlertStyle.Warning">The vehicle must be linked to a customer or fleet in order to assign a supplier.</Alert>
     }
     else
     {

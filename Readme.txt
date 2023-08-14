@@ -1,11 +1,13 @@
-This is an experimental project that exists in order to explore the combination of the following technologies:
+This is an experimental project that exists in order to explore 
+the combination of the following technologies:
 
 1. ASP.NET Core
 2. Blazor
 3. DCI paradigm
 
-It is essentially a process management system. In order to drive development, it implements a simplified version of a
-service booking process.
+It is essentially a process management system. In order to drive 
+development, it implements a simplified version of a service 
+booking process.
 
 
 
