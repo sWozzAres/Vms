@@ -2,7 +2,7 @@
     <div class="content">
         <h1>Loading failed.</h1>
         <p>An error occurred loading the page.</p>
-        <button @onclick="OnRetry">Retry</button>
+        <button @onclick="Retry" disabled="@isRetrying">Retry</button>
     </div>
 </section>
 
@@ -10,6 +10,20 @@
 @code {
     [Parameter] public Exception? Exception { get; set; }
     [Parameter, EditorRequired] public EventCallback OnRetry { get; set; }
+
+    bool isRetrying;
+    async Task Retry()
+    {
+        isRetrying = true;
+        try
+        {
+            await OnRetry.InvokeAsync();
+        }
+        finally
+        {
+            isRetrying = false;
+        }
+    }
 
     protected override void OnInitialized()
     {

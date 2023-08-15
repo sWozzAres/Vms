@@ -3,21 +3,19 @@
 @import "_layout.scss";
 @import "_buttons2.css";
 @import "_buttons.custom.css";
-
 @import "_tables.scss";
 @import "_utopia_blazor_application.scss";
 @import "_combos.scss";
 @import "_forms.scss";
-@import "_entity.scss";
-@import "_tabs.scss";
+@import "_svg.scss";
+
 @import "_dialogs.scss";
-@import "_tasks.scss";
+
+@import "_utility.scss";
 
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
-.upper {
-    text-transform: uppercase;
-}
+
 .user-dropdown-button {
     .panel {
         border: 1px solid var(--border-color);
@@ -72,33 +70,13 @@
     grid-template-columns: 1fr auto;
 }
 
-.retry-load {
-    display: grid;
-    place-content: center;
-    background: #ffffff;
 
-    p {
-        color: red;
-    }
-
-    .content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-}
 
 .page {
     padding: 1em;
 }
 
-.hidden {
-    visibility: hidden;
-}
 
-.w100 {
-    width: 100%;
-}
 
 a {
     color: var(--a-normal-text);
@@ -196,79 +174,6 @@ h1:focus {
 .loading-progress-text:after {
     content: var(--blazor-load-percentage-text, "Loading");
 }
-/*main > section {
-    background-color: var(--section-bg);
-    padding: 1em;
-    margin: 1em;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}*/
-/*.view-card {
-    padding: 0;
-    margin: 0;
-    background-color: #fafaf9;
-
-    .view-header {
-        padding: 1em;
-        display: flex;
-        flex-direction: column;
-        background-color: #f3f2f2;
-        gap: 1em;
-
-        .view-control {
-            display: flex;
-            gap: 1em;
-            flex-wrap: wrap;
-
-            .view-icon {
-                display: flex;
-                align-items: center;
-
-                div {
-                    padding: 0.5em;
-                    border-radius: 5px;
-
-                    > svg {
-                        height: 2em;
-                        fill: white;
-                    }
-                }
-            }
-
-            .view-info {
-                flex-grow: 1;
-
-                h1 {
-                    font-size: small;
-                    margin: 0;
-                    text-transform: uppercase;
-                }
-
-                h2 {
-                    margin: 0;
-                    display: flex;
-                    align-items: flex-end;
-                    column-gap: 0.5em;
-
-                    button {
-                        padding-inline: 0.2em;
-                        padding-block: 0;
-                    }
-                }
-            }
-
-            .view-buttons {
-                justify-items: flex-end;
-            }
-        }
-    }
-
-    .view-content {
-        padding: 1em;
-    }
-}*/
 
 
 .mydropdown {

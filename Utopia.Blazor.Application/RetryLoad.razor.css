@@ -1,0 +1,16 @@
+.retry-load {
+    display: grid;
+    place-content: center;
+    background: #ffffff;
+}
+
+.retry-load p
+{
+    color: red;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

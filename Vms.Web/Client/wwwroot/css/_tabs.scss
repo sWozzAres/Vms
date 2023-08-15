@@ -2,9 +2,6 @@
     padding: 0.5em;
     background-color: #ffffff;
     
-    [role="tablist"] {
-    }
-
     [role="tabpanel"] {
         border: 0;
         border-top-width: 1px;
@@ -23,59 +20,3 @@
         border-bottom-color: var(--tabs-highlight);
     }
 }
-
-/*.tabs2 {
-
-
-    [role="tab"],
-    [role="tab"]:focus,
-    [role="tab"]:hover {
-        font-weight: bold;
-        border: 1px solid hsl(219deg 1% 72%);
-        border-bottom: 2px solid hsl(219deg 1% 72%);
-        border-radius: 5px 5px 0 0;
-        background: hsl(220deg 20% 94%);
-        top: 2px;
-        margin: 0;
-        margin-top: 4px;
-        padding: 3px 3px 4px;
-    }
-
-    [role="tab"][aria-selected="true"] {
-        border-top-color: var(--tabs-highlight);
-        border-bottom-color: var(--tabpanel-background);
-        background: hsl(220deg 43% 99%);
-        padding: 2px 2px 4px;
-        margin-top: 0;
-        border-width: 2px;
-        border-top-width: 6px;
-    }
-
-    [role="tab"][aria-selected="false"] {
-        border-bottom: 1px solid hsl(219deg 1% 72%);
-    }
-
-    [role="tab"] span.focus {
-        margin: 2px;
-        padding: 4px 6px;
-    }
-
-    [role="tab"]:hover span.focus,
-    [role="tab"]:focus span.focus,
-    [role="tab"]:active span.focus {
-        border: 2px solid var(--tabs-highlight);
-        padding: 2px 4px;
-        border-radius: 3px;
-    }
-
-    [role="tabpanel"] {
-        background: var(--tabpanel-background);
-        border: 2px solid hsl(219deg 1% 72%);
-        padding: 5px;
-        border-radius: 0 5px 5px;
-    }
-
-    [role="tabpanel"].is-hidden {
-    }
-}
-*/

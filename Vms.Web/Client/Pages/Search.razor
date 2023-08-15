@@ -5,7 +5,38 @@
 
 <PageTitle>Search</PageTitle>
 
-<section class="search-page">
+<PageHeader>
+    <IconContent>
+        <div class="svg-large svg-search">
+            <img alt="Search" src="icons/search.svg" />
+        </div>
+    </IconContent>
+    <InfoContent>
+        <h1>Search Results</h1>
+        <h2>@SearchString</h2>
+    </InfoContent>
+    <Buttons>
+    </Buttons>
+</PageHeader>
+<div class="card page-sub-header">
+    <div class="list-data">
+        @if (loadingException is not null)
+        {
+            <RetryLoad Exception="loadingException" OnRetry="LoadSearchResults" />
+        }
+        else if (results is not null)
+        {
+            <QuickGrid Items="results" TGridItem="EntityTagDto">
+                <PropertyColumn Property="x=>x.KindString" Title="Type" />
+                <TemplateColumn Title="Name">
+                    <a href="@Url(context)/@context!.Key">@context.Name</a>
+                </TemplateColumn>
+            </QuickGrid>
+        }
+
+    </div>
+</div>
+@* <section class="search-page">
     <div class="search-page-header">
         <h1>Search Results</h1>
         <h2>@SearchString</h2>
@@ -13,20 +44,21 @@
 
     @if (results is not null)
     {
-        <QuickGrid @ref="grid" Items="results" TGridItem="EntityTagDto">
+        <QuickGrid Items="results" TGridItem="EntityTagDto">
             <PropertyColumn Property="x=>x.KindString" Title="Type" />
             <TemplateColumn Title="Name">
                 <a href="@Url(context)/@context!.Key">@context.Name</a>
             </TemplateColumn>
         </QuickGrid>
     }
-</section>
+</section> *@
+
 
 @code {
     [Parameter, SupplyParameterFromQuery(Name = "SearchString")]
     public string SearchString { get; set; } = null!;
 
-    QuickGrid<EntityTagDto> grid = null!;
+    Exception? loadingException;
     IQueryable<EntityTagDto>? results;
 
     string Url(EntityTagDto tag) => tag.Kind switch
@@ -42,8 +74,24 @@
         _ => throw new NotSupportedException($"Unknown kind '{tag.Kind}'.")
     };
 
+    async Task LoadSearchResults()
+    {
+        loadingException = null;
+        try
+        {
+            results = (await Api.Search(SearchString)).AsQueryable();
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            loadingException = ex;
+        }
+    }
     protected override async Task OnParametersSetAsync()
     {
-        results = (await Api.Search(SearchString)).AsQueryable();
+        await LoadSearchResults();
     }
 }

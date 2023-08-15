@@ -1,7 +1,7 @@
 ﻿@inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<dialog @ref="dialogEl" class="@ClassName">
+<dialog @ref="dialogEl" class="@className">
     @ChildContent
 </dialog>
 
@@ -16,6 +16,8 @@
     ElementReference dialogEl;
     IJSObjectReference? _jsModule;
     IJSObjectReference? _jsEventDisposable;
+    bool isReady;
+    string className => string.Join("", ClassName, isReady ? "" : " nodisplay");
 
     public async Task Show() => await _jsEventDisposable!.InvokeVoidAsync("show");
     public async Task ShowModal() => await _jsEventDisposable!.InvokeVoidAsync("showModal");
@@ -37,6 +39,9 @@
                 await Show();
             else if (AutoShow == ShowMode.ShowModal)
                 await ShowModal();
+
+            isReady = true;
+            StateHasChanged();
         }
     }
 

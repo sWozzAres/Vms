@@ -27,6 +27,8 @@
 	  <Content Remove="Pages\Company\View.razor" />
 	  <Content Remove="Shared\SelectOnlyCombobox.razor" />
 	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
+	  <Content Remove="wwwroot\css\_tabs.scss" />
+	  <Content Remove="wwwroot\css\_tasks.scss" />
 	</ItemGroup>
 
 	<ItemGroup>

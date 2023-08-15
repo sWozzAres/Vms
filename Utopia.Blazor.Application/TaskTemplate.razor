@@ -7,8 +7,7 @@
     <h1>@Title</h1>
     <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
-
+        
         @if (isLoaded)
         {
             if (lockFail)
@@ -22,7 +21,7 @@
                 @ChildContent
             }
         }
-
+        <ValidationSummary />
         <div class="buttons">
             @if (errorMessage is not null)
             {
@@ -33,6 +32,7 @@
             <button type="button" @onclick="() => OnCompleted.InvokeAsync(false)">Cancel</button>
             <button type="submit" disabled="@okDisabled">Ok</button>
         </div>
+        
     </EditForm>
 </section>
 

@@ -1,0 +1,47 @@
+.task-form {
+    background: var(--task-background-color);
+    border: 2px solid var(--border-color);
+    padding: 1em;
+    width: 50ch;
+}
+
+    .task-form ::deep h1 {
+        margin: 0;
+    }
+
+    .task-form ::deep form {
+        display: flex;
+        flex-direction: column;
+        row-gap: 1em;
+    }
+
+    .task-form ::deep form .option {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .task-form ::deep form .option .option-select {
+        display: flex;
+        flex-direction: row;
+        column-gap: 1em;
+        align-items: center;
+    }
+
+    .task-form ::deep form .option .option-select label {
+        font-size: initial;
+        font-weight: 500;
+    }
+
+        .task-form ::deep form .option .option-data {
+            display: flex;
+            flex-direction: column;
+            margin-left: 2em;
+        }
+
+
+        .task-form ::deep form .buttons {
+            display: flex;
+            justify-content: end;
+            column-gap: 0.5em;
+            margin-top: 1em;
+        }
