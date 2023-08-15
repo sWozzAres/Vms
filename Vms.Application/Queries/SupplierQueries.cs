@@ -1,6 +1,4 @@
-﻿using Vms.Domain.Core;
-
-namespace Vms.Application.Queries;
+﻿namespace Vms.Application.Queries;
 
 public interface ISupplierQueries
 {

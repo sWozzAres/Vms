@@ -1,9 +1,4 @@
-﻿using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Threading;
-using Vms.Application.Commands.ServiceBookingUseCase;
-using Vms.Application.Services;
-using Vms.Domain.ServiceBookingProcess;
-using Vms.Domain.System;
+﻿using Vms.Application.Commands.ServiceBookingUseCase;
 
 namespace Vms.Application.Commands.SupplierUseCase;
 
@@ -28,7 +23,7 @@ public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager
         SummaryText.AppendLine("# Create Supplier");
         SummaryText.AppendLine($"* Code: {command.Code}");
         SummaryText.AppendLine($"* Name: {command.Name}");
-        SummaryText.AppendLine($"* Is Independent: {command.IsIndependant}");
+        SummaryText.AppendLine($"* Is Independent: {command.IsIndependant.YesNo()}");
 
         if (!string.IsNullOrEmpty(command.Address.Street))
             SummaryText.AppendLine($"* Street: {command.Address.Street}");
@@ -44,12 +39,13 @@ public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager
             SummaryText.AppendLine($"* Longitude: {command.Address.Location.Longitude}");
 
 
-        var supplier = new Supplier(command.Code, command.Name, 
+        var supplier = new Supplier(command.Code, command.Name,
             new(command.Address.Street, command.Address.Locality, command.Address.Town, command.Address.Postcode,
             new Point(command.Address.Location.Longitude, command.Address.Location.Latitude) { SRID = 4326 }),
             command.IsIndependant);
 
         DbContext.Add(supplier);
+
         searchManager.Add(null, supplier.Code, EntityKind.Supplier, supplier.Name,
             string.Join(" ", supplier.Code, supplier.Name));
 

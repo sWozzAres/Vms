@@ -20,7 +20,7 @@ public class UnfollowSupplier(VmsDbContext dbContext, IUserProvider userProvider
         CancellationToken = cancellationToken;
         Id = id;
 
-        var supplier = await DbContext.Suppliers.SingleOrDefaultAsync(s=>s.Id == Id, CancellationToken)
+        var supplier = await DbContext.Suppliers.SingleOrDefaultAsync(s => s.Id == Id, CancellationToken)
                     ?? throw new InvalidOperationException("Failed to load supplier.");
 
         Supplier = new(this);

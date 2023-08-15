@@ -1,6 +1,4 @@
-﻿using Vms.Domain.ServiceBookingProcess;
-
-namespace Vms.Application.Queries;
+﻿namespace Vms.Application.Queries;
 
 public interface IVehicleQueries
 {
@@ -9,7 +7,7 @@ public interface IVehicleQueries
     Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(VehicleListOptions list, int start, int take, CancellationToken cancellationToken);
 }
 
-public class VehicleQueries(VmsDbContext context, 
+public class VehicleQueries(VmsDbContext context,
     IUserProvider userProvider,
     ITimeService timeService) : IVehicleQueries
 {

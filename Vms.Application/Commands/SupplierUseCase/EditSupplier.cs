@@ -35,7 +35,7 @@ public class EditSupplier(VmsDbContext dbContext, IActivityLogger activityLog, I
         }
         if (supplier.IsIndependent != command.IsIndependent)
         {
-            SummaryText.AppendLine($"* Is Independant: {command.IsIndependent}");
+            SummaryText.AppendLine($"* Is Independant: {command.IsIndependent.YesNo()}");
             supplier.IsIndependent = command.IsIndependent;
             isModified = true;
         }
@@ -81,8 +81,8 @@ public class EditSupplier(VmsDbContext dbContext, IActivityLogger activityLog, I
 
         if (isModified)
         {
-           _ = await activityLog.AddAsync(supplier.Id, SummaryText, cancellationToken);
-           taskLogger.Log(supplier.Id, nameof(EditSupplier), command);
+            _ = await activityLog.AddAsync(supplier.Id, SummaryText, cancellationToken);
+            taskLogger.Log(supplier.Id, nameof(EditSupplier), command);
         }
 
         return isModified;
