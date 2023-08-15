@@ -1,13 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Vms.Application.Commands;
+using Vms.Application.Commands.SupplierUseCase;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Services;
 using Vms.Domain.Common;
 using Vms.Domain.Core;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Web.Server;
+using Vms.Web.Shared;
 
 namespace Vms.Domain.Infrastructure.Seed;
 
@@ -16,14 +19,26 @@ public interface IVmsDbContextSeeder
     Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings);
 }
 
-public class VmsDbContextSeeder : IVmsDbContextSeeder
+public class VmsDbContextSeeder(
+    VmsDbContext context,
+    ISearchManager searchManager,
+    ILogger<VmsDbContextSeeder> logger,
+    ILoggerFactory loggerFactory,
+    IActivityLogger activityLog,
+    ITaskLogger taskLogger,
+    ITimeService timeService) : IVmsDbContextSeeder
 {
-    readonly VmsDbContext _context;
-    readonly ISearchManager _searchManager;
-    readonly ILogger<VmsDbContextSeeder> _logger;
+    //readonly VmsDbContext context = context;
+    //readonly ISearchManager searchManager = searchManager;
+    //readonly ILogger<VmsDbContextSeeder> logger = logger;
+    //readonly ILoggerFactory loggerFactory = loggerFactory;
+    //readonly IActivityLogger _activityLog = activityLog;
+    //readonly ITaskLogger _taskLogger = taskLogger;
+    //readonly ITimeService _timeService = timeService;
 
-    public VmsDbContextSeeder(VmsDbContext context, ISearchManager searchManager, ILogger<VmsDbContextSeeder> logger)
-        => (_context, _searchManager, _logger) = (context, searchManager, logger);
+    //public VmsDbContextSeeder(VmsDbContext context, ISearchManager searchManager, ILogger<VmsDbContextSeeder> logger, ILoggerFactory loggerFactory)
+    //    => (context, searchManager, logger, loggerFactory) = (context, searchManager, logger, loggerFactory);
+
 
     static readonly string[] SurNames = new string[]
     {
@@ -68,39 +83,39 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
     {
 
 
-        var strategy = _context.Database.CreateExecutionStrategy();
+        var strategy = context.Database.CreateExecutionStrategy();
 
         await strategy.ExecuteAsync(async () =>
         {
-            using var transaction = _context.Database.BeginTransaction();
+            using var transaction = context.Database.BeginTransaction();
             try
             {
-                if (!_context.Companies.Any())
+                if (!context.Companies.Any())
                 {
-                    _logger.LogInformation("Seeding database.");
+                    logger.LogInformation("Seeding database.");
                     await SeedData();
                 }
                 else
                 {
-                    await _context.Companies.ToListAsync();
+                    await context.Companies.ToListAsync();
                 }
 
-                if (!_context.Suppliers.Any())
+                if (!context.Suppliers.Any())
                 {
-                    _logger.LogInformation("Seeding suppliers.");
+                    logger.LogInformation("Seeding suppliers.");
                     await SeedSuppliers();
                 }
 
                 SeedLists();
 
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError("Failed to seed database {ex}.", ex);
+                logger.LogError("Failed to seed database {ex}.", ex);
                 await transaction.RollbackAsync();
                 return false;
             }
@@ -115,7 +130,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         {
             string code = $"TEST{ci:D3}";
             string name = $"Company #{ci}";
-            var company = new CreateCompany(_context, _searchManager, _logger)
+            var company = new CreateCompany(context, searchManager, logger)
                 .Create(new CreateCompanyRequest(code, name));
 
             foreach (var fi in Enumerable.Range(1, 50))
@@ -123,7 +138,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string fleetCode = $"FL{ci:D3}{fi:D2}";
                 string fleetName = $"Fleet #{fi:D2} Company #{ci:D3}";
 
-                var fleet1 = await new CreateFleet(_context, _searchManager, _logger)
+                var fleet1 = await new CreateFleet(context, searchManager, logger)
                     .CreateAsync(new CreateFleetRequest(company.Code, fleetCode, fleetName));
             }
 
@@ -132,7 +147,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string networkCode = $"NET{ci:D3}{ni:D2}";
                 string networkName = $"Network #{ni:D2} Company #{ci:D3}";
 
-                var fleet = await new CreateNetwork(_context, _searchManager, _logger)
+                var fleet = await new CreateNetwork(context, searchManager, logger)
                     .CreateAsync(new CreateNetworkRequest(company.Code, networkCode, networkName));
             }
 
@@ -141,7 +156,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                 string customerCode = $"CUS{ci:D3}{csi:D3}";
                 string customerName = $"Customer #{csi:D3} Company #{ci:D3}";
 
-                var customer = await new CreateCustomer(_context, _searchManager, _logger)
+                var customer = await new CreateCustomer(context, searchManager, logger)
                     .CreateAsync(new CreateCustomerRequest(company.Code, customerCode, customerName));
 
 
@@ -157,12 +172,12 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
         foreach (var makeInfo in makes)
         {
-            new CreateMake(_context, _logger)
+            new CreateMake(context, logger)
                 .Create(new CreateMakeRequest(makeInfo.Make));
 
             foreach (var modelInfo in makeInfo.Models)
             {
-                await new CreateModel(_context, _logger)
+                await new CreateModel(context, logger)
                     .CreateAsync(new CreateModelRequest(makeInfo.Make, modelInfo.Model));
             }
         }
@@ -209,12 +224,12 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
             flattenedMakeModel.ElementAt(rnd.Next(flattenedMakeModel.Count()));
 
 
-        //if (!_context.VehicleModels.Any())
+        //if (!context.VehicleModels.Any())
         //{
-        //    await _context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
+        //    await context.VehicleModels.AddRangeAsync(flattenedMakeModel.Select(x => new VehicleModel(x.Make, x.Model)));
         //}
 
-        var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
+        var allCompanies = context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
 
         foreach (var driverInfo in GetDrivers())
         {
@@ -232,7 +247,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
             var company = allCompanies.ElementAt(rnd.Next(0, allCompanies.Count - 1));
 
-            var vehicle = await new CreateVehicle(_context, _searchManager)
+            var vehicle = await new CreateVehicle(context, searchManager)
                 .CreateAsync(new CreateVehicleRequest(
                     company.Code,
                     RandomVrm(dateFirstRegistered),
@@ -242,7 +257,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
                     new Address("", "", "", "", new Point(-2.3554702709792426, 51.69082531225236) { SRID = 4326 }),
                     null, null));
 
-            var driver = await new CreateDriver(_context, _searchManager, _logger)
+            var driver = await new CreateDriver(context, searchManager, logger)
                 .CreateAsync(new CreateDriverRequest(company.Code,
                     vehicle.Id,
                     driverInfo.Salutation, driverInfo.FirstName, driverInfo.MiddleNames, driverInfo.LastName,
@@ -267,64 +282,64 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     void SeedLists()
     {
-        var allCompanies = _context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
+        var allCompanies = context.ChangeTracker.Entries<Company>().Select(x => x.Entity).ToList();
 
-        if (!_context.NotCompleteReasons.Any())
+        if (!context.NotCompleteReasons.Any())
         {
             foreach (var company in allCompanies)
             {
                 for (int i = 0; i < 5; i++)
                 {
                     var refusalReason = new NotCompleteReason(company.Code, $"CODE{i:D2}", $"Not Complete Reason #{i}");
-                    _context.NotCompleteReasons.Add(refusalReason);
+                    context.NotCompleteReasons.Add(refusalReason);
                 }
             }
         }
 
-        if (!_context.ConfirmBookedRefusalReasons.Any())
+        if (!context.ConfirmBookedRefusalReasons.Any())
         {
             foreach (var company in allCompanies)
             {
                 for (int i = 0; i < 5; i++)
                 {
                     var refusalReason = new ConfirmBookedRefusalReason(company.Code, $"CODE{i:D2}", $"ConfirmBooked Refusal reason #{i}");
-                    _context.ConfirmBookedRefusalReasons.Add(refusalReason);
+                    context.ConfirmBookedRefusalReasons.Add(refusalReason);
                 }
             }
         }
 
-        if (!_context.NonArrivalReasons.Any())
+        if (!context.NonArrivalReasons.Any())
         {
             foreach (var company in allCompanies)
             {
                 for (int i = 0; i < 5; i++)
                 {
                     var refusalReason = new NonArrivalReason(company.Code, $"CODE{i:D2}", $"NonArrival Reason reason #{i}");
-                    _context.NonArrivalReasons.Add(refusalReason);
+                    context.NonArrivalReasons.Add(refusalReason);
                 }
             }
         }
 
-        if (!_context.RefusalReasons.Any())
+        if (!context.RefusalReasons.Any())
         {
             foreach (var company in allCompanies)
             {
                 for (int i = 0; i < 5; i++)
                 {
                     var refusalReason = new RefusalReason(company.Code, $"CODE{i:D2}", $"Refusal reason #{i}");
-                    _context.RefusalReasons.Add(refusalReason);
+                    context.RefusalReasons.Add(refusalReason);
                 }
             }
         }
 
-        if (!_context.RescheduleReasons.Any())
+        if (!context.RescheduleReasons.Any())
         {
             foreach (var company in allCompanies)
             {
                 for (int i = 0; i < 5; i++)
                 {
                     var rescheduleReason = new RescheduleReason(company.Code, $"CODE{i:D2}", $"Reschedule reason #{i}");
-                    _context.RescheduleReasons.Add(rescheduleReason);
+                    context.RescheduleReasons.Add(rescheduleReason);
                 }
             }
         }
@@ -332,49 +347,53 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
 
     async Task SeedSuppliers()
     {
-        new CreateSupplier(_context, _searchManager, _logger)
-                .Create(new CreateSupplierRequest(
+        var logger = loggerFactory.CreateLogger<CreateSupplier>();
+
+        await new CreateSupplier(context, searchManager, logger, activityLog, taskLogger, timeService)
+                .CreateAsync(new CreateSupplierRequest(
                     "TSTSUP01",
                     "Thrupp Tyre Co Ltd",
-                    new Address("Unit 12 Griffin Mill", "London Rd", "STROUD", "GL52AZ", new Point(-2.204244578769126, 51.73021720095717) { SRID = 4326 }), true));
+                    new AddressDto("Unit 12 Griffin Mill", "London Rd", "STROUD", "GL52AZ", new GeometryDto(51.73021720095717, -2.204244578769126)), true));
 
-        new CreateSupplier(_context, _searchManager, _logger)
-                .Create(new CreateSupplierRequest(
+        await new CreateSupplier(context, searchManager, logger, activityLog, taskLogger, timeService)
+                .CreateAsync(new CreateSupplierRequest(
                     "TSTSUP02",
                     "Warwick Car Co",
-                    new Address("Fromeside Ind Est", "Doctor Newtons Way", "STROUD", "GL53JX", new Point(-2.217698852580117, 51.74259678708762) { SRID = 4326 }), true));
+                    new AddressDto("Fromeside Ind Est", "Doctor Newtons Way", "STROUD", "GL53JX", new GeometryDto(51.74259678708762, -2.217698852580117)), true));
 
-        new CreateSupplier(_context, _searchManager, _logger)
-                .Create(new CreateSupplierRequest(
+        await new CreateSupplier(context, searchManager, logger, activityLog, taskLogger, timeService)
+                .CreateAsync(new CreateSupplierRequest(
                     "TSTSUP03",
                     "Blake Services Stroud Ltd",
-                    new Address("Hopes Mill Business Centre", "", "STROUD", "GL52SE", new Point(-2.197510975726595, 51.72249258962455) { SRID = 4326 }), true));
+                    new AddressDto("Hopes Mill Business Centre", "", "STROUD", "GL52SE", new GeometryDto(51.72249258962455, -2.197510975726595)), true));
 
-        new CreateSupplier(_context, _searchManager, _logger)
-                .Create(new CreateSupplierRequest(
+        await new CreateSupplier(context, searchManager, logger, activityLog, taskLogger, timeService)
+                .CreateAsync(new CreateSupplierRequest(
                     "TSTSUP04",
                     "Lansdown Road Motors Ltd",
-                    new Address("Lansdown Rd", "", "STROUD", "GL51BW", new Point(-2.210593551187789, 51.74831757007313) { SRID = 4326 }), true));
+                    new AddressDto("Lansdown Rd", "", "STROUD", "GL51BW", new GeometryDto(51.74831757007313, -2.210593551187789)), true));
 
-        new CreateSupplier(_context, _searchManager, _logger)
-                .Create(new CreateSupplierRequest(
+        await new CreateSupplier(context, searchManager, logger, activityLog, taskLogger, timeService)
+                .CreateAsync(new CreateSupplierRequest(
                     "TSTSUP05",
                     "Kwik Fit - Dursley",
-                    new Address("Draycott Business Park", "Cam", "Dursley", "GL115DQ", new Point(-2.210593551187789, 51.74831757007313) { SRID = 4326 }), true));
+                    new AddressDto("Draycott Business Park", "Cam", "Dursley", "GL115DQ", new GeometryDto(51.74831757007313, -2.210593551187789)), true));
 
         foreach (var i in Enumerable.Range(1, 100))
         {
-            new CreateSupplier(_context, _searchManager, _logger)
-                .Create(new CreateSupplierRequest(
+            var p = RandomPoint();
+
+            await new CreateSupplier(context, searchManager, logger, activityLog, taskLogger, timeService)
+                .CreateAsync(new CreateSupplierRequest(
                     $"SUP{i:D4}",
                     $"Supplier #{i}",
-                    new Address("", "", "", "", RandomPoint()),
+                    new AddressDto("", "", "", "", new GeometryDto(p.Coordinate.Y, p.Coordinate.X)),
                     true));
         }
 
         // assign suppliers to networks
-        //var allSuppliers = _context.ChangeTracker.Entries<Supplier>().Select(x => x.Entity).ToList();
-        //var allNetworks = _context.ChangeTracker.Entries<Network>().Select(x => x.Entity).ToList();
+        //var allSuppliers = context.ChangeTracker.Entries<Supplier>().Select(x => x.Entity).ToList();
+        //var allNetworks = context.ChangeTracker.Entries<Network>().Select(x => x.Entity).ToList();
 
         //foreach(var network in allNetworks)
         //{
@@ -383,7 +402,7 @@ public class VmsDbContextSeeder : IVmsDbContextSeeder
         //    {
         //        var supplier = allSuppliers.ElementAt(idx);
 
-        //        await new AssignSupplierToNetwork(_context)
+        //        await new AssignSupplierToNetwork(context)
         //            .AssignAsync(supplier.Code, network.CompanyCode, network.Code);
 
         //        idx += rnd.Next(1, 5);

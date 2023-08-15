@@ -34,15 +34,19 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IRecentViewLogger, RecentViewLogger>();
 
         // supplier
+        services.AddScoped<IFollowSupplier, FollowSupplier>();
+        services.AddScoped<IUnfollowSupplier, UnfollowSupplier>();
+        services.AddScoped<IAddNoteSupplier, AddNoteSupplier>();
         services.AddScoped<IEditSupplier, EditSupplier>();
-        
+        services.AddScoped<ICreateSupplier, CreateSupplier>();
+
         // vehicle
         services.AddScoped<IFollowVehicle, FollowVehicle>();
         services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
-        services.AddScoped<ICreateVehicle, CreateVehicle>();
         services.AddScoped<IAddNoteVehicle, AddNoteVehicle>(); 
         services.AddScoped<IEditVehicle, EditVehicle>();
-        
+        services.AddScoped<ICreateVehicle, CreateVehicle>();
+
         // service booking
         services.AddScoped<IAddNoteServiceBooking, AddNoteServiceBooking>();
         services.AddScoped<IEditServiceBooking, EditServiceBooking>();

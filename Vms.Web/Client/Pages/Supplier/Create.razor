@@ -1,0 +1,132 @@
+﻿@page "/supplier/create"
+@inject ServerApiHttpClient Http
+@inject SupplierApiClient Api
+@inject ILogger<Create> Logger
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<PageTitle>Create Supplier</PageTitle>
+
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="create-dialog scroll-content">
+
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit" class="edit-form dialog-container">
+
+        <div class="dialog-header">
+            <h1>New Supplier</h1>
+        </div>
+        <div class="dialog-content">
+                <ObjectGraphDataAnnotationsValidator />
+                
+                <fieldset class="form-grid" disabled="@isPosting">
+                    <div class="form-section">
+                        <fieldset>
+                        <label for="code">Code</label>
+                        <InputText id="code" @bind-Value="supplier.Code" class="upper" />
+                        <ValidationMessage For="@(() => supplier.Code)" />
+
+                        <label for="name">Name</label>
+                        <InputText id="name" @bind-Value="supplier.Name" />
+                        <ValidationMessage For="@(() => supplier.Name)" />
+                        </fieldset>
+                    </div>
+                    <div class="form-section">
+                        
+                    </div>
+                </fieldset>
+        </div>
+        <div class="buttons dialog-footer">
+            <button type="button" disabled="@isPosting" @onclick="OnClose">Close</button>
+            <button type="submit" disabled="@isPosting" @onclick="CreateClick">Create</button>
+            <button type="submit" disabled="@isPosting" @onclick="CreateAndNewClick">Create & New</button>
+            <ValidationSummary />
+        </div>
+    </EditForm>
+</Dialog>
+
+@code {
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    EditContext editContext { get; set; } = null!;
+    ValidationMessageStore messageStore = null!;
+
+    CreateSupplierDto supplier = new();
+    CreateSupplierDto originalModel = new();
+
+    bool isPosting;
+    bool isLoaded;
+    enum CreateMode { None, Create, CreateAndNew };
+    CreateMode createMode;
+
+    private void CreateClick()
+    {
+        messageStore.Clear();
+        createMode = CreateMode.Create;
+    }
+    private void CreateAndNewClick()
+    {
+        messageStore.Clear();
+        createMode = CreateMode.CreateAndNew;
+    }
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(supplier);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+
+    async Task HandleValidSubmit()
+    {
+        Logger.LogInformation("Handle");
+        isPosting = true;
+        try
+        {
+            var result = await Api.CreateSupplierAsync(supplier);
+            if (result is PostResponse.Created)
+            {
+                var content = await result.Response.Content.ReadFromJsonAsync<SupplierDto>()
+                    ?? throw new InvalidOperationException("Failed to deserialize response.");
+
+                switch (createMode)
+                {
+                    case CreateMode.Create:
+                        NavigationManager.NavigateTo($"/supplier/view/{content.Code}");
+                        break;
+                    case CreateMode.CreateAndNew:
+                        supplier.CopyFrom(originalModel);
+                        break;
+                }
+            }
+            else
+            {
+                Logger.LogInformation("Form submission failed.");
+
+                messageStore.Clear();
+
+                if (result is PostResponse.UnprocessableEntity ue)
+                {
+                    foreach (var error in ue.ValidationErrors)
+                    {
+                        messageStore.Add(editContext.Field(error.Key), error.Value);
+                    }
+                }
+                else
+                {
+                    if (result is PostResponse.BadRequest br)
+                    {
+                        messageStore.Add(editContext.Field(""), br.ErrorMessage);
+                    }
+                    else// if (result is PostResponse.Failure)
+                    {
+                        messageStore.Add(editContext.Field(""), "There was a problem sending your request.");
+                    }
+                }
+
+                editContext.NotifyValidationStateChanged();
+            }
+        }
+        finally
+        {
+            isPosting = false;
+        }
+    }
+}
+

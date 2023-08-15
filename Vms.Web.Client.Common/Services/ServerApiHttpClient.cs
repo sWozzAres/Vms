@@ -126,20 +126,6 @@ public class ServerApiHttpClient(HttpClient http)
         return await http.GetFromJsonAsync<DriverShortDto>($"/api/driver/{id}");
     }
     #endregion
-
-    #region Supplier
-    public async Task<SupplierFullDto> GetSupplierFullAsync(string code)
-    {
-        http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.full");
-        return await http.GetFromJsonAsync<SupplierFullDto>($"/api/supplier/{code}")
-            ?? throw new InvalidOperationException("Failed to load supplier.");
-    }
-    public async Task<PostResponse> SaveSupplier(string code, SupplierDto request)
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"/api/supplier/{code}/edit", request));
-    }
-    #endregion
     #region /api/vehiclemake
     public async Task<List<VehicleMakeShortListModel>> GetMakesShortAsync()
     {

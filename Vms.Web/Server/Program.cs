@@ -110,7 +110,11 @@ app.MigrateDbContext<VmsDbContext>((context, services) =>
     var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
     var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
     var searchManager = services.GetRequiredService<ISearchManager>();
-    new VmsDbContextSeeder(context, searchManager, logger)
+    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+    var activityLogger = services.GetRequiredService<IActivityLogger>();
+    var taskLogger = services.GetRequiredService<ITaskLogger>();
+    var timeService = services.GetRequiredService<ITimeService>();
+    new VmsDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService)
         .SeedAsync(env, settings)
         .Wait();
 });

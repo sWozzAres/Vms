@@ -24,13 +24,15 @@
 
 @if (isCreating)
 {
-@*    <Create OnClose="() => isCreating = false" />  *@
+   <Create OnClose="() => isCreating = false" /> 
 }
 
 @code {
     List<SelectOption<int?>> listOptions = new()
     {
         new (0, "All Suppliers"),
+        new ((int)SupplierListOptions.Recent, "Recently Viewed"),
+        new ((int)SupplierListOptions.Following, "Following"),
     };
 
     bool isCreating;

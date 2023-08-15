@@ -1,6 +1,7 @@
 ﻿@page "/supplier/view/{code}"
 @using System.Diagnostics;
-@inject ServerApiHttpClient Http
+@* @inject ServerApiHttpClient Http *@
+@inject SupplierApiClient Api
 @inject ILogger<View> Logger
 @attribute [Authorize]
 
@@ -19,11 +20,11 @@ else
             </div>
         </IconContent>
         <Buttons>
-            @* @if(supplier is not null)
+            @if(supplier is not null)
             {
                 <FollowButton Id="supplier.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="supplier.IsFollowing" />
                 <button @onclick="() => addingNote = true">Add Note</button>
-            } *@
+            }
         </Buttons>
         <HeaderContent>
             @if (supplier is not null)
@@ -47,14 +48,17 @@ else
                     <TabPage Text="Details">
                         <Edit Supplier="@supplier" OnAfterSave="@LoadSupplier" />
                     </TabPage>
+                    <TabPage Text="Activity">
+                        <Activity Id="supplier.Id" OnLoadActivities="Api.GetActivity" />
+                    </TabPage>
                 </TabControl>
             }
         </ChildContent>
     </ViewTemplate>
-@*     @if (supplier is not null && addingNote)
+    @if (supplier is not null && addingNote)
     {
         <AddNoteDialog OnClose="() => addingNote = false" Id="@supplier.Id.ToString()" OnAddNote="Api.AddNote" />
-    } *@
+    }
 }
 
 @code {
@@ -69,7 +73,7 @@ else
     {
         try
         {
-            supplier = await Http.GetSupplierFullAsync(Code);
+            supplier = await Api.GetSupplierFullAsync(Code);
         }
         catch (AccessTokenNotAvailableException ex)
         {

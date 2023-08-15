@@ -4,6 +4,7 @@ namespace Vms.Application.Queries;
 
 public interface IVehicleQueries
 {
+    Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId, CancellationToken cancellationToken);
     Task<VehicleFullDto?> GetVehicleFull(Guid id, CancellationToken cancellationToken);
     Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(VehicleListOptions list, int start, int take, CancellationToken cancellationToken);
 }
@@ -12,6 +13,16 @@ public class VehicleQueries(VmsDbContext context,
     IUserProvider userProvider,
     ITimeService timeService) : IVehicleQueries
 {
+    public async Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId,
+        CancellationToken cancellationToken)
+    {
+        var activityLog = await (from sb in context.Vehicles
+                                 join ac in context.ActivityLog on sb.Id equals ac.DocumentId
+                                 where sb.Id == id && ac.DocumentId == activityId
+                                 select ac).SingleOrDefaultAsync(cancellationToken);
+
+        return activityLog?.ToDto();
+    }
     public async Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(
         VehicleListOptions list, int start, int take, CancellationToken cancellationToken)
     {
@@ -53,7 +64,6 @@ public class VehicleQueries(VmsDbContext context,
         int totalCount = await vehicles.CountAsync(cancellationToken);
 
         var result = await vehicles
-       
             .Skip(start)
             .Take(take)
             .Select(x => new VehicleListDto(

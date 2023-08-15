@@ -2,6 +2,15 @@
 
 public static partial class DomainExtensions
 {
+    public static SupplierDto ToDto(this Supplier supplier)
+        => new()
+        {
+            Code = supplier.Code,
+            Name = supplier.Name,
+            IsIndependent = supplier.IsIndependent,
+            Address = supplier.Address.ToDto()
+        };
+
     public static ActivityLogDto ToDto(this ActivityLog activityLog)
         => new(activityLog.Id, activityLog.Text, activityLog.EntryDate, activityLog.UserName);
 

@@ -1,4 +1,4 @@
-﻿@inject ServerApiHttpClient Api
+﻿@inject SupplierApiClient Api
 @inject NavigationManager NavigationManager
 
 @if (loadingException is not null)
@@ -12,7 +12,7 @@ else
 
         <div class="form-section">
             <label for="code">Code</label>
-            <InputText id="code" @bind-Value="editForm.Model.Code" />
+            <InputText id="code" @bind-Value="editForm.Model.Code" disabled />
             <ValidationMessage For="@(() => editForm.Model.Code)" />
 
             <label for="name">Name</label>
@@ -52,7 +52,7 @@ else
                 <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
             </fieldset>
         </div>
-
+        <ValidationSummary/>
     </EditFormTemplate>
 }
 @code {

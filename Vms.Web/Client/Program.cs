@@ -38,6 +38,11 @@ builder.Services.AddHttpClient<VehicleApiClient>(client => client.BaseAddress = 
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(authorizedUrls, scopes));
 
+builder.Services.AddHttpClient<SupplierApiClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
+    .ConfigureHandler(authorizedUrls, scopes));
+
+
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Vms.ServerAPI"));
 

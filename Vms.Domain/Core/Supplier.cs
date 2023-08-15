@@ -3,6 +3,7 @@
     public partial class Supplier
     {
         public const int Code_MaxLength = 8;
+        public Guid Id { get; set; }
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public Address Address { get; set; } = null!;
@@ -13,9 +14,18 @@
         public virtual ICollection<NetworkSupplier> NetworkSuppliers { get; set; } = new List<NetworkSupplier>();
         public ICollection<SupplierRefusal> ServiceBookingRefusals { get; set; } = new List<SupplierRefusal>();
         private Supplier() { }
+        //public Supplier(string code, string name)
+        //{
+        //    Id = Guid.NewGuid();
+        //    Code = code;
+        //    Name = name;
+        //    IsIndependent = false;
+        //    Address = new("","","","", new Point(0,0) { SRID = 4326 });
+        //}
         public Supplier(string code, string name, Address address, bool isIndependent)
         {
-            Code = code;
+            Id = Guid.NewGuid();
+            Code = code.ToUpper();
             Name = name;
             Address = new Address(address.Street, address.Locality, address.Town, address.Postcode, address.Location.Copy());
             IsIndependent = isIndependent;
@@ -43,6 +53,9 @@ namespace Vms.Domain.Core.Configuration
 
             builder.HasKey(e => e.Code);
             //builder.HasIndex(e => e.Location, "SPATIAL_Supplier");
+
+            builder.Property(e => e.Id)
+                .HasDefaultValueSql("newid()");
 
             builder.Property(e => e.Code)
                 .HasMaxLength(Supplier.Code_MaxLength)

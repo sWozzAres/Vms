@@ -768,6 +768,10 @@ dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector 
   margin-top: 1em;
 }
 
+.upper {
+  text-transform: uppercase;
+}
+
 .user-dropdown-button .panel {
   border: 1px solid var(--border-color);
   background: #ffffff;

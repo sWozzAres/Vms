@@ -46,7 +46,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     [HttpGet]
     [Route("{id}/activity/{activityId}")]
     public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
-        [FromServices] IServiceBookingQueries queries,
+        [FromServices] IVehicleQueries queries,
         CancellationToken cancellationToken)
     {
         var activityLog = await queries.GetActivity(id, activityId, cancellationToken);

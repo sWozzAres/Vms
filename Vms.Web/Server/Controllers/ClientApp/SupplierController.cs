@@ -1,11 +1,16 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 using Utopia.Blazor.Application.Shared;
+using Vms.Application;
 using Vms.Application.Commands.SupplierUseCase;
-using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Queries;
 using Vms.Application.Services;
+using Vms.Domain.Common;
+using Vms.Domain.Core.Exceptions;
 using Vms.Domain.Infrastructure;
 using Vms.Web.Shared;
 
@@ -17,9 +22,85 @@ namespace Vms.Web.Server.Controllers.ClientApp;
 [Produces("application/json")]
 public class SupplierController(VmsDbContext context) : ControllerBase
 {
-    readonly VmsDbContext _context = context;
+    #region Activity
+    [HttpGet]
+    [Route("{id}/activity")]
+    public async Task<IActionResult> GetActivities(Guid id,
+        [FromServices] IDocumentQueries documentQueries,
+        CancellationToken cancellationToken)
+    => Ok(await documentQueries.GetActivities(id, cancellationToken));
 
+    [HttpPost]
+    [Route("{id}/activity")]
+    public async Task<IActionResult> PostNote(Guid id,
+        [FromBody] AddNoteDto request,
+        [FromServices] IAddNoteSupplier addNote,
+        CancellationToken cancellationToken)
+    {
+        var entry = await addNote.AddAsync(id, request, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return CreatedAtAction(nameof(GetActivity), new { id, activityId = entry.Id }, entry);
+    }
+
+    [HttpGet]
+    [Route("{id}/activity/{activityId}")]
+    public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
+        [FromServices] ISupplierQueries queries,
+        CancellationToken cancellationToken)
+    {
+        var activityLog = await queries.GetActivity(id, activityId, cancellationToken);
+        return activityLog is null ? NotFound() : Ok(activityLog);
+    }
+    #endregion
+    #region Follow
+    [HttpPost]
+    [Route("{id}/follow")]
+    public async Task<IActionResult> Follow(Guid id,
+        [FromServices] IFollowSupplier follow,
+        CancellationToken cancellationToken)
+    {
+        await follow.FollowAsync(id, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("{id}/follow")]
+    public async Task<IActionResult> Unfollow(Guid id,
+        [FromServices] IUnfollowSupplier unfollow,
+        CancellationToken cancellationToken)
+    {
+        if (!await unfollow.UnfollowAsync(id, cancellationToken))
+            return NotFound();
+
+        await context.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
+    #endregion
     #region CRUD
+    [HttpPost]
+    [Route("")]
+    public async Task<IActionResult> CreateSupplier(
+        [FromBody] CreateSupplierDto supplierDto,
+        [FromServices] ICreateSupplier createSupplier,
+        CancellationToken cancellationToken)
+    {
+        var request = new CreateSupplierRequest(supplierDto.Code, supplierDto.Name,
+            new AddressDto("", "", "", "", new GeometryDto(0, 0)), false);
+
+        var supplier = await createSupplier.CreateAsync(request);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+
+            return CreatedAtAction("GetSupplierFull", new { code = supplier.Code }, supplier.ToDto());
+        }
+        catch (DbUpdateException dbe) when (dbe.InnerException is SqlException se && se.Message.Contains("PK_Suppliers"))
+        {
+            throw new VmsDomainException($"The supplier with code '{supplier.Code}' already exists.");
+        }
+    }
     [HttpPost]
     [Route("{code}/edit")]
     public async Task<IActionResult> Edit([FromRoute] string code,
@@ -63,7 +144,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
             return NotFound();
         }
 
-        //await recentViewLogger.LogAsync(supplier.Id);
+        await recentViewLogger.LogAsync(supplier.Id);
 
         await context.SaveChangesAsync(cancellationToken);
 
