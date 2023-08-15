@@ -447,6 +447,9 @@ form.edit-form fieldset.form-grid {
 }
 form.edit-form fieldset.form-grid .form-section {
   grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
 }
 form.edit-form fieldset.form-grid fieldset legend {
   background-color: var(--form-legend-background-color);
@@ -454,16 +457,16 @@ form.edit-form fieldset.form-grid fieldset legend {
   padding: 0.25em;
 }
 form.edit-form fieldset.form-grid label {
-  grid-column: 1;
+  /*x grid-column: 1;*/
   grid-row: auto;
   align-self: center;
 }
 form.edit-form fieldset.form-grid input, form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
-  grid-column: 2;
+  /*x grid-column: 2;*/
   grid-row: auto;
 }
 form.edit-form fieldset.form-grid .validation-message {
-  grid-column-start: 2;
+  /*xgrid-column-start: 2;*/
 }
 form.edit-form fieldset.form-grid input:not([type=checkbox]), form.edit-form fieldset.form-grid select, form.edit-form fieldset.form-grid textarea {
   width: 100%;

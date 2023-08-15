@@ -40,6 +40,7 @@ form {
 form.edit-form {
     font-size: 1rem;
 
+
     fieldset.form-grid {
         container-type: inline-size;
         display: grid;
@@ -49,6 +50,9 @@ form.edit-form {
 
         .form-section {
             grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr;
+            align-content: start;
         }
 
         fieldset {
@@ -60,26 +64,23 @@ form.edit-form {
         }
 
         label {
-            grid-column: 1;
+            /*x grid-column: 1;*/
             grid-row: auto;
             align-self: center;
-            
         }
 
         input, select, textarea {
-            grid-column: 2;
+            /*x grid-column: 2;*/
             grid-row: auto;
         }
 
         .validation-message {
-            grid-column-start: 2;
+            /*xgrid-column-start: 2;*/
         }
 
         input:not([type='checkbox']), select, textarea {
             width: 100%;
         }
-
-        
         /*.validation-message-holder {
             grid-column-start: 2;
         }*/

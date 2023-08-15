@@ -61,7 +61,7 @@ public class VehicleApiClient(HttpClient http)
     }
     public async Task<VehicleFullDto> GetVehicleFullAsync(Guid id)
     {
-        http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.vehiclefull");
+        http.DefaultRequestHeaders.Accept.ClearAndAdd("application/vnd.full");
         return await http.GetFromJsonAsync<VehicleFullDto>($"/api/vehicle/{id}")
             ?? throw new InvalidOperationException("Failed to load vehicle.");
     }

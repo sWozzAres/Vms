@@ -1,4 +1,5 @@
 ﻿using Vms.Application.Commands.ServiceBookingUseCase;
+using Vms.Application.Commands.SupplierUseCase;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Queries;
 using Vms.Application.Services;
@@ -32,12 +33,13 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ISearchManager, SearchManager>();
         services.AddScoped<IRecentViewLogger, RecentViewLogger>();
 
+        // supplier
+        services.AddScoped<IEditSupplier, EditSupplier>();
+        
         // vehicle
         services.AddScoped<IFollowVehicle, FollowVehicle>();
         services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
         services.AddScoped<ICreateVehicle, CreateVehicle>();
-
-        // vehicle
         services.AddScoped<IAddNoteVehicle, AddNoteVehicle>(); 
         services.AddScoped<IEditVehicle, EditVehicle>();
         

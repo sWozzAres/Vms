@@ -123,7 +123,7 @@ public class VehicleController(ILogger<VehicleController> logger, VmsDbContext c
     }
     [HttpGet]
     [Route("{id}")]
-    [AcceptHeader("application/vnd.vehiclefull")]
+    [AcceptHeader("application/vnd.full")]
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicleFull(Guid id,

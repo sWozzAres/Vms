@@ -1,0 +1,91 @@
+﻿@page "/supplier/view/{code}"
+@using System.Diagnostics;
+@inject ServerApiHttpClient Http
+@inject ILogger<View> Logger
+@attribute [Authorize]
+
+<PageTitle>Supplier</PageTitle>
+
+@if (loadingException is not null)
+{
+    <RetryLoad Exception="loadingException" OnRetry="LoadSupplier" />
+}
+else
+{
+    <ViewTemplate TypeName="Supplier" Title="@Title">
+        <IconContent>
+            <div class="svg-large svg-supplier">
+                <img alt="Supplier" src="icons/supplier.svg" />
+            </div>
+        </IconContent>
+        <Buttons>
+            @* @if(supplier is not null)
+            {
+                <FollowButton Id="supplier.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="supplier.IsFollowing" />
+                <button @onclick="() => addingNote = true">Add Note</button>
+            } *@
+        </Buttons>
+        <HeaderContent>
+            @if (supplier is not null)
+            {
+                <dl>
+                    <div class="namevalue">
+                        <dt>Code</dt>
+                        <dd>@supplier.Code</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Name</dt>
+                        <dd>@supplier.Name</dd>
+                    </div>
+                </dl>
+            }
+        </HeaderContent>
+        <ChildContent>
+            @if (supplier is not null)
+            {
+                <TabControl Title="Supplier Tabs" TitleVisible="false">
+                    <TabPage Text="Details">
+                        <Edit Supplier="@supplier" OnAfterSave="@LoadSupplier" />
+                    </TabPage>
+                </TabControl>
+            }
+        </ChildContent>
+    </ViewTemplate>
+@*     @if (supplier is not null && addingNote)
+    {
+        <AddNoteDialog OnClose="() => addingNote = false" Id="@supplier.Id.ToString()" OnAddNote="Api.AddNote" />
+    } *@
+}
+
+@code {
+    [Parameter, EditorRequired] public string Code { get; set; } = null!;
+
+    bool addingNote;
+    Exception? loadingException;
+    SupplierFullDto? supplier;
+    string Title => supplier is null ? "" : supplier.Code;
+
+    async Task LoadSupplier()
+    {
+        try
+        {
+            supplier = await Http.GetSupplierFullAsync(Code);
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load supplier.");
+            loadingException = ex;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(Code);
+
+        await LoadSupplier();
+    }
+}
