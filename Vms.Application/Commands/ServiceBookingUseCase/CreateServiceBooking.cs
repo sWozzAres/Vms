@@ -68,6 +68,8 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 ctx.UserProvider.UserId
             );
 
+            booking.ServiceLevel = (ServiceLevel)ctx.Command.ServiceLevel;
+
             // load default driver
             var driver = await (from dv in ctx.DbContext.DriverVehicles
                                 where dv.VehicleId == self.Id

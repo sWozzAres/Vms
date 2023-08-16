@@ -1,8 +1,4 @@
-﻿@using System.Text
-@using System.Text.Json;
-@using Microsoft.AspNetCore.Components.Forms;
-
-@typeparam TModel where TModel : class, ICopyable<TModel>, new()
+﻿@typeparam TModel where TModel : class, ICopyable<TModel>, new()
 @inject HttpClient Http
 @inject ILogger<EditFormTemplate<TModel>> Logger
 @inject NavigationManager NavigationManager

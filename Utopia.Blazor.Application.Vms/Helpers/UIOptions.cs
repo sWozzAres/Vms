@@ -1,6 +1,4 @@
-﻿using Utopia.Blazor.Component;
-
-namespace Utopia.Blazor.Application.Common.Helpers;
+﻿namespace Utopia.Blazor.Application.Common.Helpers;
 
 public static class UIOptions
 {

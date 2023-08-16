@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Vms.Web.Server.Controllers;
+﻿namespace Vms.Web.Server.Controllers;
 
 public class HomeController : Controller
 {

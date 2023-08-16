@@ -152,7 +152,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
         return r ? Accepted()
             : NotFound();
     }
-    
+
     [HttpPost]
     [Route("{id}/drivers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -233,7 +233,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     {
         var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm,
             vehicleDto.Make!, vehicleDto.Model!,
-            vehicleDto.DateFirstRegistered, vehicleDto.MotDue,
+            vehicleDto.DateFirstRegistered, vehicleDto.MotDue, vehicleDto.ChassisNumber,
             new Address(vehicleDto.Address.Street,
                   vehicleDto.Address.Locality,
                   vehicleDto.Address.Town,

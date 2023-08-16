@@ -282,7 +282,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             await transaction.CommitAsync();
 
             return serviceBooking;
-            
+
         });
         return CreatedAtAction("GetServiceBooking", new { id = result.Id }, result.ToDto());
         //}

@@ -1,9 +1,4 @@
 ﻿using Vms.Application.Commands.ServiceBookingUseCase;
-using Vms.Application.Commands.SupplierUseCase;
-using Vms.Application.Commands.VehicleUseCase;
-using Vms.Application.Queries;
-using Vms.Application.Services;
-using Vms.Domain.Infrastructure.Services;
 using Vms.Web.Server.Services;
 
 namespace Vms.Web.Server.Extensions;
@@ -43,7 +38,7 @@ public static class IServiceCollectionExtensions
         // vehicle
         services.AddScoped<IFollowVehicle, FollowVehicle>();
         services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
-        services.AddScoped<IAddNoteVehicle, AddNoteVehicle>(); 
+        services.AddScoped<IAddNoteVehicle, AddNoteVehicle>();
         services.AddScoped<IEditVehicle, EditVehicle>();
         services.AddScoped<ICreateVehicle, CreateVehicle>();
 

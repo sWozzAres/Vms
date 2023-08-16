@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Vms.Application.Services;
 using Vms.Web.Server.Hubs;
 
 namespace Vms.Web.Server.Services;

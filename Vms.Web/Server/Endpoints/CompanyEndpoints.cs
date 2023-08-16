@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Vms.Domain.Infrastructure;
-
-namespace Vms.Web.Server.Endpoints;
+﻿namespace Vms.Web.Server.Endpoints;
 
 public static class CompanyEndpoints
 {

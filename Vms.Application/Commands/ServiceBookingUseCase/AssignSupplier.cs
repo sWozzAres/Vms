@@ -1,5 +1,4 @@
-﻿using Utopia.Blazor.Application.Vms.Shared;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 

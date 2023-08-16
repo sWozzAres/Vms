@@ -1,6 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 
 namespace Vms.Web.Server.Services;
 

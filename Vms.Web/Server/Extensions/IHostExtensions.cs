@@ -1,6 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Polly;
+﻿using Polly;
 
 namespace Vms.Web.Server.Extensions
 {

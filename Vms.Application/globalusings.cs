@@ -2,6 +2,8 @@
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
 global using NetTopologySuite.Geometries;
+global using Utopia.Blazor.Application.Shared;
+global using Utopia.Blazor.Application.Vms.Shared;
 global using Vms.Application.Extensions;
 global using Vms.Application.Services;
 global using Vms.Domain.Common;
@@ -10,5 +12,3 @@ global using Vms.Domain.Core.Exceptions;
 global using Vms.Domain.Infrastructure;
 global using Vms.Domain.Infrastructure.Services;
 global using Vms.Domain.System;
-global using Utopia.Blazor.Application.Shared;
-global using Utopia.Blazor.Application.Vms.Shared;

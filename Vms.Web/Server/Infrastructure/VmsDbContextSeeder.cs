@@ -245,6 +245,7 @@ public class VmsDbContextSeeder(
                     Make, Model,
                     dateFirstRegistered,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(14 + rnd.Next(28))),
+                    null,
                     new Address("", "", "", "", new Point(-2.3554702709792426, 51.69082531225236) { SRID = 4326 }),
                     null, null));
 

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Serilog.Context;
-using Vms.Domain.Infrastructure;
+﻿using Serilog.Context;
 
 namespace Vms.Web.Server.Middleware;
 

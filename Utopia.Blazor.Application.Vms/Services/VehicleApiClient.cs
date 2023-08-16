@@ -1,6 +1,4 @@
-﻿
-
-namespace Utopia.Blazor.Application.Vms.Services;
+﻿namespace Utopia.Blazor.Application.Vms.Services;
 
 public class VehicleApiClient(HttpClient http)
 {

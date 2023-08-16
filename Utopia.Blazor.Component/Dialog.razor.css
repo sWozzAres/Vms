@@ -1,5 +1,8 @@
 dialog {
     padding: 0;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: #fafafa;
 }
 
 .dialog form {
@@ -12,17 +15,22 @@ dialog {
     row-gap: 1em;
 }
 
-::deep .dialog-content .dialog-form-controls .form-control {
-    display: flex;
-    flex-direction: column;
-}
+    ::deep .dialog-content .dialog-form-controls .form-control {
+        display: flex;
+        flex-direction: column;
+    }
 
 ::deep .dialog-header {
     padding: 1em;
     margin-bottom: 1em;
     text-align: center;
-    justify-content: center;
+    border-bottom: 2px solid var(--border-color);
+    background: #ffffff;
 }
+
+    ::deep .dialog-header h1 {
+        margin: 0;
+    }
 
 ::deep .dialog-content {
     padding: 1em;
@@ -30,8 +38,8 @@ dialog {
 
 ::deep .dialog-footer {
     padding: 1em;
-    
-    margin-top: 1em;
+    border-top: 2px solid var(--border-color);
+    background-color: var(--dialog-footer-background-color) margin-top: 1em;
 }
 
 ::deep .dialog-controls {

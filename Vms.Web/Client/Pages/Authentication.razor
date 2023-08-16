@@ -1,7 +1,6 @@
 ﻿@page "/authentication/{action}"
 @inject ILogger<Authentication> Logger
 @inject ServerApiHttpClient Api
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 <RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="LoginSucceeded" />
 
 @code{

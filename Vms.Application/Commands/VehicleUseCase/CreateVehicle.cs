@@ -30,6 +30,8 @@ public class CreateVehicle(VmsDbContext dbContext, ISearchManager searchManager)
                 request.Vrm, request.Make, request.Model, request.DateFirstRegistered, request.MotDue, request.HomeLocation,
                 request.CustomerCode, request.FleetCode);
 
+            vehicle.ChassisNumber = request.ChassisNumber;
+
             context.DbContext.Vehicles.Add(vehicle);
 
             return vehicle;
@@ -38,6 +40,6 @@ public class CreateVehicle(VmsDbContext dbContext, ISearchManager searchManager)
 }
 
 public record CreateVehicleRequest(string CompanyCode,
-    string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly? MotDue,
+    string Vrm, string Make, string Model, DateOnly DateFirstRegistered, DateOnly? MotDue, string? ChassisNumber,
     Address HomeLocation,
     string? CustomerCode = null, string? FleetCode = null);

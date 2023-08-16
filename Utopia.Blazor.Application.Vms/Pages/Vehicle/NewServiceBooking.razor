@@ -1,12 +1,11 @@
-﻿
-@inject ServiceBookingApiClient Api
+﻿@inject ServiceBookingApiClient Api
 @inject ServerApiHttpClient Http
 @inject VehicleApiClient VehicleApi
 @inject ILogger<NewServiceBooking> Logger
 @inject NavigationManager NavigationManager
 
-<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector scroll-content">
-    <EditForm Model="Model" OnValidSubmit="OkDialog">
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="create-dialog scroll-content">
+    <EditForm Model="Model" OnValidSubmit="OkDialog" class="edit-form">
         <div class="dialog-container">
             <div class="dialog-header">
                 <h1>New Service Booking</h1>
@@ -44,7 +43,22 @@
                             }
                         </tbody>
                     </table>
-                    <div class="dialog-form-controls">
+                    <h2>Details</h2>
+                    <DataAnnotationsValidator />
+                    <fieldset class="form-grid" disabled="@isPosting">
+                        <div class="form-section">
+                            
+                                <label for="autoassign">Auto Assign</label>
+                                <InputCheckbox id="autoassign" @bind-Value="Model.AutoAssign" />
+                                <ValidationMessage For="@(() => Model.AutoAssign)" />
+
+                                <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="Model.ServiceLevel" />
+                                <ValidationMessage For="@(() => Model.ServiceLevel)" />
+                           
+                        </div>
+                    </fieldset>
+
+                   @*  <div class="dialog-form-controls">
                         <div class="form-control">
                             <label for="autoassign">Auto Assign</label>
                             <InputCheckbox id="autoassign" @bind-Value="Model.AutoAssign" />
@@ -52,13 +66,13 @@
                         <div class="form-control">
                             <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="Model.ServiceLevel" />
                             <ValidationMessage For="@(() => Model.ServiceLevel)" />
-                            </div>
-                    </div>
+                        </div>
+                    </div> *@
                 }
             </div>
             <div class="dialog-footer">
                 <div class="dialog-controls">
-                    <button @onclick="CloseDialog" disabled="@formIsDisabled">Close</button>
+                    <button @onclick="CloseDialog" disabled="@isPosting">Close</button>
                     <button type="submit" disabled="@isOkButtonDisabled">OK</button>
                 </div>
                 @if (okErrorMessage is not null)
@@ -77,13 +91,13 @@
     class CreateBookingModel
     {
         public bool AutoAssign { get; set; }
-        [Range(typeof(ServiceLevelDto), nameof(ServiceLevelDto.Mobile), nameof(ServiceLevelDto.DropOffWithCourtesyCar),
+        [Range(typeof(ServiceLevelDto), nameof(ServiceLevelDto.None), nameof(ServiceLevelDto.DropOffWithCourtesyCar),
         ErrorMessage = "You must select a service level.")]
         public ServiceLevelDto ServiceLevel { get; set; }
     }
     CreateBookingModel Model { get; set; } = new();
 
-    bool formIsDisabled;
+    bool isPosting;
     string? okErrorMessage;
     Exception? loadException;
     bool isOkButtonDisabled => vehicleEvents is null ? true : !vehicleEvents.Any(e => e.Selected);
@@ -101,7 +115,7 @@
     async Task CloseDialog() => await OnClose.InvokeAsync();
     async Task OkDialog()
     {
-        formIsDisabled = true;
+        isPosting = true;
         try
         {
             var motId = vehicleEvents!.FirstOrDefault(e => e.Type == EventSelectType.Mot && e.Selected)?.Id;
@@ -110,6 +124,7 @@
                 null,
                 null,
                 null,
+                Model.ServiceLevel,
                 Model.AutoAssign,
                 motId, null, null);
 
@@ -148,7 +163,7 @@
         }
         finally
         {
-            formIsDisabled = false;
+            isPosting = false;
         }
     }
 

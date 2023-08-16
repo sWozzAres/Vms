@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Utopia.Blazor.Application.Shared;
 
 namespace Utopia.Blazor.Application.Vms.Shared;
 
@@ -239,6 +238,7 @@ public record CreateServiceBookingCommand(
     DateOnly? PreferredDate1,
     DateOnly? PreferredDate2,
     DateOnly? PreferredDate3,
+    ServiceLevelDto ServiceLevel,
     bool AutoAssign,
     Guid? MotId,
     Guid? ServiceId,

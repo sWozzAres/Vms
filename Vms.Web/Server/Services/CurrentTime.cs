@@ -1,6 +1,4 @@
-﻿using Vms.Application.Services;
-
-namespace Vms.Web.Server.Services;
+﻿namespace Vms.Web.Server.Services;
 
 public class CurrentTime : ITimeService
 {

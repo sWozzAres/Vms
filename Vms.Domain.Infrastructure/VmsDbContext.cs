@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Vms.Domain.Core;
 using Vms.Domain.Core.Configuration;

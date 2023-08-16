@@ -1,29 +1,4 @@
-﻿dialog {
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background: #fafafa;
-
-    .dialog-header {
-        border-bottom: 2px solid var(--border-color);
-    }
-
-    .dialog-container {
-        .dialog-header {
-            background: #ffffff;
-
-            h1 {
-                margin: 0
-            }
-        }
-    }
-
-    .dialog-footer {
-        border-top: 2px solid var(--border-color);
-        background-color: var(--dialog-footer-background-color)
-    }
-}
-
-dialog.create-dialog {
+﻿dialog.create-dialog {
     /*max-inline-size: 60ch;*/
     /*width: clamp(40ch, 70ch, 70ch);*/
     min-block-size: min(70ch, 90vh);
