@@ -24,7 +24,7 @@
 
 	<ItemGroup>
 	  <Content Remove="compilerconfig.json" />
-	  <Content Remove="Pages\Company\View.razor" />
+	  <Content Remove="Shared\IconBuilding.razor" />
 	  <Content Remove="Shared\SelectOnlyCombobox.razor" />
 	  <Content Remove="Shared\_SelectOnlyCombobox.razor" />
 	  <Content Remove="wwwroot\css\_tabs.scss" />
@@ -57,13 +57,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Utopia.Blazor.Application.Common\Utopia.Blazor.Application.Common.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
+		<ProjectReference Include="..\..\Utopia.Blazor.Application.Vms.Shared\Utopia.Blazor.Application.Vms.Shared.csproj" />
+		<ProjectReference Include="..\..\Utopia.Blazor.Application.Vms\Utopia.Blazor.Application.Vms.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Application\Utopia.Blazor.Application.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
-		<ProjectReference Include="..\..\Vms.Blazor.Application\Vms.Blazor.Application.csproj" />
-		<ProjectReference Include="..\..\Vms.Web.Client.Common\Vms.Web.Client.Common.csproj" />
-		<ProjectReference Include="..\..\Vms.Web.Client.ServiceBookingProcess\Vms.Web.Client.ServiceBookingProcess.csproj" />
-		<ProjectReference Include="..\Shared\Vms.Web.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -77,6 +76,8 @@
 
 	<ItemGroup>
 	  <Folder Include="Extensions\" />
+	  <Folder Include="Services\" />
+	  <Folder Include="wwwroot\images\" />
 	</ItemGroup>
 
 </Project>

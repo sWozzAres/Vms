@@ -1,18 +1,5 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Utopia.Blazor.Application.Shared;
-using Vms.Application.Commands.ServiceBookingUseCase;
-using Vms.Application.Queries;
-using Vms.Application.Services;
-using Vms.Domain.Core;
-using Vms.Domain.Infrastructure;
-using Vms.Domain.Infrastructure.Services;
+﻿using Vms.Application.Commands.ServiceBookingUseCase;
 using Vms.Domain.ServiceBookingProcess;
-using Vms.Domain.System;
-using Vms.Web.Shared;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
 

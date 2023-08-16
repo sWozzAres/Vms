@@ -1,0 +1,59 @@
+﻿@inject ServiceBookingApiClient Api
+
+<SupplierSelector TItem="SupplierLocatorDto" Id="ServiceBooking.Id"
+                  OnSelected="SupplierDialogSelect"
+                  OnGetItems="Api.GetSuppliersForServiceBookingShortAsync"
+                  OnClose="() => OnCompleted.InvokeAsync(false)">
+    <TableHeader>
+        <th>Distance</th>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Refusal</th>
+    </TableHeader>
+    <RowTemplate>
+        <td>@context.DistanceInMiles.ToString("0.00")</td>
+        <td>@context.Code</td>
+        <td>@context.Name</td>
+        <td>@context.RefusalCode</td>
+    </RowTemplate>
+</SupplierSelector>
+
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+
+    async Task SupplierDialogSelect(SupplierLocatorDto item)
+    {
+        var result = await Api.AssignSupplier(ServiceBooking.Id, new TaskAssignSupplierCommand() { SupplierCode = item.Code });
+
+        if (result is PostResponse.Success)
+        {
+            await OnCompleted.InvokeAsync(true);
+        }
+        else
+        {
+            if (result is PostResponse.UnprocessableEntity ue)
+            {
+                //TODO should never happen but if it does should we show errors? Probably not.
+                throw new InvalidOperationException("Validation error.");
+            }
+            else
+            {
+                if (result is PostResponse.BadRequest br)
+                {
+                    throw new VmsDomainException(br.ErrorMessage);
+                }
+                else// if (result is PostResponse.Failure)
+                {
+                    throw new InvalidOperationException("There was a problem sending your request.");
+                }
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
+    }
+}

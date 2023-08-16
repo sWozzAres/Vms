@@ -1,16 +1,16 @@
 ﻿@using Markdig;
-@inject ServerApiHttpClient Http
 @inject ILogger<AddNoteDialog> Logger
 @inject NavigationManager NavigationManager
 
 <Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="create-dialog scroll-content">
-    <EditForm Model="noteModel" OnValidSubmit="HandleValidSubmit" class="edit-form dialog-container">
+    <EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit" class="edit-form dialog-container">
         <div class="dialog-header">
             <h1>Add Note</h1>
         </div>
         <div class="dialog-content">
-
             <DataAnnotationsValidator />
+            <ValidationSummary />
+
             <InputTextArea @oninput="OnInput" @bind-Value="noteModel.Note" rows="5" placeholder="Enter note..." />
             <ValidationMessage For="@(() => noteModel.Note)" />
 
@@ -19,6 +19,7 @@
                 @((MarkupString)previewText)
             </div>
         </div>
+        
         <div class="buttons dialog-footer">
             <button type="button" disabled="@isPosting" @onclick="OnClose">Close</button>
             <button type="submit" disabled="@isPosting">Add</button>
@@ -33,7 +34,8 @@
     [Parameter, EditorRequired] public AddNote OnAddNote { get; set; } = null!;
 
     NoteModel noteModel = new();
-
+    EditContext editContext { get; set; } = null!;
+    ValidationMessageStore messageStore = null!;
     bool isPosting;
 
     string previewText = string.Empty;
@@ -48,6 +50,9 @@
         if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
         ArgumentNullException.ThrowIfNull(Id);
         ArgumentNullException.ThrowIfNull(OnAddNote);
+
+        editContext = new EditContext(noteModel);
+        messageStore = new ValidationMessageStore(editContext);
     }
 
     async Task HandleValidSubmit()
@@ -60,6 +65,8 @@
             {
                 await OnClose.InvokeAsync();    
             }
+            else
+                response.HandleResponseFailure(editContext, messageStore);
         }
         finally
         {

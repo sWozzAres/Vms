@@ -1,26 +1,10 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using Polly;
-using Utopia.Blazor.Application.Shared;
-using Vms.Application;
-using Vms.Application.Commands.ServiceBookingUseCase;
-using Vms.Application.Commands.VehicleUseCase;
-using Vms.Application.Queries;
-using Vms.Application.Services;
-using Vms.Domain.Common;
-using Vms.Domain.Infrastructure;
-using Vms.Web.Shared;
-
-namespace Vms.Web.Server.Controllers.ClientApp;
+﻿namespace Vms.Web.Server.Controllers.ClientApp;
 
 [ApiController]
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class VehicleController(ILogger<VehicleController> logger, VmsDbContext context) : ControllerBase
+public class VehicleController(VmsDbContext context) : ControllerBase
 {
     #region Activity
     [HttpGet]

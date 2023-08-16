@@ -1,0 +1,111 @@
+﻿@inject ServiceBookingApiClient Api
+@inject ServerApiHttpClient Http
+@inject NavigationManager NavigationManager
+
+@if (loadingException is not null)
+{
+    <RetryLoad Exception="loadingException" OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+}
+else
+{
+    <EditFormTemplate TModel="ServiceBookingDto" @ref="editForm" OnLoad="() => ServiceBooking.ToDto()" OnSave="SaveModel">
+        <DataAnnotationsValidator />
+        @if (isLoaded)
+        {
+            <div class="form-section">
+                <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="editForm.Model.ServiceLevel" />
+                <ValidationMessage For="@(() => editForm.Model.ServiceLevel)" />
+
+                <label for="preferreddate1">Preferred Date 1</label>
+                <InputDate id="preferreddate1" @bind-Value="editForm.Model.PreferredDate1" />
+                <ValidationMessage For="@(() => editForm.Model.PreferredDate1)" />
+                <label for="preferreddate2">Preferred Date 2</label>
+                <InputDate id="preferreddate2" @bind-Value="editForm.Model.PreferredDate2" />
+                <ValidationMessage For="@(() => editForm.Model.PreferredDate2)" />
+                <label for="preferreddate3">Preferred Date 3</label>
+                <InputDate id="preferreddate3" @bind-Value="editForm.Model.PreferredDate3" />
+                <ValidationMessage For="@(() => editForm.Model.PreferredDate3)" />
+                <InputSelectOnlyCombobox Options="@userOptions" LabelText="Assigned To" @bind-Value="editForm.Model.AssignedToUserId" />
+                <ValidationMessage For="@(() => editForm.Model.AssignedToUserId)" />
+
+            </div>
+            <div class="form-section">
+                <fieldset>
+                    <legend>Driver</legend>
+
+                    <label for="driver_name">Name</label>
+                    <InputText id="driver_name" @bind-Value="editForm.Model.Driver_Name" />
+                    <ValidationMessage For="@(() => editForm.Model.Driver_Name)" />
+
+                    <label for="driver_email">Email</label>
+                    <InputText id="driver_email" @bind-Value="editForm.Model.Driver_EmailAddress" />
+                    <ValidationMessage For="@(() => editForm.Model.Driver_EmailAddress)" />
+
+                    <label for="driver_mobile">Mobile Number</label>
+                    <InputText id="driver_mobile" @bind-Value="editForm.Model.Driver_MobileNumber" />
+                    <ValidationMessage For="@(() => editForm.Model.Driver_MobileNumber)" />
+                </fieldset>
+                <fieldset>
+                    @* <details>
+            <summary><legend>Contact</legend></summary> *@
+
+                    <legend>Contact</legend>
+
+                    <label for="contact_name">Name</label>
+                    <InputText id="contact_name" @bind-Value="editForm.Model.Contact_Name" />
+                    <ValidationMessage For="@(() => editForm.Model.Contact_Name)" />
+
+                    <label for="contact_email">Email</label>
+                    <InputText id="contact_email" @bind-Value="editForm.Model.Contact_EmailAddress" />
+                    <ValidationMessage For="@(() => editForm.Model.Contact_EmailAddress)" />
+
+                    <label for="contact_mobile">Mobile Number</label>
+                    <InputText id="contact_mobile" @bind-Value="editForm.Model.Contact_MobileNumber" />
+                    <ValidationMessage For="@(() => editForm.Model.Contact_MobileNumber)" />
+                    @* </details> *@
+                </fieldset>
+            </div>
+        }
+    </EditFormTemplate>
+}
+
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
+
+    EditFormTemplate<ServiceBookingDto> editForm = null!;
+
+    List<SelectOption<ServiceLevelDto>> serviceLevelOptions = null!;
+    List<SelectOption<string?>> userOptions = null!;
+    bool isLoaded;
+    Exception? loadingException;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnAfterSave.HasDelegate) throw new ArgumentNullException(nameof(OnAfterSave));
+
+        serviceLevelOptions = UIOptions.GetServiceLevelOptions();
+        try
+        {
+            var users = await Http.GetUsersForCompany(ServiceBooking.CompanyCode);
+            userOptions = UIOptions.BuildUserOptions(users);
+
+            isLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            loadingException = ex;
+        }
+    }
+
+    async Task<PostResponse> SaveModel(ServiceBookingDto model)
+    {
+        var result = await Api.SaveServiceBooking(ServiceBooking.Id, model);
+        if (result is PostResponse.Success)
+        {
+            await OnAfterSave.InvokeAsync();
+        }
+        return result;
+    }
+}

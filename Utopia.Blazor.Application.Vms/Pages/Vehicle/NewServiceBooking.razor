@@ -1,4 +1,5 @@
-﻿@inject ServiceBookingApiClient Api
+﻿
+@inject ServiceBookingApiClient Api
 @inject ServerApiHttpClient Http
 @inject VehicleApiClient VehicleApi
 @inject ILogger<NewServiceBooking> Logger
@@ -87,7 +88,7 @@
     Exception? loadException;
     bool isOkButtonDisabled => vehicleEvents is null ? true : !vehicleEvents.Any(e => e.Selected);
     List<EventSelect>? vehicleEvents;
-    List<SelectOption<Vms.Web.Shared.ServiceLevelDto>> serviceLevelOptions = null!;
+    List<SelectOption<ServiceLevelDto>> serviceLevelOptions = null!;
 
     void SelectItem(int index)
     {

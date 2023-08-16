@@ -1,16 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NetTopologySuite.Geometries;
+﻿using Microsoft.Extensions.Options;
 using Vms.Application.Commands;
-using Vms.Application.Commands.SupplierUseCase;
-using Vms.Application.Commands.VehicleUseCase;
-using Vms.Application.Services;
-using Vms.Domain.Common;
-using Vms.Domain.Core;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Web.Server;
-using Vms.Web.Shared;
 
 namespace Vms.Domain.Infrastructure.Seed;
 

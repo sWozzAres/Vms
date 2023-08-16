@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 
 namespace Vms.Web.Client.Common.Services;
 
-public abstract class PostResponse(HttpResponseMessage response)
+public abstract partial class PostResponse(HttpResponseMessage response)
 {
     public HttpResponseMessage Response { get; private set; } = response;
 
@@ -72,5 +72,7 @@ public abstract class PostResponse(HttpResponseMessage response)
             HttpStatusCode.UnprocessableEntity => new UnprocessableEntity(response),
             _ => new Failure(response)
         };
+
+
 }
 

@@ -1,5 +1,5 @@
 ﻿@using Markdig;
-@inject ServerApiHttpClient Api
+@inject ILogger<Activity> Logger
 
 <section class="activitylog">
     @if (loadingException is not null)
@@ -45,7 +45,7 @@
     bool isWaitingForApi;
     bool loaded;
     Exception? loadingException;
-   
+
     async Task Refresh()
     {
         loadingException = null;
@@ -95,10 +95,13 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!loaded && IsActive)
+        Logger.LogInformation("{firstRender} {loaded} {IsActive}", firstRender, loaded, IsActive);
+
+        if (loadingException is null && (!loaded && IsActive))
         {
             await Refresh();
-            StateHasChanged();
+            
+                StateHasChanged();
         }
     }
 

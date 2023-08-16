@@ -1,0 +1,136 @@
+﻿@inject ServerApiHttpClient Api
+
+<TaskTemplate @ref="taskRef" TModel="TaskCheckWorkStatusCommand" Title="Check Work Status" OnCompleted="OnCompleted"
+              Url="/api/servicebooking" Id="@ServiceBooking.Id" Task="checkworkstatus">
+    @if (isLoaded)
+    {
+        <InputRadioGroup @bind-Value="taskRef.Model.Result">
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="complete" Value="TaskCheckWorkStatusCommand.TaskResult.Complete" />
+                    <label for="complete">Completed</label>
+                </div>
+                <fieldset class="option-data" disabled="@OptionCompleteDisabled">
+                    <label for="completiondate">Date</label>
+                    <InputDate id="completiondate" @bind-Value="taskRef.Model.CompletionDate" />
+                    <ValidationMessage For="@(() => taskRef.Model.CompletionDate)" />
+                </fieldset>
+            </div>
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="notcomplete" Value="TaskCheckWorkStatusCommand.TaskResult.NotComplete" />
+                    <label for="notcomplete">Not Complete</label>
+                </div>
+                <fieldset class="option-data" disabled="@OptionNotCompleteDisabled">
+                    <CascadingValue Value="OptionNotCompleteDisabled" Name="IsDisabled">
+                        <InputSelectOnlyCombobox Options="@notCompleteReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.NotCompleteReason" />
+                        <ValidationMessage For="@(() => taskRef.Model.NotCompleteReason)" />
+
+                        <label for="nextchasedate">Date</label>
+                        <InputDate id="nextchasedate" @bind-Value="taskRef.Model.NextChaseDate" />
+                        <ValidationMessage For="@(() => taskRef.Model.NextChaseDate)" />
+
+                        <label for="nextchasetime">Time</label>
+                        <InputDate id="nextchasetime" @bind-Value="taskRef.Model.NextChaseTime" Type="InputDateType.Time" />
+                        <ValidationMessage For="@(() => taskRef.Model.NextChaseTime)" />
+                    </CascadingValue>
+                </fieldset>
+            </div>
+
+            <div class="option">
+                <div class="option-select">
+                    <InputRadio id="rescheduled" Value="TaskCheckWorkStatusCommand.TaskResult.Rescheduled" />
+                    <label for="rescheduled">Reschedule</label>
+                </div>
+                <fieldset class="option-data" disabled="@OptionRescheduledDisabled">
+                    <CascadingValue Value="OptionRescheduledDisabled" Name="IsDisabled">
+                        <label for="rescheduledate">Date</label>
+                        <InputDate id="rescheduledate" @bind-Value="taskRef.Model.RescheduleDate" />
+                        <ValidationMessage For="@(() => taskRef.Model.RescheduleDate)" />
+                            
+                        <label for="rescheduletime">Time</label>
+                        <InputDate id="rescheduletime" @bind-Value="taskRef.Model.RescheduleTime" Type="InputDateType.Time" />
+                        <ValidationMessage For="@(() => taskRef.Model.RescheduleTime)" />
+                        
+                        <InputSelectOnlyCombobox Options="@rescheduleReasonOptions" LabelText="Reason" @bind-Value="taskRef.Model.RescheduleReason" />
+                        <ValidationMessage For="@(() => taskRef.Model.RescheduleReason)" />
+                    </CascadingValue>
+                </fieldset>
+            </div>
+
+        </InputRadioGroup>
+
+        <div class="option">
+            <label for="callee">Callee</label>
+            <InputText id="callee" @bind-Value="taskRef.Model.Callee" />
+            <ValidationMessage For="@(() => taskRef.Model.Callee)" />
+        </div>
+    }
+    else if (errorMessage is not null)
+    {
+        <div class="error">
+            <p>@errorMessage</p>
+        </div>
+    }
+</TaskTemplate>
+
+@code {
+    [Parameter, EditorRequired] public ServiceBookingFullDto ServiceBooking { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<bool> OnCompleted { get; set; }
+
+    TaskTemplate<TaskCheckWorkStatusCommand> taskRef = null!;
+
+    // async Task<PostResponse> Save(TaskCheckWorkStatusCommand model)
+    //     => await Api.CheckWorkStatus(ServiceBooking.Id, model);
+
+    List<SelectOption<string?>> notCompleteReasonOptions = null!;
+    List<SelectOption<string?>> rescheduleReasonOptions = null!;
+    bool isLoaded;
+    bool OptionCompleteDisabled => taskRef.Model.Result != TaskCheckWorkStatusCommand.TaskResult.Complete;
+    bool OptionNotCompleteDisabled => taskRef.Model.Result != TaskCheckWorkStatusCommand.TaskResult.NotComplete;
+    bool OptionRescheduledDisabled => taskRef.Model.Result != TaskCheckWorkStatusCommand.TaskResult.Rescheduled;
+    string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(ServiceBooking);
+        if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
+
+        var notCompleteReasons = Api.GetNotCompleteReasons(ServiceBooking.CompanyCode);
+        var rescheduleReasons = Api.GetRescheduleReasons(ServiceBooking.CompanyCode);
+
+        var dataLoad = Task.WhenAll(notCompleteReasons, rescheduleReasons);
+
+        try
+        {
+            await dataLoad;
+        }
+        catch { }
+
+        if (dataLoad.Status == TaskStatus.RanToCompletion)
+        {
+            notCompleteReasonOptions = UIOptions.BuildNotCompleteReasonOptions(notCompleteReasons.Result);
+            rescheduleReasonOptions = UIOptions.BuildRescheduleReasonOptions(rescheduleReasons.Result);
+
+            isLoaded = true;
+        }
+        else
+        {
+            errorMessage = "Failed to load.";
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            taskRef.Model.CompletionDate = DateOnly.FromDateTime(DateTime.Today);
+            taskRef.Model.RescheduleDate = DateOnly.FromDateTime(DateTime.Today);
+            taskRef.Model.RescheduleTime = TimeOnly.FromDateTime(DateTime.Now);
+
+            StateHasChanged();
+        }
+    }
+}

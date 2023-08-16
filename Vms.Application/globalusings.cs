@@ -10,4 +10,5 @@ global using Vms.Domain.Core.Exceptions;
 global using Vms.Domain.Infrastructure;
 global using Vms.Domain.Infrastructure.Services;
 global using Vms.Domain.System;
-global using Vms.Web.Shared;
+global using Utopia.Blazor.Application.Shared;
+global using Utopia.Blazor.Application.Vms.Shared;

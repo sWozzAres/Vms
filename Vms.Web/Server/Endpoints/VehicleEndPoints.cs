@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Vms.Domain.Infrastructure;
-using Vms.Web.Shared;
-
-namespace Vms.Web.Server.Endpoints;
+﻿namespace Vms.Web.Server.Endpoints;
 
 public static class VehicleEndpoints
 {

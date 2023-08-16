@@ -1,5 +1,4 @@
-﻿@inject ServerApiHttpClient Api
-@inject HttpClient Http
+﻿@inject HttpClient Http
 @implements IAsyncDisposable
 @typeparam TModel where TModel : new()
 
@@ -7,7 +6,7 @@
     <h1>@Title</h1>
     <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit">
         <DataAnnotationsValidator />
-        
+
         @if (isLoaded)
         {
             if (lockFail)
@@ -32,7 +31,7 @@
             <button type="button" @onclick="() => OnCompleted.InvokeAsync(false)">Cancel</button>
             <button type="submit" disabled="@okDisabled">Ok</button>
         </div>
-        
+
     </EditForm>
 </section>
 
@@ -70,10 +69,13 @@
         if (result is PostResponse.Success)
         {
             // TODO unlock the document in the server when the task is successfully saved to save this additional network call
-            await Api.Unlock(lockUrl, lockId!.Value);
+            await Unlock(lockUrl, lockId!.Value);
+
+
             lockId = null;
 
             await OnCompleted.InvokeAsync(true);
+
         }
         else
         {
@@ -120,12 +122,12 @@
         lockUrl = string.Join("/", Url, Id.ToString());
         try
         {
-            lockId = await Api.Lock(lockUrl);
+            lockId = await Lock(lockUrl);
 
             const int LockRefreshIntervalSeconds = 19;
             timer = new System.Threading.Timer(async (object? state) =>
             {
-                await Api.RefreshLock(lockUrl, lockId.Value);
+                await RefreshLock(lockUrl, lockId.Value);
             }, null, 0, LockRefreshIntervalSeconds * 1000);
 
         }
@@ -137,11 +139,35 @@
         isLoaded = true;
     }
 
+    public async Task<Guid> Lock(string url)
+    {
+        Http.DefaultRequestHeaders.Accept.Clear();
+        var result = PostResponse.Create(await Http.PostAsJsonAsync($"{url}/lock", new { }));
+        if (result is PostResponse.Success)
+        {
+            var dto = result.Response.Content.ReadFromJsonAsync<LockDto>().GetAwaiter().GetResult()
+                ?? throw new InvalidOperationException("Failed to deserialize.");
+
+            return dto.Id;
+        }
+        throw new InvalidOperationException("Failed to lock.");
+    }
+    public async Task<HttpResponseMessage> Unlock(string url, Guid lockId)
+    {
+        Http.DefaultRequestHeaders.Accept.Clear();
+        return await Http.DeleteAsync($"{url}/lock/{lockId}");
+    }
+    public async Task<PostResponse> RefreshLock(string url, Guid lockId)
+    {
+        Http.DefaultRequestHeaders.Accept.Clear();
+        return PostResponse.Create(await Http.PostAsJsonAsync($"{url}/lock/{lockId}/refresh", new { }));
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (lockId.HasValue)
         {
-            await Api.Unlock(lockUrl, lockId.Value);
+            await Unlock(lockUrl, lockId.Value);
         }
 
         if (timer is not null)

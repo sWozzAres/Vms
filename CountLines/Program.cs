@@ -10,12 +10,13 @@
                 "Vms.Domain",
                 "Vms.Domain.Infrastructure",
                 "Utopia.Blazor.Application",
+                "Utopia.Blazor.Application.Common",
                 "Utopia.Blazor.Application.Shared",
+                "Utopia.Blazor.Application.Vms",
+                "Utopia.Blazor.Application.Vms.Shared",
                 "Utopia.Blazor.Component",
-                "Vms.Blazor.Application",
-                "Vms.Web",
-                "Vms.Web.Client.Common",
-                "Vms.Web.Client.ServiceBookingProcess",
+                "Vms.Web\\Client",
+                "Vms.Web\\Server",
             };
             string[] searchPatterns = new string[] { "*.cs", "*.razor", "*.css", "*.js" };
             const string rootPath = @"C:\Users\markb\Source\repos\Vms";

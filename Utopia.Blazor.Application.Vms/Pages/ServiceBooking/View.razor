@@ -1,0 +1,156 @@
+﻿@page "/servicebooking/view/{id:guid}"
+@using Utopia.Blazor.Application.Vms.Tasks
+@inject ServiceBookingApiClient Api
+@inject ILogger<View> Logger
+@attribute [Authorize]
+
+<PageTitle>Service Booking</PageTitle>
+
+@if (loadingException is not null)
+{
+    <RetryLoad Exception="loadingException" OnRetry="LoadServiceBooking" />
+}
+else
+{
+    <ViewTemplate TypeName="Service Booking" Title="@Title">
+        <IconContent>
+            <div class="svg-large svg-servicebooking">
+                <img alt="Service Booking" src="icons/servicebooking.svg" />
+            </div>
+        </IconContent>
+        <Buttons>
+            @if (serviceBooking is not null)
+            {
+                <FollowButton Id="serviceBooking.Id" OnFollow="Api.Follow" OnUnfollow="Api.Unfollow" @bind-IsFollowing="serviceBooking.IsFollowing" />
+                <button @onclick="() => addingNote = true">Add Note</button>
+                <MenuButton Items="@taskNames" Align="MenuButton.Alignment.Right" OnSelectCallback="StartTask">
+                    Task
+                </MenuButton>
+            }
+        </Buttons>
+        <HeaderContent>
+            @if (serviceBooking is not null)
+            {
+                <dl>
+                    <div class="namevalue">
+                        <dt>Status</dt>
+                        <dd>@serviceBooking.StatusText</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Vrm</dt>
+                        <dd><a href="/vehicle/view/@serviceBooking.VehicleId">@serviceBooking.Vrm</a></dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Make</dt>
+                        <dd>@serviceBooking.Make</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Model</dt>
+                        <dd>@serviceBooking.Model</dd>
+                    </div>
+                    <div class="namevalue">
+                        <dt>Supplier</dt>
+                        <dd><a href="/supplier/view/@serviceBooking.Supplier_Code">@serviceBooking.Supplier_Name</a></dd>
+                    </div>
+                </dl>
+            }
+        </HeaderContent>
+        <ChildContent>
+            @if (serviceBooking is not null)
+            {
+                <TaskView ServiceBooking="serviceBooking" OnSelectTask="StartTask" />
+
+                <div class="grid-2">
+                    <TabControl Title="Service Booking Tabs" TitleVisible="false">
+                        <TabPage Text="Details">
+                            <Edit ServiceBooking="serviceBooking" OnAfterSave="LoadServiceBooking" />
+                        </TabPage>
+                        <TabPage Text="Events">
+                            <Events ServiceBooking="serviceBooking" />
+                        </TabPage>
+                        <TabPage Text="Activity">
+                            <Activity Id="serviceBooking.Id" OnLoadActivities="Api.GetActivity" />
+                        </TabPage>
+                    </TabControl>
+                    <div class="task-container">
+                        @if (taskType is not null)
+                        {
+                            <DynamicComponent Type="@taskType" Parameters="@taskParameters" />
+                        }
+                    </div>
+                </div>
+            }
+        </ChildContent>
+    </ViewTemplate>
+
+    @if (serviceBooking is not null && addingNote)
+    {
+        <AddNoteDialog OnClose="() => addingNote = false" Id="@serviceBooking.Id.ToString()" OnAddNote="Api.AddNote" />
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+
+    Exception? loadingException;
+    ServiceBookingFullDto? serviceBooking;
+    string Title => serviceBooking is null ? "" : serviceBooking.Ref;
+    Type? taskType;
+    Dictionary<string, object> taskParameters = new();
+    Dictionary<string, Type> tasks = new()
+    {
+        { "Assign Supplier" , typeof(TaskAssignSupplier) },
+        { "Book Supplier", typeof(TaskBookSupplier) },
+        { "Unbook Supplier" , typeof(TaskUnbookSupplier) },
+        { "Confirm Booked" , typeof(TaskConfirmBooked) },
+        { "Check Arrival" , typeof(TaskCheckArrival) },
+        { "Check Work Status" , typeof(TaskCheckWorkStatus) },
+        { "Notify Customer" , typeof(TaskNotifyCustomer) },
+        { "Notify Customer Delay" , typeof(TaskNotifyCustomerDelay) },
+        { "Chase Driver" , typeof(TaskChaseDriver) },
+        { "Rebook Driver" , typeof(TaskRebookDriver) },
+    };
+    string[] taskNames = null!;
+    bool addingNote;
+
+    async Task TaskCompleted(bool saved)
+    {
+        taskType = null;
+        if (saved)
+        {
+            await LoadServiceBooking();
+        }
+    }
+
+    void StartTask(string name) => taskType = tasks[name];
+
+    async Task LoadServiceBooking()
+    {
+        loadingException = null;
+        try
+        {
+            serviceBooking = await Api.GetServiceBookingFullAsync(Id);
+            taskParameters["ServiceBooking"] = serviceBooking;
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load service booking.");
+            loadingException = ex;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(Id);
+
+        taskNames = tasks.Select(t => t.Key).ToArray();
+
+        taskParameters.Add("OnCompleted", EventCallback.Factory.Create<bool>(this, TaskCompleted));
+        taskParameters.Add("ServiceBooking", serviceBooking!);
+        await LoadServiceBooking();
+    }
+}

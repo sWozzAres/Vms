@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ActionConstraints;
 
-namespace Vms.Web.Server;
+namespace Vms.Web.Server.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class AcceptHeaderAttribute(string acceptHeader) : Attribute, IActionConstraint

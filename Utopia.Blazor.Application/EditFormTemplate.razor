@@ -85,11 +85,11 @@ else if (Model is not null)
 
     async Task HandleValidSubmit()
     {
-        if (!editContext.Validate())
-        {
-            Logger.LogWarning("Form is invalid");
-            return;
-        }
+        // if (!editContext.Validate())
+        // {
+        //     Logger.LogWarning("Form is invalid");
+        //     return;
+        // }
 
         Logger.LogInformation("Submitting form {model}", Model);
         isPosting = true;
@@ -100,34 +100,36 @@ else if (Model is not null)
             if (result is PostResponse.Success)
             {
                 Load();
-                
+
                 originalModel.CopyFrom(Model);
                 inEditMode = false;
             }
             else
             {
-                messageStore.Clear();
+                result.HandleResponseFailure(editContext, messageStore);
 
-                if (result is PostResponse.UnprocessableEntity ue)
-                {
-                    foreach (var error in ue.ValidationErrors)
-                    {
-                        messageStore.Add(editContext.Field(error.Key), error.Value);
-                    }
-                }
-                else
-                {
-                    if (result is PostResponse.BadRequest br)
-                    {
-                        messageStore.Add(editContext.Field(""), br.ErrorMessage);
-                    }
-                    else// if (result is PostResponse.Failure)
-                    {
-                        messageStore.Add(editContext.Field(""), "There was a problem sending your request.");
-                    }
-                }
+                // messageStore.Clear();
 
-                editContext.NotifyValidationStateChanged();
+                // if (result is PostResponse.UnprocessableEntity ue)
+                // {
+                //     foreach (var error in ue.ValidationErrors)
+                //     {
+                //         messageStore.Add(editContext.Field(error.Key), error.Value);
+                //     }
+                // }
+                // else
+                // {
+                //     if (result is PostResponse.BadRequest br)
+                //     {
+                //         messageStore.Add(editContext.Field(""), br.ErrorMessage);
+                //     }
+                //     else// if (result is PostResponse.Failure)
+                //     {
+                //         messageStore.Add(editContext.Field(""), "There was a problem sending your request.");
+                //     }
+                // }
+
+                // editContext.NotifyValidationStateChanged();
             }
         }
         finally
@@ -135,6 +137,8 @@ else if (Model is not null)
             isPosting = false;
         }
     }
+
+    
 
     private void ToggleEdit()
     {

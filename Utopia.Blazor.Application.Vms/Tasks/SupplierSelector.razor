@@ -1,0 +1,153 @@
+﻿@typeparam TItem where TItem : class
+@inject ILogger<SupplierSelector<TItem>>  Logger
+
+<Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="list-selector scroll-content">
+    <div class="dialog-container">
+        <div class="dialog-header">
+            <h1>Find Supplier</h1>
+        </div>
+        <div class="dialog-content">
+            <form class="search-wrapper" @onsubmit="Search">
+                <input type="text" @bind-value="searchValue" />
+                <button type="submit" disabled="@formIsDisabled">Find</button>
+            </form>
+            @if (findErrorMessage is not null)
+            {
+                <p class="error">@findErrorMessage</p>
+            }
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        @TableHeader
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int index = 0; index < items.Count(); index++)
+                    {
+                        var idx = index;
+                        var item = items.ElementAt(index);
+                        <tr @onclick="() => SelectItem(idx)">
+                            <td><input checked="@isSelected(idx)" type="checkbox" /></td>
+                            @RowTemplate(item)
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (items.Count() == 0)
+            {
+                <p>No items to display.</p>
+            }
+        </div>
+        <div class="dialog-footer">
+            <div class="dialog-controls">
+                <button @onclick="CloseDialog" disabled="@formIsDisabled">Close</button>
+                <button type="submit" @onclick="OkDialog" disabled="@isOkButtonDisabled">OK</button>
+            </div>
+            @if (okErrorMessage is not null)
+            {
+                <p class="error">@okErrorMessage</p>
+            }
+        </div>
+    </div>
+</Dialog>
+
+@code {
+    [Parameter, EditorRequired]public Guid Id { get; set; }
+    public delegate Task<List<TItem>?> GetItems(Guid id, string filter);
+    [Parameter, EditorRequired] public GetItems OnGetItems { get; set; } = null!;
+
+    [Parameter, EditorRequired] public EventCallback<TItem> OnSelected { get; set; }
+
+    [Parameter, EditorRequired] public EventCallback OnClose { get; set; }
+
+    [Parameter, EditorRequired] public RenderFragment TableHeader { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment<TItem> RowTemplate { get; set; } = null!;
+
+    string? okErrorMessage;
+    string? findErrorMessage;
+
+    void SelectItem(int index) => selectedIndex = selectedIndex == index ? -1 : index;
+    int selectedIndex = -1;
+    bool isSelected(int index) => index == selectedIndex;
+    List<TItem> items = new();
+    bool isOkButtonDisabled => formIsDisabled || selectedIndex == -1;
+    string searchValue = string.Empty;
+    bool formIsDisabled = false;
+
+    async Task CloseDialog() => await OnClose.InvokeAsync();
+    async Task OkDialog()
+    {
+        formIsDisabled = true;
+        try
+        {
+            await OnSelected.InvokeAsync(items.ElementAt(selectedIndex));
+        }
+        catch (VmsDomainException ex)
+        {
+            okErrorMessage = ex.Message;
+            Logger.LogError(ex, okErrorMessage);
+        }
+        catch (Exception ex)
+        {
+            okErrorMessage = "An error occurred while trying to select the item.";
+            Logger.LogError(ex, okErrorMessage);
+        }
+        finally
+        {
+            formIsDisabled = false;
+        }
+    }
+
+    async Task Search()
+    {
+        formIsDisabled = true;
+        try
+        {
+            items = await OnGetItems(Id, searchValue) ?? Enumerable.Empty<TItem>().ToList();
+            selectedIndex = -1;
+            findErrorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            findErrorMessage = "An error occurred while trying to find items.";
+            Logger.LogError(ex, findErrorMessage);
+        }
+        finally
+        {
+            formIsDisabled = false;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Id == Guid.Empty)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(Id)}' parameter.");
+        }
+
+        if (OnGetItems is null)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(OnGetItems)}' callback to load the items.");
+        }
+
+        if (!OnSelected.HasDelegate)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(OnSelected)}' callback.");
+        }
+        if (!OnClose.HasDelegate)
+        {
+            throw new InvalidOperationException($"You must specify the '{nameof(OnClose)}' delegate.");
+        }
+
+        if (TableHeader is null)
+        {
+            throw new InvalidOperationException($"You must specify a '{nameof(TableHeader)}' render fragment.");
+        }
+
+        if (RowTemplate is null)
+        {
+            throw new InvalidOperationException($"You must specify a '{nameof(RowTemplate)}' render fragment.");
+        }
+    }
+}

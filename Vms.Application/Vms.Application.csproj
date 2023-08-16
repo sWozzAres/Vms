@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Utopia.Blazor.Application.Vms.Shared\Utopia.Blazor.Application.Vms.Shared.csproj" />
     <ProjectReference Include="..\Vms.Domain.Infrastructure\Vms.Domain.Infrastructure.csproj" />
     <ProjectReference Include="..\Vms.Domain\Vms.Domain.csproj" />
-    <ProjectReference Include="..\Vms.Web\Shared\Vms.Web.Shared.csproj" />
   </ItemGroup>
 
 </Project>

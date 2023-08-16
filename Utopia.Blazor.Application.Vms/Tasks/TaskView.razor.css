@@ -1,0 +1,44 @@
+.taskview {
+    /*display: flex;*/
+    padding: 0.5em;
+    background: #ffffff;
+    margin-bottom: var(--page-margin);
+    border-radius: var(--border-radius);
+}
+    .taskview .task-content {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        /*flex-grow: 1;*/
+    }
+
+.previous-task, .next-task {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+.previous-task {
+
+}
+
+.next-task {
+    margin-left: auto;
+}
+
+.btn-prev-task {
+    background: #1f78cf;
+    border: 2px solid rgb(36, 116, 214);
+    color: white;
+}
+
+.btn-next-task-due {
+    background: orange;
+    border: 2px solid #ffa500;
+    color: white;
+}
+
+.btn-next-task {
+    background: #1dbe3a;
+    border: 2px solid #00db28;
+    color: white;
+}

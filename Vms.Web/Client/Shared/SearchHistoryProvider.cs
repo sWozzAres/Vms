@@ -1,6 +1,6 @@
 ﻿using Blazored.LocalStorage;
 
-namespace Vms.Web.Client.Services;
+namespace Vms.Web.Client.Shared;
 
 public interface ISearchHistoryProvider
 {

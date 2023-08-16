@@ -21,7 +21,7 @@ public static class CompanyEndpoints
             var result = await context.Companies
                 .Skip(start)
                 .Take(take)
-                .Select(x => new Vms.Web.Shared.CompanyListDto(x.Code, x.Name))
+                .Select(x => new CompanyListDto(x.Code, x.Name))
                 .ToListAsync(cancellationToken);
             return result;
 

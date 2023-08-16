@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
+using Utopia.Blazor.Application.Vms.Services;
 using Vms.Web.Client;
-using Vms.Web.Client.Common.Services;
 using Vms.Web.Client.Security;
-using Vms.Web.Client.Services;
+using Vms.Web.Client.Shared;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
