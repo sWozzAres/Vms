@@ -1,7 +1,4 @@
-﻿@import "_buttons2.css";
-@import "_buttons.custom.css";
-@import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
-:root {
+﻿:root {
   --a-active-text: #c00;
   --a-hover-bg: rgba(75%, 75%, 75%, .25);
   --a-normal-text: #004eff;
@@ -225,6 +222,57 @@ h5 + h6 {
   min-height: calc(100vh - var(--header-height));
 }
 
+button {
+  cursor: pointer;
+  background: hsl(0deg, 0%, 100%);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 1ch;
+  padding-inline: 1.75ch;
+  padding-block: 0.75ch;
+  border: 2px solid var(--border-color);
+  font: inherit;
+  border-radius: 5px;
+  color: var(--color);
+}
+button:disabled {
+  opacity: 0.5;
+}
+button[type=submit] {
+  background: #1f78cf;
+  border: 2px solid rgb(36, 116, 214);
+  color: white;
+}
+
+.btn-icon {
+  fill: black;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0;
+  border: 2px solid #d2d2d2;
+  border-radius: 5px;
+}
+.btn-group button {
+  border: 0;
+  border-radius: 0;
+}
+.btn-group > :first-child, .btn-group :first-child button {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.btn-group > :last-child, .btn-group :last-child button {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.btn-group > :not(:last-child) {
+  border-right: 2px solid #d2d2d2;
+}
+
+/*@import "_buttons.custom.css";*/
 table {
   background-color: #ffffff;
   width: 100%;
@@ -600,6 +648,84 @@ form.fullresponse fieldset.form-grid {
   width: 1em;
 }
 
+.svg-size-medium {
+  height: 1.5em;
+  width: 1.5em;
+}
+
+.svg-size-large {
+  height: 2em;
+  width: 2em;
+}
+
+.svg-size-xlarge {
+  height: 2.5em;
+  width: 2.5em;
+}
+
+.svg-size-xxlarge {
+  height: 3em;
+  width: 3em;
+}
+
+.svg-signout {
+  -webkit-mask-image: url("/icons/signout.svg");
+  mask-image: url("/icons/signout.svg");
+}
+
+.svg-claims {
+  -webkit-mask-image: url("/icons/claims.svg");
+  mask-image: url("/icons/claims.svg");
+}
+
+.svg-user {
+  -webkit-mask-image: url("/icons/user.svg");
+  mask-image: url("/icons/user.svg");
+}
+
+.svg-bell {
+  -webkit-mask-image: url("/icons/bell.svg");
+  mask-image: url("/icons/bell.svg");
+}
+
+.svg-car-side {
+  -webkit-mask-image: url("/icons/car-side.svg");
+  mask-image: url("/icons/car-side.svg");
+}
+
+.bg-black {
+  background-color: black;
+}
+
+.bg-red {
+  background-color: red !important;
+}
+
+.bg-cornflowerblue {
+  background-color: cornflowerblue !important;
+}
+
+.svgcss {
+  background-color: #7c7c7c;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center center;
+  mask-size: contain;
+}
+
+/*@media (prefers-color-scheme: dark) {
+    .svg-header {
+        background-color: white;
+    }
+}*/
+.custom-color {
+  fill: red;
+  height: 2em;
+  width: 2em;
+}
+
 dialog.create-dialog {
   /*max-inline-size: 60ch;*/
   /*width: clamp(40ch, 70ch, 70ch);*/
@@ -654,6 +780,7 @@ dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector 
   width: 100%;
 }
 
+/*@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');*/
 .user-dropdown-button .panel {
   border: 1px solid var(--border-color);
   background: #ffffff;

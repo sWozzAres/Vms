@@ -72,3 +72,77 @@
         width: 1em;
     }
 }
+
+.svg-size-medium 
+{
+    height: 1.5em;
+    width: 1.5em;
+}
+
+.svg-size-large {
+    height: 2em;
+    width: 2em;
+}
+.svg-size-xlarge {
+    height: 2.5em;
+    width: 2.5em;
+}
+.svg-size-xxlarge {
+    height: 3em;
+    width: 3em;
+}
+
+
+.svg-signout {
+    -webkit-mask-image: url("/icons/signout.svg");
+    mask-image: url("/icons/signout.svg");
+    
+}
+.svg-claims {
+    -webkit-mask-image: url("/icons/claims.svg");
+    mask-image: url("/icons/claims.svg");
+}
+.svg-user {
+    -webkit-mask-image: url("/icons/user.svg");
+    mask-image: url("/icons/user.svg");
+}
+.svg-bell {
+    -webkit-mask-image: url("/icons/bell.svg");
+    mask-image: url("/icons/bell.svg");
+}
+.svg-car-side {
+    -webkit-mask-image: url("/icons/car-side.svg");
+    mask-image: url("/icons/car-side.svg");
+}
+
+.bg-black { 
+    background-color: black; 
+}
+.bg-red {
+    background-color: red !important;
+}
+.bg-cornflowerblue {
+    background-color: cornflowerblue !important;
+}
+.svgcss {
+    background-color: #7c7c7c;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center center;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center center;
+    mask-size: contain;
+}
+
+
+/*@media (prefers-color-scheme: dark) {
+    .svg-header {
+        background-color: white;
+    }
+}*/
+
+.custom-color {
+    fill: red;
+    height:2em;
+    width:2em;
+}

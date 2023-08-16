@@ -5,7 +5,7 @@
 @inject NavigationManager NavigationManager
 
 <Dialog AutoShow="Dialog.ShowMode.ShowModal" ClassName="create-dialog scroll-content">
-    <EditForm Model="Model" OnValidSubmit="OkDialog" class="edit-form">
+    <EditForm EditContext="@editContext" OnValidSubmit="OkDialog" class="edit-form">
         <div class="dialog-container">
             <div class="dialog-header">
                 <h1>New Service Booking</h1>
@@ -45,40 +45,24 @@
                     </table>
                     <h2>Details</h2>
                     <DataAnnotationsValidator />
+                    <ValidationSummary />
                     <fieldset class="form-grid" disabled="@isPosting">
                         <div class="form-section">
-                            
-                                <label for="autoassign">Auto Assign</label>
-                                <InputCheckbox id="autoassign" @bind-Value="Model.AutoAssign" />
-                                <ValidationMessage For="@(() => Model.AutoAssign)" />
-
-                                <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="Model.ServiceLevel" />
-                                <ValidationMessage For="@(() => Model.ServiceLevel)" />
-                           
-                        </div>
-                    </fieldset>
-
-                   @*  <div class="dialog-form-controls">
-                        <div class="form-control">
                             <label for="autoassign">Auto Assign</label>
                             <InputCheckbox id="autoassign" @bind-Value="Model.AutoAssign" />
-                        </div>
-                        <div class="form-control">
+                            <ValidationMessage For="@(() => Model.AutoAssign)" />
+
                             <InputSelectOnlyCombobox Options="@serviceLevelOptions" LabelText="Service Level" @bind-Value="Model.ServiceLevel" />
                             <ValidationMessage For="@(() => Model.ServiceLevel)" />
                         </div>
-                    </div> *@
+                    </fieldset>
                 }
             </div>
             <div class="dialog-footer">
                 <div class="dialog-controls">
                     <button @onclick="CloseDialog" disabled="@isPosting">Close</button>
-                    <button type="submit" disabled="@isOkButtonDisabled">OK</button>
+                    <button type="submit" onclick="@(() => messageStore.Clear())" disabled="@isOkButtonDisabled">OK</button>
                 </div>
-                @if (okErrorMessage is not null)
-                {
-                    <p class="error">@okErrorMessage</p>
-                }
             </div>
         </div>
     </EditForm>
@@ -96,6 +80,8 @@
         public ServiceLevelDto ServiceLevel { get; set; }
     }
     CreateBookingModel Model { get; set; } = new();
+    EditContext editContext = null!;
+    ValidationMessageStore messageStore = null!;
 
     bool isPosting;
     string? okErrorMessage;
@@ -136,30 +122,8 @@
 
                 NavigationManager.NavigateTo($"/servicebooking/view/{serviceBooking.Id}");
             }
-            else if (result is PostResponse.UnprocessableEntity ue)
-            {
-                //TODO should never happen but if it does should we show errors? Probably not.
-                throw new InvalidOperationException("Validation error.");
-            }
-            else if (result is PostResponse.BadRequest br)
-            {
-                throw new VmsDomainException(br.ErrorMessage);
-            }
-            else// if (result is PostResponse.Failure)
-            {
-                throw new InvalidOperationException("There was a problem sending your request.");
-            }
-
-        }
-        catch (VmsDomainException ex)
-        {
-            okErrorMessage = ex.Message;
-            Logger.LogError(ex, okErrorMessage);
-        }
-        catch (Exception ex)
-        {
-            okErrorMessage = "An error occurred while trying to create the service booking.";
-            Logger.LogError(ex, okErrorMessage);
+            else
+                result.HandleResponseFailure(editContext, messageStore);
         }
         finally
         {
@@ -197,9 +161,14 @@
         if (Id == Guid.Empty) throw new ArgumentNullException(nameof(Id));
         if (!OnClose.HasDelegate) throw new ArgumentNullException(nameof(OnClose));
 
+        editContext = new(Model);
+        messageStore = new(editContext);
+
         serviceLevelOptions = UIOptions.GetServiceLevelOptions();
 
         await LoadEvents();
+
+        
     }
 
     enum EventSelectType { Mot, Service, Repair }

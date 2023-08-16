@@ -263,8 +263,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] ICreateServiceBooking createServiceBooking,
         CancellationToken cancellationToken)
     {
-        //return UnprocessableEntity("Error happened!");
-        //throw new Domain.Exceptions.VmsDomainException("Domain Error");
+        //ModelState.AddModelError("ServiceLevel", "An error");
+        //return UnprocessableEntity(ModelState);
+            
+        //throw new VmsDomainException("Domain Error");
 
         //int tries = 1;
         //while (true)

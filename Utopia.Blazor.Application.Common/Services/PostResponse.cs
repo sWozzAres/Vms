@@ -42,22 +42,33 @@ public abstract partial class PostResponse(HttpResponseMessage response)
         }
     }
 
+    //public class UnprocessableEntity : PostResponse
+    //{
+    //    readonly Dictionary<string, List<string>> _validationErrors;
+    //    public Dictionary<string, List<string>> ValidationErrors => _validationErrors;
+    //    public UnprocessableEntity(HttpResponseMessage response) : base(response)
+    //    {
+    //        var ue = response.Content.ReadFromJsonAsync<UnprocessableEntityResponse>().GetAwaiter().GetResult();
+
+    //        _validationErrors = ue?.Errors ?? new Dictionary<string, List<string>>();
+    //    }
+
+    //    class UnprocessableEntityResponse
+    //    {
+    //        public string Title { get; set; } = null!;
+    //        public int Status { get; set; }
+    //        public Dictionary<string, List<string>> Errors { get; set; } = null!;
+    //    }
+    //}
     public class UnprocessableEntity : PostResponse
     {
         readonly Dictionary<string, List<string>> _validationErrors;
         public Dictionary<string, List<string>> ValidationErrors => _validationErrors;
         public UnprocessableEntity(HttpResponseMessage response) : base(response)
         {
-            var ue = response.Content.ReadFromJsonAsync<UnprocessableEntityResponse>().GetAwaiter().GetResult();
+            var ue = response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>().GetAwaiter().GetResult();
 
-            _validationErrors = ue?.Errors ?? new Dictionary<string, List<string>>();
-        }
-
-        class UnprocessableEntityResponse
-        {
-            public string Title { get; set; } = null!;
-            public int Status { get; set; }
-            public Dictionary<string, List<string>> Errors { get; set; } = null!;
+            _validationErrors = ue ?? new Dictionary<string, List<string>>();
         }
     }
 

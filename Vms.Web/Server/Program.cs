@@ -65,22 +65,23 @@ builder.Services.AddHostedService<UnlockTaskBackgroundService>();
 builder.Services.AddHostedService<RemoveRecentViewsBackgroundService>();
 //builder.Services.AddHostedService<ChatHubTest>();
 
-//builder.Services.AddControllersWithViews()
-//    .ConfigureApiBehaviorOptions(options =>
-//    {
-//        options.InvalidModelStateResponseFactory = context =>
-//        {
-//            if (context.HttpContext.Request.Path == "/StarshipValidation")
-//            {
-//                return new BadRequestObjectResult(context.ModelState);
-//            }
-//            else
-//            {
-//                return new BadRequestObjectResult(
-//                    new ValidationProblemDetails(context.ModelState));
-//            }
-//        };
-//    });
+builder.Services.AddControllersWithViews()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            //if (context.HttpContext.Request.Path == "/StarshipValidation")
+            //{
+            //    return new BadRequestObjectResult(context.ModelState);
+            //}
+            //else
+            {
+                //return new UnprocessableEntityObjectResult(context.ModelState);
+                return new BadRequestObjectResult(
+                    new ValidationProblemDetails(context.ModelState));
+            }
+        };
+    });
 
 builder.Services.AddRazorPages();
 

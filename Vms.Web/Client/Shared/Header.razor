@@ -5,7 +5,7 @@
 @inject HubConnection HubConnection
 
 <header id="header">
-    <div id="header-area">
+@*     <div id="header-area">
         <DropdownButton OnSelectCallback="async (value) => selectedArea = value" class="mydropdown2">
             <ButtonContent>
                 <div class="holder">
@@ -41,12 +41,13 @@
                 </DropdownItem>
             </ChildContent>
         </DropdownButton>
-    </div>
+    </div> *@
     <div id="header-logo" @onclick="GoHome">
-        <svg viewBox="0 0 640 512" class="logo-svg" height="3em">
-            @* <use xlink:href="icons/car-side.svg"/> *@
+        <div class="svg-size-xxlarge svg-car-side svgcss bg-cornflowerblue"></div>
+        @* <span class="title">VMS</span> *@
+        @* <svg viewBox="0 0 640 512" class="logo-svg" height="3em">
             <use xlink:href="icons/solid.svg#car-side" />
-        </svg>
+        </svg> *@
         @* <img src="icons/car-side.svg" height="60" fill="#FF0000" /> *@
         @* <svg class="logo-svg" height="60" viewBox="0 0 640 512">
         <path d="M171.3 96H224v96H111.3l30.4-75.9C146.5 104 158.2 96 171.3 96zM272 192V96h81.2c9.7 0 18.9 4.4 25 12l67.2 84H272zm256.2 1L428.2 68c-18.2-22.8-45.8-36-75-36H171.3c-39.3 0-74.6 23.9-89.1 60.3L40.6 196.4C16.8 205.8 0 228.9 0 256V368c0 17.7 14.3 32 32 32H65.3c7.6 45.4 47.1 80 94.7 80s87.1-34.6 94.7-80H385.3c7.6 45.4 47.1 80 94.7 80s87.1-34.6 94.7-80H608c17.7 0 32-14.3 32-32V320c0-65.2-48.8-119-111.8-127zM434.7 368a48 48 0 1 1 90.5 32 48 48 0 1 1 -90.5-32zM160 336a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
@@ -59,24 +60,24 @@
         <Authorized>
             <div id="header-toolbar">
                 <button class="@notificationButtonClassName" @onclick="NotificationButtonClicked">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                    @* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                         <path d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z" />
-                    </svg>
+                    </svg> *@
+                    <div class="@notificationIconClassName"></div>
                 </button>
                 <ButtonDropdownPanel Align="ButtonDropdownPanel.Alignment.Right" ClassName="user-dropdown-button">
                     <ButtonContent>
-                        <svg viewBox="0 0 448 512" height="2em">
-                            <use xlink:href="icons/solid.svg#user" />
-                        </svg>
+                        <div class="svg-size-large svg-user svgcss"></div>
                     </ButtonContent>
                     <PanelContent>
 
                         <ul>
                             <li>
                                 <a href="">
-                                    <svg viewBox="0 0 448 512" height="1.6em">
+                                    <div class="svg-size-medium svg-user svgcss"></div>
+                                    @* <svg viewBox="0 0 448 512" height="1.6em">
                                         <use xlink:href="icons/solid.svg#user" />
-                                    </svg>
+                                    </svg> *@
                                     @context.User.Identity?.Name
                                 </a>
                             </li>
@@ -86,18 +87,14 @@
                         <ul>
                             <li>
                                 <a href="/claims">
-                                    <svg viewBox="0 0 512 512" height="1em">
-                                        <use xlink:href="icons/solid.svg#list" />
-                                    </svg>
+                                    <div class="svg-size-medium svg-claims svgcss"></div>
                                     Claims
                                 </a>
                             </li>
 
                             <li>
                                 <a href="" @onclick="BeginLogOut">
-                                    <svg viewBox="0 0 612 512" height="1em">
-                                        <use xlink:href="icons/solid.svg#arrow-right-from-bracket" />
-                                    </svg>
+                                    <div class="svg-size-medium svg-signout svgcss"></div>
                                     Sign out
                                 </a>
                             </li>
@@ -118,6 +115,7 @@
 @code {
     bool hasNotification;
     string notificationButtonClassName => string.Join("", "notification-btn", hasNotification ? " hasnotifications" : "");
+    string notificationIconClassName => string.Join("", "svg-size-large svg-bell svgcss", hasNotification ? " bg-red" : "");
 
     int selectedArea = 1;
 
