@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Utopia.Api.Application.Services;
+using Utopia.Api.Domain.System;
 using Vms.Application.Commands;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Web.Server;
@@ -18,7 +19,8 @@ public class VmsDbContextSeeder(
     ILoggerFactory loggerFactory,
     IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
-    ITimeService timeService) : IVmsDbContextSeeder
+    ITimeService timeService,
+    IUserProvider userProvider) : IVmsDbContextSeeder
 {
     static readonly string[] SurNames = new string[]
     {
@@ -70,6 +72,8 @@ public class VmsDbContextSeeder(
             using var transaction = context.Database.BeginTransaction();
             try
             {
+                context.Users.Add(new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId, userProvider.EmailAddress));
+
                 if (!context.Companies.Any())
                 {
                     logger.LogInformation("Seeding database.");

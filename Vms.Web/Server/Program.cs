@@ -136,7 +136,8 @@ app.MigrateDbContext<VmsDbContext>((context, services) =>
     var activityLogger = services.GetRequiredService<IActivityLogger<VmsDbContext>>();
     var taskLogger = services.GetRequiredService<ITaskLogger<VmsDbContext>>();
     var timeService = services.GetRequiredService<ITimeService>();
-    new VmsDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService)
+    var userProvider = services.GetRequiredService<IUserProvider>();
+    new VmsDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService, userProvider)
         .SeedAsync(env, settings)
         .Wait();
 });

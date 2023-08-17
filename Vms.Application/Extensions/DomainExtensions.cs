@@ -28,7 +28,7 @@ public static partial class DomainExtensions
             vehicle.ChassisNumber,
             vehicle.DateFirstRegistered,
             //vehicle.Mot.Due,
-            vehicle.MotEvents.FirstOrDefault()?.Due,
+            vehicle.Mot.Due,
             vehicle.Address.ToFullDto(),
             vehicle.C is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.C.Code, vehicle.C.Name),
             vehicle.Fleet is null ? null : new FleetShortDto(vehicle.CompanyCode, vehicle.Fleet.Code, vehicle.Fleet.Name),

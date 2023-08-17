@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 
 #nullable disable
@@ -13,23 +14,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
         {
             migrationBuilder.EnsureSchema(
                 name: "System");
-
-            migrationBuilder.CreateTable(
-                name: "ActivityLog",
-                schema: "System",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
-                    EntryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ActivityLog", x => x.Id);
-                });
 
             migrationBuilder.CreateTable(
                 name: "Companies",
@@ -59,23 +43,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Followers",
-                columns: table => new
-                {
-                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    EmailAddress = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Followers", x => new { x.DocumentId, x.UserId });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Suppliers",
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
                     Name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Address_Street = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Address_Locality = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
@@ -90,31 +62,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaskLogs",
-                schema: "System",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TaskName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Log = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
-                    EntryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TaskLogs", x => x.Id);
-                    table.CheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 schema: "System",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    TenantId = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
+                    TenantId = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    EmailAddress = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -200,7 +155,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyCode = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
+                    CompanyCode = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: true),
                     EntityKey = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     EntityKind = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
@@ -213,8 +168,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         name: "FK_EntityTags_Companies_CompanyCode",
                         column: x => x.CompanyCode,
                         principalTable: "Companies",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Code");
                 });
 
             migrationBuilder.CreateTable(
@@ -223,7 +177,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -349,6 +303,52 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "ActivityLog",
+                schema: "System",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    EntryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(50)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActivityLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ActivityLog_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "System",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Followers",
+                schema: "System",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(50)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Followers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Followers_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "System",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Logins",
                 schema: "System",
                 columns: table => new
@@ -363,6 +363,55 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     table.PrimaryKey("PK_Logins", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Logins_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "System",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RecentViews",
+                schema: "System",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    ViewDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecentViews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RecentViews_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "System",
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskLogs",
+                schema: "System",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TaskName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Log = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
+                    EntryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(50)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskLogs", x => x.Id);
+                    table.CheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
+                    table.ForeignKey(
+                        name: "FK_TaskLogs_Users_UserId",
                         column: x => x.UserId,
                         principalSchema: "System",
                         principalTable: "Users",
@@ -487,14 +536,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Make = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
-                    Model = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    ChassisNumber = table.Column<string>(type: "varchar(18)", unicode: false, maxLength: 18, nullable: true),
+                    Make = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    Model = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    ChassisNumber = table.Column<string>(type: "nvarchar(18)", maxLength: 18, nullable: true),
                     DateFirstRegistered = table.Column<DateOnly>(type: "date", nullable: false),
-                    Address_Street = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Locality = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Town = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Postcode = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Address_Street = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Locality = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Town = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Postcode = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     Address_Location = table.Column<Geometry>(type: "geography", nullable: false),
                     CustomerCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true),
                     FleetCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: true)
@@ -890,6 +939,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 column: "DocumentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ActivityLog_UserId",
+                schema: "System",
+                table: "ActivityLog",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerNetworks_CompanyCode_CustomerCode",
                 table: "CustomerNetworks",
                 columns: new[] { "CompanyCode", "CustomerCode" });
@@ -904,12 +959,33 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 schema: "System",
                 table: "EntityTags",
                 columns: new[] { "CompanyCode", "Id", "EntityKind" },
+                unique: true,
+                filter: "[CompanyCode] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EntityTags_EntityKey_EntityKind",
+                schema: "System",
+                table: "EntityTags",
+                columns: new[] { "EntityKey", "EntityKind" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_FleetNetworks_CompanyCode_NetworkCode",
                 table: "FleetNetworks",
                 columns: new[] { "CompanyCode", "NetworkCode" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Followers_DocumentId_UserId",
+                schema: "System",
+                table: "Followers",
+                columns: new[] { "DocumentId", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Followers_UserId",
+                schema: "System",
+                table: "Followers",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Logins_UserId",
@@ -935,6 +1011,19 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "IX_NetworkSuppliers_SupplierCode",
                 table: "NetworkSuppliers",
                 column: "SupplierCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecentViews_DocumentId_UserId",
+                schema: "System",
+                table: "RecentViews",
+                columns: new[] { "DocumentId", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecentViews_UserId",
+                schema: "System",
+                table: "RecentViews",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceBookingLocks_ServiceBookingId",
@@ -977,6 +1066,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "IX_SupplierRefusals_SupplierCode",
                 table: "SupplierRefusals",
                 column: "SupplierCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskLogs_UserId",
+                schema: "System",
+                table: "TaskLogs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_CompanyCode_CustomerCode",
@@ -1030,7 +1125,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "FleetNetworks");
 
             migrationBuilder.DropTable(
-                name: "Followers");
+                name: "Followers",
+                schema: "System");
 
             migrationBuilder.DropTable(
                 name: "Logins",
@@ -1052,6 +1148,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             migrationBuilder.DropTable(
                 name: "NotCompleteReasons");
+
+            migrationBuilder.DropTable(
+                name: "RecentViews",
+                schema: "System");
 
             migrationBuilder.DropTable(
                 name: "RefusalReasons");

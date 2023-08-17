@@ -1,6 +1,6 @@
 dotnet ef migrations add Initial3 -o Infrastructure\Migrations\CatalogDb -c CatalogContext
 
-add-migration -Name Initial -o VmsDb -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
+add-migration -Name Initial8 -o VmsDb -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 update-database -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 

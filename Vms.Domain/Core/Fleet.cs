@@ -1,11 +1,15 @@
-﻿namespace Vms.Domain.Core
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Vms.Domain.Core
 {
     public partial class Fleet
     {
+        public const int Code_MaxLength = 10;
+        [StringLength(Company.Code_MaxLength)]
         public string CompanyCode { get; set; } = null!;
-
+        [StringLength(Code_MaxLength)]
         public string Code { get; set; } = null!;
-
+        [StringLength(32)]
         public string Name { get; set; } = null!;
 
         public virtual Company CompanyCodeNavigation { get; set; } = null!;
@@ -27,17 +31,9 @@ namespace Vms.Domain.Core.Configuration
             entity.ToTable("Fleets");
 
             entity.HasKey(e => new { e.CompanyCode, e.Code });
-
-            entity.Property(e => e.Code)
-                .HasMaxLength(10)
-                .IsFixedLength();
-            entity.Property(e => e.CompanyCode)
-                .HasMaxLength(Company.Code_MaxLength)
-                .IsFixedLength();
-            entity.Property(e => e.Name)
-                .HasMaxLength(32)
-                .IsUnicode(false);
-
+            entity.Property(e => e.CompanyCode).IsFixedLength();
+            entity.Property(e => e.Code).IsFixedLength();
+            
             entity.HasOne(d => d.CompanyCodeNavigation).WithMany(p => p.Fleets)
                 //.HasPrincipalKey(p => p.Code)
                 .HasForeignKey(d => d.CompanyCode)

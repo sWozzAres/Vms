@@ -2,6 +2,7 @@
 {
     public partial class Customer
     {
+        public const int Code_MaxLength = 10;
         public string CompanyCode { get; set; } = null!;
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;

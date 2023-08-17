@@ -18,10 +18,211 @@ namespace Vms.Domain.Infrastructure.VmsDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "7.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.ActivityLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("EntryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ActivityLog", "System");
+                });
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.Email", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("Recipients")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Emails", "System");
+                });
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.Follower", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("DocumentId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("Followers", "System");
+                });
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.Login", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("LoginTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Logins", "System");
+                });
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.RecentView", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("ViewDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("DocumentId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("RecentViews", "System");
+                });
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.TaskLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("EntryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Log")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskLogs", "System", t =>
+                        {
+                            t.HasCheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
+                        });
+                });
+
+            modelBuilder.Entity("Utopia.Api.Domain.System.User", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users", "System");
+                });
 
             modelBuilder.Entity("Vms.Domain.Core.Company", b =>
                 {
@@ -179,8 +380,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
@@ -346,8 +546,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("ChassisNumber")
                         .HasMaxLength(18)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(18)");
+                        .HasColumnType("nvarchar(18)");
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
@@ -371,13 +570,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Make")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(30)");
 
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
@@ -388,7 +585,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("Make", "Model");
 
-                    b.ToTable("Vehicles", (string)null);
+                    b.ToTable("Vehicles");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.VehicleMake", b =>
@@ -684,66 +881,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("ServiceBookingLocks", (string)null);
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.ActivityLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("EntryDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocumentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ActivityLog", "System");
-                });
-
-            modelBuilder.Entity("Vms.Domain.System.Email", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
-                    b.Property<string>("Recipients")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Emails", "System");
-                });
-
             modelBuilder.Entity("Vms.Domain.System.EntityTag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -783,145 +920,49 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.ToTable("EntityTags", "System");
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.Follower", b =>
+            modelBuilder.Entity("Utopia.Api.Domain.System.ActivityLog", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("DocumentId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("Followers", "System");
+                    b.HasOne("Utopia.Api.Domain.System.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.Login", b =>
+            modelBuilder.Entity("Utopia.Api.Domain.System.Follower", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("LoginTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Logins", "System");
+                    b.HasOne("Utopia.Api.Domain.System.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.RecentView", b =>
+            modelBuilder.Entity("Utopia.Api.Domain.System.Login", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("ViewDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("DocumentId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("RecentViews", "System");
+                    b.HasOne("Utopia.Api.Domain.System.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.TaskLog", b =>
+            modelBuilder.Entity("Utopia.Api.Domain.System.RecentView", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("EntryDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Log")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<string>("TaskName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TaskLogs", "System", t =>
-                        {
-                            t.HasCheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
-                        });
+                    b.HasOne("Utopia.Api.Domain.System.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.User", b =>
+            modelBuilder.Entity("Utopia.Api.Domain.System.TaskLog", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("Users", "System");
+                    b.HasOne("Utopia.Api.Domain.System.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Customer", b =>
@@ -1178,8 +1219,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Property<string>("Locality")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(50)");
+                                .HasColumnType("nvarchar(50)");
 
                             b1.Property<Geometry>("Location")
                                 .IsRequired()
@@ -1188,20 +1228,17 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Property<string>("Postcode")
                                 .IsRequired()
                                 .HasMaxLength(8)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(8)");
+                                .HasColumnType("nvarchar(8)");
 
                             b1.Property<string>("Street")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(50)");
+                                .HasColumnType("nvarchar(50)");
 
                             b1.Property<string>("Town")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(50)");
+                                .HasColumnType("nvarchar(50)");
 
                             b1.HasKey("VehicleId");
 
@@ -1366,18 +1403,18 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ServiceBooking", b =>
                 {
-                    b.HasOne("Vms.Domain.System.User", "AssignedTo")
+                    b.HasOne("Utopia.Api.Domain.System.User", "AssignedTo")
                         .WithMany()
                         .HasForeignKey("AssignedToUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Vms.Domain.System.User", "CreatedBy")
+                    b.HasOne("Utopia.Api.Domain.System.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Vms.Domain.System.User", "Owner")
+                    b.HasOne("Utopia.Api.Domain.System.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1520,56 +1557,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("ServiceBooking");
                 });
 
-            modelBuilder.Entity("Vms.Domain.System.ActivityLog", b =>
-                {
-                    b.HasOne("Vms.Domain.System.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Vms.Domain.System.EntityTag", b =>
                 {
                     b.HasOne("Vms.Domain.Core.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyCode");
-                });
-
-            modelBuilder.Entity("Vms.Domain.System.Follower", b =>
-                {
-                    b.HasOne("Vms.Domain.System.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Vms.Domain.System.Login", b =>
-                {
-                    b.HasOne("Vms.Domain.System.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Vms.Domain.System.RecentView", b =>
-                {
-                    b.HasOne("Vms.Domain.System.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Vms.Domain.System.TaskLog", b =>
-                {
-                    b.HasOne("Vms.Domain.System.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Company", b =>

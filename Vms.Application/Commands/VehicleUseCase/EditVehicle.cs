@@ -39,29 +39,27 @@ public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
             isModified = true;
         }
 
-        //if (vehicle.Mot.Due != command.MotDue)
-        //{
-        //    vehicle.Mot.Due = command.MotDue is null ? (DateOnly?)null : command.MotDue.Value;
-        //}
+        if (vehicle.Mot.Due != command.MotDue)
+        {
+            SummaryText.AppendLine($"* MOT Due: {command.MotDue}");
+            vehicle.Mot.Due = command.MotDue;
 
-        //var mot = vehicle.MotEvents.FirstOrDefault();
-        //if (mot is not null)
-        //{
-        //    if (command.MotDue.HasValue)
-        //        mot.Due = command.MotDue.Value;
-        //    else
-        //        DbContext.MotEvents.Remove(mot);
-        //}
-        //else
-        //{
-        //    if (command.MotDue.HasValue)
-        //        //vehicle.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, command.MotDue.Value, true));
-        //        DbContext.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, command.MotDue.Value, true));
-        //}
+            var mot = dbContext.MotEvents.FirstOrDefault(x => x.VehicleId == vehicle.Id && x.IsCurrent);
+            if (mot is not null)
+            {
+                mot.Due = command.MotDue;
+            }
+            else
+            {
+                DbContext.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, command.MotDue, true));
+            }
+            isModified = true;
+        }
 
         if (vehicle.DateFirstRegistered != command.DateFirstRegistered)
         {
-            //TODO vehicle.DateFirstRegistered = command.DateFirstRegistered;
+            SummaryText.AppendLine($"* Date First Registered: {command.DateFirstRegistered}");
+            vehicle.DateFirstRegistered = command.DateFirstRegistered;
             isModified = true;
         }
         if (vehicle.ChassisNumber != command.ChassisNumber)
