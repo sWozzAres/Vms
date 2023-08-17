@@ -6,11 +6,11 @@ public class ServerApiHttpClient(HttpClient http)
 
 
     #region App
-    public async Task<PostResponse> RegisterLogin()
-    {
-        http.DefaultRequestHeaders.Accept.Clear();
-        return PostResponse.Create(await http.PostAsJsonAsync($"api/app/register", new { }));
-    }
+    //public async Task<PostResponse> RegisterLogin()
+    //{
+    //    http.DefaultRequestHeaders.Accept.Clear();
+    //    return PostResponse.Create(await http.PostAsJsonAsync($"api/app/register", new { }));
+    //}
     public async Task<List<UserDto>> GetUsersForCompany(string companyCode)
     {
         http.DefaultRequestHeaders.Accept.Clear();

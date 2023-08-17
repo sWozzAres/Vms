@@ -1,4 +1,5 @@
-﻿using Utopia.Api.Domain.Infrastructure;
+﻿using Catalog.Api.Domain.Configuration;
+using Utopia.Api.Domain.Infrastructure;
 using Utopia.Api.Domain.System;
 using Utopia.Api.Domain.System.Configuration;
 
@@ -15,11 +16,10 @@ public class CatalogDbContext(DbContextOptions options) : DbContext(options), IS
     public DbSet<RecentView> RecentViews => Set<RecentView>();
     public DbSet<TaskLog> TaskLogs => Set<TaskLog>();
     public DbSet<User> Users => Set<User>();
-
     #endregion
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Product).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductEntityTypeConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserEntityTypeConfiguration).Assembly);
     }
 }

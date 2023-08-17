@@ -1,4 +1,9 @@
-﻿using Utopia.Api.Domain.System;
+﻿using Catalog.Api.Domain.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Polly;
+using Utopia.Api.Domain.Infrastructure;
+using Utopia.Api.Domain.System;
 
 namespace Vms.Web.Server.Controllers;
 
@@ -6,14 +11,12 @@ namespace Vms.Web.Server.Controllers;
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class AppController(ILogger<AppController> logger, VmsDbContext context) : ControllerBase
+public class AppController(ILogger<AppController> logger) : ControllerBase
 {
-    readonly ILogger<AppController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    readonly VmsDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
-
     [HttpGet]
     [Route("users/{code}")]
     public async Task<IActionResult> GetUsersForTenant(string code,
+        [FromServices] VmsDbContext context,
         IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
@@ -23,24 +26,34 @@ public class AppController(ILogger<AppController> logger, VmsDbContext context) 
             throw new InvalidOperationException("User has no access to tenant.");
         }
 
-        var users = await _context.Users.Where(u => u.TenantId == "*" || u.TenantId == code)
+        var users = await context.Users.Where(u => u.TenantId == "*" || u.TenantId == code)
                 .Select(u => new UserDto(u.UserId, u.UserName))
                 .ToListAsync(cancellationToken);
 
         return Ok(users);
-
     }
 
     [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> RegisterLogin(IUserProvider userProvider, CancellationToken cancellationToken)
+    public async Task<IActionResult> RegisterLogin(IUserProvider userProvider,
+        [FromServices] VmsDbContext context1,
+        [FromServices] CatalogDbContext context2,
+        CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FindAsync(new object[] { userProvider.UserId }, cancellationToken);
+        await UpdateUserInContext(context1, userProvider, cancellationToken);
+        await UpdateUserInContext(context2, userProvider, cancellationToken);
+        
+        return Ok();
+    }
+
+    async Task UpdateUserInContext(ISystemContext context, IUserProvider userProvider, CancellationToken cancellationToken)
+    {
+        var user = await context.Users.FindAsync(new object[] { userProvider.UserId }, cancellationToken);
         if (user is null)
         {
             user = new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId, userProvider.EmailAddress);
-            _logger.LogInformation("Creating information record for user {user}.", user);
-            _context.Users.Add(user);
+            logger.LogInformation("Creating information record for user {user} in context {context}.", user, context.GetType());
+            context.Users.Add(user);
         }
         else
         {
@@ -61,10 +74,8 @@ public class AppController(ILogger<AppController> logger, VmsDbContext context) 
             }
         }
 
-        _context.Logins.Add(new Login(userProvider.UserId, DateTime.Now));
+        context.Logins.Add(new Login(userProvider.UserId, DateTime.Now));
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Ok();
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

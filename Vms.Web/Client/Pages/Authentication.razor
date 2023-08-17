@@ -1,23 +1,27 @@
 ﻿@page "/authentication/{action}"
 @inject ILogger<Authentication> Logger
-@inject ServerApiHttpClient Api
-<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="LoginSucceeded" />
+@inject HttpClient Http
+<RemoteAuthenticatorView @ref="authenticator" Action="@Action" OnLogInSucceeded="LoginSucceeded" />
 
 @code{
     [Parameter] public string? Action { get; set; }
+    RemoteAuthenticatorView authenticator = null!;
 
     async Task LoginSucceeded()
     {
-        Logger.LogWarning("Login succeeded.");
+        Logger.LogInformation("Login succeeded.");
         try
         {
-            await Api.RegisterLogin();
-            
-            Logger.LogWarning("Login registered.");
+            var response = PostResponse.Create(await Http.PostAsJsonAsync($"api/app/register", new { }));
+            if (response is not PostResponse.Success)
+            {
+                throw new InvalidOperationException("Register login was unsuccesfull.");
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore
+            Logger.LogWarning(ex, "Failed to register login.");
+            //TODO logout
         }
     }
 }
