@@ -5,7 +5,7 @@ public interface IAddNoteSupplier
     Task<ActivityLogDto> AddAsync(Guid id, AddNoteDto request, CancellationToken cancellationToken);
 }
 
-public class AddNoteSupplier(VmsDbContext context, IActivityLogger activityLog) : IAddNoteSupplier
+public class AddNoteSupplier(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog) : IAddNoteSupplier
 {
     readonly VmsDbContext DbContext = context;
     readonly StringBuilder SummaryText = new();

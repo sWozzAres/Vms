@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Utopia.Api.Application.Services;
 using Vms.Application.Commands;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Web.Server;
@@ -15,22 +16,10 @@ public class VmsDbContextSeeder(
     ISearchManager searchManager,
     ILogger<VmsDbContextSeeder> logger,
     ILoggerFactory loggerFactory,
-    IActivityLogger activityLog,
-    ITaskLogger taskLogger,
+    IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ITimeService timeService) : IVmsDbContextSeeder
 {
-    //readonly VmsDbContext context = context;
-    //readonly ISearchManager searchManager = searchManager;
-    //readonly ILogger<VmsDbContextSeeder> logger = logger;
-    //readonly ILoggerFactory loggerFactory = loggerFactory;
-    //readonly IActivityLogger _activityLog = activityLog;
-    //readonly ITaskLogger _taskLogger = taskLogger;
-    //readonly ITimeService _timeService = timeService;
-
-    //public VmsDbContextSeeder(VmsDbContext context, ISearchManager searchManager, ILogger<VmsDbContextSeeder> logger, ILoggerFactory loggerFactory)
-    //    => (context, searchManager, logger, loggerFactory) = (context, searchManager, logger, loggerFactory);
-
-
     static readonly string[] SurNames = new string[]
     {
         "Smith", "Jones", "Taylor", "Brown", "Williams", "Wilson", "Johnson", "Davies", "Robinson", "Wright", "Thomson", "Evans",

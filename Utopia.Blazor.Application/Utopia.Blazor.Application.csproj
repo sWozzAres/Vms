@@ -22,6 +22,7 @@
     <ProjectReference Include="..\Utopia.Blazor.Application.Common\Utopia.Blazor.Application.Common.csproj" />
     <ProjectReference Include="..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
     <ProjectReference Include="..\Utopia.Blazor.Component\Utopia.Blazor.Component.csproj" />
+    <ProjectReference Include="..\Utopia.Shared\Utopia.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

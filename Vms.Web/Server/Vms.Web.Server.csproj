@@ -19,8 +19,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Catalog.Api\Catalog.Api.csproj" />
+		<ProjectReference Include="..\..\Utopia.Api\Utopia.Api.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Application.Shared\Utopia.Blazor.Application.Shared.csproj" />
 		<ProjectReference Include="..\..\Utopia.Blazor.Application.Vms.Shared\Utopia.Blazor.Application.Vms.Shared.csproj" />
+		<ProjectReference Include="..\..\Vms.Api\Vms.Api.csproj" />
 		<ProjectReference Include="..\..\Vms.Application\Vms.Application.csproj" />
 		<ProjectReference Include="..\..\Vms.Domain.Infrastructure\Vms.Domain.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Vms.Domain\Vms.Domain.csproj" />

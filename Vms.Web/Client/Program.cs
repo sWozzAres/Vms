@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using Catalog.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -13,8 +14,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Logging.AddConfiguration(
-    builder.Configuration.GetSection("Logging"));
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
@@ -22,6 +22,7 @@ var authorizedUrls = new[] { "https://localhost:5002" };
 var scopes = new[] { "vms.client" };
 
 // https://docs.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/additional-scenarios?view=aspnetcore-5.0#configure-the-httpclient-handler-1
+#region Vms
 builder.Services.AddHttpClient("Vms.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(authorizedUrls, scopes));
@@ -41,7 +42,12 @@ builder.Services.AddHttpClient<VehicleApiClient>(client => client.BaseAddress = 
 builder.Services.AddHttpClient<SupplierApiClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(authorizedUrls, scopes));
-
+#endregion
+#region Catalog
+builder.Services.AddHttpClient<ProductApiHttpClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
+    .ConfigureHandler(authorizedUrls, scopes));
+#endregion
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Vms.ServerAPI"));

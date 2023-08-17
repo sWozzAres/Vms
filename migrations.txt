@@ -4,6 +4,9 @@ add-migration -Name Initial -o VmsDb -Context VmsDbContext -Project Vms.Domain.I
 update-database -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 
+add-migration -Name Initial -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
+update-database -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
+
 migrationBuilder.Sql(
     sql: "CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;",
     suppressTransaction: true);

@@ -1,5 +1,4 @@
 ﻿using Vms.Domain.Core;
-using Vms.Domain.System;
 
 namespace Vms.Domain.ServiceBookingProcess
 {

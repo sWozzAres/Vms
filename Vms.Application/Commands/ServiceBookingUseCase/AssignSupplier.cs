@@ -8,8 +8,8 @@ public interface IAssignSupplier
 }
 
 public class AssignSupplier(VmsDbContext dbContext,
-    IActivityLogger activityLog,
-    ITaskLogger taskLogger,
+    IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<AssignSupplier> logger) : IAssignSupplier
 {
     readonly VmsDbContext DbContext = dbContext;

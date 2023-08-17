@@ -7,7 +7,8 @@ public interface ICheckArrival
     Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken);
 }
 
-public class CheckArrival(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class CheckArrival(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<CheckArrival> logger) : ICheckArrival
 {
     readonly VmsDbContext DbContext = dbContext;

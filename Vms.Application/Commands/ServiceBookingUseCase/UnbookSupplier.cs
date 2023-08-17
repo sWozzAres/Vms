@@ -5,7 +5,8 @@ public interface IUnbookSupplier
     Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken);
 }
 
-public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<UnbookSupplier> logger) : IUnbookSupplier
 {
     readonly VmsDbContext DbContext = dbContext;

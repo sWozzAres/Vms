@@ -1,4 +1,6 @@
-﻿namespace Vms.Web.Server.Services;
+﻿using Utopia.Api.Application.Services;
+
+namespace Vms.Web.Server.Services;
 
 public class TimeFreeze : ITimeService
 {

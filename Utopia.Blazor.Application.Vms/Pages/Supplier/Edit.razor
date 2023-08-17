@@ -1,67 +1,59 @@
 ﻿@inject SupplierApiClient Api
 @inject NavigationManager NavigationManager
 
-@if (loadingException is not null)
-{
-    <RetryLoad Exception="loadingException" OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
-}
-else
-{
-    <EditFormTemplate TModel="SupplierDto" @ref="editForm" OnLoad="() => Supplier.ToDto()" OnSave="SaveModel">
-        <ObjectGraphDataAnnotationsValidator />
+<EditFormTemplate TModel="SupplierDto" @ref="editForm" OnLoad="() => Supplier.ToDto()" OnSave="SaveModel">
+    <ObjectGraphDataAnnotationsValidator />
 
-        <div class="form-section">
-            <label for="code">Code</label>
-            <InputText id="code" @bind-Value="editForm.Model.Code" disabled />
-            <ValidationMessage For="@(() => editForm.Model.Code)" />
+    <div class="form-section">
+        <label for="code">Code</label>
+        <InputText id="code" @bind-Value="editForm.Model.Code" disabled />
+        <ValidationMessage For="@(() => editForm.Model.Code)" />
 
-            <label for="name">Name</label>
-            <InputText id="name" @bind-Value="editForm.Model.Name" />
-            <ValidationMessage For="@(() => editForm.Model.Name)" />
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="editForm.Model.Name" />
+        <ValidationMessage For="@(() => editForm.Model.Name)" />
 
-            <label for="isindependant">Is Independant</label>
-            <InputCheckbox id="isindependant" @bind-Value="editForm.Model.IsIndependent" />
-            <ValidationMessage For="@(() => editForm.Model.IsIndependent)" />
-        </div>
-        <div class="form-section">
-            <fieldset>
-                <legend>Address</legend>
+        <label for="isindependant">Is Independant</label>
+        <InputCheckbox id="isindependant" @bind-Value="editForm.Model.IsIndependent" />
+        <ValidationMessage For="@(() => editForm.Model.IsIndependent)" />
+    </div>
+    <div class="form-section">
+        <fieldset>
+            <legend>Address</legend>
 
-                <label for="street">Street</label>
-                <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
+            <label for="street">Street</label>
+            <InputText id="street" @bind-Value="editForm.Model.Address.Street" />
+            <ValidationMessage For="@(() => editForm.Model.Address.Street)" />
 
-                <label for="locality">Locality</label>
-                <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
+            <label for="locality">Locality</label>
+            <InputText id="locality" @bind-Value="editForm.Model.Address.Locality" />
+            <ValidationMessage For="@(() => editForm.Model.Address.Locality)" />
 
-                <label for="town">Town</label>
-                <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
+            <label for="town">Town</label>
+            <InputText id="town" @bind-Value="editForm.Model.Address.Town" />
+            <ValidationMessage For="@(() => editForm.Model.Address.Town)" />
 
-                <label for="postcode">Postcode</label>
-                <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
+            <label for="postcode">Postcode</label>
+            <InputText id="postcode" @bind-Value="editForm.Model.Address.Postcode" />
+            <ValidationMessage For="@(() => editForm.Model.Address.Postcode)" />
 
-                <label for="latitude">Latitude</label>
-                <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
+            <label for="latitude">Latitude</label>
+            <InputNumber id="latitude" @bind-Value="editForm.Model.Address.Location.Latitude" />
+            <ValidationMessage For="@(() => editForm.Model.Address.Location.Latitude)" />
 
-                <label for="longitude">Longitude</label>
-                <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
-                <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
-            </fieldset>
-        </div>
-        <ValidationSummary/>
-    </EditFormTemplate>
-}
+            <label for="longitude">Longitude</label>
+            <InputNumber id="longitude" @bind-Value="editForm.Model.Address.Location.Longitude" />
+            <ValidationMessage For="@(() => editForm.Model.Address.Location.Longitude)" />
+        </fieldset>
+    </div>
+    <ValidationSummary />
+</EditFormTemplate>
+
 @code {
     [Parameter, EditorRequired] public SupplierFullDto Supplier { get; set; } = null!;
     [Parameter, EditorRequired] public EventCallback OnAfterSave { get; set; }
 
     EditFormTemplate<SupplierDto> editForm = null!;
-
-    Exception? loadingException;
 
     protected override void OnInitialized()
     {

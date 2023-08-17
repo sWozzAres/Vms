@@ -7,7 +7,8 @@ public interface INotifyCustomerDelay
     Task NotifyAsync(Guid id, TaskNotifyCustomerDelayCommand command, CancellationToken cancellationToken);
 }
 
-public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<NotifyCustomerDelay> logger) : INotifyCustomerDelay
 {
     readonly VmsDbContext DbContext = context;

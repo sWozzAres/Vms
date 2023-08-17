@@ -1,4 +1,6 @@
-﻿namespace Vms.Domain.Infrastructure.Services;
+﻿using Utopia.Api.Services;
+
+namespace Vms.Domain.Infrastructure.Services;
 
 public class DesignTimeUserProvider : IUserProvider
 {

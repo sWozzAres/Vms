@@ -7,7 +7,8 @@ public interface IRebookDriver
     Task RebookAsync(Guid id, TaskRebookDriverCommand command, CancellationToken cancellationToken);
 }
 
-public class RebookDriver(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<RebookDriver> logger) : IRebookDriver
 {
     readonly VmsDbContext DbContext = dbContext;

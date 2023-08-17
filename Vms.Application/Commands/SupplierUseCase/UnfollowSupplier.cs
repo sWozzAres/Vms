@@ -5,7 +5,7 @@ public interface IUnfollowSupplier
     Task<bool> UnfollowAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public class UnfollowSupplier(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog) : IUnfollowSupplier
+public class UnfollowSupplier(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog) : IUnfollowSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;

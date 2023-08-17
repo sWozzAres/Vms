@@ -7,7 +7,7 @@ public interface IFollowServiceBooking
     Task FollowAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog,
+public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog,
     ILogger<FollowServiceBooking> logger) : IFollowServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;

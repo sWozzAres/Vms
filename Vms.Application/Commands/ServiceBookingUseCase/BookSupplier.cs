@@ -7,11 +7,11 @@ public interface IBookSupplier
     Task BookAsync(Guid id, TaskBookSupplierCommand request, CancellationToken cancellationToken);
 }
 
-public class BookSupplier(VmsDbContext dbContext, IEmailSender emailSender, IActivityLogger activityLog,
-    ITaskLogger taskLogger, ILogger<BookSupplier> logger) : IBookSupplier
+public class BookSupplier(VmsDbContext dbContext, IEmailSender<VmsDbContext> emailSender, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger, ILogger<BookSupplier> logger) : IBookSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
-    readonly IEmailSender EmailSender = emailSender;
+    readonly IEmailSender<VmsDbContext> EmailSender = emailSender;
     readonly StringBuilder SummaryText = new();
     readonly ILogger<BookSupplier> Logger = logger;
 

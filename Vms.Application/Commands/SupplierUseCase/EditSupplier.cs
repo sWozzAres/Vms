@@ -5,7 +5,8 @@ public interface IEditSupplier
     Task<bool> EditAsync(string code, SupplierDto command, CancellationToken cancellationToken);
 }
 
-public class EditSupplier(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, ILogger<EditSupplier> logger) : IEditSupplier
+public class EditSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger, ILogger<EditSupplier> logger) : IEditSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();

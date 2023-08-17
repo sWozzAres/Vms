@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Utopia.Api.Services;
 using Vms.Domain.Core;
 using Vms.Domain.Core.Configuration;
-using Vms.Domain.Infrastructure.Services;
 
 namespace Vms.Domain.Infrastructure;
 

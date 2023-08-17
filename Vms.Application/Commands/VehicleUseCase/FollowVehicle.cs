@@ -5,7 +5,7 @@ public interface IFollowVehicle
     Task FollowAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public class FollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog) : IFollowVehicle
+public class FollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog) : IFollowVehicle
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;

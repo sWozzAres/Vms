@@ -83,11 +83,11 @@
         {
             await OnSelected.InvokeAsync(items.ElementAt(selectedIndex));
         }
-        catch (VmsDomainException ex)
-        {
-            okErrorMessage = ex.Message;
-            Logger.LogError(ex, okErrorMessage);
-        }
+        // catch (VmsDomainException ex)
+        // {
+        //     okErrorMessage = ex.Message;
+        //     Logger.LogError(ex, okErrorMessage);
+        // }
         catch (Exception ex)
         {
             okErrorMessage = "An error occurred while trying to select the item.";

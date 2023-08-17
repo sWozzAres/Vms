@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Utopia.Blazor.Component.Helpers;
 
 namespace Utopia.Blazor.Component;
 
@@ -352,6 +351,8 @@ public partial class SelectOnlyCombobox<TValue> : ComponentBase, IAsyncDisposabl
             // The JS side may routinely be gone already if the reason we're disposing is that
             // the client disconnected. This is not an error.
         }
+
+        GC.SuppressFinalize(this);
     }
 
     private class SelectItem

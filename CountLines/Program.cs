@@ -2,19 +2,29 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             string[] paths = new string[]
             {
+                "Utopia.Blazor.Application.Vms",
+                "Utopia.Blazor.Application.Vms.Shared",
+                "Vms.Api",
                 "Vms.Application",
                 "Vms.Domain",
                 "Vms.Domain.Infrastructure",
+
+                "Catalog.Api",
+                "Catalog.Blazor",
+                "Catalog.Shared",
+
+                "Utopia.Api",
                 "Utopia.Blazor.Application",
                 "Utopia.Blazor.Application.Common",
                 "Utopia.Blazor.Application.Shared",
-                "Utopia.Blazor.Application.Vms",
-                "Utopia.Blazor.Application.Vms.Shared",
+                
                 "Utopia.Blazor.Component",
+                "Utopia.Shared",
+
                 "Vms.Web\\Client",
                 "Vms.Web\\Server",
             };

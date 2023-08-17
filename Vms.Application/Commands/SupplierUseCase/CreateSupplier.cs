@@ -9,8 +9,8 @@ public interface ICreateSupplier
 
 public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager,
     ILogger<CreateSupplier> logger,
-    IActivityLogger activityLog,
-    ITaskLogger taskLogger,
+    IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ITimeService timeService) : ICreateSupplier
 {
     readonly VmsDbContext DbContext = dbContext;

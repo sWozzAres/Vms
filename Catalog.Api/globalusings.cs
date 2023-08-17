@@ -1,0 +1,16 @@
+﻿global using System.ComponentModel.DataAnnotations;
+global using Catalog.Api.Application.Queries;
+global using Catalog.Api.Attributes;
+global using Catalog.Api.Domain.Infrastructure;
+global using Catalog.Shared;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Design;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.Extensions.Logging;
+global using Utopia.Api.Application.Extensions;
+global using Utopia.Api.Services;
+global using Utopia.Blazor.Application.Shared;
+global using Utopia.Shared;
+global using Vms.Application.Services;

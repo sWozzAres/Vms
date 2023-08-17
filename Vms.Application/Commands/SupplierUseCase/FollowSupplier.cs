@@ -5,7 +5,7 @@ public interface IFollowSupplier
     Task FollowAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public class FollowSupplier(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog) : IFollowSupplier
+public class FollowSupplier(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog) : IFollowSupplier
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;

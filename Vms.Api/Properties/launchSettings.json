@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Vms.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:29688;http://localhost:29689"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-﻿using Vms.Domain.Infrastructure.Services;
+﻿using Utopia.Api.Services;
 
 namespace Vms.Tests;
 

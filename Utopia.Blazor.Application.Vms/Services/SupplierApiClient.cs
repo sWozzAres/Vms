@@ -3,20 +3,6 @@
 public class SupplierApiClient(HttpClient http)
 {
     readonly HttpClient http = http;
-    static async Task<T> DeserializeOrThrow<T>(HttpResponseMessage response)
-    {
-        if (response.StatusCode == HttpStatusCode.Created)
-        {
-            var content = await response.Content.ReadFromJsonAsync<T>()
-                ?? throw new InvalidOperationException("Failed to deserialize response.");
-
-            return content;
-        }
-        else
-        {
-            throw new InvalidOperationException("Unexpected response.");
-        }
-    }
     #region /api/supplier
     public async Task<PostResponse> CreateSupplierAsync(CreateSupplierDto supplier)
     {

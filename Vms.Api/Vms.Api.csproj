@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utopia.Api\Utopia.Api.csproj" />
+    <ProjectReference Include="..\Utopia.Shared\Utopia.Shared.csproj" />
+    <ProjectReference Include="..\Vms.Application\Vms.Application.csproj" />
+    <ProjectReference Include="..\Vms.Domain.Infrastructure\Vms.Domain.Infrastructure.csproj" />
+    <ProjectReference Include="..\Vms.Domain\Vms.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

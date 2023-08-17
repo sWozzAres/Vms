@@ -5,7 +5,7 @@ public interface IUnfollowServiceBooking
     Task<bool> UnfollowAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog,
+public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog,
     ILogger<UnfollowServiceBooking> logger) : IUnfollowServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;

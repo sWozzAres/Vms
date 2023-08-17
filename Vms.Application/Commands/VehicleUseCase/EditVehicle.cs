@@ -5,7 +5,8 @@ public interface IEditVehicle
     Task<bool> EditAsync(Guid id, VehicleDto command, CancellationToken cancellationToken);
 }
 
-public class EditVehicle(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, ILogger<EditVehicle> logger) : IEditVehicle
+public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger, ILogger<EditVehicle> logger) : IEditVehicle
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();

@@ -5,7 +5,7 @@ public interface IUnfollowVehicle
     Task<bool> UnfollowAsync(Guid id, CancellationToken cancellationToken);
 }
 
-public class UnfollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger activityLog) : IUnfollowVehicle
+public class UnfollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog) : IUnfollowVehicle
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;

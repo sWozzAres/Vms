@@ -5,7 +5,7 @@ public interface IAddNoteServiceBooking
     Task<ActivityLogDto> Add(Guid id, AddNoteDto request, CancellationToken cancellationToken);
 }
 
-public class AddNoteServiceBooking(VmsDbContext context, IActivityLogger activityLog) : IAddNoteServiceBooking
+public class AddNoteServiceBooking(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog) : IAddNoteServiceBooking
 {
     readonly VmsDbContext DbContext = context;
     readonly StringBuilder SummaryText = new();

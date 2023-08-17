@@ -1,14 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Utopia.Api.Domain.Infrastructure;
+using Utopia.Api.Domain.System;
+using Utopia.Api.Domain.System.Configuration;
+using Utopia.Api.Services;
 using Vms.Domain.Core;
 using Vms.Domain.Core.Configuration;
-using Vms.Domain.Infrastructure.Services;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Domain.System;
 
 namespace Vms.Domain.Infrastructure;
 
-public class VmsDbContext : DbContext
+public class VmsDbContext : DbContext, ISystemContext
 {
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Customer> Customers => Set<Customer>();
@@ -32,17 +35,21 @@ public class VmsDbContext : DbContext
     public DbSet<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons => Set<ConfirmBookedRefusalReason>();
     public DbSet<RescheduleReason> RescheduleReasons => Set<RescheduleReason>();
     public DbSet<NonArrivalReason> NonArrivalReasons => Set<NonArrivalReason>();
-    public DbSet<Email> Emails => Set<Email>();
-    public DbSet<MotEvent> MotEvents => Set<MotEvent>();
-    public DbSet<ActivityLog> ActivityLog => Set<ActivityLog>();
-    public DbSet<ServiceBookingLock> ServiceBookingLocks => Set<ServiceBookingLock>();
-    public DbSet<Follower> Followers => Set<Follower>();
-    public DbSet<TaskLog> TaskLogs => Set<TaskLog>();
 
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Login> Logins => Set<Login>();
+    public DbSet<MotEvent> MotEvents => Set<MotEvent>();
+    public DbSet<ServiceBookingLock> ServiceBookingLocks => Set<ServiceBookingLock>();
+
     public DbSet<EntityTag> EntityTags => Set<EntityTag>();
+
+    #region System
+    public DbSet<Login> Logins => Set<Login>();
+    public DbSet<ActivityLog> ActivityLog => Set<ActivityLog>();
+    public DbSet<Email> Emails => Set<Email>();
+    public DbSet<Follower> Followers => Set<Follower>();
     public DbSet<RecentView> RecentViews => Set<RecentView>();
+    public DbSet<TaskLog> TaskLogs => Set<TaskLog>();
+    public DbSet<User> Users => Set<User>();
+    #endregion
 
     protected readonly IUserProvider _userProvider;
     readonly ILogger<VmsDbContext> _logger;
@@ -56,6 +63,8 @@ public class VmsDbContext : DbContext
 
         //base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CompanyEntityTypeConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserEntityTypeConfiguration).Assembly);
+
         //modelBuilder.Entity<ActivityLog>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<EntityTag>().HasQueryFilter(x => x.CompanyCode == null || (_userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId));
         modelBuilder.Entity<NotCompleteReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);

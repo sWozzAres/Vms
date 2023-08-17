@@ -7,7 +7,8 @@ public interface IEditServiceBooking
     Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken);
 }
 
-public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger, ILogger<EditServiceBooking> logger) : IEditServiceBooking
+public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger, ILogger<EditServiceBooking> logger) : IEditServiceBooking
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();

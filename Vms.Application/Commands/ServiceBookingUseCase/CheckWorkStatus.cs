@@ -7,7 +7,8 @@ public interface ICheckWorkStatus
     Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken);
 }
 
-public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<CheckWorkStatus> logger) : ICheckWorkStatus
 {
     readonly VmsDbContext DbContext = dbContext;

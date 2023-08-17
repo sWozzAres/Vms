@@ -113,7 +113,7 @@
         ArgumentNullException.ThrowIfNull(ChildContent);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
-        editContext = new(Model);
+        editContext = new(Model!);
         messageStore = new(editContext);
     }
 

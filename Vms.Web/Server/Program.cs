@@ -1,10 +1,14 @@
 using System.Reflection;
+using Catalog.Api.Domain.Infrastructure;
+using Catalog.Api.Extensions;
 using Dapper;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using Utopia.Api.Application.Services;
+using Vms.Api.Extensions;
 using Vms.Domain.Infrastructure.Seed;
 using Vms.Web.Server;
 using Vms.Web.Server.Configuration;
@@ -42,7 +46,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<CurrentTime>();
 builder.Services.AddScoped<ITimeService>(provider => new CurrentTime());
 
+// domain services
+builder.Services.AddScoped<IUserProvider, UserProvider>();
+// signalR
+builder.Services.AddSingleton<INotifyFollowers, NotifyFollowersViaSignalR>();
+
 builder.Services.AddVmsApplication();
+builder.Services.AddCatalogApplication();
 
 builder.Services.AddDbContext<VmsDbContext>(options =>
 {
@@ -56,7 +66,19 @@ builder.Services.AddDbContext<VmsDbContext>(options =>
         //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
         sqlOptions.EnableRetryOnFailure();
     });
+});
+builder.Services.AddDbContext<CatalogDbContext>(options =>
+{
+    options.EnableSensitiveDataLogging();
 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogDbConnection"), sqlOptions =>
+    {
+        //sqlOptions.UseNetTopologySuite();
+        sqlOptions.UseDateOnlyTimeOnly();
+        sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+        //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+        sqlOptions.EnableRetryOnFailure();
+    });
 });
 
 builder.Services.AddApplicationSecurity();
@@ -66,6 +88,8 @@ builder.Services.AddHostedService<RemoveRecentViewsBackgroundService>();
 //builder.Services.AddHostedService<ChatHubTest>();
 
 builder.Services.AddControllersWithViews()
+    .AddApplicationPart(typeof(Vms.Api.Controllers.CompanyController).GetTypeInfo().Assembly)
+    .AddApplicationPart(typeof(Catalog.Api.Controllers.ProductController).GetTypeInfo().Assembly)
     .ConfigureApiBehaviorOptions(options =>
     {
         options.InvalidModelStateResponseFactory = context =>
@@ -104,15 +128,29 @@ Log.Information("Applying migrations ({ApplicationContext})...", AppName);
 UserProvider.InMigration = true;
 app.MigrateDbContext<VmsDbContext>((context, services) =>
 {
-    var logger = services.GetService<ILogger<VmsDbContextSeeder>>() ?? throw new InvalidOperationException(); ;
+    var logger = services.GetService<ILogger<VmsDbContextSeeder>>() ?? throw new InvalidOperationException();
     var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
     var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
     var searchManager = services.GetRequiredService<ISearchManager>();
     var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    var activityLogger = services.GetRequiredService<IActivityLogger>();
-    var taskLogger = services.GetRequiredService<ITaskLogger>();
+    var activityLogger = services.GetRequiredService<IActivityLogger<VmsDbContext>>();
+    var taskLogger = services.GetRequiredService<ITaskLogger<VmsDbContext>>();
     var timeService = services.GetRequiredService<ITimeService>();
     new VmsDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService)
+        .SeedAsync(env, settings)
+        .Wait();
+});
+app.MigrateDbContext<CatalogDbContext>((context, services) =>
+{
+    var logger = services.GetService<ILogger<CatalogDbContextSeeder>>() ?? throw new InvalidOperationException();
+    var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
+    var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
+    var searchManager = services.GetRequiredService<ISearchManager>();
+    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+    var activityLogger = services.GetRequiredService<IActivityLogger<CatalogDbContext>>();
+    var taskLogger = services.GetRequiredService<ITaskLogger<CatalogDbContext>>();
+    var timeService = services.GetRequiredService<ITimeService>();
+    new CatalogDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService)
         .SeedAsync(env, settings)
         .Wait();
 });

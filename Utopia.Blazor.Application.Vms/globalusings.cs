@@ -5,3 +5,4 @@ global using Utopia.Blazor.Application.Common.Services;
 global using Utopia.Blazor.Application.Shared;
 global using Utopia.Blazor.Application.Vms.Shared;
 global using Utopia.Blazor.Component;
+global using Utopia.Shared;

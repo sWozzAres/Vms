@@ -7,7 +7,8 @@ public interface IConfirmBooked
     Task ConfirmAsync(Guid id, TaskConfirmBookedCommand command, CancellationToken cancellationToken);
 }
 
-public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<ConfirmBooked> logger) : IConfirmBooked
 {
     readonly VmsDbContext DbContext = dbContext;

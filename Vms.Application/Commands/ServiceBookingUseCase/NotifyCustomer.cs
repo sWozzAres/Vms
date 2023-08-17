@@ -7,7 +7,8 @@ public interface INotifyCustomer
     Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken);
 }
 
-public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<NotifyCustomer> logger) : INotifyCustomer
 {
     readonly VmsDbContext DbContext = dbContext;

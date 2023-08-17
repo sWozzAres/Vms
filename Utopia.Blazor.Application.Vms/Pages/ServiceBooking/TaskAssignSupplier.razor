@@ -39,11 +39,11 @@
             }
             else
             {
-                if (result is PostResponse.BadRequest br)
-                {
-                    throw new VmsDomainException(br.ErrorMessage);
-                }
-                else// if (result is PostResponse.Failure)
+                // if (result is PostResponse.BadRequest br)
+                // {
+                //     throw new VmsDomainException(br.ErrorMessage);
+                // }
+                // else// if (result is PostResponse.Failure)
                 {
                     throw new InvalidOperationException("There was a problem sending your request.");
                 }

@@ -7,7 +7,8 @@ public interface IChaseDriver
     Task ChaseAsync(Guid id, TaskChaseDriverCommand command, CancellationToken cancellationToken);
 }
 
-public class ChaseDriver(VmsDbContext dbContext, IActivityLogger activityLog, ITaskLogger taskLogger,
+public class ChaseDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<ChaseDriver> logger) : IChaseDriver
 {
     readonly VmsDbContext DbContext = dbContext;

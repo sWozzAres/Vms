@@ -5,7 +5,7 @@ public interface IAddNoteVehicle
     Task<ActivityLogDto> Add(Guid id, AddNoteDto request, CancellationToken cancellationToken);
 }
 
-public class AddNoteVehicle(VmsDbContext context, IActivityLogger activityLog) : IAddNoteVehicle
+public class AddNoteVehicle(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog) : IAddNoteVehicle
 {
     readonly VmsDbContext DbContext = context;
     readonly StringBuilder SummaryText = new();

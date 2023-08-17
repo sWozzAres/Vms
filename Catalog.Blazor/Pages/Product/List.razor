@@ -1,0 +1,39 @@
+﻿@page "/product/list"
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Products</PageTitle>
+
+<ListTemplate TGridItem="ProductListDto" Options="listOptions" ApiUrl="/api/product" Key="ListPage_Product" Title="Products">
+    <IconContent>
+        <div class="svg-large svg-product">
+            <img alt="Product" src="icons/product.svg" />
+        </div>
+    </IconContent>
+    <Buttons>
+        <button @onclick="() => isCreating = true">New</button>
+    </Buttons>
+    <GridColumns>
+        <TemplateColumn Title="Code">
+            <a href="/product/view/@context!.Code">@context.Code</a>
+        </TemplateColumn>
+        <PropertyColumn Property="p=>p!.Name"/>
+    </GridColumns>
+</ListTemplate>
+
+
+@if (isCreating)
+{
+  @*  <Create OnClose="() => isCreating = false" />  *@
+}
+
+@code {
+    List<SelectOption<int?>> listOptions = new()
+    {
+        new (0, "All Products"),
+        new ((int)ProductListOptions.Recent, "Recently Viewed"),
+        new ((int)ProductListOptions.Following, "Following"),
+    };
+
+    bool isCreating;
+}

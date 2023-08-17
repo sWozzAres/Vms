@@ -10,8 +10,8 @@ public interface ICreateServiceBooking
 public class CreateServiceBooking(VmsDbContext dbContext,
     IUserProvider userProvider,
     IAutomaticallyAssignSupplier automaticallyAssignSupplier,
-    IActivityLogger activityLog,
-    ITaskLogger taskLogger,
+    IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
     ISearchManager searchManager,
     ITimeService timeService,
     ILogger<CreateServiceBooking> logger) : ICreateServiceBooking
