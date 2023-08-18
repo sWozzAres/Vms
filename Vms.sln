@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Domain", "Vms.Domain\Vm
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{42B0C510-22A0-4FBD-9C2E-0DEDF7FF95BF}"
 	ProjectSection(SolutionItems) = preProject
+		dbsetup.sql = dbsetup.sql
 		js.js = js.js
 		migrations.txt = migrations.txt
 		Readme.txt = Readme.txt
