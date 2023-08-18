@@ -2,7 +2,7 @@
 
 public interface IUnfollowServiceBooking
 {
-    Task<bool> UnfollowAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool> UnfollowAsync(Guid serviceBookingId, CancellationToken cancellationToken);
 }
 
 public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog,
@@ -16,10 +16,10 @@ public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userPr
     Guid Id;
     CancellationToken CancellationToken;
 
-    public async Task<bool> UnfollowAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<bool> UnfollowAsync(Guid serviceBookingId, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Unfollowing service booking: {servicebookingid}, user {userid}.", id, UserProvider.UserId);
-        Id = id;
+        logger.LogInformation("Unfollowing service booking: {servicebookingid}, user {userid}.", serviceBookingId, UserProvider.UserId);
+        Id = serviceBookingId;
         CancellationToken = cancellationToken;
 
         //

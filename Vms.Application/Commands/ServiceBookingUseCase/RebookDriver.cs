@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IRebookDriver
 {
-    Task RebookAsync(Guid id, TaskRebookDriverCommand command, CancellationToken cancellationToken);
+    Task RebookAsync(Guid serviceBookingId, TaskRebookDriverCommand command, CancellationToken cancellationToken);
 }
 
 public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -19,11 +19,11 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
     TaskRebookDriverCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task RebookAsync(Guid id, TaskRebookDriverCommand command, CancellationToken cancellationToken)
+    public async Task RebookAsync(Guid serviceBookingId, TaskRebookDriverCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Rebooking with driver for service booking: {servicebookingid}, command: {@taskrebookdrivercommand}.", id, command);
+        logger.LogInformation("Rebooking with driver for service booking: {servicebookingid}, command: {@taskrebookdrivercommand}.", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 
@@ -76,11 +76,11 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
             ctx.SummaryText.AppendLine("## Not Going");
 
             // remove work items from booking
-
-            var motEvent = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(e => e.ServiceBookingId == self.Id && e.IsCurrent);
-            if (motEvent is not null)
+            if (self.MotEventId is not null)
             {
-                motEvent.ServiceBookingId = null;
+                _ = await ctx.DbContext.MotEvents.FindAsync(new object[] { self.MotEventId }, ctx.CancellationToken)
+                    ?? throw new InvalidOperationException("Failed to load Mot Event.");
+                self.RemoveMotEvent();
             }
 
             self.ChangeStatus(ServiceBookingStatus.Cancelled);

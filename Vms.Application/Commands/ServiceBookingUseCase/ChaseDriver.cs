@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IChaseDriver
 {
-    Task ChaseAsync(Guid id, TaskChaseDriverCommand command, CancellationToken cancellationToken);
+    Task ChaseAsync(Guid serviceBookingId, TaskChaseDriverCommand command, CancellationToken cancellationToken);
 }
 
 public class ChaseDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -19,11 +19,11 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
     TaskChaseDriverCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task ChaseAsync(Guid id, TaskChaseDriverCommand command, CancellationToken cancellationToken)
+    public async Task ChaseAsync(Guid serviceBookingId, TaskChaseDriverCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Chasing driver for service booking: {servicebookingid}, command: {@taskchasedrivercommand}.", id, command);
+        logger.LogInformation("Chasing driver for service booking: {servicebookingid}, command: {@taskchasedrivercommand}.", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 

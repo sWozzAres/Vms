@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface INotifyCustomer
 {
-    Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken);
+    Task NotifyAsync(Guid serviceBookingId, TaskNotifyCustomerCommand command, CancellationToken cancellationToken);
 }
 
 public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -19,11 +19,11 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext
     TaskNotifyCustomerCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task NotifyAsync(Guid id, TaskNotifyCustomerCommand command, CancellationToken cancellationToken)
+    public async Task NotifyAsync(Guid serviceBookingId, TaskNotifyCustomerCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Notifying customer for service booking: {servicebookingid}, command: {@tasknotifycustomercommand}.", id, command);
+        logger.LogInformation("Notifying customer for service booking: {servicebookingid}, command: {@tasknotifycustomercommand}.", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 

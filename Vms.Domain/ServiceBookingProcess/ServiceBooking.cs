@@ -89,9 +89,19 @@ namespace Vms.Domain.ServiceBookingProcess
             if (!motEvent.IsCurrent)
                 throw new VmsDomainException("Mot Event is not current.");
 
+            motEvent.AddToServiceBooking(this);
             MotEvent = motEvent;
+            MotEventId = motEvent.Id;
         }
-        public void RemoveMotEvent() => MotEvent = null;
+        public void RemoveMotEvent()
+        {
+            if (MotEvent is null)
+                throw new InvalidOperationException("MotEvent is null");
+
+            MotEvent.RemoveFromServiceBooking();
+            MotEvent = null;
+            MotEventId = null;
+        }
         /// <summary>
         /// Generates a random 10 digit number.
         /// </summary>

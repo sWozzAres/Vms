@@ -14,6 +14,10 @@
     {
         <Alert Style="Alert.AlertStyle.Info">The booking is complete.</Alert>
     }
+    else if (ServiceBooking.Status == ServiceBookingDtoStatus.Cancelled)
+    {
+        <Alert Style="Alert.AlertStyle.Info">The booking has been cancelled.</Alert>
+    }
     else if (ServiceBooking.CustomerCode is null && ServiceBooking.FleetCode is null)
     {
         <Alert Style="Alert.AlertStyle.Warning">The vehicle must be linked to a customer or fleet in order to assign a supplier.</Alert>

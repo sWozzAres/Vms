@@ -94,9 +94,9 @@ public class CreateServiceBooking(VmsDbContext dbContext,
         {
             ctx.SummaryText.AppendLine("# Create Service Booking");
 
-            var motEntry = ctx.Command.MotId is null
+            var motEvent = ctx.Command.MotId is null
                  ? null
-                 : await ctx.DbContext.MotEvents.SingleOrDefaultAsync(m => m.Id == ctx.Command.MotId, ctx.CancellationToken)
+                 : await ctx.DbContext.MotEvents.FindAsync(new object[] { ctx.Command.MotId }, ctx.CancellationToken)
                     ?? throw new VmsDomainException("Failed to find Mot Event.");
 
             // create the booking
@@ -109,7 +109,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 (ServiceLevel)ctx.Command.ServiceLevel,
                 ctx.UserProvider.UserId,
                 await GetFirstDriver(),
-                motEntry
+                motEvent
             ), ctx);
 
             // auto assign

@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IEditServiceBooking
 {
-    Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken);
+    Task<bool> EditAsync(Guid serviceBookingId, ServiceBookingDto command, CancellationToken cancellationToken);
 }
 
 public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -13,11 +13,11 @@ public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbCon
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
 
-    public async Task<bool> EditAsync(Guid id, ServiceBookingDto command, CancellationToken cancellationToken)
+    public async Task<bool> EditAsync(Guid serviceBookingId, ServiceBookingDto command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Editing service booking: {servicebookingid}, command: {@servicebookingdto}.", id, command);
+        logger.LogInformation("Editing service booking: {servicebookingid}, command: {@servicebookingdto}.", serviceBookingId, command);
 
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
         SummaryText.AppendLine("# Edit");
@@ -115,8 +115,8 @@ public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbCon
 
         if (isModified)
         {
-            _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
-            taskLogger.Log(id, nameof(EditServiceBooking), command);
+            _ = await activityLog.AddAsync(serviceBookingId, SummaryText, cancellationToken);
+            taskLogger.Log(serviceBookingId, nameof(EditServiceBooking), command);
         }
 
         return isModified;

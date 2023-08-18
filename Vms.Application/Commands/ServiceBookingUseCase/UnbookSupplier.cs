@@ -2,7 +2,7 @@
 
 public interface IUnbookSupplier
 {
-    Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken);
+    Task UnbookAsync(Guid serviceBookingId, TaskUnbookSupplierCommand command, CancellationToken cancellationToken);
 }
 
 public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -12,11 +12,11 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
 
-    public async Task UnbookAsync(Guid id, TaskUnbookSupplierCommand command, CancellationToken cancellationToken)
+    public async Task UnbookAsync(Guid serviceBookingId, TaskUnbookSupplierCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Unbooking supplier for service booking: {servicebookingid}, command: {@taskunbooksuppliercommand}.", id, command);
+        logger.LogInformation("Unbooking supplier for service booking: {servicebookingid}, command: {@taskunbooksuppliercommand}.", serviceBookingId, command);
 
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
         SummaryText.AppendLine("# Unbook Supplier");
@@ -24,7 +24,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext
 
         serviceBooking.Unbook();
 
-        _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
-        taskLogger.Log(id, nameof(UnbookSupplier), command);
+        _ = await activityLog.AddAsync(serviceBookingId, SummaryText, cancellationToken);
+        taskLogger.Log(serviceBookingId, nameof(UnbookSupplier), command);
     }
 }

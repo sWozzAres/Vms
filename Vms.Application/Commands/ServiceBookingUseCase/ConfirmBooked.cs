@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IConfirmBooked
 {
-    Task ConfirmAsync(Guid id, TaskConfirmBookedCommand command, CancellationToken cancellationToken);
+    Task ConfirmAsync(Guid serviceBookingId, TaskConfirmBookedCommand command, CancellationToken cancellationToken);
 }
 
 public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -19,11 +19,11 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext>
     TaskConfirmBookedCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task ConfirmAsync(Guid id, TaskConfirmBookedCommand command, CancellationToken cancellationToken)
+    public async Task ConfirmAsync(Guid serviceBookingId, TaskConfirmBookedCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Confirming booked for service booking: {servicebookingid}, command: {@taskconfirmbookedcommand}.", id, command);
+        logger.LogInformation("Confirming booked for service booking: {servicebookingid}, command: {@taskconfirmbookedcommand}.", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 

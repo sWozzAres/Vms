@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IAssignSupplier
 {
-    Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
+    Task AssignAsync(Guid serviceBookingId, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
 }
 
 public class AssignSupplier(VmsDbContext dbContext,
@@ -20,11 +20,11 @@ public class AssignSupplier(VmsDbContext dbContext,
     TaskAssignSupplierCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task AssignAsync(Guid id, TaskAssignSupplierCommand command, CancellationToken cancellationToken)
+    public async Task AssignAsync(Guid serviceBookingId, TaskAssignSupplierCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Assigning supplier for service booking: {servicebookingid}, command: {@taskassignsuppliercommand}", id, command);
+        logger.LogInformation("Assigning supplier for service booking: {servicebookingid}, command: {@taskassignsuppliercommand}", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command;
         CancellationToken = cancellationToken;
 
@@ -33,8 +33,8 @@ public class AssignSupplier(VmsDbContext dbContext,
 
         await ServiceBooking.Assign();
 
-        _ = await activityLog.AddAsync(id, SummaryText, CancellationToken);
-        taskLogger.Log(id, nameof(AssignSupplier), Command);
+        _ = await activityLog.AddAsync(serviceBookingId, SummaryText, CancellationToken);
+        taskLogger.Log(serviceBookingId, nameof(AssignSupplier), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, AssignSupplier ctx)

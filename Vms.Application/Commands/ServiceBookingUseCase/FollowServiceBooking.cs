@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IFollowServiceBooking
 {
-    Task FollowAsync(Guid id, CancellationToken cancellationToken);
+    Task FollowAsync(Guid serviceBookingId, CancellationToken cancellationToken);
 }
 
 public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog,
@@ -16,18 +16,18 @@ public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProv
 
     ServiceBookingRole? ServiceBooking;
 
-    public async Task FollowAsync(Guid id, CancellationToken cancellationToken)
+    public async Task FollowAsync(Guid serviceBookingId, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Following service booking: {servicebookingid}, user {userid}.", id, UserProvider.UserId);
+        logger.LogInformation("Following service booking: {servicebookingid}, user {userid}.", serviceBookingId, UserProvider.UserId);
 
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
         SummaryText.AppendLine("# Follow");
 
         ServiceBooking.AddFollower();
 
-        _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, SummaryText, cancellationToken);
     }
 
     class ServiceBookingRole(ServiceBooking self, FollowServiceBooking ctx)

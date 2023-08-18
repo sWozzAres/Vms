@@ -4,26 +4,28 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface ICheckWorkStatus
 {
-    Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken);
+    Task CheckAsync(Guid serviceBookingId, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken);
 }
 
-public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+public class CheckWorkStatus(VmsDbContext dbContext, 
+    IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
+    ITimeService timeService,
     ILogger<CheckWorkStatus> logger) : ICheckWorkStatus
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly StringBuilder SummaryText = new();
-
+    readonly ITimeService TimeService = timeService;
     ServiceBookingRole? ServiceBooking;
     Guid Id;
     TaskCheckWorkStatusCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task CheckAsync(Guid id, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken)
+    public async Task CheckAsync(Guid serviceBookingId, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Checking work status for service booking: {servicebookingid}, command: {@taskcheckworkstatuscommand}.", id, command);
+        logger.LogInformation("Checking work status for service booking: {servicebookingid}, command: {@taskcheckworkstatuscommand}.", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 
@@ -54,35 +56,33 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)
     {
+        async Task CompleteAndRescheduleMot()
+        {
+            var motEvent = await ctx.DbContext.MotEvents
+                    .SingleAsync(e => e.Id == self.MotEventId);// e.ServiceBookingId == self.Id && e.IsCurrent);
+
+            motEvent.Complete();
+
+            // next MOT is 1 year from either last MOT date or this MOT completion date, whichever is later
+            var nextMotDate = ((ctx.Command.CompletionDate!.Value > motEvent.Due)
+                ? ctx.Command.CompletionDate!.Value
+                : motEvent.Due).AddYears(1);
+
+
+            var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
+            ctx.DbContext.MotEvents.Add(nextMotEvent);
+
+            ctx.SummaryText.AppendLine($"* Next Mot scheduled for: {nextMotDate}");
+        }
         public async Task Complete()
         {
             ctx.SummaryText.AppendLine("## Completed");
             ctx.SummaryText.AppendLine($"* Completed Date: {ctx.Command.CompletionDate}");
 
-            var motEvent = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(e => e.ServiceBookingId == self.Id && e.IsCurrent);
+            if (self.MotEventId is not null)
+                await CompleteAndRescheduleMot();
 
-            if (motEvent is not null)
-            {
-                motEvent.IsCurrent = false;
-
-                // next MOT is 1 year from either last MOT date or this MOT completion date, whichever is later
-                var nextMotDate = ((ctx.Command.CompletionDate!.Value > motEvent.Due)
-                    ? ctx.Command.CompletionDate!.Value
-                    : motEvent.Due).AddYears(1);
-
-
-                var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
-                ctx.DbContext.MotEvents.Add(nextMotEvent);
-
-                ctx.SummaryText.AppendLine($"* Next Mot scheduled for: {nextMotDate}");
-                // update the vehicle mot
-                //var vehicle = await ctx.DbContext.Vehicles.FindAsync(new object[] { self.VehicleId }, ctx.CancellationToken)
-                //    ?? throw new InvalidOperationException("Failed to load vehicle.");
-
-                //vehicle.Mot.Due = nextMotDate;
-            }
-
-            self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, DateTime.Now);
+            self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, ctx.TimeService.Now());
         }
         public async Task NotComplete()
         {
@@ -97,7 +97,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
             ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
 
             self.EstimatedCompletion = nextChase;
-            self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay, DateTime.Now);
+            self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay, ctx.TimeService.Now());
 
         }
         public async Task Reschedule()

@@ -5,18 +5,18 @@ namespace Vms.Domain.ServiceBookingProcess
     public class MotEvent
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; private set; }
 
-        public string CompanyCode { get; set; } = null!;
+        public string CompanyCode { get; private set; } = null!;
 
-        public Guid? ServiceBookingId { get; set; }
+        public Guid? ServiceBookingId { get; private set; }
         public ServiceBooking? ServiceBooking { get; private set; } = null!;
 
-        public Guid VehicleId { get; set; }
-        public Vehicle Vehicle { get; set; } = null!;
+        public Guid VehicleId { get; private set; }
+        public Vehicle Vehicle { get; private set; } = null!;
 
         public DateOnly Due { get; set; }
-        public bool IsCurrent { get; set; }
+        public bool IsCurrent { get; private set; }
 
         private MotEvent() { }
         public MotEvent(string companyCode, Guid vehicleId, DateOnly due, bool isCurrent)
@@ -27,6 +27,17 @@ namespace Vms.Domain.ServiceBookingProcess
             Due = due;
             IsCurrent = isCurrent;
         }
+        internal void AddToServiceBooking(ServiceBooking serviceBooking)
+        {
+            ServiceBooking = serviceBooking;
+            ServiceBookingId = serviceBooking.Id;
+        }
+        internal void RemoveFromServiceBooking()
+        {
+            ServiceBooking = null;
+            ServiceBookingId = null;
+        }
+        internal void Complete() => IsCurrent = false;
     }
 }
 

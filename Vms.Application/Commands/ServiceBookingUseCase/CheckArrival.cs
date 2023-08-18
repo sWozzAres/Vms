@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface ICheckArrival
 {
-    Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken);
+    Task CheckAsync(Guid serviceBookingId, TaskCheckArrivalCommand command, CancellationToken cancellationToken);
 }
 
 public class CheckArrival(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
@@ -19,11 +19,11 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
     TaskCheckArrivalCommand Command = null!;
     CancellationToken CancellationToken;
 
-    public async Task CheckAsync(Guid id, TaskCheckArrivalCommand command, CancellationToken cancellationToken)
+    public async Task CheckAsync(Guid serviceBookingId, TaskCheckArrivalCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Checking arrival for service booking: {servicebookingid}, command: {@taskcheckarrivalcommand}.", id, command);
+        logger.LogInformation("Checking arrival for service booking: {servicebookingid}, command: {@taskcheckarrivalcommand}.", serviceBookingId, command);
 
-        Id = id;
+        Id = serviceBookingId;
         Command = command ?? throw new ArgumentNullException(nameof(command));
         CancellationToken = cancellationToken;
 
