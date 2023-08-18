@@ -5,7 +5,7 @@ public class CatalogDbContextFactory : IDesignTimeDbContextFactory<CatalogDbCont
     public CatalogDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<CatalogDbContext>();
-        optionsBuilder.UseSqlServer(@"Data Source=SKYLAKE\SQL2019;Initial Catalog=Catalog.Data;Integrated Security=true;TrustServerCertificate=True;Encrypt=False",
+        optionsBuilder.UseSqlServer(@"Data Source=localhost\SQL2019;Initial Catalog=Catalog.Data;Integrated Security=true;TrustServerCertificate=True;Encrypt=False",
             x =>
             {
                 //x.UseNetTopologySuite();
