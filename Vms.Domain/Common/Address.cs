@@ -1,8 +1,10 @@
 ﻿namespace Vms.Domain.Common;
 
 /// <summary>
-/// https://www.postoffice.co.uk/mail/how-to-address-mail
+/// Represents an addres in the UK.
+/// 
 /// </summary>
+/// <see cref="https://www.postoffice.co.uk/mail/how-to-address-mail"/>
 public class Address : ValueObject
 {
     public const int Street_MaxLength = 50;

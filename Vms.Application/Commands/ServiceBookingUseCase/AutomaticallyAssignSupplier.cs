@@ -4,7 +4,7 @@ namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IAutomaticallyAssignSupplier
 {
-    Task<bool> Assign(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> AutoAssign(Guid serviceBookingId, CancellationToken cancellationToken = default);
 }
 
 public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocator locator,
@@ -17,11 +17,11 @@ public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocato
     readonly IAssignSupplier AssignSupplier = assignSupplier;
     ServiceBookingRole? ServiceBooking;
 
-    public async Task<bool> Assign(Guid id, CancellationToken cancellationToken = default)
+    public async Task<bool> AutoAssign(Guid serviceBookingId, CancellationToken cancellationToken = default)
     {
-        Logger.LogInformation("Automatically assigning supplier service booking: {servicebookingid}.", id);
+        Logger.LogInformation("Automatically assigning supplier service booking: {servicebookingid}.", serviceBookingId);
 
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { id }, cancellationToken)
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
             ?? throw new VmsDomainException("Service Booking not found."), this);
 
         return await ServiceBooking.AutoAssign(cancellationToken);

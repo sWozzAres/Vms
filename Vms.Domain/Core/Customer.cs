@@ -18,7 +18,7 @@
         public ICollection<Vehicle> Vehicles { get; } = new List<Vehicle>();
 
         private Customer() { }
-        public Customer(string companyCode, string code, string name) 
+        public Customer(string companyCode, string code, string name)
             => (CompanyCode, Code, Name) = (companyCode, code, name);
     }
 }

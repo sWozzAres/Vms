@@ -22,6 +22,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
     readonly StringBuilder SummaryText = new();
     readonly ILogger<CreateServiceBooking> Logger = logger;
     readonly ISearchManager SearchManager = searchManager;
+    readonly ITimeService TimeService = timeService;
     VehicleRole? Vehicle;
     CreateServiceBookingCommand Command = null!;
     CancellationToken CancellationToken;
@@ -39,77 +40,88 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         // remember task time, or the included use case (assign) will end up in the log
         // before the creation of the booking 
-        var taskTime = timeService.GetTime();
+        var taskTime = TimeService.Now();
 
         // create the service booking
         var serviceBooking = await Vehicle.CreateServiceBooking();
 
         // log activity and task
-        _ = await activityLog.AddAsync(serviceBooking.Id, SummaryText, taskTime, cancellationToken);
-        taskLogger.Log(serviceBooking.Id, nameof(CreateServiceBooking), Command);
+        _ = await activityLog.AddAsync(serviceBooking.Entity.Id, SummaryText, taskTime, cancellationToken);
+        taskLogger.Log(serviceBooking.Entity.Id, nameof(CreateServiceBooking), Command);
 
-        return serviceBooking;
+        return serviceBooking.Entity;
+    }
+
+    class ServiceBookingRole
+    {
+        readonly ServiceBooking self;
+        readonly CreateServiceBooking ctx;
+
+        public ServiceBooking Entity => self;
+
+        public ServiceBookingRole(ServiceBooking _self, CreateServiceBooking _ctx)
+        {
+            self = _self;
+            ctx = _ctx;
+            
+            ctx.DbContext.ServiceBookings.Add(self);
+
+            if (self.IsValid)
+                self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now());
+
+            // update search
+            ctx.SearchManager.Add(self.CompanyCode, self.Id.ToString(), EntityKind.ServiceBooking, self.Ref,
+               string.Join(" ", self.Vehicle.Vrm, self.Ref));
+
+            ctx.Logger.LogInformation("Created service booking: {servicebookingid}.", self.Id);
+        }
+
+        public async Task AutoAssign()
+        {
+            self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now());
+
+            ctx.DbContext.ThrowIfNoTransaction();
+            if (await ctx.AutomaticallyAssignSupplier.AutoAssign(self.Id, ctx.CancellationToken))
+            {
+                ctx.SummaryText.AppendLine("\r\n**Supplier was automatically assigned.**");
+            }
+        }
     }
 
     class VehicleRole(Vehicle self, CreateServiceBooking ctx)
     {
-        public async Task<ServiceBooking> CreateServiceBooking()
+        public async Task<ServiceBookingRole> CreateServiceBooking()
         {
             ctx.SummaryText.AppendLine("# Create Service Booking");
 
+            var motEntry = ctx.Command.MotId is null
+                 ? null
+                 : await ctx.DbContext.MotEvents.SingleOrDefaultAsync(m => m.Id == ctx.Command.MotId, ctx.CancellationToken)
+                    ?? throw new VmsDomainException("Failed to find Mot Event.");
+
             // create the booking
-            var booking = new ServiceBooking(
+            var serviceBooking = new ServiceBookingRole(new ServiceBooking(
                 self.CompanyCode,
                 self.Id,
                 ctx.Command.PreferredDate1,
                 ctx.Command.PreferredDate2,
                 ctx.Command.PreferredDate3,
                 (ServiceLevel)ctx.Command.ServiceLevel,
-                ctx.UserProvider.UserId
-            );
-
-            // load default driver
-            var driver = await (from dv in ctx.DbContext.DriverVehicles
-                                where dv.VehicleId == self.Id
-                                select dv.Driver).FirstOrDefaultAsync(ctx.CancellationToken);
-            if (driver is not null)
-            {
-                booking.SetDriver(string.Join(" ", driver.FirstName, driver.LastName), driver.EmailAddress, driver.MobileNumber);
-            }
-
-            ctx.DbContext.ServiceBookings.Add(booking);
-
-            // add Mot
-            if (ctx.Command.MotId is not null)
-            {
-                var motEntry = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(m => m.Id == ctx.Command.MotId, ctx.CancellationToken)
-                    ?? throw new VmsDomainException("Failed to find Mot.");
-
-                motEntry.ServiceBookingId = booking.Id;
-            }
+                ctx.UserProvider.UserId,
+                await GetFirstDriver(),
+                motEntry
+            ), ctx);
 
             // auto assign
             if (ctx.Command.AutoAssign)
-            {
-                booking.ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
+                await serviceBooking.AutoAssign();
 
-                ctx.DbContext.ThrowIfNoTransaction();
-                var assigned = await ctx.AutomaticallyAssignSupplier
-                    .Assign(booking.Id, ctx.CancellationToken);
-
-                if (assigned)
-                {
-                    ctx.SummaryText.AppendLine("\r\n**Supplier was automatically assigned.**");
-                }
-            }
-
-            ctx.Logger.LogInformation("Created service booking: {servicebookingid}.", booking.Id);
-
-            // update search
-            ctx.SearchManager.Add(booking.CompanyCode, booking.Id.ToString(), EntityKind.ServiceBooking, booking.Ref,
-                string.Join(" ", self.Vrm, booking.Ref));
-
-            return booking;
+            return serviceBooking;
         }
+
+        async Task<Driver?> GetFirstDriver()
+            => await (from dv in ctx.DbContext.DriverVehicles
+                      where dv.VehicleId == self.Id
+                      select dv.Driver).FirstOrDefaultAsync(ctx.CancellationToken);
     }
 }

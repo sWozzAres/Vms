@@ -27,14 +27,14 @@ public class ActivityLogger<TContext>(TContext dbContext,
         await NotifyFollowers(documentId, log, cancellationToken);
         return LogActivity(documentId, log, taskTime);
     }
-    
+
     public Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
-        => AddAsync(documentId, log, timeService.GetTime(), cancellationToken);
-    
+        => AddAsync(documentId, log, timeService.Now(), cancellationToken);
+
     public async Task<ActivityLog> AddNoteAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
     {
         await NotifyFollowers(documentId, log, cancellationToken);
-        return LogActivity(documentId, log, timeService.GetTime(), true);
+        return LogActivity(documentId, log, timeService.Now(), true);
     }
 
     private ActivityLog LogActivity(Guid documentId, StringBuilder log, DateTime taskTime, bool isNote = false)

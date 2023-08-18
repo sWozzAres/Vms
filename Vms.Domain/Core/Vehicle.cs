@@ -90,7 +90,7 @@ namespace Vms.Domain.Core
 
         [StringLength(12)]
         public string Vrm { get; internal set; } = null!;
-        
+
         private VehicleVrm() { }
         public VehicleVrm(string vrm) => Vrm = vrm;
     }

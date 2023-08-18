@@ -12,7 +12,7 @@ namespace Utopia.Api.Domain.System
         public User User { get; private set; } = null!;
 
         public DateTime LoginTime { get; private set; }
-        
+
         public Login(string userId, DateTime loginTime)
             => (UserId, LoginTime) = (userId, loginTime);
     }
@@ -26,7 +26,7 @@ namespace Utopia.Api.Domain.System.Configuration
             entity.Property(e => e.Id)
                 .ValueGeneratedOnAdd();
 
-            entity.HasOne(e=>e.User)
+            entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId);
         }

@@ -1,33 +1,8 @@
-﻿using Vms.Domain.Core;
+﻿using NetTopologySuite.Operation.Valid;
+using Vms.Domain.Core;
 
 namespace Vms.Domain.ServiceBookingProcess
 {
-    public enum ServiceBookingStatus : int
-    {
-        Cancelled = -2,
-        Complete = -1,
-        None = 0,
-        Assign = 1,
-        Book = 2,
-        Confirm = 3,
-        CheckArrival = 4,
-        CheckWorkStatus = 5,
-        ChaseDriver = 6,
-        RebookDriver = 7,
-        NotifyCustomer = 8,
-        NotifyCustomerDelay = 9
-    };
-
-    public enum ServiceLevel : int
-    {
-        None = 0,
-        Mobile = 1,
-        Collection = 2,
-        DropOff = 3,
-        WhileYouWait = 4,
-        DropOffWithCourtesyCar = 5,
-    };
-
     [Table("ServiceBookings")]
     public class ServiceBooking
     {
@@ -36,6 +11,9 @@ namespace Vms.Domain.ServiceBookingProcess
         [Key]
         public Guid Id { get; private set; }
 
+        /// <summary>
+        /// Unique reference number
+        /// </summary>
         public string Ref { get; set; } = null!;
 
         public Guid VehicleId { get; set; }
@@ -44,15 +22,14 @@ namespace Vms.Domain.ServiceBookingProcess
         public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
-
-        public string? SupplierCode { get; private set; }
-        public Supplier? Supplier { get; private set; }
-
         public DateOnly? BookedDate { get; private set; }
         public DateTime? EstimatedCompletion { get; set; }
         public DateTime? RescheduleTime { get; internal set; }
         public ServiceBookingStatus Status { get; private set; }
         public ServiceLevel ServiceLevel { get; set; }
+
+        public string? SupplierCode { get; private set; }
+        public Supplier? Supplier { get; private set; }
 
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; private set; }
@@ -79,7 +56,9 @@ namespace Vms.Domain.ServiceBookingProcess
         public ServiceBooking(string companyCode, Guid vehicleId,
             DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3,
             ServiceLevel serviceLevel,
-            string createdUserId)
+            string createdUserId,
+            Driver? driver = null,
+            MotEvent? motEvent = null)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
@@ -89,21 +68,43 @@ namespace Vms.Domain.ServiceBookingProcess
             PreferredDate3 = preferredDate3;
             ServiceLevel = serviceLevel;
 
+            if (driver is not null)
+                AddDriver(driver);
+
+            if (motEvent is not null)
+                AddMotEvent(motEvent);
+            
             CreatedUserId = createdUserId;
-
-            Status = IsValid
-                ? ServiceBookingStatus.Assign
-                : ServiceBookingStatus.None;
-
-            var r = (uint)new Random().NextInt64(1111111111, uint.MaxValue);
-            Ref = r.ToString()[..3] + "-" + r.ToString()[3..6] + "-" + r.ToString()[6..10];
+            Status = ServiceBookingStatus.None; 
+            Ref = GenerateRandomRef();
         }
-
-        public void SetDriver(string name, string emailAddress, string mobileNumber)
+        public void AddMotEvent(MotEvent motEvent)
         {
-            Driver.Name = name;
-            Driver.EmailAddress = emailAddress;
-            Driver.MobileNumber = mobileNumber;
+            if (motEvent.VehicleId != VehicleId)
+                throw new InvalidOperationException("MotEvent is not for this vehicle.");
+
+            if (motEvent.ServiceBookingId is not null)
+                throw new VmsDomainException("Mot Event is already assigned to a service booking.");
+
+            if (!motEvent.IsCurrent)
+                throw new VmsDomainException("Mot Event is not current.");
+
+            MotEvent = motEvent;
+        }
+        public void RemoveMotEvent() => MotEvent = null;
+        /// <summary>
+        /// Generates a random 10 digit number.
+        /// </summary>
+        private static string GenerateRandomRef()
+        {
+            var r = (uint)new Random().NextInt64(1111111111, uint.MaxValue);
+            return r.ToString()[..3] + "-" + r.ToString()[3..6] + "-" + r.ToString()[6..10];
+        }
+        public void AddDriver(Driver driver)
+        {
+            Driver.Name = string.Join(" ", driver.FirstName, driver.LastName);
+            Driver.EmailAddress = driver.EmailAddress;
+            Driver.MobileNumber = driver.MobileNumber;
         }
         public bool IsValid
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;

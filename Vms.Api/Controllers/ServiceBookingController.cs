@@ -45,7 +45,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName, timeService.GetTime());
+        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName, timeService.Now());
         _context.ServiceBookingLocks.Add(lck);
 
         try
@@ -71,7 +71,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return NotFound();
         }
 
-        lck.Granted = timeService.GetTime();
+        lck.Granted = timeService.Now();
 
         await _context.SaveChangesAsync(cancellationToken);
 

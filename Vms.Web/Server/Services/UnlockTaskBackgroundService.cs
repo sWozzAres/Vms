@@ -24,7 +24,7 @@ public class UnlockTaskBackgroundService(IConfiguration configuration, ILogger<U
 
                 await conn.ExecuteAsync("""
                 DELETE FROM ServiceBookingLocks WHERE DATEDIFF(second, Granted, @now) > @checkTime
-                """, new { now = timeService.GetTime(), checkTime = CheckTimeSeconds });
+                """, new { now = timeService.Now(), checkTime = CheckTimeSeconds });
             }
             catch (SqlException exception)
             {

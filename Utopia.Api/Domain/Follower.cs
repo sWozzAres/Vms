@@ -7,9 +7,9 @@ namespace Utopia.Api.Domain.System
     {
         [Key]
         public long Id { get; private set; }
-        
+
         public Guid DocumentId { get; set; } = documentId;
-        
+
         public string UserId { get; set; } = userId;
         public User User { get; private set; } = null!;
     }

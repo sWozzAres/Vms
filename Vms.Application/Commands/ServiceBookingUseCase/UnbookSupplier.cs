@@ -1,6 +1,4 @@
-﻿using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
-namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IUnbookSupplier
 {
