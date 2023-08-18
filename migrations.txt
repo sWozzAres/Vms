@@ -7,6 +7,9 @@ remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -Start
 add-migration -Name Initial2 -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 update-database -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 
+dotnet ef migrations add Grants -o Migrations\PersistedGrantDb -c PersistedGrantDbContext
+dotnet ef migrations add Config -o Migrations\ConfigurationDb -c ConfigurationDbContext
+
 migrationBuilder.Sql(
     sql: "CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;",
     suppressTransaction: true);
