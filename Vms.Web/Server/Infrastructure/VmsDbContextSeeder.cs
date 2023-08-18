@@ -72,7 +72,10 @@ public class VmsDbContextSeeder(
             using var transaction = context.Database.BeginTransaction();
             try
             {
-                context.Users.Add(new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId, userProvider.EmailAddress));
+                if (!context.Users.Any())
+                {
+                    context.Users.Add(new User(userProvider.UserId, userProvider.UserName, userProvider.TenantId, userProvider.EmailAddress));
+                }
 
                 if (!context.Companies.Any())
                 {
