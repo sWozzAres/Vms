@@ -1,10 +1,15 @@
 ﻿namespace Vms.Domain.Core
 {
-    public partial class VehicleMake
+    [Table("VehicleMakes")]
+    public class VehicleMake
     {
-        internal const int Make_Maxlength = 30;
+        public const int Make_Maxlength = 30;
+
+        [Key]
+        [StringLength(Make_Maxlength)]
         public string Make { get; set; } = null!;
-        public virtual ICollection<VehicleModel> VehicleModels { get; set; } = null!;
+
+        public ICollection<VehicleModel> VehicleModels { get; } = new List<VehicleModel>();
 
         private VehicleMake() { }
         public VehicleMake(string make)
@@ -21,14 +26,6 @@ namespace Vms.Domain.Core.Configuration
     {
         public void Configure(EntityTypeBuilder<VehicleMake> builder)
         {
-            builder.HasKey(e => e.Make)
-                .HasName("PK_Make");
-
-            builder.ToTable("VehicleMakes");
-
-            builder.Property(e => e.Make)
-                .HasMaxLength(VehicleMake.Make_Maxlength)
-                .IsUnicode(false);
         }
     }
 }

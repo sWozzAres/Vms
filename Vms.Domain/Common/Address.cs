@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Vms.Domain.Common;
+﻿namespace Vms.Domain.Common;
 
 /// <summary>
 /// https://www.postoffice.co.uk/mail/how-to-address-mail

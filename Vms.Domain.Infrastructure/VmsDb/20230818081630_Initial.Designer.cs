@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230818081630_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,7 +247,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.Customer", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -264,15 +269,19 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.CustomerNetwork", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("NetworkCode")
                         .HasMaxLength(10)
-                        .HasColumnType("nchar(10)");
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("CustomerCode")
                         .HasMaxLength(10)
-                        .HasColumnType("nchar(10)");
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.HasKey("CompanyCode", "NetworkCode", "CustomerCode");
 
@@ -289,7 +298,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
@@ -332,7 +343,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.DriverVehicle", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<Guid>("DriverId")
                         .HasColumnType("uniqueidentifier");
@@ -350,7 +363,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.Fleet", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -370,13 +385,19 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.FleetNetwork", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("FleetCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("NetworkCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.HasKey("CompanyCode", "FleetCode", "NetworkCode");
 
@@ -388,7 +409,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.Network", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -426,7 +449,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.RescheduleReason", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -483,7 +508,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -495,7 +522,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("SupplierCode")
                         .IsRequired()
-                        .HasColumnType("nchar(8)");
+                        .HasMaxLength(8)
+                        .HasColumnType("nchar(8)")
+                        .IsFixedLength();
 
                     b.HasKey("Id");
 
@@ -520,23 +549,31 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("CustomerCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<DateOnly>("DateFirstRegistered")
                         .HasColumnType("date");
 
                     b.Property<string>("FleetCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Make")
                         .IsRequired()
+                        .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Model")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
@@ -564,6 +601,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.Core.VehicleModel", b =>
                 {
                     b.Property<string>("Make")
+                        .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Model")
@@ -579,7 +617,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ConfirmBookedRefusalReason", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -655,7 +695,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.NonArrivalReason", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -675,7 +717,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.NotCompleteReason", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -695,7 +739,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.RefusalReason", b =>
                 {
                     b.Property<string>("CompanyCode")
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Code")
                         .HasMaxLength(10)
@@ -719,6 +765,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssignedToUserId")
+                        .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateOnly?>("BookedDate")
@@ -726,10 +773,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
-                        .HasColumnType("nchar(10)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("CreatedUserId")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("EstimatedCompletion")
@@ -738,10 +788,14 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<Guid?>("LockId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateOnly?>("MotDue")
+                        .HasColumnType("date");
+
                     b.Property<Guid?>("MotEventId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("OwnerUserId")
+                        .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateOnly?>("PreferredDate1")
@@ -767,6 +821,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("int");
 
                     b.Property<string>("SupplierCode")
+                        .HasMaxLength(8)
                         .HasColumnType("nchar(8)");
 
                     b.Property<Guid>("VehicleId")
@@ -786,7 +841,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("SupplierCode");
 
-                    b.ToTable("ServiceBookings");
+                    b.ToTable("ServiceBookings", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ServiceBookingLock", b =>
@@ -803,21 +858,18 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceBookingId")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ServiceBookingLocks");
+                    b.ToTable("ServiceBookingLocks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.System.EntityTag", b =>
@@ -827,6 +879,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CompanyCode")
+                        .HasMaxLength(10)
                         .HasColumnType("nchar(10)");
 
                     b.Property<string>("Content")
@@ -1198,6 +1251,25 @@ namespace Vms.Domain.Infrastructure.VmsDb
                                 .HasForeignKey("VehicleId");
                         });
 
+                    b.OwnsOne("Vms.Domain.Core.VehicleMot", "Mot", b1 =>
+                        {
+                            b1.Property<Guid>("VehicleId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateOnly>("Due")
+                                .HasColumnType("date");
+
+                            b1.HasKey("VehicleId");
+
+                            b1.ToTable("VehicleMots", (string)null);
+
+                            b1.WithOwner("Vehicle")
+                                .HasForeignKey("VehicleId")
+                                .HasConstraintName("FK_Vehicles_VehicleMots");
+
+                            b1.Navigation("Vehicle");
+                        });
+
                     b.OwnsOne("Vms.Domain.Core.VehicleVrm", "VehicleVrm", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
@@ -1248,6 +1320,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Customer");
 
                     b.Navigation("Fleet");
+
+                    b.Navigation("Mot")
+                        .IsRequired();
 
                     b.Navigation("VehicleModel");
 
@@ -1482,15 +1557,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Utopia.Api.Domain.System.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("ServiceBooking");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Vms.Domain.System.EntityTag", b =>

@@ -15,7 +15,12 @@ public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
     {
         logger.LogInformation("Editing vehicle: {vehicleid}, command: {@vehicledto}.", id, command);
 
-        var vehicle = await DbContext.Vehicles.FindAsync(new object[] { id }, cancellationToken)
+        //var vehicle = await DbContext.Vehicles.FindAsync(new object[] { id }, cancellationToken)
+        //    ?? throw new InvalidOperationException("Failed to load vehicle.");
+        var vehicle = await DbContext.Vehicles
+            .Include(v => v.MotEvents.Where(e => e.IsCurrent))
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+
             ?? throw new InvalidOperationException("Failed to load vehicle.");
 
         SummaryText.AppendLine("# Edit");
@@ -39,20 +44,32 @@ public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
             isModified = true;
         }
 
-        if (vehicle.Mot.Due != command.MotDue)
+        DateOnly motDue = command.MotDue ?? throw new VmsDomainException("Mot Due cannot be null.");
+
+        var me = vehicle.MotEvents.FirstOrDefault();
+        if (me is null)
+        {
+            logger.LogDebug("The vehicle has no motevent.");
+            SummaryText.AppendLine($"* MOT Due: {command.MotDue}");
+            me = new(vehicle.CompanyCode, vehicle.Id, motDue, true);
+            //vehicle.MotEvents.Add(me);
+            DbContext.MotEvents.Add(me);
+            isModified = true;
+        }
+        else if (me.Due != command.MotDue)
         {
             SummaryText.AppendLine($"* MOT Due: {command.MotDue}");
-            vehicle.Mot.Due = command.MotDue;
+            me.Due = motDue;
 
-            var mot = dbContext.MotEvents.FirstOrDefault(x => x.VehicleId == vehicle.Id && x.IsCurrent);
-            if (mot is not null)
-            {
-                mot.Due = command.MotDue;
-            }
-            else
-            {
-                DbContext.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, command.MotDue, true));
-            }
+            //var mot = dbContext.MotEvents.FirstOrDefault(x => x.VehicleId == vehicle.Id && x.IsCurrent);
+            //if (mot is not null)
+            //{
+            //    mot.Due = command.MotDue;
+            //}
+            //else
+            //{
+            //    DbContext.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, command.MotDue, true));
+            //}
             isModified = true;
         }
 

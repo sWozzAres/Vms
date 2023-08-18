@@ -28,42 +28,55 @@ namespace Vms.Domain.ServiceBookingProcess
         DropOffWithCourtesyCar = 5,
     };
 
+    [Table("ServiceBookings")]
     public class ServiceBooking
     {
         public string CompanyCode { get; set; } = null!;
+
+        [Key]
         public Guid Id { get; private set; }
+
         public string Ref { get; set; } = null!;
+
         public Guid VehicleId { get; set; }
-        public Vehicle Vehicle { get; set; } = null!;
+        public Vehicle Vehicle { get; private set; } = null!;
+
         public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
-        public DateOnly? MotDue { get; set; }
+        //public DateOnly? MotDue { get; set; }
+
         public string? SupplierCode { get; private set; }
         public Supplier? Supplier { get; private set; }
+
         public DateOnly? BookedDate { get; private set; }
         public DateTime? EstimatedCompletion { get; set; }
-        //public VehicleMot? VehicleMot { get; set; }
-        //public ServiceBookingSupplier? Supplier { get; private set; }
         public DateTime? RescheduleTime { get; internal set; }
         public ServiceBookingStatus Status { get; private set; }
         public ServiceLevel ServiceLevel { get; set; }
+
         public Guid? MotEventId { get; set; }
-        public MotEvent? MotEvent { get; set; }
+        public MotEvent? MotEvent { get; private set; }
+
         public Guid? LockId { get; set; }
-        public ServiceBookingLock? Lock { get; set; }
+        public ServiceBookingLock? Lock { get; private set; }
+
         public ServiceBookingDriver Driver { get; private set; } = new();
-        public ServiceBookingContact Contact { get; set; } = new();
+        public ServiceBookingContact Contact { get; private set; } = new();
+
         public string CreatedUserId { get; set; } = null!;
-        public User CreatedBy { get; set; } = null!;
+        public User CreatedBy { get; private set; } = null!;
+
         public string? AssignedToUserId { get; set; }
-        public User? AssignedTo { get; set; }
+        public User? AssignedTo { get; private set; }
+
         public string? OwnerUserId { get; set; }
-        public User? Owner { get; set; }
+        public User? Owner { get; private set; }
 
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
-            DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3, DateOnly? motDue,
+            DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3,
+            //DateOnly? motDue,
             string createdUserId)
         {
             CompanyCode = companyCode;
@@ -73,9 +86,9 @@ namespace Vms.Domain.ServiceBookingProcess
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
 
-            //TODO remove
-            MotDue = motDue;
+            //MotDue = motDue;
             CreatedUserId = createdUserId;
+
             Status = IsValid
                 ? ServiceBookingStatus.Assign
                 : ServiceBookingStatus.None;
@@ -125,11 +138,18 @@ namespace Vms.Domain.ServiceBookingProcess
         public const int Name_MaxLength = Driver.FirstName_MaxLength + Driver.LastName_MaxLength + 1;
         public const int Email_MaxLength = Driver.Email_MaxLength;
         public const int MobileNumber_MaxLength = Driver.MobileNumber_MaxLength;
+
         public Guid ServiceBookingId { get; set; }
+        public ServiceBooking ServiceBooking { get; private set; } = null!;
+
+        [StringLength(Name_MaxLength)]
         public string? Name { get; internal set; }
+
+        [StringLength(Email_MaxLength)]
         public string? EmailAddress { get; internal set; }
+
+        [StringLength(MobileNumber_MaxLength)]
         public string? MobileNumber { get; internal set; }
-        public ServiceBooking ServiceBooking { get; set; } = null!;
     }
 
     public class ServiceBookingContact
@@ -137,11 +157,18 @@ namespace Vms.Domain.ServiceBookingProcess
         public const int Name_MaxLength = Driver.FirstName_MaxLength + Driver.LastName_MaxLength + 1;
         public const int Email_MaxLength = Driver.Email_MaxLength;
         public const int MobileNumber_MaxLength = Driver.MobileNumber_MaxLength;
+
         public Guid ServiceBookingId { get; set; }
-        public string? Name { get; set; }
-        public string? EmailAddress { get; set; }
-        public string? MobileNumber { get; set; }
-        public ServiceBooking ServiceBooking { get; set; } = null!;
+        public ServiceBooking ServiceBooking { get; private set; } = null!;
+
+        [StringLength(Name_MaxLength)]
+        public string? Name { get; internal set; }
+
+        [StringLength(Email_MaxLength)]
+        public string? EmailAddress { get; internal set; }
+
+        [StringLength(MobileNumber_MaxLength)]
+        public string? MobileNumber { get; internal set; }
     }
 }
 
@@ -151,45 +178,33 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
     {
         public void Configure(EntityTypeBuilder<ServiceBooking> builder)
         {
-            builder.ToTable("ServiceBookings");
-            builder.HasKey(e => e.Id);
-
-            builder.HasIndex(e => e.Ref).IsUnique().HasDatabaseName("UQ_ServiceBooking_Ref");
-
-            builder.Property(e => e.CompanyCode)
-                .HasMaxLength(Company.Code_MaxLength)
-                .IsFixedLength();
-
-            builder.Property(e => e.SupplierCode).HasMaxLength(8);
-            builder.HasOne(e => e.Supplier)
-                .WithMany();
-
-            builder.Property(e => e.AssignedToUserId)
-                .HasMaxLength(User.UserId_MaxLength);
-            builder.HasOne(e => e.AssignedTo)
-                .WithMany()
-                .HasForeignKey(e => e.AssignedToUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Property(e => e.OwnerUserId)
-                .HasMaxLength(User.UserId_MaxLength);
-            builder.HasOne(e => e.Owner)
-                .WithMany()
-                .HasForeignKey(e => e.OwnerUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Property(e => e.CreatedUserId)
-                .HasMaxLength(User.UserId_MaxLength);
-            builder.HasOne(e => e.CreatedBy)
-                .WithMany()
-                .HasForeignKey(e => e.CreatedUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasIndex(e => e.Ref)
+                .IsUnique()
+                .HasDatabaseName("UQ_ServiceBooking_Ref");
 
             builder.HasOne(e => e.Vehicle)
                 .WithMany(v => v.ServiceBookings)
                 .HasForeignKey(e => new { e.CompanyCode, e.VehicleId })
                 .HasPrincipalKey(v => new { v.CompanyCode, v.Id })
                 .HasConstraintName("FK_ServiceBookings_Vehicles");
+
+            builder.HasOne(e => e.Supplier)
+                .WithMany();
+
+            builder.HasOne(e => e.AssignedTo)
+                .WithMany()
+                .HasForeignKey(e => e.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.Owner)
+                .WithMany()
+                .HasForeignKey(e => e.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.CreatedBy)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.OwnsOne(e => e.Driver, d =>
             {
@@ -240,34 +255,6 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
                     .HasForeignKey(d => d.ServiceBookingId)
                     .HasConstraintName("FK_ServiceBookings_ServiceBookingContacts");
             });
-
-            //builder.HasOne(e => e.VehicleMot)
-            //    .WithOne(m => m.ServiceBooking)
-            //    .HasForeignKey<ServiceBooking>(e => new { e.VehicleId, e.MotDue })
-            //    .HasPrincipalKey<VehicleMot>(m => new { m.VehicleId, m.Due })
-            //    .IsRequired(false);
-
-            //builder.OwnsOne(d => d.Supplier, x =>
-            //{
-            //    x.ToTable("ServiceBookingSupplier", tb => tb.IsTemporal(ttb =>
-            //    {
-            //        ttb.UseHistoryTable("ServiceBookingSupplierHistory");
-            //        ttb
-            //            .HasPeriodStart("ValidFrom")
-            //            .HasColumnName("ValidFrom");
-            //        ttb
-            //            .HasPeriodEnd("ValidTo")
-            //            .HasColumnName("ValidTo");
-            //    }));
-
-            //    x.Property(s => s.RefusalReasonCode).HasMaxLength(10);
-            //    x.Property(s => s.RefusalReasonName).HasMaxLength(32);
-
-            //    x.WithOwner(d => d.ServiceBooking)
-            //        .HasForeignKey(d => d.ServiceBookingId);
-
-            //    x.HasOne(d => d.Supplier).WithMany().HasForeignKey(d => d.SupplierCode);
-            //});
         }
     }
 }

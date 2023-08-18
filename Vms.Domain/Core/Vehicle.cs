@@ -1,25 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Domain.Core
 {
     [Table("Vehicles")]
-    public partial class Vehicle
+    public class Vehicle
     {
-        [StringLength(Company.Code_MaxLength)]
         public string CompanyCode { get; private set; } = null!;
-        public Company Company { get; set; } = null!;
+        public Company Company { get; private set; } = null!;
 
         [Key]
         public Guid Id { get; private set; }
 
-        [StringLength(VehicleMake.Make_Maxlength)]
         public string Make { get; private set; } = null!;
 
-        [StringLength(VehicleModel.Model_MaxLength)]
         public string Model { get; private set; } = null!;
-        public virtual VehicleModel VehicleModel { get; set; } = null!;
+        public VehicleModel VehicleModel { get; private set; } = null!;
 
         [StringLength(18)]
         public string? ChassisNumber { get; internal set; }
@@ -28,19 +23,18 @@ namespace Vms.Domain.Core
 
         public Address Address { get; set; } = null!;
 
-        [StringLength(Customer.Code_MaxLength)]
         public string? CustomerCode { get; private set; }
-        public Customer? C { get; set; }
-        
-        [StringLength(Fleet.Code_MaxLength)]
+        public Customer? Customer { get; private set; }
+
         public string? FleetCode { get; private set; }
-        public Fleet? Fleet { get; set; }
-        
-        public VehicleMot Mot { get; set; } = null!;
-        public VehicleVrm VehicleVrm { get; set; } = null!;
-        public virtual ICollection<DriverVehicle> DriverVehicles { get; set; } = null!;
-        public virtual ICollection<ServiceBooking> ServiceBookings { get; set; } = null!;
-        public virtual List<MotEvent> MotEvents { get; set; } = new();
+        public Fleet? Fleet { get; private set; }
+
+        //public VehicleMot Mot { get; private set; } = null!;
+        public VehicleVrm VehicleVrm { get; private set; } = null!;
+        public ICollection<DriverVehicle> DriverVehicles { get; } = new List<DriverVehicle>();
+        public ICollection<ServiceBooking> ServiceBookings { get; } = new List<ServiceBooking>();
+        public ICollection<MotEvent> MotEvents { get; } = new List<MotEvent>();
+
         private Vehicle() { }
         private Vehicle(string companyCode, string vrm, string make, string model,
             DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
@@ -51,18 +45,19 @@ namespace Vms.Domain.Core
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
 
-            Mot = new VehicleMot(Id, motDue); 
+            //Mot = new VehicleMot(Id, motDue); 
             MotEvents.Add(new(CompanyCode, Id, motDue, true));
 
             VehicleVrm = new VehicleVrm(vrm);
-            
+
             Address = new(homeLocation);
         }
         public static Vehicle Create(string companyCode, string vrm, string make, string model,
             DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation,
             string? customerCode = null, string? fleetCode = null)
         {
-            var vehicle = new Vehicle(companyCode, vrm, make, model, dateFirstRegistered, motDue, homeLocation);
+            var vehicle = new Vehicle(companyCode, vrm, make, model, dateFirstRegistered, motDue,
+                homeLocation);
 
             if (customerCode is not null)
                 vehicle.AssignToCustomer(customerCode);
@@ -89,18 +84,17 @@ namespace Vms.Domain.Core
         }
     }
 
-    public partial class VehicleMot
-    {
-        public Guid VehicleId { get; private set; }
-        public DateOnly Due { get; set; }
-        internal Vehicle Vehicle { get; set; } = null!;
-        //public Guid? ServiceBookingId { get; set; }
-        //public ServiceBooking? ServiceBooking { get; set; } = null!;
-        private VehicleMot() { }
-        internal VehicleMot(Guid vehicleId, DateOnly due) => (VehicleId, Due) = (vehicleId, due);
-    }
+    //public class VehicleMot
+    //{
+    //    public Guid VehicleId { get; private set; }
+    //    public DateOnly Due { get; set; }
+    //    internal Vehicle Vehicle { get; set; } = null!;
+    //    private VehicleMot() { }
+    //    internal VehicleMot(Guid vehicleId, DateOnly due) 
+    //        => (VehicleId, Due) = (vehicleId, due);
+    //}
 
-    public partial class VehicleVrm
+    public class VehicleVrm
     {
         public Guid VehicleId { get; private set; }
         public string Vrm { get; internal set; } = null!;
@@ -120,10 +114,6 @@ namespace Vms.Domain.Core.Configuration
 
             builder.Ignore(e => e.Vrm);
 
-            builder.Property(e => e.CompanyCode).IsFixedLength();
-            builder.Property(e => e.CustomerCode).IsFixedLength();
-            builder.Property(e => e.FleetCode).IsFixedLength();
-
             builder.Property(e => e.DateFirstRegistered)
                 .HasColumnType("date");
 
@@ -141,7 +131,7 @@ namespace Vms.Domain.Core.Configuration
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Vehicles_Companies");
 
-            builder.HasOne(d => d.C)
+            builder.HasOne(d => d.Customer)
                 .WithMany(p => p.Vehicles)
                 .HasForeignKey(d => new { d.CompanyCode, d.CustomerCode })
                 .HasConstraintName("FK_Vehicles_Customers");
@@ -154,13 +144,13 @@ namespace Vms.Domain.Core.Configuration
             builder.HasMany(d => d.ServiceBookings)
                 .WithOne(p => p.Vehicle);
 
-            builder.OwnsOne(d => d.Mot, x =>
-            {
-                x.ToTable("VehicleMots");
-                x.WithOwner(x => x.Vehicle)
-                    .HasForeignKey(d => d.VehicleId)
-                    .HasConstraintName("FK_Vehicles_VehicleMots");
-            });
+            //builder.OwnsOne(d => d.Mot, x =>
+            //{
+            //    x.ToTable("VehicleMots");
+            //    x.WithOwner(x => x.Vehicle)
+            //        .HasForeignKey(d => d.VehicleId)
+            //        .HasConstraintName("FK_Vehicles_VehicleMots");
+            //});
 
             builder.OwnsOne(d => d.VehicleVrm, x =>
             {

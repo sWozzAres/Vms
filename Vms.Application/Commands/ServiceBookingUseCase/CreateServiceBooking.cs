@@ -64,7 +64,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 ctx.Command.PreferredDate1,
                 ctx.Command.PreferredDate2,
                 ctx.Command.PreferredDate3,
-                null,
+                //null,
                 ctx.UserProvider.UserId
             );
 

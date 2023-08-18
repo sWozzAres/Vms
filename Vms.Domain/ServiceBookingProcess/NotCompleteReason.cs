@@ -2,12 +2,17 @@
 
 namespace Vms.Domain.ServiceBookingProcess
 {
+    [Table("NotCompleteReasons")]
     public class NotCompleteReason(string companyCode, string code, string name)
     {
-        public string CompanyCode { get; set; } = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
-        public string Code { get; set; } = code ?? throw new ArgumentNullException(nameof(code));
-        public string Name { get; set; } = name ?? throw new ArgumentNullException(nameof(name));
-        internal Company Company { get; set; } = null!;
+        public string CompanyCode { get; set; } = companyCode;
+        public Company Company { get; private set; } = null!;
+
+        [StringLength(10)]
+        public string Code { get; set; } = code;
+
+        [StringLength(32)]
+        public string Name { get; set; } = name;
     }
 }
 
@@ -21,17 +26,10 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
 
             entity.HasKey(e => new { e.CompanyCode, e.Code });
 
-            entity.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
-                .IsFixedLength();
-            entity.Property(e => e.Code)
-                .HasMaxLength(10)
-                .IsFixedLength();
-            entity.Property(e => e.Name)
-                .HasMaxLength(32)
-                .IsUnicode(false);
+            entity.Property(e => e.Code).IsFixedLength();
 
-            entity.HasOne(d => d.Company).WithMany(p => p.NotCompleteReasons)
+            entity.HasOne(d => d.Company)
+                .WithMany(p => p.NotCompleteReasons)
                 .HasForeignKey(d => d.CompanyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_NotCompleteReasons_Companies");

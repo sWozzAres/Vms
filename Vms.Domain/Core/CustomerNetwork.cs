@@ -1,22 +1,24 @@
 ﻿namespace Vms.Domain.Core
 {
+    [Table("CustomerNetworks")]
     public partial class CustomerNetwork
     {
-        public string CustomerCode { get; set; } = null!;
-
-        public string NetworkCode { get; set; } = null!;
-
         public string CompanyCode { get; set; } = null!;
 
-        public virtual Customer C { get; set; } = null!;
+        [StringLength(Customer.Code_MaxLength)]
+        public string CustomerCode { get; set; } = null!;
+        public Customer Customer { get; set; } = null!;
 
-        public virtual Network Network { get; set; } = null!;
+        [StringLength(Network.Code_MaxLength)]
+        public string NetworkCode { get; set; } = null!;
+        public Network Network { get; set; } = null!;
+
         private CustomerNetwork() { }
         public CustomerNetwork(string companyCode, string customerCode, string networkCode)
         {
-            CustomerCode = customerCode ?? throw new ArgumentNullException(nameof(customerCode));
-            NetworkCode = networkCode ?? throw new ArgumentNullException(nameof(networkCode));
-            CompanyCode = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
+            CustomerCode = customerCode;
+            NetworkCode = networkCode;
+            CompanyCode = companyCode;
         }
     }
 }
@@ -29,26 +31,14 @@ namespace Vms.Domain.Core.Configuration
         {
             builder.HasKey(e => new { e.CompanyCode, e.NetworkCode, e.CustomerCode });
 
-            builder.ToTable("CustomerNetworks");
-
-            builder.Property(e => e.CompanyCode)
-                .HasMaxLength(10)
-                .IsFixedLength();
-            builder.Property(e => e.NetworkCode)
-                .HasMaxLength(10)
-                .IsFixedLength();
-            builder.Property(e => e.CustomerCode)
-                .HasMaxLength(10)
-                .IsFixedLength();
-
-            builder.HasOne(d => d.C).WithMany(p => p.CustomerNetworks)
-                //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
+            builder.HasOne(d => d.Customer)
+                .WithMany(p => p.CustomerNetworks)
                 .HasForeignKey(d => new { d.CompanyCode, d.CustomerCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CustomerNetworks_Customers");
 
-            builder.HasOne(d => d.Network).WithMany(p => p.CustomerNetworks)
-                //.HasPrincipalKey(p => new { p.CompanyCode, p.Code })
+            builder.HasOne(d => d.Network)
+                .WithMany(p => p.CustomerNetworks)
                 .HasForeignKey(d => new { d.CompanyCode, d.NetworkCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CustomerNetworks_Networks");

@@ -13,8 +13,8 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    [Migration("20230817202146_Initial")]
-    partial class Initial
+    [Migration("20230818090253_Initial2")]
+    partial class Initial2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -237,12 +237,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("Code");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Customer", b =>
@@ -260,12 +259,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.CustomerNetwork", b =>
@@ -289,7 +287,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "CustomerCode");
 
-                    b.ToTable("CustomerNetworks", (string)null);
+                    b.ToTable("CustomerNetworks");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Driver", b =>
@@ -307,13 +305,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)");
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Geometry>("HomeLocation")
                         .IsRequired()
@@ -322,30 +318,26 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("MiddleNames")
                         .HasMaxLength(30)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(30)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()
                         .HasMaxLength(12)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(12)");
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<string>("Salutation")
                         .HasMaxLength(5)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(5)");
+                        .HasColumnType("nvarchar(5)");
 
                     b.HasKey("Id");
 
                     b.HasAlternateKey("CompanyCode", "EmailAddress");
 
-                    b.ToTable("Drivers", (string)null);
+                    b.ToTable("Drivers");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.DriverVehicle", b =>
@@ -387,7 +379,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Fleets", (string)null);
+                    b.ToTable("Fleets");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.FleetNetwork", b =>
@@ -411,7 +403,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "NetworkCode");
 
-                    b.ToTable("FleetNetworks", (string)null);
+                    b.ToTable("FleetNetworks");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Network", b =>
@@ -429,12 +421,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Networks", (string)null);
+                    b.ToTable("Networks");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.NetworkSupplier", b =>
@@ -446,7 +437,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasColumnType("nchar(10)");
 
                     b.Property<string>("SupplierCode")
-                        .HasColumnType("varchar(8)");
+                        .HasColumnType("nchar(8)");
 
                     b.HasKey("CompanyCode", "NetworkCode", "SupplierCode");
 
@@ -470,20 +461,19 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("RescheduleReasons", (string)null);
+                    b.ToTable("RescheduleReasons");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Supplier", b =>
                 {
                     b.Property<string>("Code")
                         .HasMaxLength(8)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(8)");
+                        .HasColumnType("nchar(8)")
+                        .IsFixedLength();
 
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -496,12 +486,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Code");
 
-                    b.ToTable("Suppliers", (string)null);
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.SupplierRefusal", b =>
@@ -515,12 +504,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nchar(10)");
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -532,13 +522,19 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("SupplierCode")
                         .IsRequired()
-                        .HasColumnType("varchar(8)");
+                        .HasMaxLength(8)
+                        .HasColumnType("nchar(8)")
+                        .IsFixedLength();
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ServiceBookingId");
+
                     b.HasIndex("SupplierCode");
 
-                    b.ToTable("SupplierRefusals", (string)null);
+                    b.HasIndex("CompanyCode", "Code");
+
+                    b.ToTable("SupplierRefusals");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Vehicle", b =>
@@ -573,12 +569,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Make")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -595,31 +591,27 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     b.Property<string>("Make")
                         .HasMaxLength(30)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(30)");
+                        .HasColumnType("nvarchar(30)");
 
-                    b.HasKey("Make")
-                        .HasName("PK_Make");
+                    b.HasKey("Make");
 
-                    b.ToTable("VehicleMakes", (string)null);
+                    b.ToTable("VehicleMakes");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.VehicleModel", b =>
                 {
                     b.Property<string>("Make")
                         .HasMaxLength(30)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(30)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Model")
                         .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Make", "Model")
                         .HasName("PK_Model");
 
-                    b.ToTable("VehicleModels", (string)null);
+                    b.ToTable("VehicleModels");
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ConfirmBookedRefusalReason", b =>
@@ -637,12 +629,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("ConfirmBookedRefusalReasons", (string)null);
+                    b.ToTable("ConfirmBookedRefusalReasons");
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.MotEvent", b =>
@@ -716,12 +707,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("NonArrivalReasons", (string)null);
+                    b.ToTable("NonArrivalReasons");
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.NotCompleteReason", b =>
@@ -739,8 +729,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
@@ -762,12 +751,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("RefusalReasons", (string)null);
+                    b.ToTable("RefusalReasons");
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ServiceBooking", b =>
@@ -834,7 +822,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.Property<string>("SupplierCode")
                         .HasMaxLength(8)
-                        .HasColumnType("varchar(8)");
+                        .HasColumnType("nchar(8)");
 
                     b.Property<Guid>("VehicleId")
                         .HasColumnType("uniqueidentifier");
@@ -970,18 +958,18 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Core.Customer", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.Company", "CompanyCodeNavigation")
+                    b.HasOne("Vms.Domain.Core.Company", "Company")
                         .WithMany("Customers")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Customers_Companies");
 
-                    b.Navigation("CompanyCodeNavigation");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.CustomerNetwork", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.Customer", "C")
+                    b.HasOne("Vms.Domain.Core.Customer", "Customer")
                         .WithMany("CustomerNetworks")
                         .HasForeignKey("CompanyCode", "CustomerCode")
                         .IsRequired()
@@ -993,20 +981,20 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_CustomerNetworks_Networks");
 
-                    b.Navigation("C");
+                    b.Navigation("Customer");
 
                     b.Navigation("Network");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Driver", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.Company", "CompanyCodeNavigation")
+                    b.HasOne("Vms.Domain.Core.Company", "Company")
                         .WithMany("Drivers")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Drivers_Companies");
 
-                    b.Navigation("CompanyCodeNavigation");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.DriverVehicle", b =>
@@ -1033,13 +1021,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Core.Fleet", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.Company", "CompanyCodeNavigation")
+                    b.HasOne("Vms.Domain.Core.Company", "Company")
                         .WithMany("Fleets")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Fleets_Companies");
 
-                    b.Navigation("CompanyCodeNavigation");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.FleetNetwork", b =>
@@ -1063,13 +1051,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Core.Network", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.Company", "CompanyCodeNavigation")
+                    b.HasOne("Vms.Domain.Core.Company", "Company")
                         .WithMany("Networks")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Networks_Companies");
 
-                    b.Navigation("CompanyCodeNavigation");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.NetworkSupplier", b =>
@@ -1107,13 +1095,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.OwnsOne("Vms.Domain.Common.Address", "Address", b1 =>
                         {
                             b1.Property<string>("SupplierCode")
-                                .HasColumnType("varchar(8)");
+                                .HasColumnType("nchar(8)");
 
                             b1.Property<string>("Locality")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(50)");
+                                .HasColumnType("nvarchar(50)");
 
                             b1.Property<Geometry>("Location")
                                 .IsRequired()
@@ -1122,20 +1109,17 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Property<string>("Postcode")
                                 .IsRequired()
                                 .HasMaxLength(8)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(8)");
+                                .HasColumnType("nvarchar(8)");
 
                             b1.Property<string>("Street")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(50)");
+                                .HasColumnType("nvarchar(50)");
 
                             b1.Property<string>("Town")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .IsUnicode(false)
-                                .HasColumnType("varchar(50)");
+                                .HasColumnType("nvarchar(50)");
 
                             b1.HasKey("SupplierCode");
 
@@ -1148,10 +1132,10 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.OwnsMany("Vms.Domain.Core.SupplierFranchise", "Franchises", b1 =>
                         {
                             b1.Property<string>("SupplierCode")
-                                .HasColumnType("varchar(8)");
+                                .HasColumnType("nchar(8)");
 
                             b1.Property<string>("Franchise")
-                                .HasColumnType("varchar(30)");
+                                .HasColumnType("nvarchar(30)");
 
                             b1.HasKey("SupplierCode", "Franchise");
 
@@ -1181,24 +1165,40 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Core.SupplierRefusal", b =>
                 {
+                    b.HasOne("Vms.Domain.ServiceBookingProcess.ServiceBooking", "ServiceBooking")
+                        .WithMany()
+                        .HasForeignKey("ServiceBookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Vms.Domain.Core.Supplier", "Supplier")
                         .WithMany("ServiceBookingRefusals")
                         .HasForeignKey("SupplierCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Vms.Domain.ServiceBookingProcess.RefusalReason", "RefusalReason")
+                        .WithMany()
+                        .HasForeignKey("CompanyCode", "Code")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RefusalReason");
+
+                    b.Navigation("ServiceBooking");
+
                     b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Vehicle", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.Company", "CompanyCodeNavigation")
+                    b.HasOne("Vms.Domain.Core.Company", "Company")
                         .WithMany("Vehicles")
                         .HasForeignKey("CompanyCode")
                         .IsRequired()
                         .HasConstraintName("FK_Vehicles_Companies");
 
-                    b.HasOne("Vms.Domain.Core.Customer", "C")
+                    b.HasOne("Vms.Domain.Core.Customer", "Customer")
                         .WithMany("Vehicles")
                         .HasForeignKey("CompanyCode", "CustomerCode")
                         .HasConstraintName("FK_Vehicles_Customers");
@@ -1208,7 +1208,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .HasForeignKey("CompanyCode", "FleetCode")
                         .HasConstraintName("FK_Vehicles_Fleets");
 
-                    b.HasOne("Vms.Domain.Core.VehicleModel", "M")
+                    b.HasOne("Vms.Domain.Core.VehicleModel", "VehicleModel")
                         .WithMany("Vehicles")
                         .HasForeignKey("Make", "Model")
                         .IsRequired()
@@ -1249,25 +1249,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
-                        });
-
-                    b.OwnsOne("Vms.Domain.Core.VehicleMot", "Mot", b1 =>
-                        {
-                            b1.Property<Guid>("VehicleId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateOnly>("Due")
-                                .HasColumnType("date");
-
-                            b1.HasKey("VehicleId");
-
-                            b1.ToTable("VehicleMots", (string)null);
-
-                            b1.WithOwner("Vehicle")
-                                .HasForeignKey("VehicleId")
-                                .HasConstraintName("FK_Vehicles_VehicleMots");
-
-                            b1.Navigation("Vehicle");
                         });
 
                     b.OwnsOne("Vms.Domain.Core.VehicleVrm", "VehicleVrm", b1 =>
@@ -1315,16 +1296,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.Navigation("Address")
                         .IsRequired();
 
-                    b.Navigation("C");
+                    b.Navigation("Company");
 
-                    b.Navigation("CompanyCodeNavigation");
+                    b.Navigation("Customer");
 
                     b.Navigation("Fleet");
 
-                    b.Navigation("M");
-
-                    b.Navigation("Mot")
-                        .IsRequired();
+                    b.Navigation("VehicleModel");
 
                     b.Navigation("VehicleVrm")
                         .IsRequired();
@@ -1332,13 +1310,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Core.VehicleModel", b =>
                 {
-                    b.HasOne("Vms.Domain.Core.VehicleMake", "MakeNavigation")
+                    b.HasOne("Vms.Domain.Core.VehicleMake", "VehicleMake")
                         .WithMany("VehicleModels")
                         .HasForeignKey("Make")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("MakeNavigation");
+                    b.Navigation("VehicleMake");
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ConfirmBookedRefusalReason", b =>

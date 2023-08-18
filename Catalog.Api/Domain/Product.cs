@@ -3,7 +3,6 @@
 namespace Catalog.Api.Domain
 {
     [Table("Products")]
-    [Index("Code", IsUnique = true)]
     public class Product(string code, string description)
     {
         [Key]
@@ -20,7 +19,7 @@ namespace Catalog.Api.Domain.Configuration
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            //builder.HasIndex(e => e.Code).IsUnique();
+            builder.HasIndex(e => e.Code).IsUnique();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 
 #nullable disable
@@ -20,7 +19,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,13 +45,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "Suppliers",
                 columns: table => new
                 {
-                    Code = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Code = table.Column<string>(type: "nchar(8)", fixedLength: true, maxLength: 8, nullable: false),
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Street = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Locality = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Town = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Address_Postcode = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Street = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Locality = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Town = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address_Postcode = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     Address_Location = table.Column<Geometry>(type: "geography", nullable: false),
                     IsIndependent = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -80,11 +79,11 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "VehicleMakes",
                 columns: table => new
                 {
-                    Make = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false)
+                    Make = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Make", x => x.Make);
+                    table.PrimaryKey("PK_VehicleMakes", x => x.Make);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,7 +92,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,7 +110,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,12 +128,12 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Salutation = table.Column<string>(type: "varchar(5)", unicode: false, maxLength: 5, nullable: true),
-                    FirstName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
-                    MiddleNames = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: true),
-                    LastName = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
-                    EmailAddress = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
-                    MobileNumber = table.Column<string>(type: "varchar(12)", unicode: false, maxLength: 12, nullable: false),
+                    Salutation = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    MiddleNames = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    EmailAddress = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    MobileNumber = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false),
                     HomeLocation = table.Column<Geometry>(type: "geography", nullable: false)
                 },
                 constraints: table =>
@@ -195,7 +194,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -213,7 +212,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -231,7 +230,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,7 +248,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -267,7 +266,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     Code = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -277,29 +276,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         column: x => x.CompanyCode,
                         principalTable: "Companies",
                         principalColumn: "Code");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SupplierRefusals",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SupplierCode = table.Column<string>(type: "varchar(8)", nullable: false),
-                    CompanyCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    ServiceBookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SupplierRefusals", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SupplierRefusals_Suppliers_SupplierCode",
-                        column: x => x.SupplierCode,
-                        principalTable: "Suppliers",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -423,8 +399,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "SupplierFranchises",
                 columns: table => new
                 {
-                    SupplierCode = table.Column<string>(type: "varchar(8)", nullable: false),
-                    Franchise = table.Column<string>(type: "varchar(30)", nullable: false)
+                    SupplierCode = table.Column<string>(type: "nchar(8)", nullable: false),
+                    Franchise = table.Column<string>(type: "nvarchar(30)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -447,8 +423,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "VehicleModels",
                 columns: table => new
                 {
-                    Make = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
-                    Model = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false)
+                    Make = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Model = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -465,9 +441,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "CustomerNetworks",
                 columns: table => new
                 {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     CustomerCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    NetworkCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false)
+                    NetworkCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -488,9 +464,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "FleetNetworks",
                 columns: table => new
                 {
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     FleetCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    NetworkCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false)
+                    NetworkCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -513,7 +489,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     CompanyCode = table.Column<string>(type: "nchar(10)", nullable: false),
                     NetworkCode = table.Column<string>(type: "nchar(10)", nullable: false),
-                    SupplierCode = table.Column<string>(type: "varchar(8)", nullable: false)
+                    SupplierCode = table.Column<string>(type: "nchar(8)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -536,8 +512,8 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    Make = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    Model = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    Make = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Model = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ChassisNumber = table.Column<string>(type: "nvarchar(18)", maxLength: 18, nullable: true),
                     DateFirstRegistered = table.Column<DateOnly>(type: "date", nullable: false),
                     Address_Street = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -610,7 +586,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     PreferredDate2 = table.Column<DateOnly>(type: "date", nullable: true),
                     PreferredDate3 = table.Column<DateOnly>(type: "date", nullable: true),
                     MotDue = table.Column<DateOnly>(type: "date", nullable: true),
-                    SupplierCode = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true),
+                    SupplierCode = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: true),
                     BookedDate = table.Column<DateOnly>(type: "date", nullable: true),
                     EstimatedCompletion = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RescheduleTime = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -932,6 +908,41 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SupplierRefusals",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SupplierCode = table.Column<string>(type: "nchar(8)", fixedLength: true, maxLength: 8, nullable: false),
+                    CompanyCode = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
+                    Code = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    ServiceBookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SupplierRefusals", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SupplierRefusals_RefusalReasons_CompanyCode_Code",
+                        columns: x => new { x.CompanyCode, x.Code },
+                        principalTable: "RefusalReasons",
+                        principalColumns: new[] { "CompanyCode", "Code" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SupplierRefusals_ServiceBookings_ServiceBookingId",
+                        column: x => x.ServiceBookingId,
+                        principalTable: "ServiceBookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SupplierRefusals_Suppliers_SupplierCode",
+                        column: x => x.SupplierCode,
+                        principalTable: "Suppliers",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ActivityLog_DocumentId",
                 schema: "System",
@@ -1063,6 +1074,16 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 column: "Franchise");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SupplierRefusals_CompanyCode_Code",
+                table: "SupplierRefusals",
+                columns: new[] { "CompanyCode", "Code" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupplierRefusals_ServiceBookingId",
+                table: "SupplierRefusals",
+                column: "ServiceBookingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SupplierRefusals_SupplierCode",
                 table: "SupplierRefusals",
                 column: "SupplierCode");
@@ -1087,7 +1108,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 name: "IX_Vehicles_Make_Model",
                 table: "Vehicles",
                 columns: new[] { "Make", "Model" });
-
             migrationBuilder.Sql(
     sql: "CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;",
     suppressTransaction: true);
@@ -1154,9 +1174,6 @@ namespace Vms.Domain.Infrastructure.VmsDb
                 schema: "System");
 
             migrationBuilder.DropTable(
-                name: "RefusalReasons");
-
-            migrationBuilder.DropTable(
                 name: "RescheduleReasons");
 
             migrationBuilder.DropTable(
@@ -1204,6 +1221,9 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             migrationBuilder.DropTable(
                 name: "Networks");
+
+            migrationBuilder.DropTable(
+                name: "RefusalReasons");
 
             migrationBuilder.DropTable(
                 name: "ServiceBookings");

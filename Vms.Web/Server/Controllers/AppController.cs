@@ -1,7 +1,4 @@
 ﻿using Catalog.Api.Domain.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Polly;
 using Utopia.Api.Domain.Infrastructure;
 using Utopia.Api.Domain.System;
 
@@ -42,7 +39,7 @@ public class AppController(ILogger<AppController> logger) : ControllerBase
     {
         await UpdateUserInContext(context1, userProvider, cancellationToken);
         await UpdateUserInContext(context2, userProvider, cancellationToken);
-        
+
         return Ok();
     }
 

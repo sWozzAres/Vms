@@ -4,19 +4,25 @@ namespace Vms.Domain.ServiceBookingProcess
 {
     public class MotEvent
     {
+        [Key]
         public Guid Id { get; set; }
+
+        public string CompanyCode { get; set; } = null!;
+
         public Guid? ServiceBookingId { get; set; }
         public ServiceBooking? ServiceBooking { get; set; } = null!;
-        public string CompanyCode { get; set; } = null!;
+
         public Guid VehicleId { get; set; }
         public Vehicle Vehicle { get; set; } = null!;
+
         public DateOnly Due { get; set; }
         public bool IsCurrent { get; set; }
+
         private MotEvent() { }
         public MotEvent(string companyCode, Guid vehicleId, DateOnly due, bool isCurrent)
         {
             Id = Guid.NewGuid();
-            CompanyCode = companyCode ?? throw new ArgumentNullException(nameof(companyCode));
+            CompanyCode = companyCode;
             VehicleId = vehicleId;
             Due = due;
             IsCurrent = isCurrent;
@@ -39,8 +45,6 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
                    .HasColumnName("ValidTo");
             }));
 
-            entity.HasKey(e => e.Id);
-
             entity.HasIndex(e => new { e.VehicleId, e.IsCurrent })
                 .IsUnique()
                 .HasFilter("IsCurrent = 1");
@@ -49,7 +53,6 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
                 .WithOne(s => s.MotEvent)
                 .HasForeignKey<MotEvent>(e => new { e.CompanyCode, e.VehicleId, e.ServiceBookingId })
                 .HasPrincipalKey<ServiceBooking>(v => new { v.CompanyCode, v.VehicleId, v.Id });
-
 
             entity.HasOne(e => e.Vehicle)
                 .WithMany(v => v.MotEvents)

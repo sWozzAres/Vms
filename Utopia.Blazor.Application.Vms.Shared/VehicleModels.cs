@@ -16,7 +16,7 @@ public enum VehicleListOptions
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model,
     string? CustomerCode, string? CustomerName,
     string? FleetCode, string? FleetName,
-    DateOnly MotDue);
+    DateOnly? MotDue);
 
 
 
@@ -58,8 +58,8 @@ public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Mak
 //            FleetCode = Fleet?.Code,
 //        };
 //}
-public class VehicleFullDto(string companyCode, Guid id, string vrm, string make, string model, 
-    string? chassisNumber, DateOnly dateFirstRegistered, DateOnly motDue, AddressFullDto address, CustomerShortDto? customer, FleetShortDto? fleet, List<DriverShortDto> drivers, bool isFollowing)
+public class VehicleFullDto(string companyCode, Guid id, string vrm, string make, string model,
+    string? chassisNumber, DateOnly dateFirstRegistered, DateOnly? motDue, AddressFullDto address, CustomerShortDto? customer, FleetShortDto? fleet, List<DriverShortDto> drivers, bool isFollowing)
 {
     public string CompanyCode { get; set; } = companyCode;
     public Guid Id { get; set; } = id;
@@ -68,7 +68,7 @@ public class VehicleFullDto(string companyCode, Guid id, string vrm, string make
     public string Model { get; set; } = model;
     public string? ChassisNumber { get; set; } = chassisNumber;
     public DateOnly DateFirstRegistered { get; set; } = dateFirstRegistered;
-    public DateOnly MotDue { get; set; } = motDue;
+    public DateOnly? MotDue { get; set; } = motDue;
     public AddressFullDto Address { get; set; } = address;
     public CustomerShortDto? Customer { get; set; } = customer;
     public FleetShortDto? Fleet { get; set; } = fleet;
@@ -116,8 +116,9 @@ public partial class VehicleDto : ICopyable<VehicleDto>
     [StringLength(18)]
     public string? ChassisNumber { get; set; }
     public DateOnly DateFirstRegistered { get; set; }
+    [Required]
     [DateOnlyRange(2000, 1, 1, 2050, 1, 1, true)]
-    public DateOnly MotDue { get; set; }
+    public DateOnly? MotDue { get; set; }
     [ValidateComplexType]
     public AddressDto Address { get; set; } = new();//"", "", "", "", new(0, 0));
     [StringLength(10)]
@@ -150,6 +151,7 @@ public partial class VehicleDto : ICopyable<VehicleDto>
         Model = source.Model;
         ChassisNumber = source.ChassisNumber;
         DateFirstRegistered = source.DateFirstRegistered;
+        MotDue = source.MotDue;
         Address.CopyFrom(source.Address);
         CustomerCode = source.CustomerCode;
         FleetCode = source.FleetCode;

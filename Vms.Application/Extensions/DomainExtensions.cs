@@ -18,23 +18,23 @@ public static partial class DomainExtensions
             Address = supplier.Address.ToDto()
         };
 
-    public static VehicleFullDto ToFullDto(this Vehicle vehicle, bool isFollowing)
-    => new(
-            vehicle.CompanyCode,
-            vehicle.Id,
-            vehicle.Vrm,
-            vehicle.Make,
-            vehicle.Model,
-            vehicle.ChassisNumber,
-            vehicle.DateFirstRegistered,
-            //vehicle.Mot.Due,
-            vehicle.Mot.Due,
-            vehicle.Address.ToFullDto(),
-            vehicle.C is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.C.Code, vehicle.C.Name),
-            vehicle.Fleet is null ? null : new FleetShortDto(vehicle.CompanyCode, vehicle.Fleet.Code, vehicle.Fleet.Name),
-            vehicle.DriverVehicles.Select(x => x.Driver.ToShortDto()).ToList(),
-            isFollowing
-            );
+    //public static VehicleFullDto ToFullDto(this Vehicle vehicle, bool isFollowing)
+    //=> new(
+    //        vehicle.CompanyCode,
+    //        vehicle.Id,
+    //        vehicle.Vrm,
+    //        vehicle.Make,
+    //        vehicle.Model,
+    //        vehicle.ChassisNumber,
+    //        vehicle.DateFirstRegistered,
+    //        //vehicle.Mot.Due,
+    //        vehicle.Mot.Due,
+    //        vehicle.Address.ToFullDto(),
+    //        vehicle.Customer is null ? null : new CustomerShortDto(vehicle.CompanyCode, vehicle.Customer.Code, vehicle.Customer.Name),
+    //        vehicle.Fleet is null ? null : new FleetShortDto(vehicle.CompanyCode, vehicle.Fleet.Code, vehicle.Fleet.Name),
+    //        vehicle.DriverVehicles.Select(x => x.Driver.ToShortDto()).ToList(),
+    //        isFollowing
+    //        );
 
 
     public static AddressFullDto ToFullDto(this Address address)

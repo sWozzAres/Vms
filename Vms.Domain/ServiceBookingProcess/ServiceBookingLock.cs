@@ -1,14 +1,24 @@
 ﻿namespace Vms.Domain.ServiceBookingProcess
 {
+    [Table("ServiceBookingLocks")]
     public class ServiceBookingLock
     {
+        [Key]
         public Guid Id { get; set; }
+
         public Guid ServiceBookingId { get; set; }
-        public ServiceBooking ServiceBooking { get; set; } = null!;
+        public ServiceBooking ServiceBooking { get; private set; } = null!;
+
         public string UserId { get; set; } = null!;
+        public User User { get; private set; } = null!;
+
+        [StringLength(User.UserName_MaxLength)]
         public string UserName { get; set; } = null!;
+
         public DateTime Granted { get; set; }
-        public static ServiceBookingLock Create(Guid serviceBookingId, string userId, string userName, DateTime granted)
+
+        public static ServiceBookingLock Create(Guid serviceBookingId, string userId, string userName,
+            DateTime granted)
         => new()
         {
             Id = Guid.NewGuid(),
@@ -25,13 +35,12 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
     {
         public void Configure(EntityTypeBuilder<ServiceBookingLock> entity)
         {
-            entity.ToTable("ServiceBookingLocks");
-
-            entity.HasKey(e => e.Id);
-
             entity.HasOne(e => e.ServiceBooking)
                 .WithOne(e => e.Lock)
                 .HasForeignKey<ServiceBookingLock>(e => e.ServiceBookingId);
+
+            entity.HasOne(e => e.User)
+                .WithMany();
         }
     }
 }

@@ -236,9 +236,15 @@ public class VehicleController(VmsDbContext context) : ControllerBase
         [FromServices] ICreateVehicle createVehicle,
         CancellationToken cancellationToken)
     {
+        if (vehicleDto.MotDue == null)
+        {
+            ModelState.AddModelError("MotDue", "The MOT Due field is required.");
+            return UnprocessableEntity(ModelState);
+        }
+
         var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm,
             vehicleDto.Make!, vehicleDto.Model!,
-            vehicleDto.DateFirstRegistered, vehicleDto.MotDue, vehicleDto.ChassisNumber,
+            vehicleDto.DateFirstRegistered, vehicleDto.MotDue.Value, vehicleDto.ChassisNumber,
             new Address(vehicleDto.Address.Street,
                   vehicleDto.Address.Locality,
                   vehicleDto.Address.Town,

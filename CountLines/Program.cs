@@ -21,7 +21,7 @@
                 "Utopia.Blazor.Application",
                 "Utopia.Blazor.Application.Common",
                 "Utopia.Blazor.Application.Shared",
-                
+
                 "Utopia.Blazor.Component",
                 "Utopia.Shared",
 

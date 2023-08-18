@@ -27,7 +27,7 @@ public class CreateVehicle(VmsDbContext dbContext, ISearchManager searchManager)
         public Vehicle CreateVehicle(CreateVehicleRequest request)
         {
             var vehicle = Vehicle.Create(self.Code,
-                request.Vrm, request.Make, request.Model, request.DateFirstRegistered, 
+                request.Vrm, request.Make, request.Model, request.DateFirstRegistered,
                 request.MotDue, request.HomeLocation,
                 request.CustomerCode, request.FleetCode);
 

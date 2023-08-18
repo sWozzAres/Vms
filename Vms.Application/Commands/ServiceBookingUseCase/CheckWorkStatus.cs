@@ -71,15 +71,13 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
                 ctx.DbContext.MotEvents.Add(nextMotEvent);
 
                 // update the vehicle mot
-                var vehicle = await ctx.DbContext.Vehicles.FindAsync(new object[] { self.VehicleId }, ctx.CancellationToken)
-                    ?? throw new InvalidOperationException("Failed to load vehicle.");
+                //var vehicle = await ctx.DbContext.Vehicles.FindAsync(new object[] { self.VehicleId }, ctx.CancellationToken)
+                //    ?? throw new InvalidOperationException("Failed to load vehicle.");
 
-                vehicle.Mot.Due = nextMotDate;
+                //vehicle.Mot.Due = nextMotDate;
             }
 
             self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, DateTime.Now);
-
-
         }
         public void NotComplete()
         {

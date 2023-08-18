@@ -9,12 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 	ProjectSection(SolutionItems) = preProject
 		js.js = js.js
 		migrations.txt = migrations.txt
-		paradigm.txt = paradigm.txt
 		Readme.txt = Readme.txt
-		script.js = script.js
 		sites.txt = sites.txt
-		styles.css = styles.css
-		Test.html = Test.html
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vms.Tests", "Vms.Tests\Vms.Tests.csproj", "{E7FB0ABB-6B40-4AAD-9CB8-2412B978B19E}"

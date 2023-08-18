@@ -22,7 +22,7 @@ public class VmsDbContext : DbContext, ISystemContext
     public DbSet<FleetNetwork> FleetNetworks => Set<FleetNetwork>();
     public DbSet<Network> Networks => Set<Network>();
     public DbSet<NetworkSupplier> NetworkSuppliers => Set<NetworkSupplier>();
-    public DbSet<VehicleMot> NextMots => Set<VehicleMot>();
+    //public DbSet<VehicleMot> NextMots => Set<VehicleMot>();
     public DbSet<ServiceBooking> ServiceBookings => Set<ServiceBooking>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<SupplierRefusal> SupplierRefusals => Set<SupplierRefusal>();
@@ -66,6 +66,7 @@ public class VmsDbContext : DbContext, ISystemContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserEntityTypeConfiguration).Assembly);
 
         //modelBuilder.Entity<ActivityLog>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<SupplierRefusal>().HasQueryFilter(x => x.CompanyCode == null || (_userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId));
         modelBuilder.Entity<EntityTag>().HasQueryFilter(x => x.CompanyCode == null || (_userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId));
         modelBuilder.Entity<NotCompleteReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<NonArrivalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);

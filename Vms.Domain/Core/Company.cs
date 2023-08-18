@@ -2,26 +2,29 @@
 
 namespace Vms.Domain.Core
 {
-    public partial class Company
+    [Table("Companies")]
+    public class Company
     {
         public const int Code_MaxLength = 10;
+
+        [Key]
+        [StringLength(Code_MaxLength)]
         public string Code { get; private set; } = null!;
 
+        [StringLength(32)]
         public string Name { get; set; } = null!;
 
-        internal List<Customer> Customers = new();
+        public ICollection<Customer> Customers { get; } = new List<Customer>();
+        public ICollection<Fleet> Fleets { get; } = new List<Fleet>();
+        public ICollection<Network> Networks { get; } = new List<Network>();
+        public ICollection<Vehicle> Vehicles { get; } = new List<Vehicle>();
+        public ICollection<Driver> Drivers { get; } = new List<Driver>();
+        public ICollection<NonArrivalReason> NonArrivalReasons { get; } = new List<NonArrivalReason>();
+        public ICollection<NotCompleteReason> NotCompleteReasons { get; } = new List<NotCompleteReason>();
+        public ICollection<RefusalReason> RefusalReasons { get; } = new List<RefusalReason>();
+        public ICollection<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons { get; } = new List<ConfirmBookedRefusalReason>();
+        public ICollection<RescheduleReason> RescheduleReasons { get; } = new List<RescheduleReason>();
 
-        internal List<Fleet> Fleets { get; private set; } = new();
-
-        internal List<Network> Networks { get; private set; } = new();
-
-        internal List<Vehicle> Vehicles { get; private set; } = new();
-        internal List<Driver> Drivers { get; private set; } = new();
-        internal List<NonArrivalReason> NonArrivalReasons { get; private set; } = new();
-        internal List<NotCompleteReason> NotCompleteReasons { get; private set; } = new();
-        internal List<RefusalReason> RefusalReasons { get; private set; } = new();
-        internal List<ConfirmBookedRefusalReason> ConfirmBookedRefusalReasons { get; private set; } = new();
-        internal List<RescheduleReason> RescheduleReasons { get; private set; } = new();
         private Company() { }
         internal Company(string code, string name) => (Code, Name) = (code, name);
     }
@@ -33,17 +36,7 @@ namespace Vms.Domain.Core.Configuration
     {
         public void Configure(EntityTypeBuilder<Company> builder)
         {
-            builder.ToTable("Companies");
-
-            builder.HasKey(e => e.Code);
-
-            builder.Property(e => e.Code)
-                .HasMaxLength(Company.Code_MaxLength)
-                .IsFixedLength();
-
-            builder.Property(e => e.Name)
-                .HasMaxLength(32)
-                .IsUnicode(false);
+            builder.Property(e => e.Code).IsFixedLength();
         }
     }
 }
