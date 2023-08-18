@@ -38,7 +38,7 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger<VmsDbCont
                 ServiceBooking.CustomerNotified();
                 break;
             case TaskNotifyCustomerDelayCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule();
                 break;
         }
 
@@ -54,11 +54,16 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger<VmsDbCont
             self.ChangeStatus(ServiceBookingStatus.CheckWorkStatus, self.EstimatedCompletion);
         }
 
-        public void Reschedule()
+        public async Task Reschedule()
         {
+            var reason = await ctx.DbContext.RescheduleReasons
+                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
+
             var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
+            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
             self.RescheduleTime = rescheduleTime;
         }
     }

@@ -22,7 +22,6 @@ public class VmsDbContext : DbContext, ISystemContext
     public DbSet<FleetNetwork> FleetNetworks => Set<FleetNetwork>();
     public DbSet<Network> Networks => Set<Network>();
     public DbSet<NetworkSupplier> NetworkSuppliers => Set<NetworkSupplier>();
-    //public DbSet<VehicleMot> NextMots => Set<VehicleMot>();
     public DbSet<ServiceBooking> ServiceBookings => Set<ServiceBooking>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<SupplierRefusal> SupplierRefusals => Set<SupplierRefusal>();
@@ -37,6 +36,7 @@ public class VmsDbContext : DbContext, ISystemContext
     public DbSet<NonArrivalReason> NonArrivalReasons => Set<NonArrivalReason>();
 
     public DbSet<MotEvent> MotEvents => Set<MotEvent>();
+    public DbSet<ServiceEvent> ServiceEvents => Set<ServiceEvent>();
     public DbSet<ServiceBookingLock> ServiceBookingLocks => Set<ServiceBookingLock>();
 
     public DbSet<EntityTag> EntityTags => Set<EntityTag>();
@@ -71,6 +71,7 @@ public class VmsDbContext : DbContext, ISystemContext
         modelBuilder.Entity<NotCompleteReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<NonArrivalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<ConfirmBookedRefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
+        modelBuilder.Entity<ServiceEvent>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<MotEvent>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<RefusalReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);
         modelBuilder.Entity<RescheduleReason>().HasQueryFilter(x => _userProvider.TenantId == "*" || x.CompanyCode == _userProvider.TenantId);

@@ -30,41 +30,34 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
             .Include(s => s.Lock)
             .AsQueryable();
 
-        switch (list)
+        serviceBookings = list switch
         {
-            case ServiceBookingListOptions.All:
-                serviceBookings = from x in serviceBookings
-                                  orderby x.Id
-                                  select x;
-                break;
-            case ServiceBookingListOptions.Following:
-                serviceBookings = from x in serviceBookings
-                                  join f in context.Followers on x.Id equals f.DocumentId
-                                  where f.UserId == userProvider.UserId
-                                  orderby x.Id
-                                  select x;
-                break;
-            case ServiceBookingListOptions.Assigned:
-                serviceBookings = serviceBookings
+            ServiceBookingListOptions.All
+                => from x in serviceBookings
+                   orderby x.Id
+                   select x,
+            ServiceBookingListOptions.Following
+                => from x in serviceBookings
+                   join f in context.Followers on x.Id equals f.DocumentId
+                   where f.UserId == userProvider.UserId
+                   orderby x.Id
+                   select x,
+            ServiceBookingListOptions.Assigned
+                => serviceBookings
                     .Where(s => s.AssignedToUserId == userProvider.UserId)
-                    .OrderBy(s => s.Id);
-                break;
-            case ServiceBookingListOptions.Due:
-                serviceBookings = serviceBookings
+                    .OrderBy(s => s.Id),
+            ServiceBookingListOptions.Due
+                => serviceBookings
                     .Where(s => s.RescheduleTime <= DateTime.Now)
-                    .OrderBy(s => s.RescheduleTime);
-                break;
-            case ServiceBookingListOptions.Recent:
-                serviceBookings = from x in serviceBookings
-                                  join f in context.RecentViews on x.Id equals f.DocumentId
-                                  where f.UserId == userProvider.UserId
-                                  orderby f.ViewDate descending
-                                  select x;
-                break;
-            default:
-                throw new NotSupportedException($"Unknown list option '{list}'.");
-        }
-
+                    .OrderBy(s => s.RescheduleTime),
+            ServiceBookingListOptions.Recent
+                => from x in serviceBookings
+                   join f in context.RecentViews on x.Id equals f.DocumentId
+                   where f.UserId == userProvider.UserId
+                   orderby f.ViewDate descending
+                   select x,
+            _ => throw new NotSupportedException($"Unknown list option '{list}'."),
+        };
         int totalCount = await serviceBookings.CountAsync(cancellationToken);
 
         var result = await serviceBookings

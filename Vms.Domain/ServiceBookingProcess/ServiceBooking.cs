@@ -44,7 +44,6 @@ namespace Vms.Domain.ServiceBookingProcess
         public DateOnly? PreferredDate1 { get; set; }
         public DateOnly? PreferredDate2 { get; set; }
         public DateOnly? PreferredDate3 { get; set; }
-        //public DateOnly? MotDue { get; set; }
 
         public string? SupplierCode { get; private set; }
         public Supplier? Supplier { get; private set; }
@@ -57,6 +56,9 @@ namespace Vms.Domain.ServiceBookingProcess
 
         public Guid? MotEventId { get; set; }
         public MotEvent? MotEvent { get; private set; }
+
+        public Guid? ServiceEventId { get; set; }
+        public ServiceEvent? ServiceEvent { get; private set; }
 
         public Guid? LockId { get; set; }
         public ServiceBookingLock? Lock { get; private set; }
@@ -76,7 +78,7 @@ namespace Vms.Domain.ServiceBookingProcess
         private ServiceBooking() { }
         public ServiceBooking(string companyCode, Guid vehicleId,
             DateOnly? preferredDate1, DateOnly? preferredDate2, DateOnly? preferredDate3,
-            //DateOnly? motDue,
+            ServiceLevel serviceLevel,
             string createdUserId)
         {
             CompanyCode = companyCode;
@@ -85,8 +87,8 @@ namespace Vms.Domain.ServiceBookingProcess
             PreferredDate1 = preferredDate1;
             PreferredDate2 = preferredDate2;
             PreferredDate3 = preferredDate3;
+            ServiceLevel = serviceLevel;
 
-            //MotDue = motDue;
             CreatedUserId = createdUserId;
 
             Status = IsValid

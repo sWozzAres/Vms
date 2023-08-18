@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
+namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IUnbookSupplier
 {
@@ -20,6 +22,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
         SummaryText.AppendLine("# Unbook Supplier");
+        SummaryText.AppendLine($"* Reason: {command.Reason}");
 
         serviceBooking.Unbook();
 

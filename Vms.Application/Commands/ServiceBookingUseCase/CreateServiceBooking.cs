@@ -64,11 +64,9 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 ctx.Command.PreferredDate1,
                 ctx.Command.PreferredDate2,
                 ctx.Command.PreferredDate3,
-                //null,
+                (ServiceLevel)ctx.Command.ServiceLevel,
                 ctx.UserProvider.UserId
             );
-
-            booking.ServiceLevel = (ServiceLevel)ctx.Command.ServiceLevel;
 
             // load default driver
             var driver = await (from dv in ctx.DbContext.DriverVehicles
@@ -87,7 +85,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 var motEntry = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(m => m.Id == ctx.Command.MotId, ctx.CancellationToken)
                     ?? throw new VmsDomainException("Failed to find Mot.");
 
-                motEntry.ServiceBooking = booking;
+                motEntry.ServiceBookingId = booking.Id;
             }
 
             // auto assign

@@ -5,8 +5,12 @@
 }
 .isnote {
     background-color: #f5ef4242;
+    padding: 1em 0.5em !important;
 }
 
+.activitylog article ::deep h1 {
+    margin: 0.5em 0 0.5em 0;
+}
     .activitylog article footer {
         font-size: small;
     }

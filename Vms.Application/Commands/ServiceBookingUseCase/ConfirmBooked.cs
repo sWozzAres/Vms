@@ -38,12 +38,15 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext>
                 ServiceBooking.Confirm();
                 break;
             case TaskConfirmBookedCommand.TaskResult.Refused:
-                ServiceBooking.Refused();
+                await ServiceBooking.Refused();
                 break;
             case TaskConfirmBookedCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule();
                 break;
         }
+
+        if (!string.IsNullOrEmpty(Command.Callee))
+            SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(ConfirmBooked), Command);
@@ -56,7 +59,7 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext>
             if (self.BookedDate is null)
                 throw new VmsDomainException("Service Booking has no booked date.");
 
-            ctx.SummaryText.AppendLine("## Confirm");
+            ctx.SummaryText.AppendLine("## Confirmed");
 
             // schedule check arrival for 9am on the booking date
             TimeOnly time = TimeOnly.FromTimeSpan(new TimeSpan(9, 0, 0));
@@ -64,20 +67,31 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext>
             self.ChangeStatus(ServiceBookingStatus.CheckArrival, rescheduleTime);
         }
 
-        public void Refused()
+        public async Task Refused()
         {
             ctx.SummaryText.AppendLine("## Refused");
+            var reason = await ctx.DbContext.ConfirmBookedRefusalReasons.FindAsync(new object[] { self.CompanyCode, ctx.Command.RefusalReason! }, ctx.CancellationToken)
+                ?? throw new InvalidOperationException("Failed to load confirm booked refusal reason.");
+
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
+
             self.Unbook();
             self.Unassign();
 
             //TODO
         }
 
-        public void Reschedule()
+        public async Task Reschedule()
         {
+            var reason = await ctx.DbContext.RescheduleReasons
+                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
+
             var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
+            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
             self.RescheduleTime = rescheduleTime;
         }
     }

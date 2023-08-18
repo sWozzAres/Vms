@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Vms.Domain.Infrastructure;
@@ -12,9 +13,11 @@ using Vms.Domain.Infrastructure;
 namespace Vms.Domain.Infrastructure.VmsDb
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230818122800_Initial6")]
+    partial class Initial6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1347,14 +1350,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("MotEvents")
                         .HasForeignKey("CompanyCode", "VehicleId")
                         .HasPrincipalKey("CompanyCode", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Vms.Domain.ServiceBookingProcess.ServiceBooking", "ServiceBooking")
                         .WithOne("MotEvent")
                         .HasForeignKey("Vms.Domain.ServiceBookingProcess.MotEvent", "CompanyCode", "VehicleId", "ServiceBookingId")
-                        .HasPrincipalKey("Vms.Domain.ServiceBookingProcess.ServiceBooking", "CompanyCode", "VehicleId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasPrincipalKey("Vms.Domain.ServiceBookingProcess.ServiceBooking", "CompanyCode", "VehicleId", "Id");
 
                     b.Navigation("ServiceBooking");
 
@@ -1564,14 +1566,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .WithMany("ServiceEvents")
                         .HasForeignKey("CompanyCode", "VehicleId")
                         .HasPrincipalKey("CompanyCode", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Vms.Domain.ServiceBookingProcess.ServiceBooking", "ServiceBooking")
                         .WithOne("ServiceEvent")
                         .HasForeignKey("Vms.Domain.ServiceBookingProcess.ServiceEvent", "CompanyCode", "VehicleId", "ServiceBookingId")
-                        .HasPrincipalKey("Vms.Domain.ServiceBookingProcess.ServiceBooking", "CompanyCode", "VehicleId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasPrincipalKey("Vms.Domain.ServiceBookingProcess.ServiceBooking", "CompanyCode", "VehicleId", "Id");
 
                     b.Navigation("ServiceBooking");
 

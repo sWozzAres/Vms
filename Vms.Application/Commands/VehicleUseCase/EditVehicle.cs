@@ -40,7 +40,7 @@ public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
                 SummaryText.AppendLine($"Make: {command.Make}");
             if (vehicle.Model != command.Model)
                 SummaryText.AppendLine($"* Model: {command.Model}");
-            vehicle.UpdateModel(command.Make!, command.Model!);
+            vehicle.SetMakeModel(command.Make!, command.Model!);
             isModified = true;
         }
 

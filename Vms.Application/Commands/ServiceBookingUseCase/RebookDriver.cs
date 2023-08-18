@@ -44,7 +44,7 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
                 ServiceBooking.StillGoingToday();
                 break;
             case TaskRebookDriverCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule();
                 break;
         }
 
@@ -86,11 +86,16 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
             self.ChangeStatus(ServiceBookingStatus.Cancelled);
         }
 
-        public void Reschedule()
+        public async Task Reschedule()
         {
+            var reason = await ctx.DbContext.RescheduleReasons
+                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
+
             var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
+            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
             self.RescheduleTime = rescheduleTime;
         }
     }

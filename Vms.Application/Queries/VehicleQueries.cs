@@ -29,31 +29,26 @@ public class VehicleQueries(VmsDbContext context,
 
         if (list == VehicleListOptions.All || list == VehicleListOptions.Following || list == VehicleListOptions.Recent)
         {
-            switch (list)
+            vehicles = list switch
             {
-                case VehicleListOptions.All:
-                    vehicles = from v in vehicles
-                               orderby v.Id
-                               select v;
-                    break;
-                case VehicleListOptions.Following:
-                    vehicles = from x in vehicles
-                               join f in context.Followers on x.Id equals f.DocumentId
-                               where f.UserId == userProvider.UserId
-                               orderby f.Id
-                               select x;
-                    break;
-                case VehicleListOptions.Recent:
-                    vehicles = from x in vehicles
-                               join f in context.RecentViews on x.Id equals f.DocumentId
-                               where f.UserId == userProvider.UserId
-                               orderby f.ViewDate descending
-                               select x;
-                    break;
-                default:
-                    throw new NotSupportedException($"Unknown list option '{list}'.");
-            }
-
+                VehicleListOptions.All
+                    => from v in vehicles
+                       orderby v.Id
+                       select v,
+                VehicleListOptions.Following
+                    => from x in vehicles
+                       join f in context.Followers on x.Id equals f.DocumentId
+                       where f.UserId == userProvider.UserId
+                       orderby f.Id
+                       select x,
+                VehicleListOptions.Recent
+                    => from x in vehicles
+                       join f in context.RecentViews on x.Id equals f.DocumentId
+                       where f.UserId == userProvider.UserId
+                       orderby f.ViewDate descending
+                       select x,
+                _ => throw new NotSupportedException($"Unknown list option '{list}'."),
+            };
             int totalCount = await vehicles.CountAsync(cancellationToken);
 
             var result = await vehicles

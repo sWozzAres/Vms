@@ -29,11 +29,11 @@ namespace Vms.Domain.Core
         public string? FleetCode { get; private set; }
         public Fleet? Fleet { get; private set; }
 
-        //public VehicleMot Mot { get; private set; } = null!;
         public VehicleVrm VehicleVrm { get; private set; } = null!;
         public ICollection<DriverVehicle> DriverVehicles { get; } = new List<DriverVehicle>();
         public ICollection<ServiceBooking> ServiceBookings { get; } = new List<ServiceBooking>();
         public ICollection<MotEvent> MotEvents { get; } = new List<MotEvent>();
+        public ICollection<ServiceEvent> ServiceEvents { get; } = new List<ServiceEvent>();
 
         private Vehicle() { }
         private Vehicle(string companyCode, string vrm, string make, string model,
@@ -45,7 +45,6 @@ namespace Vms.Domain.Core
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
 
-            //Mot = new VehicleMot(Id, motDue); 
             MotEvents.Add(new(CompanyCode, Id, motDue, true));
 
             VehicleVrm = new VehicleVrm(vrm);
@@ -77,28 +76,21 @@ namespace Vms.Domain.Core
         internal void RemoveCustomer() => CustomerCode = null;
         public void AssignToFleet(string fleetCode) => FleetCode = fleetCode;
         internal void RemoveFleet() => FleetCode = null;
-        public void UpdateModel(string make, string model)
+        public void SetMakeModel(string make, string model)
         {
             Make = make;
             Model = model;
         }
     }
 
-    //public class VehicleMot
-    //{
-    //    public Guid VehicleId { get; private set; }
-    //    public DateOnly Due { get; set; }
-    //    internal Vehicle Vehicle { get; set; } = null!;
-    //    private VehicleMot() { }
-    //    internal VehicleMot(Guid vehicleId, DateOnly due) 
-    //        => (VehicleId, Due) = (vehicleId, due);
-    //}
-
     public class VehicleVrm
     {
         public Guid VehicleId { get; private set; }
-        public string Vrm { get; internal set; } = null!;
         public Vehicle Vehicle { get; private set; } = null!;
+
+        [StringLength(12)]
+        public string Vrm { get; internal set; } = null!;
+        
         private VehicleVrm() { }
         public VehicleVrm(string vrm) => Vrm = vrm;
     }
@@ -144,14 +136,6 @@ namespace Vms.Domain.Core.Configuration
             builder.HasMany(d => d.ServiceBookings)
                 .WithOne(p => p.Vehicle);
 
-            //builder.OwnsOne(d => d.Mot, x =>
-            //{
-            //    x.ToTable("VehicleMots");
-            //    x.WithOwner(x => x.Vehicle)
-            //        .HasForeignKey(d => d.VehicleId)
-            //        .HasConstraintName("FK_Vehicles_VehicleMots");
-            //});
-
             builder.OwnsOne(d => d.VehicleVrm, x =>
             {
                 x.ToTable("VehicleVrms", tb => tb.IsTemporal(ttb =>
@@ -164,8 +148,6 @@ namespace Vms.Domain.Core.Configuration
                         .HasPeriodEnd("ValidTo")
                         .HasColumnName("ValidTo");
                 }));
-
-                x.Property(p => p.Vrm).HasMaxLength(12);
 
                 x.WithOwner(x => x.Vehicle)
                     .HasForeignKey(d => d.VehicleId)

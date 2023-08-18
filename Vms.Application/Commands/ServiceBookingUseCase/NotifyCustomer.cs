@@ -38,9 +38,12 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext
                 ServiceBooking.Notify();
                 break;
             case TaskNotifyCustomerCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule();
                 break;
         }
+
+        if (!string.IsNullOrEmpty(Command.Callee))
+            SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(NotifyCustomer), Command);
@@ -50,15 +53,20 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext
     {
         public void Notify()
         {
-            ctx.SummaryText.AppendLine("## Notify");
+            ctx.SummaryText.AppendLine("## Notified");
             self.ChangeStatus(ServiceBookingStatus.Complete);
         }
 
-        public void Reschedule()
+        public async Task Reschedule()
         {
+            var reason = await ctx.DbContext.RescheduleReasons
+                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
+
             var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
+            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
             self.RescheduleTime = rescheduleTime;
         }
     }

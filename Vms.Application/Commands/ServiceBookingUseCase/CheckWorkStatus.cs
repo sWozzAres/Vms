@@ -38,12 +38,15 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
                 await ServiceBooking.Complete();
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.NotComplete:
-                ServiceBooking.NotComplete();
+                await ServiceBooking.NotComplete();
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.Rescheduled:
-                ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule();
                 break;
         }
+
+        if (!string.IsNullOrEmpty(Command.Callee))
+            SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
         _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(CheckWorkStatus), Command);
@@ -53,7 +56,8 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
     {
         public async Task Complete()
         {
-            ctx.SummaryText.AppendLine("## Complete");
+            ctx.SummaryText.AppendLine("## Completed");
+            ctx.SummaryText.AppendLine($"* Completed Date: {ctx.Command.CompletionDate}");
 
             var motEvent = await ctx.DbContext.MotEvents.SingleOrDefaultAsync(e => e.ServiceBookingId == self.Id && e.IsCurrent);
 
@@ -70,6 +74,7 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
                 var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
                 ctx.DbContext.MotEvents.Add(nextMotEvent);
 
+                ctx.SummaryText.AppendLine($"* Next Mot scheduled for: {nextMotDate}");
                 // update the vehicle mot
                 //var vehicle = await ctx.DbContext.Vehicles.FindAsync(new object[] { self.VehicleId }, ctx.CancellationToken)
                 //    ?? throw new InvalidOperationException("Failed to load vehicle.");
@@ -79,19 +84,32 @@ public class CheckWorkStatus(VmsDbContext dbContext, IActivityLogger<VmsDbContex
 
             self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, DateTime.Now);
         }
-        public void NotComplete()
+        public async Task NotComplete()
         {
-            var nextChase = ctx.Command.NextChaseDate!.Value.ToDateTime(ctx.Command.NextChaseTime!.Value);
             ctx.SummaryText.AppendLine("## Not Complete");
+
+            var nextChase = ctx.Command.NextChaseDate!.Value.ToDateTime(ctx.Command.NextChaseTime!.Value);
+            ctx.SummaryText.AppendLine($"* Next Chase scheduled for: {nextChase.ToString("f")}");
+
+            var reason = await ctx.DbContext.NotCompleteReasons.FindAsync(new object[] { self.CompanyCode, ctx.Command.NotCompleteReason! }, ctx.CancellationToken)
+                ?? throw new InvalidOperationException("Failed to load not complete reason.");
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
+
             self.EstimatedCompletion = nextChase;
             self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay, DateTime.Now);
 
         }
-        public void Reschedule()
+        public async Task Reschedule()
         {
+            var reason = await ctx.DbContext.RescheduleReasons
+                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
+
             var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
             ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"Rescheduled for {rescheduleTime.ToString("f")} because '{ctx.Command.RescheduleReason!}'.");
+            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
+            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
             self.RescheduleTime = rescheduleTime;
         }
     }
