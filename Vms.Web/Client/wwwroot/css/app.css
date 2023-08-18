@@ -222,6 +222,10 @@ h5 + h6 {
   min-height: calc(100vh - var(--header-height));
 }
 
+/* temp to stop x scrollbar when task slides in */
+/*body, html {
+    overflow-x: hidden; 
+}*/
 button {
   cursor: pointer;
   background: hsl(0deg, 0%, 100%);
@@ -831,6 +835,7 @@ dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector 
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr auto;
+  background-color: white;
 }
 
 .page {

@@ -1,10 +1,20 @@
-﻿namespace Utopia.Api.Domain.System
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Utopia.Api.Domain.System
 {
+    [Table("Emails", Schema = "System")]
     public class Email(string recipients, string subject, string body)
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [StringLength(256)]
         public string Recipients { get; set; } = recipients;
+
+        [StringLength(64)]
         public string Subject { get; set; } = subject;
+
+        [StringLength(2048)]
         public string Body { get; set; } = body;
     }
 }
@@ -15,13 +25,6 @@ namespace Utopia.Api.Domain.System.Configuration
     {
         public void Configure(EntityTypeBuilder<Email> entity)
         {
-            entity.ToTable("Emails", "System");
-
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.Recipients).HasMaxLength(256);
-            entity.Property(e => e.Subject).HasMaxLength(64);
-            entity.Property(e => e.Body).HasMaxLength(2048);
         }
     }
 }

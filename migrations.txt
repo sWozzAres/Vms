@@ -4,7 +4,7 @@ add-migration -Name Initial8 -o VmsDb -Context VmsDbContext -Project Vms.Domain.
 update-database -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 
-add-migration -Name Initial -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
+add-migration -Name Initial2 -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 update-database -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 
 migrationBuilder.Sql(

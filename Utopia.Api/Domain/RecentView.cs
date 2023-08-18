@@ -1,11 +1,18 @@
-﻿namespace Utopia.Api.Domain.System
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Utopia.Api.Domain.System
 {
+    [Table("RecentViews", Schema = "System")]
     public class RecentView(Guid documentId, string userId, DateTime viewDate)
     {
+        [Key]
         public long Id { get; private set; }
+
         public Guid DocumentId { get; set; } = documentId;
-        public string UserId { get; set; } = userId;
         public DateTime ViewDate { get; set; } = viewDate;
+
+        public string UserId { get; set; } = userId;
+        public User User { get; private set; } = null!;
     }
 }
 namespace Utopia.Api.Domain.System.Configuration
@@ -14,14 +21,11 @@ namespace Utopia.Api.Domain.System.Configuration
     {
         public void Configure(EntityTypeBuilder<RecentView> entity)
         {
-            entity.ToTable("RecentViews", "System");
-
-            entity.HasKey(e => e.Id);
             entity.HasIndex(e => new { e.DocumentId, e.UserId }).IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
-            entity.HasOne<User>()
+            entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId);
         }

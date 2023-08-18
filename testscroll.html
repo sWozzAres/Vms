@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Scrolling Div Animation</title>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow-x:hidden;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        .grid-item {
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        .scrolling-div {
+            /* width: 300px; */
+            height: 200px;
+            background-color: #f0f0f0;
+            transform: translateX(100%); 
+            animation: slideIn 1s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0); /* Final position within the second column */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="grid-item">
+            <!-- Content for the first column -->
+        </div>
+        <div class="grid-item scrolling-div">
+            <!-- Content for the second column -->
+        </div>
+    </div>
+</body>
+</html>

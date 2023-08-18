@@ -1,10 +1,17 @@
-﻿namespace Utopia.Api.Domain.System
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Utopia.Api.Domain.System
 {
+    [Table("Followers", Schema = "System")]
     public class Follower(Guid documentId, string userId)
     {
+        [Key]
         public long Id { get; private set; }
+        
         public Guid DocumentId { get; set; } = documentId;
+        
         public string UserId { get; set; } = userId;
+        public User User { get; private set; } = null!;
     }
 }
 namespace Utopia.Api.Domain.System.Configuration
@@ -13,12 +20,10 @@ namespace Utopia.Api.Domain.System.Configuration
     {
         public void Configure(EntityTypeBuilder<Follower> entity)
         {
-            entity.ToTable("Followers", "System");
-            entity.HasKey(e => e.Id);
             entity.HasIndex(e => new { e.DocumentId, e.UserId }).IsUnique();
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
-            entity.HasOne<User>()
+            entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId);
         }

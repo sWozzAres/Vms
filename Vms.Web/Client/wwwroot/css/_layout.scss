@@ -13,3 +13,8 @@
     background: linear-gradient(180deg, rgba(124,153,232,1) 0%, rgba(124,181,232,1) 47%, #a7bbdb 100%);
     min-height: calc(100vh - var(--header-height));
 }
+
+/* temp to stop x scrollbar when task slides in */
+/*body, html {
+    overflow-x: hidden; 
+}*/

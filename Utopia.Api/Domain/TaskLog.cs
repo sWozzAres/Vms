@@ -2,12 +2,21 @@
 {
     public class TaskLog(Guid documentId, string taskName, string log, DateTimeOffset entryDate, string userId)
     {
+        [Key]
         public long Id { get; private set; }
+
         public Guid DocumentId { get; set; } = documentId;
+
+        [StringLength(50)]
         public string TaskName { get; set; } = taskName;
+
+        [StringLength(4000)]
         public string Log { get; set; } = log;
+
         public DateTimeOffset EntryDate { get; set; } = entryDate;
+
         public string UserId { get; set; } = userId;
+        public User User { get; private set; } = null!;
     }
 }
 
@@ -22,16 +31,7 @@ namespace Utopia.Api.Domain.System.Configuration
                 table.HasCheckConstraint("Log record should be formatted as JSON", "ISJSON(log)=1");
             });
 
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.TaskName)
-                .HasMaxLength(50);
-
-            entity.Property(e => e.Log)
-                .HasMaxLength(4000)
-                .IsUnicode();
-
-            entity.HasOne<User>()
+            entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId);
         }

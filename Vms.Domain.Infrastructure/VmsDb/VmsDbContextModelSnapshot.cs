@@ -241,7 +241,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Code");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Customer", b =>
@@ -261,7 +261,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.CustomerNetwork", b =>
@@ -281,7 +281,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "CustomerCode");
 
-                    b.ToTable("CustomerNetworks");
+                    b.ToTable("CustomerNetworks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Driver", b =>
@@ -329,7 +329,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasAlternateKey("CompanyCode", "EmailAddress");
 
-                    b.ToTable("Drivers");
+                    b.ToTable("Drivers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.DriverVehicle", b =>
@@ -347,7 +347,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "VehicleId");
 
-                    b.ToTable("DriverVehicles");
+                    b.ToTable("DriverVehicles", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Fleet", b =>
@@ -367,7 +367,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Fleets");
+                    b.ToTable("Fleets", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.FleetNetwork", b =>
@@ -385,7 +385,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "NetworkCode");
 
-                    b.ToTable("FleetNetworks");
+                    b.ToTable("FleetNetworks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Network", b =>
@@ -405,7 +405,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("Networks");
+                    b.ToTable("Networks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.NetworkSupplier", b =>
@@ -443,7 +443,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("RescheduleReasons");
+                    b.ToTable("RescheduleReasons", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Supplier", b =>
@@ -468,7 +468,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Code");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.SupplierRefusal", b =>
@@ -508,7 +508,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("CompanyCode", "Code");
 
-                    b.ToTable("SupplierRefusals");
+                    b.ToTable("SupplierRefusals", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.Vehicle", b =>
@@ -550,7 +550,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("Make", "Model");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.VehicleMake", b =>
@@ -561,7 +561,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("Make");
 
-                    b.ToTable("VehicleMakes");
+                    b.ToTable("VehicleMakes", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.Core.VehicleModel", b =>
@@ -576,7 +576,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                     b.HasKey("Make", "Model")
                         .HasName("PK_Model");
 
-                    b.ToTable("VehicleModels");
+                    b.ToTable("VehicleModels", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ConfirmBookedRefusalReason", b =>
@@ -596,7 +596,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("ConfirmBookedRefusalReasons");
+                    b.ToTable("ConfirmBookedRefusalReasons", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.MotEvent", b =>
@@ -672,7 +672,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("NonArrivalReasons");
+                    b.ToTable("NonArrivalReasons", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.NotCompleteReason", b =>
@@ -712,7 +712,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasKey("CompanyCode", "Code");
 
-                    b.ToTable("RefusalReasons");
+                    b.ToTable("RefusalReasons", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ServiceBooking", b =>
@@ -792,7 +792,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("SupplierCode");
 
-                    b.ToTable("ServiceBookings");
+                    b.ToTable("ServiceBookings", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ServiceBookingLock", b =>
@@ -823,7 +823,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ServiceBookingLocks");
+                    b.ToTable("ServiceBookingLocks", (string)null);
                 });
 
             modelBuilder.Entity("Vms.Domain.ServiceBookingProcess.ServiceEvent", b =>
@@ -1103,7 +1103,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
             modelBuilder.Entity("Vms.Domain.Core.Supplier", b =>
                 {
-                    b.OwnsOne("Vms.Domain.Common.Address", "Address", b1 =>
+                    b.OwnsOne("Vms.Domain.Core.Supplier.Address#Vms.Domain.Common.Address", "Address", b1 =>
                         {
                             b1.Property<string>("SupplierCode")
                                 .HasColumnType("nchar(8)");
@@ -1134,13 +1134,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("SupplierCode");
 
-                            b1.ToTable("Suppliers");
+                            b1.ToTable("Suppliers", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("SupplierCode");
                         });
 
-                    b.OwnsMany("Vms.Domain.Core.SupplierFranchise", "Franchises", b1 =>
+                    b.OwnsMany("Vms.Domain.Core.Supplier.Franchises#Vms.Domain.Core.SupplierFranchise", "Franchises", b1 =>
                         {
                             b1.Property<string>("SupplierCode")
                                 .HasColumnType("nchar(8)");
@@ -1225,7 +1225,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_Vehicles_VehicleModels");
 
-                    b.OwnsOne("Vms.Domain.Common.Address", "Address", b1 =>
+                    b.OwnsOne("Vms.Domain.Core.Vehicle.Address#Vms.Domain.Common.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
                                 .HasColumnType("uniqueidentifier");
@@ -1256,13 +1256,13 @@ namespace Vms.Domain.Infrastructure.VmsDb
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicles");
+                            b1.ToTable("Vehicles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
                         });
 
-                    b.OwnsOne("Vms.Domain.Core.VehicleVrm", "VehicleVrm", b1 =>
+                    b.OwnsOne("Vms.Domain.Core.Vehicle.VehicleVrm#Vms.Domain.Core.VehicleVrm", "VehicleVrm", b1 =>
                         {
                             b1.Property<Guid>("VehicleId")
                                 .HasColumnType("uniqueidentifier");
@@ -1424,7 +1424,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                         .IsRequired()
                         .HasConstraintName("FK_ServiceBookings_Vehicles");
 
-                    b.OwnsOne("Vms.Domain.ServiceBookingProcess.ServiceBookingContact", "Contact", b1 =>
+                    b.OwnsOne("Vms.Domain.ServiceBookingProcess.ServiceBooking.Contact#Vms.Domain.ServiceBookingProcess.ServiceBookingContact", "Contact", b1 =>
                         {
                             b1.Property<Guid>("ServiceBookingId")
                                 .HasColumnType("uniqueidentifier");
@@ -1473,7 +1473,7 @@ namespace Vms.Domain.Infrastructure.VmsDb
                             b1.Navigation("ServiceBooking");
                         });
 
-                    b.OwnsOne("Vms.Domain.ServiceBookingProcess.ServiceBookingDriver", "Driver", b1 =>
+                    b.OwnsOne("Vms.Domain.ServiceBookingProcess.ServiceBooking.Driver#Vms.Domain.ServiceBookingProcess.ServiceBookingDriver", "Driver", b1 =>
                         {
                             b1.Property<Guid>("ServiceBookingId")
                                 .HasColumnType("uniqueidentifier");

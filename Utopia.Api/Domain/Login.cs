@@ -1,11 +1,18 @@
-﻿namespace Utopia.Api.Domain.System
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Utopia.Api.Domain.System
 {
+    [Table("Logins", Schema = "System")]
     public class Login
     {
+        [Key]
         public long Id { get; private set; }
+
         public string UserId { get; private set; } = null!;
-        //public User User { get; private set; } = null!;
+        public User User { get; private set; } = null!;
+
         public DateTime LoginTime { get; private set; }
+        
         public Login(string userId, DateTime loginTime)
             => (UserId, LoginTime) = (userId, loginTime);
     }
@@ -16,15 +23,10 @@ namespace Utopia.Api.Domain.System.Configuration
     {
         public void Configure(EntityTypeBuilder<Login> entity)
         {
-            entity.ToTable("Logins", "System");
-            entity.HasKey(e => e.Id);
-
             entity.Property(e => e.Id)
                 .ValueGeneratedOnAdd();
-            entity.Property(e => e.UserId)
-                .HasMaxLength(User.UserId_MaxLength);
 
-            entity.HasOne<User>()
+            entity.HasOne(e=>e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId);
         }
