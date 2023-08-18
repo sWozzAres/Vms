@@ -1,6 +1,7 @@
 use [vms.data]
 go
 
+
 insert networksuppliers
 select n.companycode, n.code, s.code
 from suppliers s
