@@ -1,3 +1,3 @@
 ﻿namespace Utopia.Shared;
 
-public record ActivityLogDto(Guid Id, string Text, DateTimeOffset EntryDate, string UserName);
+public record ActivityLogDto(Guid Id, string Text, DateTimeOffset EntryDate, string UserName, bool IsNote);

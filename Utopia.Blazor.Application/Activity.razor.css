@@ -1,6 +1,10 @@
 .activitylog article {
     font-size: 80%;
     margin: 1em 0 1em 0em;
+    padding: 0.5em;
+}
+.isnote {
+    background-color: #f5ef4242;
 }
 
     .activitylog article footer {

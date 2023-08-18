@@ -1,14 +1,16 @@
 ﻿namespace Utopia.Api.Domain.System
 {
-    public class ActivityLog(Guid documentId, string text, string userId, string userName, DateTimeOffset entryDate)
+    public class ActivityLog(Guid documentId, string text, string userId, string userName, 
+        DateTimeOffset entryDate, bool isNote)
     {
         public Guid Id { get; private set; } = Guid.NewGuid();
         //public string CompanyCode { get; set; } = companyCode;
         public Guid DocumentId { get; private set; } = documentId;
         public string Text { get; private set; } = text ?? throw new ArgumentNullException(nameof(text));
         public DateTimeOffset EntryDate { get; private set; } = entryDate;
-        public string UserName { get; set; } = userName;
-        public string UserId { get; set; } = userId;
+        public string UserName { get; private set; } = userName;
+        public string UserId { get; private set; } = userId;
+        public bool IsNote { get; private set; } = isNote;
     }
 }
 

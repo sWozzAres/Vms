@@ -219,13 +219,6 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
                         .HasColumnName("ValidTo");
                 }));
 
-                d.Property(e => e.Name)
-                    .HasMaxLength(ServiceBookingDriver.Name_MaxLength);
-                d.Property(e => e.EmailAddress)
-                    .HasMaxLength(ServiceBookingDriver.Email_MaxLength);
-                d.Property(e => e.MobileNumber)
-                    .HasMaxLength(ServiceBookingDriver.MobileNumber_MaxLength);
-
                 d.WithOwner(x => x.ServiceBooking)
                     .HasForeignKey(d => d.ServiceBookingId)
                     .HasConstraintName("FK_ServiceBookings_ServiceBookingDrivers");
@@ -243,13 +236,6 @@ namespace Vms.Domain.ServiceBookingProcess.Configuration
                         .HasPeriodEnd("ValidTo")
                         .HasColumnName("ValidTo");
                 }));
-
-                d.Property(e => e.Name)
-                    .HasMaxLength(ServiceBookingContact.Name_MaxLength);
-                d.Property(e => e.EmailAddress)
-                    .HasMaxLength(ServiceBookingContact.Email_MaxLength);
-                d.Property(e => e.MobileNumber)
-                    .HasMaxLength(ServiceBookingContact.MobileNumber_MaxLength);
 
                 d.WithOwner(x => x.ServiceBooking)
                     .HasForeignKey(d => d.ServiceBookingId)

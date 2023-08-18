@@ -18,7 +18,7 @@ public class AddNoteServiceBooking(VmsDbContext context, IActivityLogger<VmsDbCo
 
         SummaryText.AppendLine(request.Text);
 
-        var entry = await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        var entry = await activityLog.AddNoteAsync(id, SummaryText, cancellationToken);
 
         return entry.ToDto();
     }

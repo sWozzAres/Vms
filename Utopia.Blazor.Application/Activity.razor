@@ -15,7 +15,9 @@
         {
             @foreach (var entry in entries.OrderByDescending(e => e.EntryDate))
             {
-                <article class="activity-entry">
+                var className = string.Join("", " activity-entry", entry.IsNote ? " isnote" : "");
+                
+                <article class="@className">
                     <footer>
                         <time datetime="@entry.EntryDate.ToLocalTime().ToString("s")">@entry.EntryDate.ToLocalTime().ToString("f")</time>
                         - <span class="username">@entry.UserName</span>

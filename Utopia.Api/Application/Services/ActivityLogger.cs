@@ -8,6 +8,7 @@ namespace Utopia.Api.Application.Services;
 
 public interface IActivityLogger<TContext> where TContext : ISystemContext
 {
+    Task<ActivityLog> AddNoteAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
     Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
     Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
 }
@@ -26,14 +27,21 @@ public class ActivityLogger<TContext>(TContext dbContext,
         await NotifyFollowers(documentId, log, cancellationToken);
         return LogActivity(documentId, log, taskTime);
     }
+    
     public Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
         => AddAsync(documentId, log, timeService.GetTime(), cancellationToken);
+    
+    public async Task<ActivityLog> AddNoteAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
+    {
+        await NotifyFollowers(documentId, log, cancellationToken);
+        return LogActivity(documentId, log, timeService.GetTime(), true);
+    }
 
-    private ActivityLog LogActivity(Guid documentId, StringBuilder log, DateTime taskTime)
+    private ActivityLog LogActivity(Guid documentId, StringBuilder log, DateTime taskTime, bool isNote = false)
     {
         logger.LogDebug("Logging activity for user {user}.", userProvider.UserId);
 
-        var entry = new ActivityLog(documentId, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime);
+        var entry = new ActivityLog(documentId, log.ToString(), userProvider.UserId, userProvider.UserName, taskTime, isNote);
         dbContext.ActivityLog.Add(entry);
         return entry;
     }

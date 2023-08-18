@@ -18,7 +18,7 @@ public class AddNoteVehicle(VmsDbContext context, IActivityLogger<VmsDbContext> 
 
         SummaryText.AppendLine(request.Text);
 
-        var entry = await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        var entry = await activityLog.AddNoteAsync(id, SummaryText, cancellationToken);
 
         return entry.ToDto();
     }
