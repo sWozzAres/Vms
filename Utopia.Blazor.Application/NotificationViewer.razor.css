@@ -1,0 +1,10 @@
+.notifications ::deep {
+    background-color: white;
+    padding: 1em;
+}
+
+summary {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}

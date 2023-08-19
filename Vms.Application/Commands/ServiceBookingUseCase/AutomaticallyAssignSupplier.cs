@@ -2,36 +2,36 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IAutomaticallyAssignSupplier
-{
-    Task<bool> AutoAssign(Guid serviceBookingId, CancellationToken cancellationToken = default);
-}
-
-public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocator locator,
+public class AutomaticallyAssignSupplier(
+    VmsDbContext dbContext,
+    IActivityLogger<VmsDbContext> activityLog,
+    SupplierLocator locator,
     ILogger<AutomaticallyAssignSupplier> logger,
-    IAssignSupplier assignSupplier) : IAutomaticallyAssignSupplier
+    AssignSupplier assignSupplier) : ServiceBookingTaskBase(dbContext, activityLog)
 {
-    readonly VmsDbContext DbContext = dbContext;
-    readonly ISupplierLocator SupplierLocator = locator;
+    readonly SupplierLocator SupplierLocator = locator;
     readonly ILogger Logger = logger;
-    readonly IAssignSupplier AssignSupplier = assignSupplier;
+    readonly AssignSupplier AssignSupplier = assignSupplier;
     ServiceBookingRole? ServiceBooking;
 
     public async Task<bool> AutoAssign(Guid serviceBookingId, CancellationToken cancellationToken = default)
     {
         Logger.LogInformation("Automatically assigning supplier service booking: {servicebookingid}.", serviceBookingId);
 
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
-            ?? throw new VmsDomainException("Service Booking not found."), this);
+        ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
-        return await ServiceBooking.AutoAssign(cancellationToken);
+        var assigned = await ServiceBooking.AutoAssign();
+
+        await LogActivity();
+
+        return assigned;
     }
 
-    class ServiceBookingRole(ServiceBooking self, AutomaticallyAssignSupplier ctx)
+    class ServiceBookingRole(ServiceBooking self, AutomaticallyAssignSupplier ctx) : ServiceBookingRoleBase<AutomaticallyAssignSupplier>(self, ctx)
     {
-        public async Task<bool> AutoAssign(CancellationToken cancellationToken)
+        public async Task<bool> AutoAssign()
         {
-            var list = await ctx.SupplierLocator.GetSuppliers(self, null, cancellationToken);
+            var list = await Ctx.SupplierLocator.GetSuppliers(Self, null, Ctx.CancellationToken);
 
             // only include suppliers that have not previously refused this booking
             // TODO optimize by adding this to a parameter to .GetSuppliers()
@@ -42,9 +42,9 @@ public class AutomaticallyAssignSupplier(VmsDbContext dbContext, ISupplierLocato
                 return false;
             }
 
-            ctx.DbContext.ThrowIfNoTransaction();
-            await ctx.AssignSupplier
-                .AssignAsync(self.Id, new TaskAssignSupplierCommand() { SupplierCode = notPreviouslyRefused.First().Code }, cancellationToken);
+            Ctx.DbContext.ThrowIfNoTransaction();
+            await Ctx.AssignSupplier
+                .AssignAsync(Self.Id, new TaskAssignSupplierCommand() { SupplierCode = notPreviouslyRefused.First().Code }, Ctx.CancellationToken);
 
             return true;
         }

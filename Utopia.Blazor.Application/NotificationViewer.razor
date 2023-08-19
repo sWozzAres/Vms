@@ -1,28 +1,76 @@
-﻿<h1>Notifications</h1>
+﻿<PageTitle>Notifications</PageTitle>
 
-@if (notifications is not null)
-{
-    foreach (var entry in notifications)
+<PageHeader>
+    <IconContent>
+        <div class="svg-large svg-search">
+            <img alt="Search" src="icons/search.svg" />
+        </div>
+    </IconContent>
+    <InfoContent>
+        <h1>Notifications</h1>
+    </InfoContent>
+    <Buttons>
+    </Buttons>
+</PageHeader>
+<div class="notifications page-sub-header">
+    @if (notifications is not null)
     {
-        <article>
-            <footer>
-                <time datetime="@entry.EntryDate.ToLocalTime().ToString("s")">@entry.EntryDate.ToLocalTime().ToString("f")</time>
-            </footer>
-            @((MarkupString)Markdown.ToHtml(entry.Text))
-        </article>
-    }
-}
+        var grouped = from n in notifications
+                      group n by (n.DocumentId, n.DocumentKind, n.DocumentKey) into docGroup
+                      orderby docGroup.Key
+                      select docGroup;
 
+        foreach (var doc in grouped)
+        {
+            var info = DocumentInfo(doc.Key);
+
+            <section>
+                <details>
+                    <summary>
+                        <div class="svg-large svg-@info.Name">
+                            <img src="@IconUrl(info.Name)" />
+                        </div>
+                        <h1><a href="@info.Url">@doc.Key.DocumentKey</a></h1>
+                    </summary>
+                    @foreach (var entry in doc)
+                    {
+                        <article>
+                            <footer>
+                                <time datetime="@entry.EntryDate.ToLocalTime().ToString("s")">@entry.EntryDate.ToLocalTime().ToString("f")</time>
+                            </footer>
+                            @((MarkupString)Markdown.ToHtml(entry.Text))
+                        </article>
+                    }
+                </details>
+            </section>
+        }
+    }
+</div>
 @code {
     public delegate Task<List<ActivityNotificationDto>> GetNotifications();
     [Parameter, EditorRequired] public GetNotifications OnGetNotifications { get; set; } = null!;
 
     List<ActivityNotificationDto> notifications = null!;
 
+    (string Url, string Name) DocumentInfo((Guid documentId, string documentKind, string documentKey) key)
+    {
+        return key.documentKind switch
+        {
+            "Vehicle" => ($"/vehicle/view/{key.documentId}", "vehicle"),
+            "ServiceBooking" => ($"/servicebooking/view/{key.documentId}", "servicebooking"),
+            "Supplier" => ($"/supplier/view/{key.documentKey}", "supplier"),
+            _ => throw new ArgumentOutOfRangeException($"Unknown documentKind '{key.documentKind}'.")
+        };
+    }
+
+    string IconUrl(string name) => $"/icons/{name}.svg";
+
     protected override async Task OnInitializedAsync()
     {
         ArgumentNullException.ThrowIfNull(OnGetNotifications);
 
         notifications = await OnGetNotifications();
+
+
     }
 }

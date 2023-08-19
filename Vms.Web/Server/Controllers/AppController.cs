@@ -15,7 +15,7 @@ public class AppController(ILogger<AppController> logger) : ControllerBase
     [HttpGet]
     [Route("notifications")]
     public async Task<IActionResult> GetActivityNotificatons(
-        [FromServices] IUtopiaQueries<VmsDbContext> queries,
+        [FromServices] UtopiaQueries<VmsDbContext> queries,
         CancellationToken cancellationToken)
     {
         return Ok((await queries.GetActivityNotifications(cancellationToken)).ToList());

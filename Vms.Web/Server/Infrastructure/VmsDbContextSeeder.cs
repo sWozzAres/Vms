@@ -2,6 +2,7 @@
 using Utopia.Api.Application.Services;
 using Utopia.Api.Domain.System;
 using Vms.Application.Commands;
+using Vms.Application.Commands.CompanyUseCase;
 using Vms.Domain.ServiceBookingProcess;
 using Vms.Web.Server;
 

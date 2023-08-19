@@ -2,15 +2,9 @@
 
 namespace Vms.Application.Queries;
 
-public interface IServiceBookingQueries
-{
-    Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId, CancellationToken cancellationToken);
-    Task<ServiceBookingFullDto?> GetServiceBookingFull(Guid id, CancellationToken cancellationToken);
-    Task<(int TotalCount, List<ServiceBookingListDto> Result)> GetServiceBookings(ServiceBookingListOptions list, int start, int take, CancellationToken cancellationToken);
-    Task<IEnumerable<ServiceBookingFullDto>> GetServiceBookingsFullByVehicle(Guid id, CancellationToken cancellationToken);
-}
-
-public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvider) : IServiceBookingQueries
+public class ServiceBookingQueries(VmsDbContext context, 
+    IUserProvider userProvider,
+    ITimeService timeService) 
 {
     public async Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId,
         CancellationToken cancellationToken)
@@ -48,7 +42,7 @@ public class ServiceBookingQueries(VmsDbContext context, IUserProvider userProvi
                     .OrderBy(s => s.Id),
             ServiceBookingListOptions.Due
                 => serviceBookings
-                    .Where(s => s.RescheduleTime <= DateTime.Now)
+                    .Where(s => s.RescheduleTime <= timeService.Now)
                     .OrderBy(s => s.RescheduleTime),
             ServiceBookingListOptions.Recent
                 => from x in serviceBookings

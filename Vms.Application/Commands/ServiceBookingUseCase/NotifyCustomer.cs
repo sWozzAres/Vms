@@ -2,33 +2,21 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface INotifyCustomer
-{
-    Task NotifyAsync(Guid serviceBookingId, TaskNotifyCustomerCommand command, CancellationToken cancellationToken);
-}
-
-public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+public class NotifyCustomer(
+    VmsDbContext dbContext,
+    IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
-    ILogger<NotifyCustomer> logger) : INotifyCustomer
+    ILogger<NotifyCustomer> logger) : ServiceBookingTaskBase(dbContext, activityLog)
 {
-    readonly VmsDbContext DbContext = dbContext;
-    readonly StringBuilder SummaryText = new();
-
     ServiceBookingRole? ServiceBooking;
-    Guid Id;
     TaskNotifyCustomerCommand Command = null!;
-    CancellationToken CancellationToken;
 
     public async Task NotifyAsync(Guid serviceBookingId, TaskNotifyCustomerCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Notifying customer for service booking: {servicebookingid}, command: {@tasknotifycustomercommand}.", serviceBookingId, command);
 
-        Id = serviceBookingId;
-        Command = command ?? throw new ArgumentNullException(nameof(command));
-        CancellationToken = cancellationToken;
-
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
-            ?? throw new InvalidOperationException("Failed to load service booking."), this);
+        Command = command;
+        ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         SummaryText.AppendLine("# Notify Customer");
 
@@ -38,38 +26,24 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext
                 ServiceBooking.Notify();
                 break;
             case TaskNotifyCustomerCommand.TaskResult.Rescheduled:
-                await ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule(Command.RescheduleReason!,
+                    Command.RescheduleDate!.Value.ToDateTime(Command.RescheduleTime!.Value));
                 break;
         }
 
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
-            SummaryText, CancellationToken);
+        await LogActivity();
         taskLogger.Log(Id, nameof(NotifyCustomer), Command);
     }
 
-    class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx)
+    class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx) : ServiceBookingRoleBase<NotifyCustomer>(self, ctx)
     {
-        public ServiceBooking Entity => self;
         public void Notify()
         {
-            ctx.SummaryText.AppendLine("## Notified");
-            self.ChangeStatus(ServiceBookingStatus.Complete);
-        }
-
-        public async Task Reschedule()
-        {
-            var reason = await ctx.DbContext.RescheduleReasons
-                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
-
-            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
-            ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
-            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
-            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
-            self.RescheduleTime = rescheduleTime;
+            Ctx.SummaryText.AppendLine("## Notified");
+            Self.ChangeStatus(ServiceBookingStatus.Complete);
         }
     }
 }

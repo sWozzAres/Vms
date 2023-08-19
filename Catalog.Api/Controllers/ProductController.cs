@@ -4,7 +4,7 @@
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class ProductController(ILogger<ProductController> logger, CatalogDbContext context) : ControllerBase
+public class ProductController(CatalogDbContext context) : ControllerBase
 {
     #region CRUD
     [HttpGet]

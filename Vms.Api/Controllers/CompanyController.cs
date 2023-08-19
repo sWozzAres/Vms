@@ -110,7 +110,7 @@ public class CompanyController(ILogger<CompanyController> logger, VmsDbContext c
     [HttpGet]
     public async Task<IActionResult> Get(
         CompanyListOptions list, int start, int take,
-        [FromServices] ICompanyQueries queries,
+        [FromServices] CompanyQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetCompanies(list, start, take, cancellationToken);

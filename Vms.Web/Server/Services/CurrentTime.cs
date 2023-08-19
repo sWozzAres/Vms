@@ -4,5 +4,5 @@ namespace Vms.Web.Server.Services;
 
 public class CurrentTime : ITimeService
 {
-    public DateTime Now() => DateTime.Now;
+    public DateTime Now => DateTime.Now;
 }

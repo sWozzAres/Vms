@@ -1,11 +1,8 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface IFleetQueries
-{
-    Task<(int TotalCount, List<FleetListDto> Result)> GetFleets(FleetListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class FleetQueries(VmsDbContext context, IUserProvider userProvider) : IFleetQueries
+public class FleetQueries(VmsDbContext context
+    //IUserProvider userProvider
+    )
 {
     public async Task<(int TotalCount, List<FleetListDto> Result)> GetFleets(
         FleetListOptions list, int start, int take, CancellationToken cancellationToken)

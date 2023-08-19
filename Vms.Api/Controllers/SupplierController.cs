@@ -13,7 +13,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
     [HttpGet]
     [Route("{id}/activity")]
     public async Task<IActionResult> GetActivities(Guid id,
-        [FromServices] IDocumentQueries documentQueries,
+        [FromServices] DocumentQueries documentQueries,
         CancellationToken cancellationToken)
     => Ok(await documentQueries.GetActivities(id, cancellationToken));
 
@@ -33,7 +33,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
     [HttpGet]
     [Route("{id}/activity/{activityId}")]
     public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
-        [FromServices] ISupplierQueries queries,
+        [FromServices] SupplierQueries queries,
         CancellationToken cancellationToken)
     {
         var activityLog = await queries.GetActivity(id, activityId, cancellationToken);
@@ -108,7 +108,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(
         SupplierListOptions list, int start, int take,
-        [FromServices] ISupplierQueries queries,
+        [FromServices] SupplierQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetSuppliers(list, start, take, cancellationToken);
@@ -120,7 +120,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
     [ProducesResponseType(typeof(SupplierFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetSupplierFull(string code,
-        [FromServices] ISupplierQueries queries,
+        [FromServices] SupplierQueries queries,
         [FromServices] IRecentViewLogger<VmsDbContext> recentViewLogger,
         CancellationToken cancellationToken)
     {

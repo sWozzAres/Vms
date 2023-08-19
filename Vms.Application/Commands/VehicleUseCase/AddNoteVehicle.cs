@@ -1,11 +1,6 @@
 ﻿namespace Vms.Application.Commands.VehicleUseCase;
 
-public interface IAddNoteVehicle
-{
-    Task<ActivityLogDto> Add(Guid id, AddNoteDto request, CancellationToken cancellationToken);
-}
-
-public class AddNoteVehicle(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog) : IAddNoteVehicle
+public class AddNoteVehicle(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog)
 {
     readonly VmsDbContext DbContext = context;
     readonly StringBuilder SummaryText = new();

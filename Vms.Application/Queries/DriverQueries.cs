@@ -1,11 +1,8 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface IDriverQueries
-{
-    Task<(int TotalCount, List<DriverListDto> Result)> GetDrivers(DriverListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class DriverQueries(VmsDbContext context, IUserProvider userProvider) : IDriverQueries
+public class DriverQueries(VmsDbContext context
+    //IUserProvider userProvider
+    )
 {
     public async Task<(int TotalCount, List<DriverListDto> Result)> GetDrivers(
         DriverListOptions list, int start, int take, CancellationToken cancellationToken)

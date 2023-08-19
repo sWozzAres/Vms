@@ -1,137 +1,126 @@
 ﻿namespace Vms.Application.Commands.VehicleUseCase;
 
-public interface IEditVehicle
+public class EditVehicle(
+    VmsDbContext dbContext, 
+    IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger, 
+    ILogger<EditVehicle> logger) : VehicleTaskBase(dbContext, activityLog)
 {
-    Task<bool> EditAsync(Guid id, VehicleDto command, CancellationToken cancellationToken);
-}
+    VehicleRole? Vehicle;
+    VehicleDto Command = null!;
 
-public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
-    ITaskLogger<VmsDbContext> taskLogger, ILogger<EditVehicle> logger) : IEditVehicle
-{
-    readonly VmsDbContext DbContext = dbContext;
-    readonly StringBuilder SummaryText = new();
-
-    public async Task<bool> EditAsync(Guid id, VehicleDto command, CancellationToken cancellationToken)
+    public async Task<bool> EditAsync(Guid vehicleId, VehicleDto command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Editing vehicle: {vehicleid}, command: {@vehicledto}.", id, command);
+        logger.LogInformation("Editing vehicle: {vehicleid}, command: {@vehicledto}.", vehicleId, command);
 
-        //var vehicle = await DbContext.Vehicles.FindAsync(new object[] { id }, cancellationToken)
-        //    ?? throw new InvalidOperationException("Failed to load vehicle.");
-        var vehicle = await DbContext.Vehicles
-            .Include(v => v.MotEvents.Where(e => e.IsCurrent))
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+        Command = command;
+        Vehicle = new(await Load(vehicleId, cancellationToken), this);
 
-            ?? throw new InvalidOperationException("Failed to load vehicle.");
-
-        SummaryText.AppendLine("# Edit");
-
-        bool isModified = false;
-
-        if (vehicle.Vrm != command.Vrm)
-        {
-            SummaryText.AppendLine($"* Vrm: {command.Vrm}");
-            vehicle.Vrm = command.Vrm;
-            isModified = true;
-        }
-
-        if (vehicle.Make != command.Make || vehicle.Model != command.Model)
-        {
-            if (vehicle.Make != command.Make)
-                SummaryText.AppendLine($"Make: {command.Make}");
-            if (vehicle.Model != command.Model)
-                SummaryText.AppendLine($"* Model: {command.Model}");
-            vehicle.SetMakeModel(command.Make!, command.Model!);
-            isModified = true;
-        }
-
-        DateOnly motDue = command.MotDue ?? throw new VmsDomainException("Mot Due cannot be null.");
-
-        var me = vehicle.MotEvents.FirstOrDefault();
-        if (me is null)
-        {
-            logger.LogDebug("The vehicle has no motevent.");
-            SummaryText.AppendLine($"* MOT Due: {command.MotDue}");
-            me = new(vehicle.CompanyCode, vehicle.Id, motDue, true);
-            //vehicle.MotEvents.Add(me);
-            DbContext.MotEvents.Add(me);
-            isModified = true;
-        }
-        else if (me.Due != command.MotDue)
-        {
-            SummaryText.AppendLine($"* MOT Due: {command.MotDue}");
-            me.Due = motDue;
-
-            //var mot = dbContext.MotEvents.FirstOrDefault(x => x.VehicleId == vehicle.Id && x.IsCurrent);
-            //if (mot is not null)
-            //{
-            //    mot.Due = command.MotDue;
-            //}
-            //else
-            //{
-            //    DbContext.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, command.MotDue, true));
-            //}
-            isModified = true;
-        }
-
-        if (vehicle.DateFirstRegistered != command.DateFirstRegistered)
-        {
-            SummaryText.AppendLine($"* Date First Registered: {command.DateFirstRegistered}");
-            vehicle.DateFirstRegistered = command.DateFirstRegistered;
-            isModified = true;
-        }
-        if (vehicle.ChassisNumber != command.ChassisNumber)
-        {
-            SummaryText.AppendLine($"* Chassis Number: {command.ChassisNumber}");
-            vehicle.ChassisNumber = command.ChassisNumber;
-            isModified = true;
-        }
-
-        bool addressModified = false;
-        if (vehicle.Address.Street != command.Address.Street)
-        {
-            SummaryText.AppendLine($"* Street: {command.Address.Street}");
-            addressModified = true;
-        }
-        if (vehicle.Address.Locality != command.Address.Locality)
-        {
-            SummaryText.AppendLine($"* Locality: {command.Address.Locality}");
-            addressModified = true;
-        }
-        if (vehicle.Address.Town != command.Address.Town)
-        {
-            SummaryText.AppendLine($"* Town: {command.Address.Town}");
-            addressModified = true;
-        }
-        if (vehicle.Address.Postcode != command.Address.Postcode)
-        {
-            SummaryText.AppendLine($"* Postcode: {command.Address.Postcode}");
-            addressModified = true;
-        }
-        if (vehicle.Address.Location.Coordinate.Y != command.Address.Location.Latitude)
-        {
-            SummaryText.AppendLine($"* Latitude: {command.Address.Location.Latitude}");
-            addressModified = true;
-        }
-        if (vehicle.Address.Location.Coordinate.X != command.Address.Location.Longitude)
-        {
-            SummaryText.AppendLine($"* Longitude: {command.Address.Location.Longitude}");
-            addressModified = true;
-        }
-        if (addressModified)
-        {
-            vehicle.Address = new Address(command.Address.Street, command.Address.Locality, command.Address.Town, command.Address.Postcode,
-                new Point(command.Address.Location.Longitude, command.Address.Location.Latitude) { SRID = 4326 });
-
-            isModified = true;
-        }
+        var isModified = await Vehicle.ModifyAsync();
 
         if (isModified)
         {
-            _ = await activityLog.AddAsync(id, nameof(Vehicle), vehicle.Vrm,
-                SummaryText, cancellationToken);
-            taskLogger.Log(id, nameof(EditVehicle), command);
+            await LogActivity();
+            taskLogger.Log(vehicleId, nameof(EditVehicle), command);
         }
 
         return isModified;
+    }
+    public class VehicleRole(Vehicle self, EditVehicle ctx) : VehicleRoleBase<EditVehicle>(self, ctx)
+    {
+        public async Task<bool> ModifyAsync()
+        {
+            Ctx.SummaryText.AppendLine("# Edit");
+
+            bool isModified = false;
+
+            if (Self.Vrm != Ctx.Command.Vrm)
+            {
+                Ctx.SummaryText.AppendLine($"* Vrm: {Ctx.Command.Vrm}");
+                Self.Vrm = Ctx.Command.Vrm;
+                isModified = true;
+            }
+
+            if (Self.Make != Ctx.Command.Make || Self.Model != Ctx.Command.Model)
+            {
+                if (Self.Make != Ctx.Command.Make)
+                    Ctx.SummaryText.AppendLine($"Make: {Ctx.Command.Make}");
+                if (Self.Model != Ctx.Command.Model)
+                    Ctx.SummaryText.AppendLine($"* Model: {Ctx.Command.Model}");
+                Self.SetMakeModel(Ctx.Command.Make!, Ctx.Command.Model!);
+                isModified = true;
+            }
+
+            DateOnly motDue = Ctx.Command.MotDue ?? throw new VmsDomainException("Mot Due cannot be null.");
+            Ctx.SummaryText.AppendLine($"* MOT Due: {Ctx.Command.MotDue}");
+
+            var me = await Ctx.DbContext.MotEvents
+                .FirstOrDefaultAsync(m => m.VehicleId == Self.Id && m.IsCurrent, Ctx.CancellationToken);
+            if (me is null)
+            {
+                me = new(Self.CompanyCode, Self.Id, motDue, true);
+                Ctx.DbContext.MotEvents.Add(me);
+                isModified = true;
+            }
+            else if (me.Due != Ctx.Command.MotDue)
+            {
+                me.Due = motDue;
+                isModified = true;
+            }
+
+            if (Self.DateFirstRegistered != Ctx.Command.DateFirstRegistered)
+            {
+                Ctx.SummaryText.AppendLine($"* Date First Registered: {Ctx.Command.DateFirstRegistered}");
+                Self.DateFirstRegistered = Ctx.Command.DateFirstRegistered;
+                isModified = true;
+            }
+            if (Self.ChassisNumber != Ctx.Command.ChassisNumber)
+            {
+                Ctx.SummaryText.AppendLine($"* Chassis Number: {Ctx.Command.ChassisNumber}");
+                Self.ChassisNumber = Ctx.Command.ChassisNumber;
+                isModified = true;
+            }
+
+            bool addressModified = false;
+            if (Self.Address.Street != Ctx.Command.Address.Street)
+            {
+                Ctx.SummaryText.AppendLine($"* Street: {Ctx.Command.Address.Street}");
+                addressModified = true;
+            }
+            if (Self.Address.Locality != Ctx.Command.Address.Locality)
+            {
+                Ctx.SummaryText.AppendLine($"* Locality: {Ctx.Command.Address.Locality}");
+                addressModified = true;
+            }
+            if (Self.Address.Town != Ctx.Command.Address.Town)
+            {
+                Ctx.SummaryText.AppendLine($"* Town: {Ctx.Command.Address.Town}");
+                addressModified = true;
+            }
+            if (Self.Address.Postcode != Ctx.Command.Address.Postcode)
+            {
+                Ctx.SummaryText.AppendLine($"* Postcode: {Ctx.Command.Address.Postcode}");
+                addressModified = true;
+            }
+            if (Self.Address.Location.Coordinate.Y != Ctx.Command.Address.Location.Latitude)
+            {
+                Ctx.SummaryText.AppendLine($"* Latitude: {Ctx.Command.Address.Location.Latitude}");
+                addressModified = true;
+            }
+            if (Self.Address.Location.Coordinate.X != Ctx.Command.Address.Location.Longitude)
+            {
+                Ctx.SummaryText.AppendLine($"* Longitude: {Ctx.Command.Address.Location.Longitude}");
+                addressModified = true;
+            }
+            if (addressModified)
+            {
+                Self.Address = new Address(Ctx.Command.Address.Street, Ctx.Command.Address.Locality, Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
+                    new Point(Ctx.Command.Address.Location.Longitude, Ctx.Command.Address.Location.Latitude) { SRID = 4326 });
+
+                isModified = true;
+            }
+
+            return isModified;
+        }
     }
 }

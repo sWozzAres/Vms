@@ -151,7 +151,15 @@ app.MigrateDbContext<CatalogDbContext>((context, services) =>
     var activityLogger = services.GetRequiredService<IActivityLogger<CatalogDbContext>>();
     var taskLogger = services.GetRequiredService<ITaskLogger<CatalogDbContext>>();
     var timeService = services.GetRequiredService<ITimeService>();
-    new CatalogDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService)
+    new CatalogDbContextSeeder(
+        context, 
+        //searchManager, 
+        logger
+        //loggerFactory, 
+        //activityLogger, 
+        //taskLogger, 
+        //timeService
+        )
         .SeedAsync(env, settings)
         .Wait();
 });

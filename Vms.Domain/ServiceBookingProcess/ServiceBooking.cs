@@ -126,22 +126,18 @@ namespace Vms.Domain.ServiceBookingProcess
         public void Assign(string supplierCode)
         {
             SupplierCode = supplierCode;
-            ChangeStatus(ServiceBookingStatus.Book, DateTime.Now);
         }
         public void Book(DateOnly bookedDate)
         {
             BookedDate = bookedDate;
-            ChangeStatus(ServiceBookingStatus.Confirm, DateTime.Now);
         }
         public void Unbook()
         {
             BookedDate = null;
-            ChangeStatus(ServiceBookingStatus.Book, DateTime.Now);
         }
         public void Unassign()
         {
             SupplierCode = null;
-            ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
         }
     }
 

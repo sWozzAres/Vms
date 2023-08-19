@@ -1,5 +1,6 @@
 ﻿using Utopia.Api.Application.Services;
 using Vms.Application.Commands.ServiceBookingUseCase;
+using Vms.Application.Commands.VehicleUseCase;
 using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Web.Server.Controllers.ClientApp;
@@ -17,7 +18,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpPost]
     [Route("{id}/follow")]
     public async Task<IActionResult> Follow(Guid id,
-        [FromServices] IFollowServiceBooking follow,
+        [FromServices] FollowServiceBooking follow,
         CancellationToken cancellationToken)
     {
         await follow.FollowAsync(id, cancellationToken);
@@ -28,7 +29,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpDelete]
     [Route("{id}/follow")]
     public async Task<IActionResult> Unfollow(Guid id,
-        [FromServices] IUnfollowServiceBooking unfollow,
+        [FromServices] UnfollowServiceBooking unfollow,
         CancellationToken cancellationToken)
     {
         if (!await unfollow.UnfollowAsync(id, cancellationToken))
@@ -45,7 +46,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         [FromServices] IUserProvider userProvider,
         CancellationToken cancellationToken)
     {
-        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName, timeService.Now());
+        var lck = ServiceBookingLock.Create(id, userProvider.UserId, userProvider.UserName, timeService.Now);
         _context.ServiceBookingLocks.Add(lck);
 
         try
@@ -71,7 +72,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return NotFound();
         }
 
-        lck.Granted = timeService.Now();
+        lck.Granted = timeService.Now;
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -111,7 +112,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
         [FromBody] TaskAssignSupplierCommand request,
-        [FromServices] IAssignSupplier assignSupplierUseCase,
+        [FromServices] AssignSupplier assignSupplierUseCase,
         CancellationToken cancellationToken)
     {
         await assignSupplierUseCase.AssignAsync(id, request, cancellationToken);
@@ -123,7 +124,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/unbooksupplier")]
     public async Task<IActionResult> UnbookSupplier(Guid id,
         [FromBody] TaskUnbookSupplierCommand request,
-        [FromServices] IUnbookSupplier unbookSupplier,
+        [FromServices] UnbookSupplier unbookSupplier,
         CancellationToken cancellationToken)
     {
         await unbookSupplier.UnbookAsync(id, request, cancellationToken);
@@ -135,7 +136,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/booksupplier")]
     public async Task<IActionResult> BookSupplier(Guid id,
         [FromBody] TaskBookSupplierCommand request,
-        [FromServices] IBookSupplier bookSupplier,
+        [FromServices] BookSupplier bookSupplier,
         CancellationToken cancellationToken)
     {
         await bookSupplier.BookAsync(id, request, cancellationToken);
@@ -147,7 +148,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/checkworkstatus")]
     public async Task<IActionResult> CheckWorkStatus(Guid id,
         [FromBody] TaskCheckWorkStatusCommand request,
-        [FromServices] ICheckWorkStatus checkWorkStatus,
+        [FromServices] CheckWorkStatus checkWorkStatus,
         CancellationToken cancellationToken)
     {
         await checkWorkStatus.CheckAsync(id, request, cancellationToken);
@@ -159,7 +160,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/confirmbooked")]
     public async Task<IActionResult> ConfirmBooked(Guid id,
         [FromBody] TaskConfirmBookedCommand request,
-        [FromServices] IConfirmBooked confirmBooked,
+        [FromServices] ConfirmBooked confirmBooked,
         CancellationToken cancellationToken)
     {
         await confirmBooked.ConfirmAsync(id, request, cancellationToken);
@@ -170,7 +171,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/notifycustomer")]
     public async Task<IActionResult> NotifyCustomer(Guid id,
         [FromBody] TaskNotifyCustomerCommand request,
-        [FromServices] INotifyCustomer notifyCustomer,
+        [FromServices] NotifyCustomer notifyCustomer,
         CancellationToken cancellationToken)
     {
         await notifyCustomer.NotifyAsync(id, request, cancellationToken);
@@ -181,7 +182,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/notifycustomerdelay")]
     public async Task<IActionResult> NotifyCustomerDelay(Guid id,
         [FromBody] TaskNotifyCustomerDelayCommand request,
-        [FromServices] INotifyCustomerDelay notifyCustomerDelay,
+        [FromServices] NotifyCustomerDelay notifyCustomerDelay,
         CancellationToken cancellationToken)
     {
         await notifyCustomerDelay.NotifyAsync(id, request, cancellationToken);
@@ -193,7 +194,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/checkarrival")]
     public async Task<IActionResult> CheckArrival(Guid id,
         [FromBody] TaskCheckArrivalCommand request,
-        [FromServices] ICheckArrival checkArrival,
+        [FromServices] CheckArrival checkArrival,
         CancellationToken cancellationToken)
     {
         await checkArrival.CheckAsync(id, request, cancellationToken);
@@ -205,7 +206,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/chasedriver")]
     public async Task<IActionResult> ChaseDriver(Guid id,
         [FromBody] TaskChaseDriverCommand request,
-        [FromServices] IChaseDriver chaseDriver,
+        [FromServices] ChaseDriver chaseDriver,
         CancellationToken cancellationToken)
     {
         await chaseDriver.ChaseAsync(id, request, cancellationToken);
@@ -217,7 +218,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/rebookdriver")]
     public async Task<IActionResult> RebookDriver(Guid id,
         [FromBody] TaskRebookDriverCommand request,
-        [FromServices] IRebookDriver rebookDriver,
+        [FromServices] RebookDriver rebookDriver,
         CancellationToken cancellationToken)
     {
         await rebookDriver.RebookAsync(id, request, cancellationToken);
@@ -229,7 +230,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpGet]
     [Route("{id}/activity")]
     public async Task<IActionResult> GetActivities(Guid id,
-        [FromServices] IDocumentQueries documentQueries,
+        [FromServices] DocumentQueries documentQueries,
         CancellationToken cancellationToken)
     => Ok(await documentQueries.GetActivities(id, cancellationToken));
 
@@ -237,7 +238,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/activity")]
     public async Task<IActionResult> PostNote(Guid id,
         [FromBody] AddNoteDto request,
-        [FromServices] IAddNoteServiceBooking addNote,
+        [FromServices] AddNoteServiceBooking addNote,
         CancellationToken cancellationToken)
     {
         var entry = await addNote.Add(id, request, cancellationToken);
@@ -249,7 +250,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpGet]
     [Route("{id}/activity/{activityId}")]
     public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
-        [FromServices] IServiceBookingQueries queries,
+        [FromServices] ServiceBookingQueries queries,
         CancellationToken cancellationToken)
     {
         var activityLog = await queries.GetActivity(id, activityId, cancellationToken);
@@ -261,7 +262,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     public async Task<IActionResult> CreateServiceBooking(
         [FromBody] CreateServiceBookingCommand request,
         //[FromServices] IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
-        [FromServices] ICreateServiceBooking createServiceBooking,
+        [FromServices] CreateServiceBooking createServiceBooking,
         CancellationToken cancellationToken)
     {
         //ModelState.AddModelError("ServiceLevel", "An error");
@@ -305,7 +306,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/edit")]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] ServiceBookingDto request,
-        [FromServices] IEditServiceBooking edit,
+        [FromServices] EditServiceBooking edit,
         CancellationToken cancellationToken)
     {
         if (request.Id != id)
@@ -313,8 +314,8 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return BadRequest();
         }
 
-        await edit.EditAsync(id, request, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        if (await edit.EditAsync(id, request, cancellationToken))
+            await _context.SaveChangesAsync(cancellationToken);
 
         return Ok();
     }
@@ -339,7 +340,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpGet]
     [Route("{id}/suppliers")]
     public async Task<IActionResult> GetSuppliers(Guid id, string? filter,
-        [FromServices] ISupplierLocator supplierLocator,
+        [FromServices] SupplierLocator supplierLocator,
         CancellationToken cancellationToken)
     {
         var serviceBooking = await _context.ServiceBookings.FindAsync(new object[] { id }, cancellationToken);
@@ -355,7 +356,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpGet]
     public async Task<IActionResult> GetServiceBookings(
         ServiceBookingListOptions list, int start, int take,
-        IServiceBookingQueries queries,
+        ServiceBookingQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetServiceBookings(list, start, take, cancellationToken);
@@ -379,7 +380,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}")]
     [AcceptHeader("application/vnd.full")]
     public async Task<IActionResult> GetServiceBookingFull(Guid id,
-        IServiceBookingQueries queries,
+        ServiceBookingQueries queries,
         [FromServices] IRecentViewLogger<VmsDbContext> recentViewLogger,
         CancellationToken cancellationToken)
     {
@@ -401,7 +402,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetServiceBookingsFullByVehicle(Guid id,
-        IServiceBookingQueries queries,
+        ServiceBookingQueries queries,
         CancellationToken cancellationToken)
     {
         var serviceBookings = await queries.GetServiceBookingsFullByVehicle(id, cancellationToken);

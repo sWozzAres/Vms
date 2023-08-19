@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
+using Vms.Application.Commands.CompanyUseCase;
 using Vms.Application.Commands.VehicleUseCase;
 using Vms.Application.Extensions;
 using Vms.Domain.Common;
@@ -15,7 +16,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpGet]
     [Route("{id}/activity")]
     public async Task<IActionResult> GetActivities(Guid id,
-        [FromServices] IDocumentQueries documentQueries,
+        [FromServices] DocumentQueries documentQueries,
         CancellationToken cancellationToken)
     => Ok(await documentQueries.GetActivities(id, cancellationToken));
 
@@ -23,7 +24,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [Route("{id}/activity")]
     public async Task<IActionResult> PostNote(Guid id,
         [FromBody] AddNoteDto request,
-        [FromServices] IAddNoteVehicle addNote,
+        [FromServices] AddNoteVehicle addNote,
         CancellationToken cancellationToken)
     {
         var entry = await addNote.Add(id, request, cancellationToken);
@@ -35,7 +36,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpGet]
     [Route("{id}/activity/{activityId}")]
     public async Task<IActionResult> GetActivity(Guid id, Guid activityId,
-        [FromServices] IVehicleQueries queries,
+        [FromServices] VehicleQueries queries,
         CancellationToken cancellationToken)
     {
         var activityLog = await queries.GetActivity(id, activityId, cancellationToken);
@@ -46,7 +47,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpPost]
     [Route("{id}/follow")]
     public async Task<IActionResult> Follow(Guid id,
-        [FromServices] IFollowVehicle follow,
+        [FromServices] FollowVehicle follow,
         CancellationToken cancellationToken)
     {
         await follow.FollowAsync(id, cancellationToken);
@@ -116,7 +117,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [ProducesResponseType(typeof(VehicleFullDto), StatusCodes.Status200OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetVehicleFull(Guid id,
-        [FromServices] IVehicleQueries queries,
+        [FromServices] VehicleQueries queries,
         [FromServices] IRecentViewLogger<VmsDbContext> recentViewLogger,
         CancellationToken cancellationToken)
     {
@@ -135,7 +136,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(ListResult<VehicleListDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetVehicles(VehicleListOptions list, int start, int take,
-        [FromServices] IVehicleQueries queries,
+        [FromServices] VehicleQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetVehicles(list, start, take, cancellationToken);
@@ -233,7 +234,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateVehicle(
         [FromBody] VehicleDto vehicleDto,
-        [FromServices] ICreateVehicle createVehicle,
+        [FromServices] CreateVehicle createVehicle,
         CancellationToken cancellationToken)
     {
         if (vehicleDto.MotDue == null)
@@ -265,7 +266,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [Route("{id}/edit")]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] VehicleDto request,
-        [FromServices] IEditVehicle edit,
+        [FromServices] EditVehicle edit,
         CancellationToken cancellationToken)
     {
         if (request.Id != id)
@@ -273,8 +274,8 @@ public class VehicleController(VmsDbContext context) : ControllerBase
             return BadRequest();
         }
 
-        await edit.EditAsync(id, request, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        if (await edit.EditAsync(id, request, cancellationToken))
+            await context.SaveChangesAsync(cancellationToken);
 
         return Ok();
     }

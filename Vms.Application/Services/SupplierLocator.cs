@@ -2,12 +2,7 @@
 
 namespace Vms.Application.Services;
 
-public interface ISupplierLocator
-{
-    Task<IEnumerable<SupplierDistance>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken);
-}
-
-public class SupplierLocator(VmsDbContext dbContext) : ISupplierLocator
+public class SupplierLocator(VmsDbContext dbContext)
 {
     public async Task<IEnumerable<SupplierDistance>> GetSuppliers(ServiceBooking serviceBooking, string? filter, CancellationToken cancellationToken = default)
     {

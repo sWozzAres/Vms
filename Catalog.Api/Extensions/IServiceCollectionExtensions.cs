@@ -9,7 +9,7 @@ public static class IServiceCollectionExtensions
     public static void AddCatalogApplication(this IServiceCollection services)
     {
         // queries
-        services.AddScoped<IUtopiaQueries<CatalogDbContext>, UtopiaQueries<CatalogDbContext>>();
+        services.AddScoped<UtopiaQueries<CatalogDbContext>>();
 
         services.AddScoped<IProductQueries, ProductQueries>();
 

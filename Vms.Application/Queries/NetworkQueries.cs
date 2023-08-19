@@ -1,11 +1,9 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface INetworkQueries
-{
-    Task<(int TotalCount, List<NetworkListDto> Result)> GetNetworks(NetworkListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class NetworkQueries(VmsDbContext context, IUserProvider userProvider) : INetworkQueries
+public class NetworkQueries(
+    VmsDbContext context 
+    //IUserProvider userProvider
+    )
 {
     public async Task<(int TotalCount, List<NetworkListDto> Result)> GetNetworks(
         NetworkListOptions list, int start, int take, CancellationToken cancellationToken)

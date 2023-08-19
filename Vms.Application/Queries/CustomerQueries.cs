@@ -1,11 +1,8 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface ICustomerQueries
-{
-    Task<(int TotalCount, List<CustomerListDto> Result)> GetCustomers(CustomerListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class CustomerQueries(VmsDbContext context, IUserProvider userProvider) : ICustomerQueries
+public class CustomerQueries(VmsDbContext context
+    //IUserProvider userProvider
+    )
 {
     public async Task<(int TotalCount, List<CustomerListDto> Result)> GetCustomers(
         CustomerListOptions list, int start, int take, CancellationToken cancellationToken)

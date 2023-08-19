@@ -2,35 +2,23 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface ICheckWorkStatus
-{
-    Task CheckAsync(Guid serviceBookingId, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken);
-}
-
-public class CheckWorkStatus(VmsDbContext dbContext, 
+public class CheckWorkStatus(
+    VmsDbContext dbContext,
     IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
     ITimeService timeService,
-    ILogger<CheckWorkStatus> logger) : ICheckWorkStatus
+    ILogger<CheckWorkStatus> logger) : ServiceBookingTaskBase(dbContext, activityLog)
 {
-    readonly VmsDbContext DbContext = dbContext;
-    readonly StringBuilder SummaryText = new();
     readonly ITimeService TimeService = timeService;
     ServiceBookingRole? ServiceBooking;
-    Guid Id;
     TaskCheckWorkStatusCommand Command = null!;
-    CancellationToken CancellationToken;
 
     public async Task CheckAsync(Guid serviceBookingId, TaskCheckWorkStatusCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Checking work status for service booking: {servicebookingid}, command: {@taskcheckworkstatuscommand}.", serviceBookingId, command);
 
-        Id = serviceBookingId;
-        Command = command ?? throw new ArgumentNullException(nameof(command));
-        CancellationToken = cancellationToken;
-
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
-            ?? throw new InvalidOperationException("Failed to load service booking."), this);
+        Command = command;
+        ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         SummaryText.AppendLine("# Check Work Status");
 
@@ -43,76 +31,64 @@ public class CheckWorkStatus(VmsDbContext dbContext,
                 await ServiceBooking.NotComplete();
                 break;
             case TaskCheckWorkStatusCommand.TaskResult.Rescheduled:
-                await ServiceBooking.Reschedule();
+                await ServiceBooking.Reschedule(Command.RescheduleReason!,
+                    Command.RescheduleDate!.Value.ToDateTime(Command.RescheduleTime!.Value));
                 break;
         }
 
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
-            SummaryText, CancellationToken);
+        await LogActivity();
         taskLogger.Log(Id, nameof(CheckWorkStatus), Command);
     }
 
-    class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)
+    class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx) : ServiceBookingRoleBase<CheckWorkStatus>(self, ctx)
     {
-        public ServiceBooking Entity => self;
         async Task CompleteAndRescheduleMot()
         {
-            var motEvent = await ctx.DbContext.MotEvents
-                    .SingleAsync(e => e.Id == self.MotEventId);// e.ServiceBookingId == self.Id && e.IsCurrent);
+            var motEvent = await Ctx.DbContext.MotEvents
+                    .SingleAsync(e => e.Id == Self.MotEventId);
 
             motEvent.Complete();
 
-            // next MOT is 1 year from either last MOT date or this MOT completion date, whichever is later
-            var nextMotDate = ((ctx.Command.CompletionDate!.Value > motEvent.Due)
-                ? ctx.Command.CompletionDate!.Value
+            // next MOT is 1 year from either last MOT date or this MOT completion date,
+            // whichever is later
+            var nextMotDate = ((Ctx.Command.CompletionDate!.Value > motEvent.Due)
+                ? Ctx.Command.CompletionDate!.Value
                 : motEvent.Due).AddYears(1);
 
+            var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate);
+            Ctx.DbContext.MotEvents.Add(nextMotEvent);
 
-            var nextMotEvent = new MotEvent(motEvent.CompanyCode, motEvent.VehicleId, nextMotDate, true);
-            ctx.DbContext.MotEvents.Add(nextMotEvent);
-
-            ctx.SummaryText.AppendLine($"* Next Mot scheduled for: {nextMotDate}");
+            Ctx.SummaryText.AppendLine($"* Next Mot scheduled for: {nextMotDate}");
         }
         public async Task Complete()
         {
-            ctx.SummaryText.AppendLine("## Completed");
-            ctx.SummaryText.AppendLine($"* Completed Date: {ctx.Command.CompletionDate}");
+            Ctx.SummaryText.AppendLine("## Completed");
+            Ctx.SummaryText.AppendLine($"* Completed Date: {Ctx.Command.CompletionDate}");
 
-            if (self.MotEventId is not null)
+            if (Self.MotEventId.HasValue)
                 await CompleteAndRescheduleMot();
 
-            self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, ctx.TimeService.Now());
+            Self.ChangeStatus(ServiceBookingStatus.NotifyCustomer, Ctx.TimeService.Now);
         }
         public async Task NotComplete()
         {
-            ctx.SummaryText.AppendLine("## Not Complete");
+            Ctx.SummaryText.AppendLine("## Not Complete");
 
-            var nextChase = ctx.Command.NextChaseDate!.Value.ToDateTime(ctx.Command.NextChaseTime!.Value);
-            ctx.SummaryText.AppendLine($"* Next Chase scheduled for: {nextChase.ToString("f")}");
+            var nextChase = Ctx.Command.NextChaseDate!.Value.ToDateTime(Ctx.Command.NextChaseTime!.Value);
+            Ctx.SummaryText.AppendLine($"* Next Chase scheduled for: {nextChase.ToString("f")}");
 
-            var reason = await ctx.DbContext.NotCompleteReasons.FindAsync(new object[] { self.CompanyCode, ctx.Command.NotCompleteReason! }, ctx.CancellationToken)
-                ?? throw new InvalidOperationException("Failed to load not complete reason.");
-            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
-            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
+            var reason = await Ctx.DbContext.NotCompleteReasons.AsNoTracking()
+                .SingleAsync(r => r.CompanyCode == Self.CompanyCode && r.Code == Ctx.Command.NotCompleteReason!, Ctx.CancellationToken);
+            
+            Ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
+            Ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
 
-            self.EstimatedCompletion = nextChase;
-            self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay, ctx.TimeService.Now());
+            Self.EstimatedCompletion = nextChase;
+            Self.ChangeStatus(ServiceBookingStatus.NotifyCustomerDelay, Ctx.TimeService.Now);
 
-        }
-        public async Task Reschedule()
-        {
-            var reason = await ctx.DbContext.RescheduleReasons
-                .SingleAsync(r => r.CompanyCode == self.CompanyCode && r.Code == ctx.Command.RescheduleReason!, ctx.CancellationToken);
-
-            var rescheduleTime = ctx.Command.RescheduleDate!.Value.ToDateTime(ctx.Command.RescheduleTime!.Value);
-            ctx.SummaryText.AppendLine("## Rescheduled");
-            ctx.SummaryText.AppendLine($"* Time: {rescheduleTime.ToString("f")}");
-            ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
-            ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
-            self.RescheduleTime = rescheduleTime;
         }
     }
 }

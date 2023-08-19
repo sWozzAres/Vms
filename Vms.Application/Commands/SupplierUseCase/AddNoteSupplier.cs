@@ -17,7 +17,7 @@ public class AddNoteSupplier(VmsDbContext context, IActivityLogger<VmsDbContext>
 
         SummaryText.AppendLine(request.Text);
 
-        var entry = await activityLog.AddAsync(id, nameof(Supplier), supplier.Code, 
+        var entry = await activityLog.AddAsync(id, nameof(Supplier), supplier.Code,
             SummaryText, cancellationToken);
 
         return entry.ToDto();

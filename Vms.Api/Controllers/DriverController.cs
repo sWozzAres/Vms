@@ -40,7 +40,7 @@ public class DriverController(VmsDbContext context) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(
         DriverListOptions list, int start, int take,
-        [FromServices] IDriverQueries queries,
+        [FromServices] DriverQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetDrivers(list, start, take, cancellationToken);

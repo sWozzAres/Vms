@@ -2,5 +2,5 @@
 
 public interface ITimeService
 {
-    DateTime Now();
+    DateTime Now { get; }
 }

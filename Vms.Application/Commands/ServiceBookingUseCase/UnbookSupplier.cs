@@ -2,31 +2,39 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IUnbookSupplier
-{
-    Task UnbookAsync(Guid serviceBookingId, TaskUnbookSupplierCommand command, CancellationToken cancellationToken);
-}
-
-public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
+public class UnbookSupplier(
+    VmsDbContext dbContext,
+    IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
-    ILogger<UnbookSupplier> logger) : IUnbookSupplier
+    ILogger<UnbookSupplier> logger,
+    ITimeService timeService) : ServiceBookingTaskBase(dbContext, activityLog)
 {
-    readonly VmsDbContext DbContext = dbContext;
-    readonly StringBuilder SummaryText = new();
+    readonly ITimeService TimeService = timeService;
+    ServiceBookingRole? ServiceBooking;
+    TaskUnbookSupplierCommand Command = null!;
 
     public async Task UnbookAsync(Guid serviceBookingId, TaskUnbookSupplierCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Unbooking supplier for service booking: {servicebookingid}, command: {@taskunbooksuppliercommand}.", serviceBookingId, command);
 
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
-            ?? throw new InvalidOperationException("Failed to load service booking.");
+        Command = command;
+        ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         SummaryText.AppendLine("# Unbook Supplier");
-        SummaryText.AppendLine($"* Reason: {command.Reason}");
 
-        serviceBooking.Unbook();
+        ServiceBooking.Unbook();
 
-        _ = await activityLog.AddAsync(serviceBookingId, nameof(ServiceBooking), serviceBooking.Ref, SummaryText, cancellationToken);
+        await LogActivity();
         taskLogger.Log(serviceBookingId, nameof(UnbookSupplier), command);
+    }
+    class ServiceBookingRole(ServiceBooking self, UnbookSupplier ctx) : ServiceBookingRoleBase<UnbookSupplier>(self, ctx)
+    {
+        public void Unbook()
+        {
+            Ctx.SummaryText.AppendLine($"* Reason: {Ctx.Command.Reason}");
+
+            Self.Unbook();
+            Self.ChangeStatus(ServiceBookingStatus.Book, Ctx.TimeService.Now);
+        }
     }
 }

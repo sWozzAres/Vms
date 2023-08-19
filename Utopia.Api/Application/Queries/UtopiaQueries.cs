@@ -1,11 +1,6 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface IUtopiaQueries<TContext> where TContext : ISystemContext
-{
-    Task<IEnumerable<ActivityNotificationDto>> GetActivityNotifications(CancellationToken cancellationToken);
-}
-
-public class UtopiaQueries<TContext>(TContext context, IUserProvider userProvider) : IUtopiaQueries<TContext> where TContext : ISystemContext
+public class UtopiaQueries<TContext>(TContext context, IUserProvider userProvider) where TContext : ISystemContext
 {
     public async Task<IEnumerable<ActivityNotificationDto>> GetActivityNotifications(CancellationToken cancellationToken)
     {

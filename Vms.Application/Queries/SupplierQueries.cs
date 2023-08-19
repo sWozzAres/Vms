@@ -1,13 +1,6 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface ISupplierQueries
-{
-    Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId, CancellationToken cancellationToken);
-    Task<SupplierFullDto?> GetSupplierFull(string code, CancellationToken cancellationToken);
-    Task<(int TotalCount, List<SupplierListDto> Result)> GetSuppliers(SupplierListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class SupplierQueries(VmsDbContext context, IUserProvider userProvider) : ISupplierQueries
+public class SupplierQueries(VmsDbContext context, IUserProvider userProvider)
 {
     public async Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId,
         CancellationToken cancellationToken)

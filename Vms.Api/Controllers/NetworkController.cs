@@ -11,7 +11,7 @@ public class NetworkController(VmsDbContext context) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(
         NetworkListOptions list, int start, int take,
-        [FromServices] INetworkQueries queries,
+        [FromServices] NetworkQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetNetworks(list, start, take, cancellationToken);

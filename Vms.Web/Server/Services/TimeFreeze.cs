@@ -13,7 +13,7 @@ public class TimeFreeze : ITimeService
     }
     public TimeFreeze(ITimeService time)
     {
-        _time = time.Now();
+        _time = time.Now;
     }
-    public DateTime Now() => _time;
+    public DateTime Now => _time;
 }

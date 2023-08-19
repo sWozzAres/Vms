@@ -1,5 +1,6 @@
 ﻿using Utopia.Api.Application.Commands;
 using Utopia.Api.Application.Services;
+using Vms.Application.Commands.CompanyUseCase;
 using Vms.Application.Commands.ServiceBookingUseCase;
 using Vms.Application.Commands.SupplierUseCase;
 using Vms.Application.Commands.VehicleUseCase;
@@ -11,17 +12,17 @@ public static class IServiceCollectionExtensions
     public static void AddVmsApplication(this IServiceCollection services)
     {
         // queries
-        services.AddScoped<IUtopiaQueries<VmsDbContext>, UtopiaQueries<VmsDbContext>>();
+        services.AddScoped<UtopiaQueries<VmsDbContext>>();
 
-        services.AddScoped<IDocumentQueries, DocumentQueries>();
-        services.AddScoped<ICompanyQueries, CompanyQueries>();
-        services.AddScoped<IDriverQueries, DriverQueries>();
-        services.AddScoped<ICustomerQueries, CustomerQueries>();
-        services.AddScoped<IFleetQueries, FleetQueries>();
-        services.AddScoped<INetworkQueries, NetworkQueries>();
-        services.AddScoped<ISupplierQueries, SupplierQueries>();
-        services.AddScoped<IVehicleQueries, VehicleQueries>();
-        services.AddScoped<IServiceBookingQueries, ServiceBookingQueries>();
+        services.AddScoped<DocumentQueries>();
+        services.AddScoped<CompanyQueries>();
+        services.AddScoped<DriverQueries>();
+        services.AddScoped<CustomerQueries>();
+        services.AddScoped<FleetQueries>();
+        services.AddScoped<NetworkQueries>();
+        services.AddScoped<SupplierQueries>();
+        services.AddScoped<VehicleQueries>();
+        services.AddScoped<ServiceBookingQueries>();
 
         // services
         services.AddScoped<IActivityLogger<VmsDbContext>, ActivityLogger<VmsDbContext>>();
@@ -41,29 +42,31 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ICreateSupplier, CreateSupplier>();
 
         // vehicle
-        services.AddScoped<IFollowVehicle, FollowVehicle>();
+        services.AddScoped<FollowVehicle>();
         services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
-        services.AddScoped<IAddNoteVehicle, AddNoteVehicle>();
-        services.AddScoped<IEditVehicle, EditVehicle>();
-        services.AddScoped<ICreateVehicle, CreateVehicle>();
+        services.AddScoped<AddNoteVehicle>();
+        services.AddScoped<EditVehicle>();
+        services.AddScoped<CreateServiceBooking>();
+
+        // company
+        services.AddScoped<CreateVehicle>();
 
         // service booking
-        services.AddScoped<IAddNoteServiceBooking, AddNoteServiceBooking>();
-        services.AddScoped<IEditServiceBooking, EditServiceBooking>();
-        services.AddScoped<IFollowServiceBooking, FollowServiceBooking>();
-        services.AddScoped<IUnfollowServiceBooking, UnfollowServiceBooking>();
-        services.AddScoped<IBookSupplier, BookSupplier>();
-        services.AddScoped<IConfirmBooked, ConfirmBooked>();
-        services.AddScoped<ICheckArrival, CheckArrival>();
-        services.AddScoped<ICheckWorkStatus, CheckWorkStatus>();
-        services.AddScoped<IChaseDriver, ChaseDriver>();
-        services.AddScoped<IRebookDriver, RebookDriver>();
-        services.AddScoped<INotifyCustomer, NotifyCustomer>();
-        services.AddScoped<INotifyCustomerDelay, NotifyCustomerDelay>();
-        services.AddScoped<ICreateServiceBooking, CreateServiceBooking>();
-        services.AddScoped<ISupplierLocator, SupplierLocator>();
-        services.AddScoped<IAssignSupplier, AssignSupplier>();
-        services.AddScoped<IUnbookSupplier, UnbookSupplier>();
-        services.AddScoped<IAutomaticallyAssignSupplier, AutomaticallyAssignSupplier>();
+        services.AddScoped<AddNoteServiceBooking>();
+        services.AddScoped<EditServiceBooking>();
+        services.AddScoped<FollowServiceBooking>();
+        services.AddScoped<UnfollowServiceBooking>();
+        services.AddScoped<BookSupplier>();
+        services.AddScoped<ConfirmBooked>();
+        services.AddScoped<CheckArrival>();
+        services.AddScoped<CheckWorkStatus>();
+        services.AddScoped<ChaseDriver>();
+        services.AddScoped<RebookDriver>();
+        services.AddScoped<NotifyCustomer>();
+        services.AddScoped<NotifyCustomerDelay>();
+        services.AddScoped<SupplierLocator>();
+        services.AddScoped<AssignSupplier>();
+        services.AddScoped<UnbookSupplier>();
+        services.AddScoped<AutomaticallyAssignSupplier>();
     }
 }

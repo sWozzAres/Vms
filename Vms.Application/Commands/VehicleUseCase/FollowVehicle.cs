@@ -1,38 +1,30 @@
 ﻿namespace Vms.Application.Commands.VehicleUseCase;
 
-public interface IFollowVehicle
+public class FollowVehicle(
+    VmsDbContext dbContext,
+    IActivityLogger<VmsDbContext> activityLog,
+    IUserProvider userProvider) : VehicleTaskBase(dbContext, activityLog)
 {
-    Task FollowAsync(Guid id, CancellationToken cancellationToken);
-}
-
-public class FollowVehicle(VmsDbContext dbContext, IUserProvider userProvider, IActivityLogger<VmsDbContext> activityLog) : IFollowVehicle
-{
-    readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;
-    readonly StringBuilder SummaryText = new();
-
     VehicleRole? Vehicle;
 
-    public async Task FollowAsync(Guid id, CancellationToken cancellationToken)
+    public async Task FollowAsync(Guid vehicleId, CancellationToken cancellationToken)
     {
-        Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { id }, cancellationToken)
-            ?? throw new InvalidOperationException("Failed to load vehicle."), this);
+        Vehicle = new(await Load(vehicleId, cancellationToken), this);
 
         SummaryText.AppendLine("# Follow");
 
         Vehicle.AddFollower();
 
-        _ = await activityLog.AddAsync(id, nameof(Domain.Core.Vehicle), Vehicle.Entity.Vrm,
-            SummaryText, cancellationToken);
+        await LogActivity();
     }
 
-    class VehicleRole(Vehicle self, FollowVehicle ctx)
+    class VehicleRole(Vehicle self, FollowVehicle ctx) : VehicleRoleBase<FollowVehicle>(self, ctx)
     {
-        public Vehicle Entity => self;
         public void AddFollower()
         {
-            var f = new Follower(self.Id, ctx.UserProvider.UserId);
-            ctx.DbContext.Followers.Add(f);
+            var f = new Follower(Self.Id, Ctx.UserProvider.UserId);
+            Ctx.DbContext.Followers.Add(f);
         }
     }
 }

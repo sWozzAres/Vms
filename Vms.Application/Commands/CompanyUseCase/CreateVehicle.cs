@@ -1,11 +1,6 @@
-﻿namespace Vms.Application.Commands.VehicleUseCase;
+﻿namespace Vms.Application.Commands.CompanyUseCase;
 
-public interface ICreateVehicle
-{
-    Task<Vehicle> CreateAsync(CreateVehicleRequest request, CancellationToken cancellationToken = default);
-}
-
-public class CreateVehicle(VmsDbContext dbContext, ISearchManager searchManager) : ICreateVehicle
+public class CreateVehicle(VmsDbContext dbContext, ISearchManager searchManager)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;

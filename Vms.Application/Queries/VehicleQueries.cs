@@ -1,15 +1,9 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface IVehicleQueries
-{
-    Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId, CancellationToken cancellationToken);
-    Task<VehicleFullDto?> GetVehicleFull(Guid id, CancellationToken cancellationToken);
-    Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(VehicleListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class VehicleQueries(VmsDbContext context,
+public class VehicleQueries(
+    VmsDbContext context,
     IUserProvider userProvider,
-    ITimeService timeService) : IVehicleQueries
+    ITimeService timeService)
 {
     public async Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId,
         CancellationToken cancellationToken)
@@ -72,7 +66,7 @@ public class VehicleQueries(VmsDbContext context,
         }
         else if (list == VehicleListOptions.DueMot)
         {
-            var todayPlus30 = DateOnly.FromDateTime(timeService.Now()).AddDays(30);
+            var todayPlus30 = DateOnly.FromDateTime(timeService.Now).AddDays(30);
             var vehiclesWithMot = from v in vehicles
                                   join me in context.MotEvents on v.Id equals me.VehicleId
                                   //where me.Due <= todayPlus30 && !context.MotEvents.Any(m => v.Id == m.VehicleId && m.IsCurrent && m.ServiceBookingId != null)

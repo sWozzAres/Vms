@@ -1,24 +1,20 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using Vms.Application.Commands.ServiceBookingUseCase;
+using Vms.Domain.ServiceBookingProcess;
 
-namespace Vms.Application.Commands.ServiceBookingUseCase;
-
-public interface ICreateServiceBooking
-{
-    Task<ServiceBooking> CreateAsync(CreateServiceBookingCommand request, CancellationToken cancellationToken = default);
-}
+namespace Vms.Application.Commands.VehicleUseCase;
 
 public class CreateServiceBooking(VmsDbContext dbContext,
     IUserProvider userProvider,
-    IAutomaticallyAssignSupplier automaticallyAssignSupplier,
+    AutomaticallyAssignSupplier automaticallyAssignSupplier,
     IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
     ISearchManager searchManager,
     ITimeService timeService,
-    ILogger<CreateServiceBooking> logger) : ICreateServiceBooking
+    ILogger<CreateServiceBooking> logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     readonly IUserProvider UserProvider = userProvider;
-    readonly IAutomaticallyAssignSupplier AutomaticallyAssignSupplier = automaticallyAssignSupplier;
+    readonly AutomaticallyAssignSupplier AutomaticallyAssignSupplier = automaticallyAssignSupplier;
     readonly StringBuilder SummaryText = new();
     readonly ILogger<CreateServiceBooking> Logger = logger;
     readonly ISearchManager SearchManager = searchManager;
@@ -40,7 +36,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
         // remember task time, or the included use case (assign) will end up in the log
         // before the creation of the booking 
-        var taskTime = TimeService.Now();
+        var taskTime = TimeService.Now;
 
         // create the service booking
         var serviceBooking = await Vehicle.CreateServiceBooking();
@@ -81,7 +77,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
             ctx.DbContext.ServiceBookings.Add(self);
 
             if (self.IsValid)
-                self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now());
+                self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now);
 
             SummarizeInActivityLog();
 
@@ -97,7 +93,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
             async Task AutoAssign()
             {
-                self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now());
+                self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now);
 
                 ctx.DbContext.ThrowIfNoTransaction();
                 if (await ctx.AutomaticallyAssignSupplier.AutoAssign(self.Id, ctx.CancellationToken))

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-
-namespace Vms.Application.Commands.VehicleUseCase;
+﻿namespace Vms.Application.Commands.VehicleUseCase;
 
 public interface IUnfollowVehicle
 {

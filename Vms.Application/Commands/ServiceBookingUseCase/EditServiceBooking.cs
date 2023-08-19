@@ -2,124 +2,129 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IEditServiceBooking
+public class EditServiceBooking(
+    VmsDbContext dbContext,
+    IActivityLogger<VmsDbContext> activityLog,
+    ITaskLogger<VmsDbContext> taskLogger,
+    ILogger<EditServiceBooking> logger,
+    ITimeService timeService) : ServiceBookingTaskBase(dbContext, activityLog)
 {
-    Task<bool> EditAsync(Guid serviceBookingId, ServiceBookingDto command, CancellationToken cancellationToken);
-}
-
-public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbContext> activityLog,
-    ITaskLogger<VmsDbContext> taskLogger, ILogger<EditServiceBooking> logger) : IEditServiceBooking
-{
-    readonly VmsDbContext DbContext = dbContext;
-    readonly StringBuilder SummaryText = new();
+    readonly ITimeService TimeService = timeService;
+    ServiceBookingRole? ServiceBooking;
+    readonly ServiceBookingDto Command = null!;
 
     public async Task<bool> EditAsync(Guid serviceBookingId, ServiceBookingDto command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Editing service booking: {servicebookingid}, command: {@servicebookingdto}.", serviceBookingId, command);
 
-        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
-            ?? throw new InvalidOperationException("Failed to load service booking.");
+        ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
-        SummaryText.AppendLine("# Edit");
-
-        bool isModified = false;
-
-        if (serviceBooking.PreferredDate1 != command.PreferredDate1)
-        {
-            SummaryText.AppendLine($"* Preferred Date 1: {command.PreferredDate1}");
-            serviceBooking.PreferredDate1 = command.PreferredDate1;
-            isModified = true;
-        }
-        if (serviceBooking.PreferredDate2 != command.PreferredDate2)
-        {
-            SummaryText.AppendLine($"* Preferred Date 2: {command.PreferredDate2}");
-            serviceBooking.PreferredDate2 = command.PreferredDate2;
-            isModified = true;
-        }
-        if (serviceBooking.PreferredDate3 != command.PreferredDate3)
-        {
-            SummaryText.AppendLine($"* Preferred Date 3: {command.PreferredDate3}");
-            serviceBooking.PreferredDate3 = command.PreferredDate3;
-            isModified = true;
-        }
-
-        var sl = (ServiceLevel)command.ServiceLevel;
-        if (serviceBooking.ServiceLevel != sl)
-        {
-            SummaryText.AppendLine($"* Service Level: {sl.ToString()}");
-            serviceBooking.ServiceLevel = sl;
-            isModified = true;
-        }
-
-        if (serviceBooking.AssignedToUserId != command.AssignedToUserId)
-        {
-            if (command.AssignedToUserId is null)
-            {
-                SummaryText.AppendLine($"* Removed Assigned User");
-            }
-            else
-            {
-                var user = await DbContext.Users.FindAsync(new object[] { command.AssignedToUserId }, cancellationToken)
-                    ?? throw new InvalidOperationException("Failed to load user.");
-
-                SummaryText.AppendLine($"* Assigned To: {user.UserName}");
-            }
-            serviceBooking.AssignedToUserId = command.AssignedToUserId;
-            isModified = true;
-        }
-
-
-        if (serviceBooking.Driver.Name != command.Driver_Name)
-        {
-            SummaryText.AppendLine($"* Driver Name: {command.Driver_Name}");
-            serviceBooking.Driver.Name = command.Driver_Name;
-            isModified = true;
-        }
-        if (serviceBooking.Driver.EmailAddress != command.Driver_EmailAddress)
-        {
-            SummaryText.AppendLine($"* Driver Email Address: [{command.Driver_EmailAddress}](mailto://{command.Driver_EmailAddress})");
-            serviceBooking.Driver.EmailAddress = command.Driver_EmailAddress;
-            isModified = true;
-        }
-        if (serviceBooking.Driver.MobileNumber != command.Driver_MobileNumber)
-        {
-            SummaryText.AppendLine($"* Driver Mobile Number: {command.Driver_MobileNumber}");
-            serviceBooking.Driver.MobileNumber = command.Driver_MobileNumber;
-            isModified = true;
-        }
-        if (serviceBooking.Contact.Name != command.Contact_Name)
-        {
-            SummaryText.AppendLine($"* Contact Name: {command.Contact_Name}");
-            serviceBooking.Contact.Name = command.Contact_Name;
-            isModified = true;
-        }
-        if (serviceBooking.Contact.EmailAddress != command.Contact_EmailAddress)
-        {
-            SummaryText.AppendLine($"* Contact Email Address: [{command.Contact_EmailAddress}](mailto://{command.Contact_EmailAddress})");
-            serviceBooking.Contact.EmailAddress = command.Contact_EmailAddress;
-            isModified = true;
-        }
-        if (serviceBooking.Contact.MobileNumber != command.Contact_MobileNumber)
-        {
-            SummaryText.AppendLine($"* Contact Mobile Number: {command.Contact_MobileNumber}");
-            serviceBooking.Contact.MobileNumber = command.Contact_MobileNumber;
-            isModified = true;
-        }
-
-        if (serviceBooking.Status == ServiceBookingStatus.None && serviceBooking.IsValid)
-        {
-            SummaryText.AppendLine($"* Status: {ServiceBookingStatus.Assign.ToString()}");
-            serviceBooking.ChangeStatus(ServiceBookingStatus.Assign, DateTime.Now);
-            isModified = true;
-        }
-
+        var isModified = await ServiceBooking.ModifyDocument();
         if (isModified)
         {
-            _ = await activityLog.AddAsync(serviceBookingId, nameof(ServiceBooking), serviceBooking.Ref,
-                SummaryText, cancellationToken);
+            await LogActivity();
             taskLogger.Log(serviceBookingId, nameof(EditServiceBooking), command);
         }
 
         return isModified;
+    }
+    class ServiceBookingRole(ServiceBooking self, EditServiceBooking ctx) : ServiceBookingRoleBase<EditServiceBooking>(self, ctx)
+    {
+        public async Task<bool> ModifyDocument()
+        {
+            Ctx.SummaryText.AppendLine("# Edit");
+
+            bool isModified = false;
+
+            if (Self.PreferredDate1 != Ctx.Command.PreferredDate1)
+            {
+                Ctx.SummaryText.AppendLine($"* Preferred Date 1: {Ctx.Command.PreferredDate1}");
+                Self.PreferredDate1 = Ctx.Command.PreferredDate1;
+                isModified = true;
+            }
+            if (Self.PreferredDate2 != Ctx.Command.PreferredDate2)
+            {
+                Ctx.SummaryText.AppendLine($"* Preferred Date 2: {Ctx.Command.PreferredDate2}");
+                Self.PreferredDate2 = Ctx.Command.PreferredDate2;
+                isModified = true;
+            }
+            if (Self.PreferredDate3 != Ctx.Command.PreferredDate3)
+            {
+                Ctx.SummaryText.AppendLine($"* Preferred Date 3: {Ctx.Command.PreferredDate3}");
+                Self.PreferredDate3 = Ctx.Command.PreferredDate3;
+                isModified = true;
+            }
+
+            var sl = (ServiceLevel)Ctx.Command.ServiceLevel;
+            if (Self.ServiceLevel != sl)
+            {
+                Ctx.SummaryText.AppendLine($"* Service Level: {sl.ToDisplayString()}");
+                Self.ServiceLevel = sl;
+                isModified = true;
+            }
+
+            if (Self.AssignedToUserId != Ctx.Command.AssignedToUserId)
+            {
+                if (Ctx.Command.AssignedToUserId is null)
+                {
+                    Ctx.SummaryText.AppendLine($"* Removed Assigned User");
+                }
+                else
+                {
+                    var user = await Ctx.DbContext.Users.AsNoTracking()
+                        .SingleAsync(u => u.UserId == Ctx.Command.AssignedToUserId, Ctx.CancellationToken);
+
+                    Ctx.SummaryText.AppendLine($"* Assigned To: {user.UserName}");
+                }
+                Self.AssignedToUserId = Ctx.Command.AssignedToUserId;
+                isModified = true;
+            }
+
+            if (Self.Driver.Name != Ctx.Command.Driver_Name)
+            {
+                Ctx.SummaryText.AppendLine($"* Driver Name: {Ctx.Command.Driver_Name}");
+                Self.Driver.Name = Ctx.Command.Driver_Name;
+                isModified = true;
+            }
+            if (Self.Driver.EmailAddress != Ctx.Command.Driver_EmailAddress)
+            {
+                Ctx.SummaryText.AppendLine($"* Driver Email Address: [{Ctx.Command.Driver_EmailAddress}](mailto://{Ctx.Command.Driver_EmailAddress})");
+                Self.Driver.EmailAddress = Ctx.Command.Driver_EmailAddress;
+                isModified = true;
+            }
+            if (Self.Driver.MobileNumber != Ctx.Command.Driver_MobileNumber)
+            {
+                Ctx.SummaryText.AppendLine($"* Driver Mobile Number: {Ctx.Command.Driver_MobileNumber}");
+                Self.Driver.MobileNumber = Ctx.Command.Driver_MobileNumber;
+                isModified = true;
+            }
+            if (Self.Contact.Name != Ctx.Command.Contact_Name)
+            {
+                Ctx.SummaryText.AppendLine($"* Contact Name: {Ctx.Command.Contact_Name}");
+                Self.Contact.Name = Ctx.Command.Contact_Name;
+                isModified = true;
+            }
+            if (Self.Contact.EmailAddress != Ctx.Command.Contact_EmailAddress)
+            {
+                Ctx.SummaryText.AppendLine($"* Contact Email Address: [{Ctx.Command.Contact_EmailAddress}](mailto://{Ctx.Command.Contact_EmailAddress})");
+                Self.Contact.EmailAddress = Ctx.Command.Contact_EmailAddress;
+                isModified = true;
+            }
+            if (Self.Contact.MobileNumber != Ctx.Command.Contact_MobileNumber)
+            {
+                Ctx.SummaryText.AppendLine($"* Contact Mobile Number: {Ctx.Command.Contact_MobileNumber}");
+                Self.Contact.MobileNumber = Ctx.Command.Contact_MobileNumber;
+                isModified = true;
+            }
+
+            if (Self.Status == ServiceBookingStatus.None && Self.IsValid)
+            {
+                Self.ChangeStatus(ServiceBookingStatus.Assign, Ctx.TimeService.Now);
+                Ctx.SummaryText.AppendLine($"* Status: {Self.Status.ToDisplayString()}");
+                isModified = true;
+            }
+
+            return isModified;
+        }
     }
 }

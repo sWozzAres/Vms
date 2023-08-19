@@ -19,7 +19,7 @@ namespace Vms.Domain.ServiceBookingProcess
         public bool IsCurrent { get; private set; }
 
         private MotEvent() { }
-        public MotEvent(string companyCode, Guid vehicleId, DateOnly due, bool isCurrent)
+        public MotEvent(string companyCode, Guid vehicleId, DateOnly due, bool isCurrent = true)
         {
             Id = Guid.NewGuid();
             CompanyCode = companyCode;

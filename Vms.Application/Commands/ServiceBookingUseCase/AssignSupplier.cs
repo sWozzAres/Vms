@@ -2,59 +2,46 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IAssignSupplier
-{
-    Task AssignAsync(Guid serviceBookingId, TaskAssignSupplierCommand command, CancellationToken cancellationToken = default);
-}
-
 public class AssignSupplier(VmsDbContext dbContext,
     IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
-    ILogger<AssignSupplier> logger) : IAssignSupplier
+    ILogger<AssignSupplier> logger,
+    ITimeService timeService) : ServiceBookingTaskBase(dbContext, activityLog)
 {
-    readonly VmsDbContext DbContext = dbContext;
-    readonly StringBuilder SummaryText = new();
-
+    readonly ITimeService TimeService = timeService;
     ServiceBookingRole? ServiceBooking;
-    Guid Id;
     TaskAssignSupplierCommand Command = null!;
-    CancellationToken CancellationToken;
 
     public async Task AssignAsync(Guid serviceBookingId, TaskAssignSupplierCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Assigning supplier for service booking: {servicebookingid}, command: {@taskassignsuppliercommand}", serviceBookingId, command);
 
-        Id = serviceBookingId;
         Command = command;
-        CancellationToken = cancellationToken;
-
-        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
-            ?? throw new InvalidOperationException("Service Booking not found."), this);
+        ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         await ServiceBooking.Assign();
 
-        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref, 
-            SummaryText, CancellationToken);
+        await LogActivity();
         taskLogger.Log(serviceBookingId, nameof(AssignSupplier), Command);
     }
 
-    class ServiceBookingRole(ServiceBooking self, AssignSupplier ctx)
+    class ServiceBookingRole(ServiceBooking self, AssignSupplier ctx) : ServiceBookingRoleBase<AssignSupplier>(self, ctx)
     {
-        public ServiceBooking Entity => self;
         public async Task Assign()
         {
-            if (self.Status != ServiceBookingStatus.Assign && self.Status != ServiceBookingStatus.Book)
+            if (Self.Status != ServiceBookingStatus.Assign && Self.Status != ServiceBookingStatus.Book)
                 throw new VmsDomainException("Service Booking is not in Assign or Book status.");
 
-            ctx.SummaryText.AppendLine("# Assign Supplier");
+            Ctx.SummaryText.AppendLine("# Assign Supplier");
 
-            var supplier = await ctx.DbContext.Suppliers.FindAsync(new object[] { ctx.Command.SupplierCode }, ctx.CancellationToken)
-                ?? throw new InvalidOperationException("Supplier not found.");
+            var supplier = await Ctx.DbContext.Suppliers.AsNoTracking()
+                .SingleAsync(s => s.Code == Ctx.Command.SupplierCode, Ctx.CancellationToken);
 
-            ctx.SummaryText.AppendLine($"* Code: {supplier.Code}");
-            ctx.SummaryText.AppendLine($"* Name: {supplier.Name}");
+            Ctx.SummaryText.AppendLine($"* Code: {supplier.Code}");
+            Ctx.SummaryText.AppendLine($"* Name: {supplier.Name}");
 
-            self.Assign(ctx.Command.SupplierCode);
+            Self.Assign(Ctx.Command.SupplierCode);
+            Self.ChangeStatus(ServiceBookingStatus.Book, Ctx.TimeService.Now);
         }
     }
 }

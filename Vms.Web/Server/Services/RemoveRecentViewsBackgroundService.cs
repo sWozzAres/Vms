@@ -24,7 +24,7 @@ public class RemoveRecentViewsBackgroundService(IConfiguration configuration, IL
 
                 await conn.ExecuteAsync("""
                 DELETE FROM System.RecentViews WHERE DATEDIFF(day, ViewDate, @now) > 0
-                """, new { now = timeService.Now() });
+                """, new { now = timeService.Now });
             }
             catch (SqlException exception)
             {

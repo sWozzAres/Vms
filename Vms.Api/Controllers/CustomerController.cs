@@ -21,7 +21,7 @@ public class CustomerController(VmsDbContext context) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(
         CustomerListOptions list, int start, int take,
-        [FromServices] ICustomerQueries queries,
+        [FromServices] CustomerQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetCustomers(list, start, take, cancellationToken);

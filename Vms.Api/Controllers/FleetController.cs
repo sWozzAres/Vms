@@ -23,7 +23,7 @@ public class FleetController(VmsDbContext context) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(
         FleetListOptions list, int start, int take,
-        [FromServices] IFleetQueries queries,
+        [FromServices] FleetQueries queries,
         CancellationToken cancellationToken)
     {
         var (totalCount, result) = await queries.GetFleets(list, start, take, cancellationToken);

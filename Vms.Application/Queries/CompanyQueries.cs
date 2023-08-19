@@ -1,11 +1,8 @@
 ﻿namespace Vms.Application.Queries;
 
-public interface ICompanyQueries
-{
-    Task<(int TotalCount, List<CompanyListDto> Result)> GetCompanies(CompanyListOptions list, int start, int take, CancellationToken cancellationToken);
-}
-
-public class CompanyQueries(VmsDbContext context, IUserProvider userProvider) : ICompanyQueries
+public class CompanyQueries(VmsDbContext context
+    //IUserProvider userProvider
+    )
 {
     public async Task<(int TotalCount, List<CompanyListDto> Result)> GetCompanies(
         CompanyListOptions list, int start, int take, CancellationToken cancellationToken)

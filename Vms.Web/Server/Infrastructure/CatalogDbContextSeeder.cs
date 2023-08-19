@@ -13,12 +13,13 @@ public interface ICatalogDbContextSeeder
 
 public class CatalogDbContextSeeder(
     CatalogDbContext context,
-    ISearchManager searchManager,
-    ILogger<CatalogDbContextSeeder> logger,
-    ILoggerFactory loggerFactory,
-    IActivityLogger<CatalogDbContext> activityLog,
-    ITaskLogger<CatalogDbContext> taskLogger,
-    ITimeService timeService) : IVmsDbContextSeeder
+    //ISearchManager searchManager,
+    ILogger<CatalogDbContextSeeder> logger
+    //ILoggerFactory loggerFactory,
+    //IActivityLogger<CatalogDbContext> activityLog,
+    //ITaskLogger<CatalogDbContext> taskLogger,
+    //ITimeService timeService
+    ) : IVmsDbContextSeeder
 {
     public async Task SeedAsync(IWebHostEnvironment env, IOptions<AppSettings> settings)
     {

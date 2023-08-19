@@ -30,12 +30,12 @@ public class ActivityLogger<TContext>(TContext dbContext,
 
     public Task<ActivityLog> AddAsync(Guid documentId, string documentKind, string documentKey,
         StringBuilder log, CancellationToken cancellationToken)
-        => AddAsync(documentId, documentKind, documentKey, log, timeService.Now(), cancellationToken);
+        => AddAsync(documentId, documentKind, documentKey, log, timeService.Now, cancellationToken);
 
     public async Task<ActivityLog> AddNoteAsync(Guid documentId, string documentKind, string documentKey,
         StringBuilder log, CancellationToken cancellationToken)
     {
-        var activityLog = LogActivity(documentId, log, timeService.Now(), true);
+        var activityLog = LogActivity(documentId, log, timeService.Now, true);
         await NotifyFollowers(documentId, documentKind, documentKey, log, activityLog, cancellationToken);
         return activityLog;
     }
@@ -68,7 +68,7 @@ public class ActivityLogger<TContext>(TContext dbContext,
         foreach (var follower in followers)
         {
             dbContext.ActivityNotifications.Add(
-                new ActivityNotification(documentId, documentKind, documentKey, follower.UserId, activityLog.Id, timeService.Now()));
+                new ActivityNotification(documentId, documentKind, documentKey, follower.UserId, activityLog.Id, timeService.Now));
         }
 
         // send email

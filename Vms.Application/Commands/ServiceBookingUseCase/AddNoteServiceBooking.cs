@@ -2,12 +2,7 @@
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
-public interface IAddNoteServiceBooking
-{
-    Task<ActivityLogDto> Add(Guid serviceBookingId, AddNoteDto request, CancellationToken cancellationToken);
-}
-
-public class AddNoteServiceBooking(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog) : IAddNoteServiceBooking
+public class AddNoteServiceBooking(VmsDbContext context, IActivityLogger<VmsDbContext> activityLog)
 {
     readonly VmsDbContext DbContext = context;
     readonly StringBuilder SummaryText = new();
