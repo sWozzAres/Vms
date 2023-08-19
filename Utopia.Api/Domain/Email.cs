@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Utopia.Api.Domain.System
+﻿namespace Utopia.Api.Domain.System
 {
     [Table("Emails", Schema = "System")]
     public class Email(string recipients, string subject, string body)

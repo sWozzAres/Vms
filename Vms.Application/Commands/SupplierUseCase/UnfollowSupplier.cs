@@ -30,7 +30,8 @@ public class UnfollowSupplier(VmsDbContext dbContext, IUserProvider userProvider
         bool removed = await Supplier.RemoveFollower();
 
         if (removed)
-            _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+            _ = await activityLog.AddAsync(Id, nameof(Domain.Core.Supplier), supplier.Code,
+                SummaryText, CancellationToken);
 
         return removed;
     }

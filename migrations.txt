@@ -1,10 +1,10 @@
 dotnet ef migrations add Initial3 -o Infrastructure\Migrations\CatalogDb -c CatalogContext
 
-add-migration -Name Initial8 -o VmsDb -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
+add-migration -Name Initial9 -o VmsDb -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 update-database -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -StartupProject Vms.Domain.Infrastructure
 
-add-migration -Name Initial2 -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
+add-migration -Name Initial3 -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 update-database -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 
 dotnet ef migrations add Grants -o Migrations\PersistedGrantDb -c PersistedGrantDbContext

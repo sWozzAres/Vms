@@ -1,16 +1,14 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Logging;
-using Utopia.Api.Domain.Infrastructure;
-using Utopia.Api.Services;
 using Vms.Application.Services;
 
 namespace Utopia.Api.Application.Services;
 
 public interface IActivityLogger<TContext> where TContext : ISystemContext
 {
-    Task<ActivityLog> AddNoteAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
-    Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken);
-    Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
+    Task<ActivityLog> AddNoteAsync(Guid documentId, string documentKind, string documentKey, StringBuilder log, CancellationToken cancellationToken);
+    Task<ActivityLog> AddAsync(Guid documentId, string documentKind, string documentKey, StringBuilder log, CancellationToken cancellationToken);
+    Task<ActivityLog> AddAsync(Guid documentId, string documentKind, string documentKey, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken);
 }
 /// <summary>
 /// Logs an activity and notifies any followers.
@@ -22,19 +20,24 @@ public class ActivityLogger<TContext>(TContext dbContext,
     ILogger<ActivityLogger<TContext>> logger,
     ITimeService timeService) : IActivityLogger<TContext> where TContext : ISystemContext
 {
-    public async Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, DateTime taskTime, CancellationToken cancellationToken)
+    public async Task<ActivityLog> AddAsync(Guid documentId, string documentKind, string documentKey,
+        StringBuilder log, DateTime taskTime, CancellationToken cancellationToken)
     {
-        await NotifyFollowers(documentId, log, cancellationToken);
-        return LogActivity(documentId, log, taskTime);
+        var activityLog = LogActivity(documentId, log, taskTime);
+        await NotifyFollowers(documentId, documentKind, documentKey, log, activityLog, cancellationToken);
+        return activityLog;
     }
 
-    public Task<ActivityLog> AddAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
-        => AddAsync(documentId, log, timeService.Now(), cancellationToken);
+    public Task<ActivityLog> AddAsync(Guid documentId, string documentKind, string documentKey,
+        StringBuilder log, CancellationToken cancellationToken)
+        => AddAsync(documentId, documentKind, documentKey, log, timeService.Now(), cancellationToken);
 
-    public async Task<ActivityLog> AddNoteAsync(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
+    public async Task<ActivityLog> AddNoteAsync(Guid documentId, string documentKind, string documentKey,
+        StringBuilder log, CancellationToken cancellationToken)
     {
-        await NotifyFollowers(documentId, log, cancellationToken);
-        return LogActivity(documentId, log, timeService.Now(), true);
+        var activityLog = LogActivity(documentId, log, timeService.Now(), true);
+        await NotifyFollowers(documentId, documentKind, documentKey, log, activityLog, cancellationToken);
+        return activityLog;
     }
 
     private ActivityLog LogActivity(Guid documentId, StringBuilder log, DateTime taskTime, bool isNote = false)
@@ -46,7 +49,8 @@ public class ActivityLogger<TContext>(TContext dbContext,
         return entry;
     }
 
-    private async Task NotifyFollowers(Guid documentId, StringBuilder log, CancellationToken cancellationToken)
+    private async Task NotifyFollowers(Guid documentId, string documentKind, string documentKey,
+        StringBuilder log, ActivityLog activityLog, CancellationToken cancellationToken)
     {
         var followers = await (from f in dbContext.Followers
                                join u in dbContext.Users on f.UserId equals u.UserId
@@ -59,6 +63,13 @@ public class ActivityLogger<TContext>(TContext dbContext,
             return;
 
         logger.LogDebug("Notifying followers {@followers},", followers);
+
+        // log notification
+        foreach (var follower in followers)
+        {
+            dbContext.ActivityNotifications.Add(
+                new ActivityNotification(documentId, documentKind, documentKey, follower.UserId, activityLog.Id, timeService.Now()));
+        }
 
         // send email
         emailSender.Send(followers.Select(f => f.EmailAddress), "Activity", log.ToString());

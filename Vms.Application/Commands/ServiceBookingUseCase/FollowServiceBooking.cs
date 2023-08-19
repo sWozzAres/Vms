@@ -27,11 +27,13 @@ public class FollowServiceBooking(VmsDbContext dbContext, IUserProvider userProv
 
         ServiceBooking.AddFollower();
 
-        _ = await activityLog.AddAsync(serviceBookingId, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, cancellationToken);
     }
 
     class ServiceBookingRole(ServiceBooking self, FollowServiceBooking ctx)
     {
+        public ServiceBooking Entity => self;
         public void AddFollower()
         {
             var f = new Follower(self.Id, ctx.UserProvider.UserId);

@@ -33,12 +33,14 @@ public class AssignSupplier(VmsDbContext dbContext,
 
         await ServiceBooking.Assign();
 
-        _ = await activityLog.AddAsync(serviceBookingId, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref, 
+            SummaryText, CancellationToken);
         taskLogger.Log(serviceBookingId, nameof(AssignSupplier), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, AssignSupplier ctx)
     {
+        public ServiceBooking Entity => self;
         public async Task Assign()
         {
             if (self.Status != ServiceBookingStatus.Assign && self.Status != ServiceBookingStatus.Book)

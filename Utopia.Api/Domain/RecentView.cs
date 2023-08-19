@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Utopia.Api.Domain.System
+﻿namespace Utopia.Api.Domain.System
 {
     [Table("RecentViews", Schema = "System")]
     public class RecentView(Guid documentId, string userId, DateTime viewDate)

@@ -48,12 +48,14 @@ public class RebookDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
                 break;
         }
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(RebookDriver), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, RebookDriver ctx)
     {
+        public ServiceBooking Entity => self;
         public void StillGoing()
         {
             ctx.SummaryText.AppendLine("## Still Going");

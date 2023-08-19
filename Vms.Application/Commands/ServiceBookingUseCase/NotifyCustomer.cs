@@ -45,12 +45,14 @@ public class NotifyCustomer(VmsDbContext dbContext, IActivityLogger<VmsDbContext
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(NotifyCustomer), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomer ctx)
     {
+        public ServiceBooking Entity => self;
         public void Notify()
         {
             ctx.SummaryText.AppendLine("## Notified");

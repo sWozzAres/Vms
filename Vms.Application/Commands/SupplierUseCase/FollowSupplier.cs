@@ -22,11 +22,12 @@ public class FollowSupplier(VmsDbContext dbContext, IUserProvider userProvider, 
 
         Supplier.AddFollower();
 
-        _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(id, nameof(Supplier), Supplier.Entity.Code, SummaryText, cancellationToken);
     }
 
     class SupplierRole(Supplier self, FollowSupplier ctx)
     {
+        public Supplier Entity => self;
         public void AddFollower()
         {
             var f = new Follower(self.Id, ctx.UserProvider.UserId);

@@ -48,12 +48,14 @@ public class CheckArrival(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(CheckArrival), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckArrival ctx)
     {
+        public ServiceBooking Entity => self;
         public void Arrived()
         {
             ctx.SummaryText.AppendLine("## Arrived");

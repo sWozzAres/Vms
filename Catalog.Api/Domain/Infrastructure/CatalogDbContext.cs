@@ -16,6 +16,7 @@ public class CatalogDbContext(DbContextOptions options) : DbContext(options), IS
     public DbSet<RecentView> RecentViews => Set<RecentView>();
     public DbSet<TaskLog> TaskLogs => Set<TaskLog>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<ActivityNotification> ActivityNotifications => Set<ActivityNotification>();
     #endregion
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -45,12 +45,14 @@ public class ChaseDriver(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
                 break;
         }
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(ChaseDriver), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, ChaseDriver ctx)
     {
+        public ServiceBooking Entity => self;
         public void StillGoing()
         {
             ctx.SummaryText.AppendLine("## Still Going");

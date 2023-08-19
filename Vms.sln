@@ -69,6 +69,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.Blazor", "Catalog.B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utopia.Shared", "Utopia.Shared\Utopia.Shared.csproj", "{99FFEEB6-E5B2-4F8C-9B12-81EA9071B309}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEf", "TestEf\TestEf.csproj", "{F4888C70-80D1-4602-9C23-13E46481C904}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,10 @@ Global
 		{99FFEEB6-E5B2-4F8C-9B12-81EA9071B309}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99FFEEB6-E5B2-4F8C-9B12-81EA9071B309}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99FFEEB6-E5B2-4F8C-9B12-81EA9071B309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4888C70-80D1-4602-9C23-13E46481C904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4888C70-80D1-4602-9C23-13E46481C904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4888C70-80D1-4602-9C23-13E46481C904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4888C70-80D1-4602-9C23-13E46481C904}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Commands.VehicleUseCase;
+﻿using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+
+namespace Vms.Application.Commands.VehicleUseCase;
 
 public interface IUnfollowVehicle
 {
@@ -20,26 +22,25 @@ public class UnfollowVehicle(VmsDbContext dbContext, IUserProvider userProvider,
         Id = id;
         CancellationToken = cancellationToken;
 
-        //
-        // dont need to load vehicle
-        //
-        //Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { Id }, CancellationToken)
-        //    ?? throw new InvalidOperationException("Failed to load service booking."), this);
+        Vehicle = new(await DbContext.Vehicles.FindAsync(new object[] { Id }, CancellationToken)
+            ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
-        Vehicle = new(this);
+        //Vehicle = new(this);
 
         SummaryText.AppendLine("# Unfollow");
 
         bool removed = await Vehicle.RemoveFollower();
 
         if (removed)
-            _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+            _ = await activityLog.AddAsync(Id, nameof(Domain.Core.Vehicle), Vehicle.Entity.Vrm,
+                SummaryText, CancellationToken);
 
         return removed;
     }
 
-    class VehicleRole(UnfollowVehicle ctx)
+    class VehicleRole(Vehicle self, UnfollowVehicle ctx)
     {
+        public Vehicle Entity => self;
         public async Task<bool> RemoveFollower()
         {
             var follow = await ctx.DbContext.Followers

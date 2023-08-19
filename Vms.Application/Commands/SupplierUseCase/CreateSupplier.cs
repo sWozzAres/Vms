@@ -50,7 +50,7 @@ public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager
             string.Join(" ", supplier.Code, supplier.Name));
 
         // log activity and task
-        _ = await activityLog.AddAsync(supplier.Id, SummaryText, timeService.Now(), cancellationToken);
+        _ = await activityLog.AddAsync(supplier.Id, nameof(Supplier), supplier.Code, SummaryText, timeService.Now(), cancellationToken);
         taskLogger.Log(supplier.Id, nameof(CreateServiceBooking), command);
 
         return supplier;

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Utopia.Api.Domain.System
+﻿namespace Utopia.Api.Domain.System
 {
     [Table("Followers", Schema = "System")]
     public class Follower(Guid documentId, string userId)

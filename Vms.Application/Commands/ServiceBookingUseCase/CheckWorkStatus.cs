@@ -50,12 +50,14 @@ public class CheckWorkStatus(VmsDbContext dbContext,
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(CheckWorkStatus), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, CheckWorkStatus ctx)
     {
+        public ServiceBooking Entity => self;
         async Task CompleteAndRescheduleMot()
         {
             var motEvent = await ctx.DbContext.MotEvents

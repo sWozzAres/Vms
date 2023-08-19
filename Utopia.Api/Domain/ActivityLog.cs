@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Utopia.Api.Domain.System
+﻿namespace Utopia.Api.Domain.System
 {
     [Table("ActivityLog", Schema = "System")]
     public class ActivityLog(Guid documentId, string text, string userId, string userName,

@@ -82,7 +82,8 @@ public class EditSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext> 
 
         if (isModified)
         {
-            _ = await activityLog.AddAsync(supplier.Id, SummaryText, cancellationToken);
+            _ = await activityLog.AddAsync(supplier.Id, nameof(Supplier), supplier.Code,
+                SummaryText, cancellationToken);
             taskLogger.Log(supplier.Id, nameof(EditSupplier), command);
         }
 

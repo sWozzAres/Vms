@@ -1,0 +1,28 @@
+﻿<h1>Notifications</h1>
+
+@if (notifications is not null)
+{
+    foreach (var entry in notifications)
+    {
+        <article>
+            <footer>
+                <time datetime="@entry.EntryDate.ToLocalTime().ToString("s")">@entry.EntryDate.ToLocalTime().ToString("f")</time>
+            </footer>
+            @((MarkupString)Markdown.ToHtml(entry.Text))
+        </article>
+    }
+}
+
+@code {
+    public delegate Task<List<ActivityNotificationDto>> GetNotifications();
+    [Parameter, EditorRequired] public GetNotifications OnGetNotifications { get; set; } = null!;
+
+    List<ActivityNotificationDto> notifications = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArgumentNullException.ThrowIfNull(OnGetNotifications);
+
+        notifications = await OnGetNotifications();
+    }
+}

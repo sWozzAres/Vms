@@ -127,7 +127,8 @@ public class EditVehicle(VmsDbContext dbContext, IActivityLogger<VmsDbContext> a
 
         if (isModified)
         {
-            _ = await activityLog.AddAsync(id, SummaryText, cancellationToken);
+            _ = await activityLog.AddAsync(id, nameof(Vehicle), vehicle.Vrm,
+                SummaryText, cancellationToken);
             taskLogger.Log(id, nameof(EditVehicle), command);
         }
 

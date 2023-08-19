@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿using Vms.Domain.ServiceBookingProcess;
+
+namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IUnfollowServiceBooking
 {
@@ -22,26 +24,27 @@ public class UnfollowServiceBooking(VmsDbContext dbContext, IUserProvider userPr
         Id = serviceBookingId;
         CancellationToken = cancellationToken;
 
-        //
-        // dont need to load service booking
-        //
-        //ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
-        //    ?? throw new InvalidOperationException("Failed to load service booking."), this);
+        ServiceBooking = new(await DbContext.ServiceBookings.FindAsync(new object[] { Id }, CancellationToken)
+            ?? throw new InvalidOperationException("Failed to load service booking."), this);
 
-        ServiceBooking = new(this);
+        //ServiceBooking = new(this);
 
         SummaryText.AppendLine("# Unfollow");
 
         bool removed = await ServiceBooking.RemoveFollower();
 
         if (removed)
-            _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        {
+            _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+                SummaryText, CancellationToken);
+        }
 
         return removed;
     }
 
-    class ServiceBookingRole(UnfollowServiceBooking ctx)
+    class ServiceBookingRole(ServiceBooking self, UnfollowServiceBooking ctx)
     {
+        public ServiceBooking Entity => self;
         public async Task<bool> RemoveFollower()
         {
             var follow = await ctx.DbContext.Followers

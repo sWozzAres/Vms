@@ -42,12 +42,14 @@ public class NotifyCustomerDelay(VmsDbContext context, IActivityLogger<VmsDbCont
                 break;
         }
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(NotifyCustomerDelay), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, NotifyCustomerDelay ctx)
     {
+        public ServiceBooking Entity => self;
         public void CustomerNotified()
         {
             ctx.SummaryText.AppendLine("## Customer Notified");

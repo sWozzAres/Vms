@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿using Vms.Domain.ServiceBookingProcess;
+
+namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IAddNoteServiceBooking
 {
@@ -13,12 +15,13 @@ public class AddNoteServiceBooking(VmsDbContext context, IActivityLogger<VmsDbCo
     public async Task<ActivityLogDto> Add(Guid serviceBookingId, AddNoteDto request, CancellationToken cancellationToken)
     {
         // load to make sure the user has access
-        _ = await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
+        var serviceBooking = await DbContext.ServiceBookings.FindAsync(new object[] { serviceBookingId }, cancellationToken)
             ?? throw new InvalidOperationException("Failed to load service booking.");
 
         SummaryText.AppendLine(request.Text);
 
-        var entry = await activityLog.AddNoteAsync(serviceBookingId, SummaryText, cancellationToken);
+        var entry = await activityLog.AddNoteAsync(serviceBookingId, nameof(ServiceBooking), serviceBooking.Ref,
+            SummaryText, cancellationToken);
 
         return entry.ToDto();
     }

@@ -9,5 +9,6 @@ public interface ISystemContext
     public DbSet<User> Users { get; }
     public DbSet<Follower> Followers { get; }
     public DbSet<Email> Emails { get; }
+    public DbSet<ActivityNotification> ActivityNotifications { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

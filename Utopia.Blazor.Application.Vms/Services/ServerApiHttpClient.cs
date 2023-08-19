@@ -6,6 +6,12 @@ public class ServerApiHttpClient(HttpClient http)
 
 
     #region App
+    public async Task<List<ActivityNotificationDto>> GetNotifications()
+    {
+        http.DefaultRequestHeaders.Accept.Clear();
+        return await http.GetFromJsonAsync<List<ActivityNotificationDto>>($"/api/app/notifications")
+            ?? throw new InvalidOperationException("Failed to get notifications.");
+    }
     //public async Task<PostResponse> RegisterLogin()
     //{
     //    http.DefaultRequestHeaders.Accept.Clear();

@@ -1,6 +1,8 @@
 ﻿using Catalog.Api.Domain.Infrastructure;
+using Utopia.Api.Application.Commands;
 using Utopia.Api.Domain.Infrastructure;
 using Utopia.Api.Domain.System;
+using Vms.Application.Queries;
 
 namespace Vms.Web.Server.Controllers;
 
@@ -10,6 +12,25 @@ namespace Vms.Web.Server.Controllers;
 [Produces("application/json")]
 public class AppController(ILogger<AppController> logger) : ControllerBase
 {
+    [HttpGet]
+    [Route("notifications")]
+    public async Task<IActionResult> GetActivityNotificatons(
+        [FromServices] IUtopiaQueries<VmsDbContext> queries,
+        CancellationToken cancellationToken)
+    {
+        return Ok((await queries.GetActivityNotifications(cancellationToken)).ToList());
+    }
+    [HttpPost]
+    [Route("notifications/{id}/markasread")]
+    public async Task<IActionResult> MarkAsRead(long id,
+        [FromServices] VmsDbContext context,
+        [FromServices] IMarkActivityNotificationAsRead<VmsDbContext> markActivityNotificationAsRead,
+        CancellationToken cancellationToken)
+    {
+        await markActivityNotificationAsRead.Mark(id, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
     [HttpGet]
     [Route("users/{code}")]
     public async Task<IActionResult> GetUsersForTenant(string code,

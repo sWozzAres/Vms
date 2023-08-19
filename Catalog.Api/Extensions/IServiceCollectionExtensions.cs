@@ -1,4 +1,6 @@
-﻿using Utopia.Api.Application.Services;
+﻿using Utopia.Api.Application.Commands;
+using Utopia.Api.Application.Services;
+using Vms.Application.Queries;
 
 namespace Catalog.Api.Extensions;
 
@@ -7,6 +9,8 @@ public static class IServiceCollectionExtensions
     public static void AddCatalogApplication(this IServiceCollection services)
     {
         // queries
+        services.AddScoped<IUtopiaQueries<CatalogDbContext>, UtopiaQueries<CatalogDbContext>>();
+
         services.AddScoped<IProductQueries, ProductQueries>();
 
         // services
@@ -14,6 +18,9 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ITaskLogger<CatalogDbContext>, TaskLogger<CatalogDbContext>>();
         services.AddScoped<IEmailSender<CatalogDbContext>, EmailSender<CatalogDbContext>>();
         services.AddScoped<IRecentViewLogger<CatalogDbContext>, RecentViewLogger<CatalogDbContext>>();
+
+        // utopia
+        services.AddScoped<IMarkActivityNotificationAsRead<CatalogDbContext>, MarkActivityNotificationAsRead<CatalogDbContext>>();
 
         // product
         //services.AddScoped<IFollowProduct, FollowProduct>();

@@ -48,12 +48,14 @@ public class ConfirmBooked(VmsDbContext dbContext, IActivityLogger<VmsDbContext>
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(ConfirmBooked), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, ConfirmBooked ctx)
     {
+        public ServiceBooking Entity => self;
         public void Confirm()
         {
             if (self.BookedDate is null)

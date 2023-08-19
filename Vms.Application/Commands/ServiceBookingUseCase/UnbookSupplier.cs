@@ -1,4 +1,6 @@
-﻿namespace Vms.Application.Commands.ServiceBookingUseCase;
+﻿using Vms.Domain.ServiceBookingProcess;
+
+namespace Vms.Application.Commands.ServiceBookingUseCase;
 
 public interface IUnbookSupplier
 {
@@ -24,7 +26,7 @@ public class UnbookSupplier(VmsDbContext dbContext, IActivityLogger<VmsDbContext
 
         serviceBooking.Unbook();
 
-        _ = await activityLog.AddAsync(serviceBookingId, SummaryText, cancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(ServiceBooking), serviceBooking.Ref, SummaryText, cancellationToken);
         taskLogger.Log(serviceBookingId, nameof(UnbookSupplier), command);
     }
 }

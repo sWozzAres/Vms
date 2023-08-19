@@ -1,4 +1,5 @@
-﻿using Utopia.Api.Application.Services;
+﻿using Utopia.Api.Application.Commands;
+using Utopia.Api.Application.Services;
 using Vms.Application.Commands.ServiceBookingUseCase;
 using Vms.Application.Commands.SupplierUseCase;
 using Vms.Application.Commands.VehicleUseCase;
@@ -10,6 +11,8 @@ public static class IServiceCollectionExtensions
     public static void AddVmsApplication(this IServiceCollection services)
     {
         // queries
+        services.AddScoped<IUtopiaQueries<VmsDbContext>, UtopiaQueries<VmsDbContext>>();
+
         services.AddScoped<IDocumentQueries, DocumentQueries>();
         services.AddScoped<ICompanyQueries, CompanyQueries>();
         services.AddScoped<IDriverQueries, DriverQueries>();
@@ -26,6 +29,9 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IEmailSender<VmsDbContext>, EmailSender<VmsDbContext>>();
         services.AddScoped<IRecentViewLogger<VmsDbContext>, RecentViewLogger<VmsDbContext>>();
         services.AddScoped<ISearchManager, SearchManager>();
+
+        // utopia
+        services.AddScoped<IMarkActivityNotificationAsRead<VmsDbContext>, MarkActivityNotificationAsRead<VmsDbContext>>();
 
         // supplier
         services.AddScoped<IFollowSupplier, FollowSupplier>();

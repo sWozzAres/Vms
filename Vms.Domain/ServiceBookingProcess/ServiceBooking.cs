@@ -1,5 +1,4 @@
-﻿using NetTopologySuite.Operation.Valid;
-using Vms.Domain.Core;
+﻿using Vms.Domain.Core;
 
 namespace Vms.Domain.ServiceBookingProcess
 {

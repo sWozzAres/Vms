@@ -77,7 +77,7 @@ public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbCon
         }
         if (serviceBooking.Driver.EmailAddress != command.Driver_EmailAddress)
         {
-            SummaryText.AppendLine($"* Driver Email Address: {command.Driver_EmailAddress}");
+            SummaryText.AppendLine($"* Driver Email Address: [{command.Driver_EmailAddress}](mailto://{command.Driver_EmailAddress})");
             serviceBooking.Driver.EmailAddress = command.Driver_EmailAddress;
             isModified = true;
         }
@@ -95,7 +95,7 @@ public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbCon
         }
         if (serviceBooking.Contact.EmailAddress != command.Contact_EmailAddress)
         {
-            SummaryText.AppendLine($"* Contact Email Address: {command.Contact_EmailAddress}");
+            SummaryText.AppendLine($"* Contact Email Address: [{command.Contact_EmailAddress}](mailto://{command.Contact_EmailAddress})");
             serviceBooking.Contact.EmailAddress = command.Contact_EmailAddress;
             isModified = true;
         }
@@ -115,7 +115,8 @@ public class EditServiceBooking(VmsDbContext dbContext, IActivityLogger<VmsDbCon
 
         if (isModified)
         {
-            _ = await activityLog.AddAsync(serviceBookingId, SummaryText, cancellationToken);
+            _ = await activityLog.AddAsync(serviceBookingId, nameof(ServiceBooking), serviceBooking.Ref,
+                SummaryText, cancellationToken);
             taskLogger.Log(serviceBookingId, nameof(EditServiceBooking), command);
         }
 

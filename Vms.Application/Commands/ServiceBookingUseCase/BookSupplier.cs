@@ -1,4 +1,5 @@
-﻿using Vms.Domain.ServiceBookingProcess;
+﻿using System.Security.Permissions;
+using Vms.Domain.ServiceBookingProcess;
 
 namespace Vms.Application.Commands.ServiceBookingUseCase;
 
@@ -49,12 +50,14 @@ public class BookSupplier(VmsDbContext dbContext, IEmailSender<VmsDbContext> ema
         if (!string.IsNullOrEmpty(Command.Callee))
             SummaryText.AppendLine($"* Callee: {Command.Callee}");
 
-        _ = await activityLog.AddAsync(Id, SummaryText, CancellationToken);
+        _ = await activityLog.AddAsync(serviceBookingId, nameof(Domain.ServiceBookingProcess.ServiceBooking), ServiceBooking.Entity.Ref,
+            SummaryText, CancellationToken);
         taskLogger.Log(Id, nameof(BookSupplier), Command);
     }
 
     class ServiceBookingRole(ServiceBooking self, BookSupplier ctx)
     {
+        public ServiceBooking Entity => self;
         public async Task BookAsync()
         {
             if (self.SupplierCode is null)
