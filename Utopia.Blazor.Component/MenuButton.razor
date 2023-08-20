@@ -167,8 +167,6 @@
         {
             _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/MenuButton.razor.js");
             _jsEventDisposable = await _jsModule.InvokeAsync<IJSObjectReference>("menuButtonInit", menuButtonNode, buttonNode, menuNode, objRef);
-
-            //var result = await JS.InvokeAsync<bool>("menuButton.installOnMenuButtonKeydown", Id, objRef);
         }
 
         if (mustSetMenuNodeFocus)

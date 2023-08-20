@@ -4,7 +4,7 @@ namespace Vms.Application.Services;
 
 public interface IRecentViewLogger<TContext> where TContext : ISystemContext
 {
-    Task LogAsync(Guid documentId, DateTime now);
+    Task LogAsync(Guid documentId);
 }
 
 public class RecentViewLogger<TContext>(
@@ -12,7 +12,7 @@ public class RecentViewLogger<TContext>(
     IUserProvider userProvider,
     ITimeService timeService) : IRecentViewLogger<TContext> where TContext : ISystemContext
 {
-    public async Task LogAsync(Guid documentId, DateTime now)
+    public async Task LogAsync(Guid documentId)
     {
         var recentView = await context.RecentViews.SingleOrDefaultAsync(r => r.DocumentId == documentId && r.UserId == userProvider.UserId);
         if (recentView is null)

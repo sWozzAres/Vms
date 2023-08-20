@@ -67,7 +67,7 @@
     [JSInvokable]
     public int moveFocusToPreviousTabJS()
     {
-        Logger.LogDebug("moveFocusToPreviousTabJS()");
+        //Logger.LogDebug("moveFocusToPreviousTabJS()");
         if (focusIndex > 0)
         {
             focusIndex--;
@@ -81,7 +81,7 @@
     [JSInvokable]
     public int moveFocusToNextTabJS()
     {
-        Logger.LogDebug("moveFocusToNextTabJS()");
+        //Logger.LogDebug("moveFocusToNextTabJS()");
         if (focusIndex < Pages.Count() - 1)
         {
             focusIndex++;
@@ -96,7 +96,7 @@
     [JSInvokable]
     public int moveFocusToFirstTabJS()
     {
-        Logger.LogDebug("moveFocusToFirstTabJS()");
+        //Logger.LogDebug("moveFocusToFirstTabJS()");
         if (focusIndex > 0)
         {
             focusIndex = 0;
@@ -110,7 +110,7 @@
     [JSInvokable]
     public int moveFocusToLastTabJS()
     {
-        Logger.LogDebug("moveFocusToLastTabJS()");
+        //Logger.LogDebug("moveFocusToLastTabJS()");
         if (focusIndex < Pages.Count() - 1)
         {
             focusIndex = Pages.Count() - 1;
@@ -122,15 +122,15 @@
         // }
     }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        Logger.LogDebug("SetParametersAsync()");
-        await base.SetParametersAsync(parameters);
-        //await Task.Delay(1000);
-    }
+    // public override async Task SetParametersAsync(ParameterView parameters)
+    // {
+    //     Logger.LogDebug("SetParametersAsync()");
+    //     await base.SetParametersAsync(parameters);
+    //     //await Task.Delay(1000);
+    // }
     protected override void OnInitialized()
     {
-        Logger.LogDebug("OnInitialized()");
+        //Logger.LogDebug("OnInitialized()");
         base.OnInitialized();
 
         ArgumentNullException.ThrowIfNull(ChildContent);
@@ -138,27 +138,27 @@
         Id = HtmlHelpers.GetRandomHtmlId();
         objRef = DotNetObjectReference.Create(this);
     }
-    protected override async Task OnInitializedAsync()
-    {
-        Logger.LogDebug("OnInitializedAsync()");
-        await base.OnInitializedAsync();
-        //await Task.Delay(1000);
-    }
-    protected override void OnParametersSet()
-    {
-        Logger.LogDebug("OnParametersSet()");
-        base.OnParametersSet();
-    }
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogDebug("OnParametersSetAsync()");
-        await base.OnParametersSetAsync();
-        //await Task.Delay(1000);
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     Logger.LogDebug("OnInitializedAsync()");
+    //     await base.OnInitializedAsync();
+    //     //await Task.Delay(1000);
+    // }
+    // protected override void OnParametersSet()
+    // {
+    //     Logger.LogDebug("OnParametersSet()");
+    //     base.OnParametersSet();
+    // }
+    // protected override async Task OnParametersSetAsync()
+    // {
+    //     Logger.LogDebug("OnParametersSetAsync()");
+    //     await base.OnParametersSetAsync();
+    //     //await Task.Delay(1000);
+    // }
     protected override void OnAfterRender(bool firstRender)
     {
-        Logger.LogDebug("OnAfterRender({firstRender})", firstRender);
-        base.OnAfterRender(firstRender);
+        //Logger.LogDebug("OnAfterRender({firstRender})", firstRender);
+        //base.OnAfterRender(firstRender);
 
         if (firstRender)
         {
@@ -169,8 +169,8 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Logger.LogDebug("OnAfterRenderAsync({firstRender})", firstRender);
-        await base.OnAfterRenderAsync(firstRender);
+        //Logger.LogDebug("OnAfterRenderAsync({firstRender})", firstRender);
+        
         if (firstRender)
         {
             _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Utopia.Blazor.Component/TabControl.razor.js");

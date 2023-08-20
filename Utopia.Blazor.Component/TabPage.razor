@@ -19,7 +19,7 @@
 
     protected override void OnInitialized()
     {
-        Logger.LogDebug("OnInitialized() {index}", Index);
+        //Logger.LogDebug("OnInitialized() {index}", Index);
 
         ArgumentNullException.ThrowIfNull(Parent);
         ArgumentNullException.ThrowIfNull(Text);
@@ -28,43 +28,43 @@
         Index = Parent.AddPage(this);
     }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        Logger.LogDebug("SetParametersAsync() {index}", Index);
-        await base.SetParametersAsync(parameters);
-        //await Task.Delay(1000);
-    }
+    // public override async Task SetParametersAsync(ParameterView parameters)
+    // {
+    //     Logger.LogDebug("SetParametersAsync() {index}", Index);
+    //     await base.SetParametersAsync(parameters);
+    //     //await Task.Delay(1000);
+    // }
     // protected override void OnInitialized()
     // {
     //     Logger.LogDebug("OnInitialized()");
     //     base.OnInitialized();
     // }
-    protected override async Task OnInitializedAsync()
-    {
-        Logger.LogDebug("OnInitializedAsync() {index}", Index);
-        await base.OnInitializedAsync();
-        //await Task.Delay(1000);
-    }
-    protected override void OnParametersSet()
-    {
-        Logger.LogDebug("OnParametersSet() {index}", Index);
-        base.OnParametersSet();
-    }
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogDebug("OnParametersSetAsync() {index}", Index);
-        await base.OnParametersSetAsync();
-        //await Task.Delay(1000);
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Logger.LogDebug("OnAfterRender({firstRender}) {index}", firstRender, Index);
-        base.OnAfterRender(firstRender);
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        Logger.LogDebug("OnAfterRenderAsync({firstRender}) {index}", firstRender, Index);
-        await base.OnAfterRenderAsync(firstRender);
-        //await Task.Delay(1000);
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     Logger.LogDebug("OnInitializedAsync() {index}", Index);
+    //     await base.OnInitializedAsync();
+    //     //await Task.Delay(1000);
+    // }
+    // protected override void OnParametersSet()
+    // {
+    //     Logger.LogDebug("OnParametersSet() {index}", Index);
+    //     base.OnParametersSet();
+    // }
+    // protected override async Task OnParametersSetAsync()
+    // {
+    //     Logger.LogDebug("OnParametersSetAsync() {index}", Index);
+    //     await base.OnParametersSetAsync();
+    //     //await Task.Delay(1000);
+    // }
+    // protected override void OnAfterRender(bool firstRender)
+    // {
+    //     Logger.LogDebug("OnAfterRender({firstRender}) {index}", firstRender, Index);
+    //     base.OnAfterRender(firstRender);
+    // }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     Logger.LogDebug("OnAfterRenderAsync({firstRender}) {index}", firstRender, Index);
+    //     await base.OnAfterRenderAsync(firstRender);
+    //     //await Task.Delay(1000);
+    // }
 }
