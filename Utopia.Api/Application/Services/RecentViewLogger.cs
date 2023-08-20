@@ -14,11 +14,12 @@ public class RecentViewLogger<TContext>(
 {
     public async Task LogAsync(Guid documentId)
     {
-        var recentView = await context.RecentViews.SingleOrDefaultAsync(r => r.DocumentId == documentId && r.UserId == userProvider.UserId);
+        var recentView = await context.RecentViews
+            .SingleOrDefaultAsync(r => r.DocumentId == documentId && r.UserId == userProvider.UserId);
         if (recentView is null)
         {
-            recentView = new RecentView(documentId, userProvider.UserId, timeService.Now);
-            context.RecentViews.Add(recentView);
+            context.RecentViews.Add(
+                new RecentView(documentId, userProvider.UserId, timeService.Now));
         }
         else
         {

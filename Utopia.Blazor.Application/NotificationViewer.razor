@@ -59,7 +59,7 @@
             "Vehicle" => ($"/vehicle/view/{key.documentId}", "vehicle"),
             "ServiceBooking" => ($"/servicebooking/view/{key.documentId}", "servicebooking"),
             "Supplier" => ($"/supplier/view/{key.documentKey}", "supplier"),
-            _ => throw new ArgumentOutOfRangeException($"Unknown documentKind '{key.documentKind}'.")
+            _ => throw new NotSupportedException($"Unknown documentKind '{key.documentKind}'.")
         };
     }
 
