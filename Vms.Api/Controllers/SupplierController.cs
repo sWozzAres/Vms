@@ -76,7 +76,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
         var request = new CreateSupplierRequest(supplierDto.Code, supplierDto.Name,
             new AddressDto("", "", "", "", new GeometryDto(0, 0)), false);
 
-        var supplier = await createSupplier.CreateAsync(request);
+        var supplier = await createSupplier.CreateAsync(request, cancellationToken);
         try
         {
             await context.SaveChangesAsync(cancellationToken);

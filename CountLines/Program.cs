@@ -31,6 +31,9 @@
             string[] searchPatterns = new string[] { "*.cs", "*.razor", "*.css", "*.js" };
             const string rootPath = @"C:\Users\markb\Source\repos\Vms";
 
+            String s = "";
+            Console.WriteLine(s);
+
             int totalLines = 0;
             int ignoredLines = 0;
             foreach (var path in paths)
@@ -41,6 +44,9 @@
 
                     foreach (var file in files)
                     {
+                        if (file.Contains("debug") || file.Contains("obj"))
+                            continue;
+
                         var lines = File.ReadAllLines(file);
                         foreach (var line in lines)
                         {

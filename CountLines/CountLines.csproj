@@ -7,4 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\markb\Source\repos\Vms\CountLines\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\markb\Source\repos\Vms\CountLines\.editorconfig" />
+  </ItemGroup>
+
 </Project>

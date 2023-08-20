@@ -26,7 +26,9 @@ public static class ApplicationSecurityConfiguration
 
 
             });
-        services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
+        
+        //services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
+
         services.AddAuthorization(options =>
         {
             options.AddPolicy("AdminPolicy", policy =>

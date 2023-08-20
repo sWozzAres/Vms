@@ -16,7 +16,8 @@ public enum VehicleListOptions
 public record VehicleListDto(Guid Id, string CompanyCode, string Vrm, string Make, string Model,
     string? CustomerCode, string? CustomerName,
     string? FleetCode, string? FleetName,
-    DateOnly? MotDue);
+    DateOnly? MotDue,
+    Guid? MotId);
 
 
 

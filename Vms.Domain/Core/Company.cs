@@ -14,6 +14,8 @@ namespace Vms.Domain.Core
         [StringLength(32)]
         public string Name { get; set; } = null!;
 
+        public DateTime CreatedAt { get; set; }
+
         public ICollection<Customer> Customers { get; } = new List<Customer>();
         public ICollection<Fleet> Fleets { get; } = new List<Fleet>();
         public ICollection<Network> Networks { get; } = new List<Network>();
@@ -26,7 +28,12 @@ namespace Vms.Domain.Core
         public ICollection<RescheduleReason> RescheduleReasons { get; } = new List<RescheduleReason>();
 
         private Company() { }
-        internal Company(string code, string name) => (Code, Name) = (code, name);
+        internal Company(string code, string name, DateTime createdAt)
+        {
+            Code = code;
+            Name = name;
+            CreatedAt = createdAt;  
+        }
     }
 }
 

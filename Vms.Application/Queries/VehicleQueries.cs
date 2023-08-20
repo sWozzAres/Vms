@@ -18,25 +18,22 @@ public class VehicleQueries(
     public async Task<(int TotalCount, List<VehicleListDto> Result)> GetVehicles(
         VehicleListOptions list, int start, int take, CancellationToken cancellationToken)
     {
-        var vehicles = context.Vehicles.AsNoTracking()
-            .AsQueryable();
-
         if (list == VehicleListOptions.All || list == VehicleListOptions.Following || list == VehicleListOptions.Recent)
         {
-            vehicles = list switch
+            var vehicles = list switch
             {
                 VehicleListOptions.All
-                    => from v in vehicles
+                    => from v in context.Vehicles.AsNoTracking()
                        orderby v.Id
                        select v,
                 VehicleListOptions.Following
-                    => from x in vehicles
+                    => from x in context.Vehicles.AsNoTracking()
                        join f in context.Followers on x.Id equals f.DocumentId
                        where f.UserId == userProvider.UserId
                        orderby f.Id
                        select x,
                 VehicleListOptions.Recent
-                    => from x in vehicles
+                    => from x in context.Vehicles.AsNoTracking()
                        join f in context.RecentViews on x.Id equals f.DocumentId
                        where f.UserId == userProvider.UserId
                        orderby f.ViewDate descending
@@ -58,6 +55,7 @@ public class VehicleQueries(
                     x.Customer == null ? null : x.Customer.Name,
                     x.Fleet == null ? null : x.Fleet.Code,
                     x.Fleet == null ? null : x.Fleet.Name,
+                    null,
                     null
                 ))
                 .ToListAsync(cancellationToken);
@@ -67,15 +65,16 @@ public class VehicleQueries(
         else if (list == VehicleListOptions.DueMot)
         {
             var todayPlus30 = DateOnly.FromDateTime(timeService.Now).AddDays(30);
-            var vehiclesWithMot = from v in vehicles
-                                  join me in context.MotEvents on v.Id equals me.VehicleId
-                                  //where me.Due <= todayPlus30 && !context.MotEvents.Any(m => v.Id == m.VehicleId && m.IsCurrent && m.ServiceBookingId != null)
-                                  where me.Due <= todayPlus30 && me.IsCurrent && me.ServiceBookingId == null
-                                  orderby me.Due
-                                  select new { Vehicle = v, MotEvent = me };
+            var vehicles = from v in context.Vehicles.AsNoTracking()
+                           join me in context.MotEvents on v.Id equals me.VehicleId
+                           //where me.Due <= todayPlus30 && !context.MotEvents.Any(m => v.Id == m.VehicleId && m.IsCurrent && m.ServiceBookingId != null)
+                           where me.Due <= todayPlus30 && me.IsCurrent && me.ServiceBookingId == null
+                           orderby me.Due
+                           select new { Vehicle = v, MotEvent = me };
+
             int totalCount = await vehicles.CountAsync(cancellationToken);
 
-            var result = await vehiclesWithMot
+            var result = await vehicles
                 .Skip(start)
                 .Take(take)
                 .Select(x => new VehicleListDto(
@@ -88,7 +87,8 @@ public class VehicleQueries(
                     x.Vehicle.Customer == null ? null : x.Vehicle.Customer.Name,
                     x.Vehicle.Fleet == null ? null : x.Vehicle.Fleet.Code,
                     x.Vehicle.Fleet == null ? null : x.Vehicle.Fleet.Name,
-                    x.MotEvent.Due
+                    x.MotEvent.Due,
+                    x.MotEvent.Id
                 ))
                 .ToListAsync(cancellationToken);
 
@@ -158,6 +158,6 @@ public class VehicleQueries(
             vehicle.Drivers.Select(d => d.ToShortDto()).ToList(),
             vehicle.IsFollowing);
 
-        return dto;//.ToFullDto(vehicle.IsFollowing);
+        return dto;
     }
 }

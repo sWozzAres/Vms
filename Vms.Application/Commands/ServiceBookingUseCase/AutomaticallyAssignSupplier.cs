@@ -34,7 +34,7 @@ public class AutomaticallyAssignSupplier(
             var list = await Ctx.SupplierLocator.GetSuppliers(Self, null, Ctx.CancellationToken);
 
             // only include suppliers that have not previously refused this booking
-            // TODO optimize by adding this to a parameter to .GetSuppliers()
+            // TODO optimize by adding this as a parameter to .GetSuppliers()
             var notPreviouslyRefused = list.Where(s => s.RefusalCode is null);
 
             if (!notPreviouslyRefused.Any())

@@ -4,10 +4,8 @@
 [Route("ClientApp/api/[controller]")]
 [Authorize(Policy = "ClientPolicy")]
 [Produces("application/json")]
-public class NetworkController(VmsDbContext context) : ControllerBase
+public class NetworkController : ControllerBase
 {
-    readonly VmsDbContext _context = context;
-
     [HttpGet]
     public async Task<IActionResult> Get(
         NetworkListOptions list, int start, int take,

@@ -2,7 +2,8 @@
 
 public class CreateCompany(VmsDbContext dbContext, 
     ISearchManager searchManager, 
-    ILogger<CreateCompany> logger)
+    ILogger<CreateCompany> logger,
+    ITimeService timeService)
 {
     readonly VmsDbContext DbContext = dbContext;
 
@@ -10,7 +11,7 @@ public class CreateCompany(VmsDbContext dbContext,
     {
         logger.LogInformation("Creating company {companycode} {companyname}", request.Code, request.Name);
 
-        var company = new Company(request.Code, request.Name);
+        var company = new Company(request.Code, request.Name, timeService.Now);
         DbContext.Add(company);
 
         searchManager.Add(company.Code, company.Code, EntityKind.Company, company.Name,
