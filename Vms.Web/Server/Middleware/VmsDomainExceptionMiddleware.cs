@@ -12,7 +12,7 @@ public class VmsDomainExceptionMiddleware(RequestDelegate next, ILogger<VmsDomai
         }
         catch (VmsDomainException ex)
         {
-            logger.LogError("VmsDomainException handler {exception}", ex);
+            logger.LogError(ex, "VmsDomainException handler");
             context.Response.Clear();
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/json";
@@ -22,7 +22,7 @@ public class VmsDomainExceptionMiddleware(RequestDelegate next, ILogger<VmsDomai
         }
         catch (Exception ex)
         {
-            logger.LogError("VmsDomainException handler {exception}", ex);
+            logger.LogError(ex, "Exception handler");
             context.Response.Clear();
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/json";

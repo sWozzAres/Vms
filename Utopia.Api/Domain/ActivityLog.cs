@@ -9,7 +9,7 @@
 
         public Guid DocumentId { get; private set; } = documentId;
 
-        [StringLength(1024)]
+        //[StringLength(4096)]
         public string Text { get; private set; } = text;
 
         public DateTimeOffset EntryDate { get; private set; } = entryDate;

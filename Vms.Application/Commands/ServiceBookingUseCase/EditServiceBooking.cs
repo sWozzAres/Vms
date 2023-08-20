@@ -117,7 +117,7 @@ public class EditServiceBooking(
                 isModified = true;
             }
 
-            if (Self.Status == ServiceBookingStatus.None && Self.IsValid)
+            if (Self.Status == ServiceBookingStatus.None && Self.IsReady)
             {
                 Self.ChangeStatus(ServiceBookingStatus.Assign, Ctx.TimeService.Now);
                 Ctx.SummaryText.AppendLine($"* Status: {Self.Status.ToDisplayString()}");

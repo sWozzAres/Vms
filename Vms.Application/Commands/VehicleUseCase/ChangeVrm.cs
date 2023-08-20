@@ -1,27 +1,28 @@
 ﻿namespace Vms.Application.Commands.VehicleUseCase;
 
-public class ChangeVrm(VmsDbContext context)
+public class ChangeVrm(
+    VmsDbContext dbContext,
+    IActivityLogger<VmsDbContext> activityLog,
+    ILogger<ChangeVrm> logger) : VehicleTaskBase(dbContext, activityLog)
 {
-    readonly VmsDbContext DbContext = context;
+    ChangeVrmRequest Command = null!;
+    VehicleRole? Vehicle;
 
-    public async Task ChangeTo(ChangeVrmRequest request, CancellationToken cancellationToken = default)
+    public async Task ChangeTo(ChangeVrmRequest command, CancellationToken cancellationToken = default)
     {
-        var vehicle = await DbContext.Vehicles.FindAsync(new object[] { request.VehicleId }, cancellationToken)
-            ?? throw new VmsDomainException("Vehicle not found.");
+        logger.LogInformation("Changing vehicle Vrm. vehicle: {vehicleid}, command: {@command}.", command.VehicleId, command);
 
-        vehicle.Vrm = request.NewVrm;
+        Command = command;
+        Vehicle = new(await Load(command.VehicleId, cancellationToken), this);
 
-        //Vehicle = new(await DbContext.Vehicles.FindAsync(request.vehicleId, cancellationToken)
-        //    ?? throw new VmsDomainException("Vehicle not found."), this);
-
-        //Vehicle.ChangeVrm(request.newVrm);
-
+        Vehicle.ChangeVrm();
     }
 
-    //class VehicleRole(Vehicle self, ChangeVrm context)
-    //{
-    //    public void ChangeVrm(string newVrm) => self.Vrm = newVrm;
-    //}
+    class VehicleRole(Vehicle self, ChangeVrm ctx) : VehicleRoleBase<ChangeVrm>(self, ctx)
+    {
+        public void ChangeVrm() 
+            => Self.Vrm = Ctx.Command.NewVrm;
+    }
 }
 
 public record ChangeVrmRequest(Guid VehicleId, string NewVrm);

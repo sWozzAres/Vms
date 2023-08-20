@@ -58,7 +58,7 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpDelete]
     [Route("{id}/follow")]
     public async Task<IActionResult> Unfollow(Guid id,
-        [FromServices] IUnfollowVehicle unfollow,
+        [FromServices] UnfollowVehicle unfollow,
         CancellationToken cancellationToken)
     {
         if (!await unfollow.UnfollowAsync(id, cancellationToken))

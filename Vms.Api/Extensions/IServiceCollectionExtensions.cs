@@ -1,5 +1,6 @@
 ﻿using Utopia.Api.Application.Commands;
 using Utopia.Api.Application.Services;
+using Vms.Application.Commands;
 using Vms.Application.Commands.CompanyUseCase;
 using Vms.Application.Commands.ServiceBookingUseCase;
 using Vms.Application.Commands.SupplierUseCase;
@@ -9,7 +10,7 @@ namespace Vms.Api.Extensions;
 
 public static class IServiceCollectionExtensions
 {
-    public static void AddVmsApplication(this IServiceCollection services)
+    public static IServiceCollection AddVmsApplication(this IServiceCollection services)
     {
         // queries
         services.AddScoped<UtopiaQueries<VmsDbContext>>();
@@ -32,41 +33,53 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ISearchManager, SearchManager>();
 
         // utopia
-        services.AddScoped<IMarkActivityNotificationAsRead<VmsDbContext>, MarkActivityNotificationAsRead<VmsDbContext>>();
+        services.AddTransient<IMarkActivityNotificationAsRead<VmsDbContext>, MarkActivityNotificationAsRead<VmsDbContext>>();
 
         // supplier
-        services.AddScoped<IFollowSupplier, FollowSupplier>();
-        services.AddScoped<IUnfollowSupplier, UnfollowSupplier>();
-        services.AddScoped<IAddNoteSupplier, AddNoteSupplier>();
-        services.AddScoped<IEditSupplier, EditSupplier>();
-        services.AddScoped<ICreateSupplier, CreateSupplier>();
+        services.AddTransient<IFollowSupplier, FollowSupplier>();
+        services.AddTransient<IUnfollowSupplier, UnfollowSupplier>();
+        services.AddTransient<IAddNoteSupplier, AddNoteSupplier>();
+        services.AddTransient<IEditSupplier, EditSupplier>();
+        services.AddTransient<ICreateSupplier, CreateSupplier>();
 
         // vehicle
-        services.AddScoped<FollowVehicle>();
-        services.AddScoped<IUnfollowVehicle, UnfollowVehicle>();
-        services.AddScoped<AddNoteVehicle>();
-        services.AddScoped<EditVehicle>();
-        services.AddScoped<CreateServiceBooking>();
+        services.AddTransient<FollowVehicle>();
+        services.AddTransient<UnfollowVehicle>();
+        services.AddTransient<AddNoteVehicle>();
+        services.AddTransient<EditVehicle>();
+        services.AddTransient<CreateServiceBooking>();
+        services.AddTransient<ChangeVrm>();
 
         // company
-        services.AddScoped<CreateVehicle>();
+        services.AddTransient<CreateVehicle>();
+        services.AddTransient<CreateCompany>();
+        services.AddTransient<CreateCustomer>();
+        services.AddTransient<CreateFleet>();
+        services.AddTransient<CreateNetwork>();
+        services.AddTransient<CreateDriver>();
+        services.AddTransient<CreateSupplier>();
 
         // service booking
-        services.AddScoped<AddNoteServiceBooking>();
-        services.AddScoped<EditServiceBooking>();
-        services.AddScoped<FollowServiceBooking>();
-        services.AddScoped<UnfollowServiceBooking>();
-        services.AddScoped<BookSupplier>();
-        services.AddScoped<ConfirmBooked>();
-        services.AddScoped<CheckArrival>();
-        services.AddScoped<CheckWorkStatus>();
-        services.AddScoped<ChaseDriver>();
-        services.AddScoped<RebookDriver>();
-        services.AddScoped<NotifyCustomer>();
-        services.AddScoped<NotifyCustomerDelay>();
-        services.AddScoped<SupplierLocator>();
-        services.AddScoped<AssignSupplier>();
-        services.AddScoped<UnbookSupplier>();
-        services.AddScoped<AutomaticallyAssignSupplier>();
+        services.AddTransient<AddNoteServiceBooking>();
+        services.AddTransient<EditServiceBooking>();
+        services.AddTransient<FollowServiceBooking>();
+        services.AddTransient<UnfollowServiceBooking>();
+        services.AddTransient<BookSupplier>();
+        services.AddTransient<ConfirmBooked>();
+        services.AddTransient<CheckArrival>();
+        services.AddTransient<CheckWorkStatus>();
+        services.AddTransient<ChaseDriver>();
+        services.AddTransient<RebookDriver>();
+        services.AddTransient<NotifyCustomer>();
+        services.AddTransient<NotifyCustomerDelay>();
+        services.AddTransient<SupplierLocator>();
+        services.AddTransient<AssignSupplier>();
+        services.AddTransient<UnbookSupplier>();
+        services.AddTransient<AutomaticallyAssignSupplier>();
+
+        // other
+        services.AddTransient<CreateMake>();
+        services.AddTransient<CreateModel>();
+        return services;
     }
 }

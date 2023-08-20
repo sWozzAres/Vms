@@ -1,6 +1,6 @@
-﻿namespace Vms.Application.Commands;
+﻿namespace Vms.Application.Commands.CompanyUseCase;
 
-public class CreateCustomer(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
+public class CreateCustomer(VmsDbContext dbContext, ISearchManager searchManager, ILogger<CreateCustomer> logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;

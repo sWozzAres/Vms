@@ -16,15 +16,14 @@ public class UnlockTaskBackgroundService(IConfiguration configuration, ILogger<U
         while (!stoppingToken.IsCancellationRequested)
         {
             //logger.LogDebug("UnlockTaskBackgroundService is doing background work.");
-
             using var conn = new SqlConnection(options.VmsDbConnection);
             try
             {
                 conn.Open();
 
                 await conn.ExecuteAsync("""
-                DELETE FROM ServiceBookingLocks WHERE DATEDIFF(second, Granted, @now) > @checkTime
-                """, new { now = timeService.Now, checkTime = CheckTimeSeconds });
+                        DELETE FROM ServiceBookingLocks WHERE DATEDIFF(second, Granted, @now) > @checkTime
+                        """, new { now = timeService.Now, checkTime = CheckTimeSeconds });
             }
             catch (SqlException exception)
             {
@@ -42,11 +41,6 @@ public class UnlockTaskBackgroundService(IConfiguration configuration, ILogger<U
         var options = new ConnectionStringOptions();
         configuration.GetSection("ConnectionStrings").Bind(options);
         return options;
-    }
-
-    class ConnectionStringOptions
-    {
-        public string VmsDbConnection { get; set; } = null!;
     }
 }
 

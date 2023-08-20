@@ -115,7 +115,7 @@ namespace Vms.Domain.ServiceBookingProcess
             Driver.EmailAddress = driver.EmailAddress;
             Driver.MobileNumber = driver.MobileNumber;
         }
-        public bool IsValid
+        public bool IsReady
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 
         public void ChangeStatus(ServiceBookingStatus status, DateTime? rescheduleTime = null)
@@ -124,21 +124,13 @@ namespace Vms.Domain.ServiceBookingProcess
             RescheduleTime = rescheduleTime;
         }
         public void Assign(string supplierCode)
-        {
-            SupplierCode = supplierCode;
-        }
+            => SupplierCode = supplierCode;
         public void Book(DateOnly bookedDate)
-        {
-            BookedDate = bookedDate;
-        }
+            => BookedDate = bookedDate;
         public void Unbook()
-        {
-            BookedDate = null;
-        }
+            => BookedDate = null;
         public void Unassign()
-        {
-            SupplierCode = null;
-        }
+            => SupplierCode = null;
     }
 
     public class ServiceBookingDriver

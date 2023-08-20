@@ -1,6 +1,6 @@
-﻿namespace Vms.Application.Commands;
+﻿namespace Vms.Application.Commands.CompanyUseCase;
 
-public class CreateFleet(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
+public class CreateFleet(VmsDbContext dbContext, ISearchManager searchManager, ILogger<CreateFleet> logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     CompanyRole? Company;

@@ -76,7 +76,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
             ctx.DbContext.ServiceBookings.Add(self);
 
-            if (self.IsValid)
+            if (self.IsReady)
                 self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now);
 
             SummarizeInActivityLog();

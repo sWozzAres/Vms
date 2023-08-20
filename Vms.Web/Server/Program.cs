@@ -128,38 +128,21 @@ Log.Information("Applying migrations ({ApplicationContext})...", AppName);
 UserProvider.InMigration = true;
 app.MigrateDbContext<VmsDbContext>((context, services) =>
 {
-    var logger = services.GetService<ILogger<VmsDbContextSeeder>>() ?? throw new InvalidOperationException();
-    var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
-    var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
-    var searchManager = services.GetRequiredService<ISearchManager>();
-    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    var activityLogger = services.GetRequiredService<IActivityLogger<VmsDbContext>>();
-    var taskLogger = services.GetRequiredService<ITaskLogger<VmsDbContext>>();
-    var timeService = services.GetRequiredService<ITimeService>();
-    var userProvider = services.GetRequiredService<IUserProvider>();
-    new VmsDbContextSeeder(context, searchManager, logger, loggerFactory, activityLogger, taskLogger, timeService, userProvider)
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var settings = services.GetRequiredService<IOptions<AppSettings>>();
+    var logger = services.GetRequiredService<ILogger<VmsDbContextSeeder>>();
+
+    new VmsDbContextSeeder(context, services, logger)
         .SeedAsync(env, settings)
         .Wait();
 });
 app.MigrateDbContext<CatalogDbContext>((context, services) =>
 {
-    var logger = services.GetService<ILogger<CatalogDbContextSeeder>>() ?? throw new InvalidOperationException();
-    var env = services.GetService<IWebHostEnvironment>() ?? throw new InvalidOperationException();
-    var settings = services.GetService<IOptions<AppSettings>>() ?? throw new InvalidOperationException();
-    var searchManager = services.GetRequiredService<ISearchManager>();
-    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    var activityLogger = services.GetRequiredService<IActivityLogger<CatalogDbContext>>();
-    var taskLogger = services.GetRequiredService<ITaskLogger<CatalogDbContext>>();
-    var timeService = services.GetRequiredService<ITimeService>();
-    new CatalogDbContextSeeder(
-        context, 
-        //searchManager, 
-        logger
-        //loggerFactory, 
-        //activityLogger, 
-        //taskLogger, 
-        //timeService
-        )
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var settings = services.GetRequiredService<IOptions<AppSettings>>();
+    var logger = services.GetRequiredService<ILogger<CatalogDbContextSeeder>>();
+
+    new CatalogDbContextSeeder(context, services, logger)
         .SeedAsync(env, settings)
         .Wait();
 });

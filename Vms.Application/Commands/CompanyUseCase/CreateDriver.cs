@@ -1,8 +1,8 @@
 ﻿using Vms.Application.Commands.VehicleUseCase;
 
-namespace Vms.Application.Commands;
+namespace Vms.Application.Commands.CompanyUseCase;
 
-public class CreateDriver(VmsDbContext dbContext, ISearchManager searchManager, ILogger logger)
+public class CreateDriver(VmsDbContext dbContext, ISearchManager searchManager, ILogger<CreateDriver> logger)
 {
     readonly VmsDbContext DbContext = dbContext;
     VehicleRole? Vehicle;

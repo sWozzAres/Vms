@@ -11,7 +11,7 @@ namespace Vms.Web.Server.Extensions
             {
                 var services = scope.ServiceProvider;
                 var logger = services.GetRequiredService<ILogger<TContext>>();
-                var context = services.GetService<TContext>() ?? throw new InvalidOperationException();
+                var context = services.GetRequiredService<TContext>();
 
                 try
                 {

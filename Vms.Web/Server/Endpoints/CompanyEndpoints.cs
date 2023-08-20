@@ -4,11 +4,6 @@ public static class CompanyEndpoints
 {
     public static void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/ClientApp/test", () =>
-        {
-            return Results.Ok("Hello World!");
-        });
-
         endpoints.MapGet("/ClientApp/api/Company",
             [Authorize(Policy = "ClientPolicy")] async (int list, int start, int take, VmsDbContext context, CancellationToken cancellationToken) =>
         {

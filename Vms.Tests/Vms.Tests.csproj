@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Vms.Api\Vms.Api.csproj" />
     <ProjectReference Include="..\Vms.Application\Vms.Application.csproj" />
     <ProjectReference Include="..\Vms.Domain\Vms.Domain.csproj" />
   </ItemGroup>

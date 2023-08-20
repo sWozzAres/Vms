@@ -14,5 +14,5 @@ public static class ClaimsPrincipalExtensions
         => principal.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
 
     public static string? Email(this ClaimsPrincipal principal)
-        => principal.Claims.FirstOrDefault(x => x.Type == "email")?.Value;
+        => principal.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" || x.Type == "email")?.Value;
 }

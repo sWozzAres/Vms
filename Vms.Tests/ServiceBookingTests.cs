@@ -1,32 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Vms.Application.Commands.VehicleUseCase;
 using VmsTesting;
 
 namespace Vms.Tests;
 
-public class ServiceBookingTests //: IClassFixture<TestDatabaseFixture>
+public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
 {
-    //readonly TestDatabaseFixture Fixture;
-    readonly ServiceProvider ServiceProvider;
-    //readonly ILoggerFactory LoggerFactory;
+    readonly TestDatabaseFixture Fixture;
 
-    //public ServiceBookingTests(TestDatabaseFixture fixture)
-    public ServiceBookingTests()
+    public ServiceBookingTests(TestDatabaseFixture fixture)
     {
-        //Fixture = fixture;
-        ServiceProvider = new ServiceCollection()
-            .AddLogging(builder => builder.AddDebug())
-            .BuildServiceProvider();
-        //LoggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
+        Fixture = fixture;
     }
 
     [Fact]
     public async Task Test1()
     {
-
-        using var context = TestDatabaseFixture.CreateContext();
+        var context = New<VmsDbContext>();
 
         var vehicles = await context.Vehicles.ToListAsync();
 
@@ -36,7 +27,7 @@ public class ServiceBookingTests //: IClassFixture<TestDatabaseFixture>
     [Fact]
     public void Get_Companies()
     {
-        using var context = TestDatabaseFixture.CreateContext();
+        var context = New<VmsDbContext>();
 
         var companies = context.Companies.ToList();
 
@@ -65,16 +56,20 @@ public class ServiceBookingTests //: IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task Change_Vrm()
     {
-        using var context = TestDatabaseFixture.CreateContext();
+        var context = New<VmsDbContext>();
+        var changeVrm = New<ChangeVrm>();
 
         var vehicle = context.Vehicles.First();
 
         var request1 = new ChangeVrmRequest(vehicle.Id, "123");
-        await new ChangeVrm(context).ChangeTo(request1);
+        await changeVrm.ChangeTo(request1);
 
         var request2 = new ChangeVrmRequest(vehicle.Id, "12345");
-        await new ChangeVrm(context).ChangeTo(request2);
+        await changeVrm.ChangeTo(request2);
 
         Assert.Equal("12345", vehicle.Vrm);
     }
+
+    T New<T>() where T: notnull
+        => Fixture.ServiceProvider.GetRequiredService<T>();
 }

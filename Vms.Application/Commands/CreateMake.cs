@@ -1,6 +1,6 @@
 ﻿namespace Vms.Application.Commands;
 
-public class CreateMake(VmsDbContext dbContext, ILogger logger)
+public class CreateMake(VmsDbContext dbContext, ILogger<CreateMake> logger)
 {
     readonly VmsDbContext DbContext = dbContext;
 

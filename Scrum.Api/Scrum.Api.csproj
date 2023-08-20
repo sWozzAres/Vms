@@ -7,13 +7,6 @@
 		<LangVersion>preview</LangVersion>
 		<OutputType>Library</OutputType>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Folder Include="Application\Commands\" />
-		<Folder Include="Application\Extensions\" />
-		<Folder Include="Application\Services\" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="ErikEJ.EntityFrameworkCore.SqlServer.DateOnlyTimeOnly" Version="7.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
@@ -25,9 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Catalog.Shared\Catalog.Shared.csproj" />
 		<ProjectReference Include="..\Utopia.Api\Utopia.Api.csproj" />
 		<ProjectReference Include="..\Utopia.Shared\Utopia.Shared.csproj" />
 	</ItemGroup>
-
 </Project>

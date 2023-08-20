@@ -2,7 +2,8 @@
 
 namespace Vms.Web.Server.Services;
 
-public class RemoveRecentViewsBackgroundService(IConfiguration configuration, ILogger<RemoveRecentViewsBackgroundService> logger,
+public class RemoveRecentViewsBackgroundService(IConfiguration configuration, 
+    ILogger<RemoveRecentViewsBackgroundService> logger,
     CurrentTime timeService) : BackgroundService
 {
     const int CheckTimeSeconds = 60 * 60;
@@ -17,18 +18,21 @@ public class RemoveRecentViewsBackgroundService(IConfiguration configuration, IL
         {
             //logger.LogDebug("RemoveRecentViewsBackgroundService is doing background work.");
 
-            using var conn = new SqlConnection(options.VmsDbConnection);
-            try
+            foreach (var connectionString in options.ConnectionStrings())
             {
-                conn.Open();
+                using var conn = new SqlConnection(connectionString);
+                try
+                {
+                    conn.Open();
 
-                await conn.ExecuteAsync("""
-                DELETE FROM System.RecentViews WHERE DATEDIFF(day, ViewDate, @now) > 0
-                """, new { now = timeService.Now });
-            }
-            catch (SqlException exception)
-            {
-                logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
+                    await conn.ExecuteAsync("""
+                        DELETE FROM System.RecentViews WHERE DATEDIFF(day, ViewDate, @now) > 0
+                        """, new { now = timeService.Now });
+                }
+                catch (SqlException exception)
+                {
+                    logger.LogCritical(exception, "Failed to communicate with the database: {Message}", exception.Message);
+                }
             }
 
             await Task.Delay(CheckTimeSeconds * 1000, stoppingToken);
@@ -42,11 +46,6 @@ public class RemoveRecentViewsBackgroundService(IConfiguration configuration, IL
         var options = new ConnectionStringOptions();
         configuration.GetSection("ConnectionStrings").Bind(options);
         return options;
-    }
-
-    class ConnectionStringOptions
-    {
-        public string VmsDbConnection { get; set; } = null!;
     }
 }
 

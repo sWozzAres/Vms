@@ -20,13 +20,13 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IRecentViewLogger<CatalogDbContext>, RecentViewLogger<CatalogDbContext>>();
 
         // utopia
-        services.AddScoped<IMarkActivityNotificationAsRead<CatalogDbContext>, MarkActivityNotificationAsRead<CatalogDbContext>>();
+        services.AddTransient<IMarkActivityNotificationAsRead<CatalogDbContext>, MarkActivityNotificationAsRead<CatalogDbContext>>();
 
         // product
-        //services.AddScoped<IFollowProduct, FollowProduct>();
-        //services.AddScoped<IUnfollowProduct, UnfollowProduct>();
-        //services.AddScoped<IAddNoteProduct, AddNoteProduct>();
-        //services.AddScoped<IEditProduct, EditProduct>();
-        //services.AddScoped<ICreateProduct, CreateProduct>();
+        //services.AddTransient<IFollowProduct, FollowProduct>();
+        //services.AddTransient<IUnfollowProduct, UnfollowProduct>();
+        //services.AddTransient<IAddNoteProduct, AddNoteProduct>();
+        //services.AddTransient<IEditProduct, EditProduct>();
+        //services.AddTransient<ICreateProduct, CreateProduct>();
     }
 }

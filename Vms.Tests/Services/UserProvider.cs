@@ -1,10 +1,10 @@
 ﻿using Utopia.Api.Services;
 
-namespace Vms.Tests;
+namespace Vms.Tests.Services;
 
 public class UserProvider : IUserProvider
 {
-    public string UserId => string.Empty;
+    public string UserId => "tester";
 
     public string TenantId => "TEST001";
 
