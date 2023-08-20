@@ -1,4 +1,5 @@
-﻿using Utopia.Api.Application.Commands;
+﻿using System.Reflection;
+using Utopia.Api.Application.Commands;
 using Utopia.Api.Application.Services;
 using Vms.Application.Commands;
 using Vms.Application.Commands.CompanyUseCase;
@@ -10,7 +11,7 @@ namespace Vms.Api.Extensions;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddVmsApplication(this IServiceCollection services)
+    public static IServiceCollection AddVmsApplication(this IServiceCollection services, string connectionString)
     {
         // queries
         services.AddScoped<UtopiaQueries<VmsDbContext>>();
@@ -80,6 +81,22 @@ public static class IServiceCollectionExtensions
         // other
         services.AddTransient<CreateMake>();
         services.AddTransient<CreateModel>();
+
+        // dbcontext
+        services.AddDbContext<VmsDbContext>(options =>
+        {
+            options.EnableSensitiveDataLogging();
+
+            options.UseSqlServer(connectionString, sqlOptions =>
+            {
+                sqlOptions.UseNetTopologySuite();
+                sqlOptions.UseDateOnlyTimeOnly();
+                sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                sqlOptions.EnableRetryOnFailure();
+            });
+        });
+
         return services;
     }
 }

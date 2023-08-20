@@ -2,7 +2,7 @@
 
 namespace Vms.Web.Server.Services;
 
-public class RemoveRecentViewsBackgroundService(IConfiguration configuration, 
+public class RemoveRecentViewsBackgroundService(IConfiguration configuration,
     ILogger<RemoveRecentViewsBackgroundService> logger,
     CurrentTime timeService) : BackgroundService
 {

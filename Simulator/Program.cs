@@ -33,22 +33,22 @@ namespace Simulator
             services.AddSingleton<ISimulatorApp, SimulatorApp>();
 
             services.AddScoped<IUserProvider, UserProvider>();
-                services.AddSingleton<INotifyFollowers, NotifyFollowers>();
-                services.AddSingleton<ITimeService, SimulateTime>();
-                services.AddDbContext<VmsDbContext>(options =>
-                {
-                    options.EnableSensitiveDataLogging();
+            services.AddSingleton<INotifyFollowers, NotifyFollowers>();
+            services.AddSingleton<ITimeService, SimulateTime>();
+            services.AddDbContext<VmsDbContext>(options =>
+            {
+                options.EnableSensitiveDataLogging();
 
-                    options.UseSqlServer(ConnectionString, sqlOptions =>
-                    {
-                        sqlOptions.UseNetTopologySuite();
-                        sqlOptions.UseDateOnlyTimeOnly();
-                        sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                        //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                        sqlOptions.EnableRetryOnFailure();
-                    });
+                options.UseSqlServer(ConnectionString, sqlOptions =>
+                {
+                    sqlOptions.UseNetTopologySuite();
+                    sqlOptions.UseDateOnlyTimeOnly();
+                    sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                    //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    sqlOptions.EnableRetryOnFailure();
                 });
-                services.AddVmsApplication();
+            });
+            services.AddVmsApplication();
         }
     }
 

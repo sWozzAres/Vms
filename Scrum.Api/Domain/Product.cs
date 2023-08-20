@@ -10,7 +10,7 @@ public class Product
     /// <summary>
     /// The Product Owner.
     /// </summary>
-    public Guid Owner { get; set; } 
+    public Guid Owner { get; set; }
 
     public ICollection<ProductBacklogItem> Items { get; private set; } = new List<ProductBacklogItem>();
 }

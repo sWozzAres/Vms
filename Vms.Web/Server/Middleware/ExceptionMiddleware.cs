@@ -2,7 +2,7 @@
 
 namespace Vms.Web.Server;
 
-public class VmsDomainExceptionMiddleware(RequestDelegate next, ILogger<VmsDomainExceptionMiddleware> logger)
+public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {

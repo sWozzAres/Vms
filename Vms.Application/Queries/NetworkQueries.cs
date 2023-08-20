@@ -1,7 +1,7 @@
 ﻿namespace Vms.Application.Queries;
 
 public class NetworkQueries(
-    VmsDbContext context 
+    VmsDbContext context
     //IUserProvider userProvider
     )
 {

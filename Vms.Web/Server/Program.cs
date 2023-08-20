@@ -51,35 +51,13 @@ builder.Services.AddScoped<IUserProvider, UserProvider>();
 // signalR
 builder.Services.AddSingleton<INotifyFollowers, NotifyFollowersViaSignalR>();
 
-builder.Services.AddVmsApplication();
-builder.Services.AddCatalogApplication();
+builder.Services.AddVmsApplication(
+    builder.Configuration.GetConnectionString("VmsDbConnection") 
+        ?? throw new InvalidOperationException("Failed to load connection string VmsDbConnection."));
 
-builder.Services.AddDbContext<VmsDbContext>(options =>
-{
-    options.EnableSensitiveDataLogging();
-
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VmsDbConnection"), sqlOptions =>
-    {
-        sqlOptions.UseNetTopologySuite();
-        sqlOptions.UseDateOnlyTimeOnly();
-        sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-        //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-        sqlOptions.EnableRetryOnFailure();
-    });
-});
-builder.Services.AddDbContext<CatalogDbContext>(options =>
-{
-    options.EnableSensitiveDataLogging();
-
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogDbConnection"), sqlOptions =>
-    {
-        //sqlOptions.UseNetTopologySuite();
-        sqlOptions.UseDateOnlyTimeOnly();
-        sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-        //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-        sqlOptions.EnableRetryOnFailure();
-    });
-});
+builder.Services.AddCatalogApplication(
+    builder.Configuration.GetConnectionString("CatalogDbConnection")
+        ?? throw new InvalidOperationException("Failed to load connection string CatalogDbConnection."));
 
 builder.Services.AddApplicationSecurity();
 
@@ -198,7 +176,7 @@ app.MapWhen(ctx => ctx.Request.Host.Port == 5002 ||
             return nxt();
         });
 
-        clientApp.UseMiddleware<VmsDomainExceptionMiddleware>();
+        clientApp.UseMiddleware<ExceptionMiddleware>();
         //clientApp.UseMiddleware<TransactionMiddleware>();
 
         clientApp.UseBlazorFrameworkFiles("/ClientApp");

@@ -1,8 +1,7 @@
 ﻿namespace Vms.Domain.Common;
 
 /// <summary>
-/// Represents an addres in the UK.
-/// 
+/// Represents an address in the UK.
 /// </summary>
 /// <see cref="https://www.postoffice.co.uk/mail/how-to-address-mail"/>
 public class Address : ValueObject

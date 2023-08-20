@@ -1,19 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Vms.Application.Commands.CompanyUseCase;
-using Vms.Application.Commands;
-using Vms.Domain.Common;
-using Vms.Domain.Infrastructure;
 using NetTopologySuite.Geometries;
 using Simulator.Services;
 using Utopia.Api.Application.Services;
-using Vms.Application.Queries;
-using Utopia.Blazor.Application.Vms.Shared;
-using Vms.Application.Commands.VehicleUseCase;
-using Microsoft.EntityFrameworkCore;
 using Utopia.Api.Domain.System;
 using Utopia.Api.Services;
-using static System.Formats.Asn1.AsnWriter;
+using Utopia.Blazor.Application.Vms.Shared;
+using Vms.Application.Commands;
+using Vms.Application.Commands.CompanyUseCase;
+using Vms.Application.Commands.VehicleUseCase;
+using Vms.Application.Queries;
+using Vms.Domain.Common;
+using Vms.Domain.Infrastructure;
 
 namespace Simulator
 {
@@ -29,7 +28,7 @@ namespace Simulator
         readonly IServiceScopeFactory ServiceScopeFactory = serviceScopeFactory;
         readonly SimulateTime TimeService = (SimulateTime)serviceProvider.GetRequiredService<ITimeService>();
 
-        async Task InitializeAsync() 
+        async Task InitializeAsync()
         {
             using (var scope = ServiceScopeFactory.CreateScope())
             {

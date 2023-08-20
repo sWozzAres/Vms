@@ -70,6 +70,6 @@ public class ServiceBookingTests : IClassFixture<TestDatabaseFixture>
         Assert.Equal("12345", vehicle.Vrm);
     }
 
-    T New<T>() where T: notnull
+    T New<T>() where T : notnull
         => Fixture.ServiceProvider.GetRequiredService<T>();
 }

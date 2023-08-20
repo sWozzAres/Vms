@@ -2,14 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using Utopia.Api.Application.Services;
 using Utopia.Api.Services;
-using Vms.Tests.Services;
 using Vms.Api.Extensions;
-using Vms.Application.Commands.CompanyUseCase;
 using Vms.Application.Commands;
+using Vms.Application.Commands.CompanyUseCase;
 using Vms.Domain.Common;
-using NetTopologySuite.Geometries;
+using Vms.Tests.Services;
 
 namespace VmsTesting;
 
@@ -28,7 +28,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     public readonly IServiceProvider ServiceProvider;
     static bool _databaseInitialized;
     readonly VmsDbContext DbContext;
-    
+
 
     public TestDatabaseFixture()
     {
@@ -57,7 +57,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     }
     T New<T>() where T : notnull
         => ServiceProvider.GetRequiredService<T>();
-    
+
 
     public async Task InitializeAsync()
     {
@@ -78,7 +78,7 @@ public class TestDatabaseFixture : IAsyncLifetime
                 var customer2 = await createCustomer.CreateAsync(new(company.Code, "CUS002", "Customer #2"));
 
                 var createFleet = New<CreateFleet>();
-                
+
                 var network1 = New<CreateNetwork>().CreateAsync(new(company.Code, "NET001", "Network #1"));
                 var network2 = New<CreateNetwork>().CreateAsync(new(company.Code, "NET002", "Network #2"));
 
@@ -132,7 +132,7 @@ public class TestDatabaseFixture : IAsyncLifetime
 
 
                 await DbContext.SaveChangesAsync();
-                
+
                 _databaseInitialized = true;
             }
         }

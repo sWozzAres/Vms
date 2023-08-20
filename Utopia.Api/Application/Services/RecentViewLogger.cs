@@ -1,26 +1,28 @@
-﻿using Utopia.Api.Domain.Infrastructure;
-using Utopia.Api.Services;
+﻿using Utopia.Api.Application.Services;
 
 namespace Vms.Application.Services;
 
 public interface IRecentViewLogger<TContext> where TContext : ISystemContext
 {
-    Task LogAsync(Guid documentId);
+    Task LogAsync(Guid documentId, DateTime now);
 }
 
-public class RecentViewLogger<TContext>(TContext context, IUserProvider userProvider) : IRecentViewLogger<TContext> where TContext : ISystemContext
+public class RecentViewLogger<TContext>(
+    TContext context, 
+    IUserProvider userProvider,
+    ITimeService timeService) : IRecentViewLogger<TContext> where TContext : ISystemContext
 {
-    public async Task LogAsync(Guid documentId)
+    public async Task LogAsync(Guid documentId, DateTime now)
     {
         var recentView = await context.RecentViews.SingleOrDefaultAsync(r => r.DocumentId == documentId && r.UserId == userProvider.UserId);
         if (recentView is null)
         {
-            recentView = new RecentView(documentId, userProvider.UserId, DateTime.Now);
+            recentView = new RecentView(documentId, userProvider.UserId, timeService.Now);
             context.RecentViews.Add(recentView);
         }
         else
         {
-            recentView.ViewDate = DateTime.Now;
+            recentView.ViewDate = timeService.Now;
         }
     }
 }

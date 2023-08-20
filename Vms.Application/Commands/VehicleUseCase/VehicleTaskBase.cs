@@ -20,7 +20,7 @@ public abstract class VehicleTaskBase(VmsDbContext dbContext, IActivityLogger<Vm
     private const string NotLoadedMessage = "Vehicle is not loaded.";
 
     public Task LogActivity()
-    { 
+    {
         return SummaryText.Length == 0
             ? Task.CompletedTask
             : ActivityLog.AddAsync(

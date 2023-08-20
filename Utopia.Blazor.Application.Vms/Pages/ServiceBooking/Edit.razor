@@ -86,6 +86,7 @@ else
         if (!OnAfterSave.HasDelegate) throw new ArgumentNullException(nameof(OnAfterSave));
 
         serviceLevelOptions = UIOptions.GetServiceLevelOptions();
+
         try
         {
             var users = await Http.GetUsersForCompany(ServiceBooking.CompanyCode);

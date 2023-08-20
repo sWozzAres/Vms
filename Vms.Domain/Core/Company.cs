@@ -32,7 +32,7 @@ namespace Vms.Domain.Core
         {
             Code = code;
             Name = name;
-            CreatedAt = createdAt;  
+            CreatedAt = createdAt;
         }
     }
 }

@@ -12,7 +12,6 @@ namespace Vms.Domain.Core
         public Guid Id { get; private set; }
 
         public string Make { get; private set; } = null!;
-
         public string Model { get; private set; } = null!;
         public VehicleModel VehicleModel { get; private set; } = null!;
 
@@ -30,6 +29,7 @@ namespace Vms.Domain.Core
         public Fleet? Fleet { get; private set; }
 
         public VehicleVrm VehicleVrm { get; private set; } = null!;
+
         public ICollection<DriverVehicle> DriverVehicles { get; } = new List<DriverVehicle>();
         public ICollection<ServiceBooking> ServiceBookings { get; } = new List<ServiceBooking>();
         public ICollection<MotEvent> MotEvents { get; } = new List<MotEvent>();

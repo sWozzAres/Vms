@@ -1,6 +1,4 @@
-﻿using Utopia.Api.Domain.Infrastructure;
-
-namespace Vms.Application.Services;
+﻿namespace Vms.Application.Services;
 
 public interface IEmailSender<TContext> where TContext : ISystemContext
 {

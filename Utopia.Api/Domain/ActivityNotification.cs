@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-
-namespace Utopia.Api.Domain.System
+﻿namespace Utopia.Api.Domain.System
 {
     [Table("ActivityNotifications", Schema = "System")]
     public class ActivityNotification(Guid documentId, string documentKind, string documentKey, string userId, Guid activityLogId, DateTime entryDate)

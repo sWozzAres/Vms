@@ -82,7 +82,7 @@ public class CheckWorkStatus(
 
             var reason = await Ctx.DbContext.NotCompleteReasons.AsNoTracking()
                 .SingleAsync(r => r.CompanyCode == Self.CompanyCode && r.Code == Ctx.Command.NotCompleteReason!, Ctx.CancellationToken);
-            
+
             Ctx.SummaryText.AppendLine($"* Reason Code: {reason.Code}");
             Ctx.SummaryText.AppendLine($"* Reason Text: {reason.Name}");
 

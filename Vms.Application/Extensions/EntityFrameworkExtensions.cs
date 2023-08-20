@@ -2,6 +2,9 @@
 
 public static class EntityFrameworkExtensions
 {
+    /// <summary>
+    /// Throws an exception if the context is not in a transaction.
+    /// </summary>
     public static void ThrowIfNoTransaction(this DbContext context)
     {
         if (context.Database.CurrentTransaction is null)

@@ -273,66 +273,6 @@ public class VmsDbContextSeeder(
                         new RescheduleReason(company.Code, $"CODE{i:D2}", $"Reschedule reason #{i}"));
                 }
             }
-
-            //if (!context.NotCompleteReasons.Any())
-            //{
-            //    foreach (var company in allCompanies)
-            //    {
-            //        for (int i = 0; i < 5; i++)
-            //        {
-            //            var refusalReason = new NotCompleteReason(company.Code, $"CODE{i:D2}", $"Not Complete Reason #{i}");
-            //            context.NotCompleteReasons.Add(refusalReason);
-            //        }
-            //    }
-            //}
-
-            //if (!context.ConfirmBookedRefusalReasons.Any())
-            //{
-            //    foreach (var company in allCompanies)
-            //    {
-            //        for (int i = 0; i < 5; i++)
-            //        {
-            //            var refusalReason = new ConfirmBookedRefusalReason(company.Code, $"CODE{i:D2}", $"ConfirmBooked Refusal reason #{i}");
-            //            context.ConfirmBookedRefusalReasons.Add(refusalReason);
-            //        }
-            //    }
-            //}
-
-            //if (!context.NonArrivalReasons.Any())
-            //{
-            //    foreach (var company in allCompanies)
-            //    {
-            //        for (int i = 0; i < 5; i++)
-            //        {
-            //            var refusalReason = new NonArrivalReason(company.Code, $"CODE{i:D2}", $"NonArrival Reason reason #{i}");
-            //            context.NonArrivalReasons.Add(refusalReason);
-            //        }
-            //    }
-            //}
-
-            //if (!context.RefusalReasons.Any())
-            //{
-            //    foreach (var company in allCompanies)
-            //    {
-            //        for (int i = 0; i < 5; i++)
-            //        {
-            //            var refusalReason = new RefusalReason(company.Code, $"CODE{i:D2}", $"Refusal reason #{i}");
-            //            context.RefusalReasons.Add(refusalReason);
-            //        }
-            //    }
-            //}
-
-            //if (!context.RescheduleReasons.Any())
-            //{
-            //    foreach (var company in allCompanies)
-            //    {
-            //        for (int i = 0; i < 5; i++)
-            //        {
-            //            var rescheduleReason = new RescheduleReason(company.Code, $"CODE{i:D2}", $"Reschedule reason #{i}");
-            //            context.RescheduleReasons.Add(rescheduleReason);
-            //        }
-            //    }
-            //}
         }
 
         async Task SeedSuppliers()

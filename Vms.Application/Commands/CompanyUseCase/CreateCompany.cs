@@ -1,7 +1,7 @@
 ﻿namespace Vms.Application.Commands.CompanyUseCase;
 
-public class CreateCompany(VmsDbContext dbContext, 
-    ISearchManager searchManager, 
+public class CreateCompany(VmsDbContext dbContext,
+    ISearchManager searchManager,
     ILogger<CreateCompany> logger,
     ITimeService timeService)
 {

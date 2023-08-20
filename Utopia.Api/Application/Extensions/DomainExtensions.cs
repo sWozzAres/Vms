@@ -1,6 +1,4 @@
-﻿using Utopia.Shared;
-
-namespace Utopia.Api.Application.Extensions;
+﻿namespace Utopia.Api.Application.Extensions;
 
 public static class DomainExtensions
 {

@@ -49,7 +49,7 @@ public class ProductBacklogItem
     public string Notes { get; set; } = null!;
 
     public DateOnly DeliveryDate { get; set; }
-    
+
     /// <summary>
     /// Specifies that the <see cref="DeliveryDate"/> depends on a particular calendar date.
     /// </summary>

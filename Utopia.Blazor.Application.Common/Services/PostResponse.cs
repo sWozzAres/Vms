@@ -7,22 +7,10 @@ public abstract partial class PostResponse(HttpResponseMessage response)
 {
     public HttpResponseMessage Response { get; private set; } = response;
 
-    public class Success(HttpResponseMessage response) : PostResponse(response)
-    {
-    }
-
-    //public class Forbid(HttpResponseMessage response) : PostResponse(response)
-    //{
-    //}
-
-    public class Created(HttpResponseMessage response) : PostResponse(response)
-    {
-
-    }
-
-    public class Failure(HttpResponseMessage response) : PostResponse(response)
-    {
-    }
+    public class Success(HttpResponseMessage response) : PostResponse(response) { }
+    //public class Forbid(HttpResponseMessage response) : PostResponse(response) { }
+    public class Created(HttpResponseMessage response) : PostResponse(response) { }
+    public class Failure(HttpResponseMessage response) : PostResponse(response) { }
 
     public class BadRequest : PostResponse
     {
@@ -72,7 +60,6 @@ public abstract partial class PostResponse(HttpResponseMessage response)
         }
     }
 
-
     public static PostResponse Create(HttpResponseMessage response)
         => response.StatusCode switch
         {
@@ -83,7 +70,5 @@ public abstract partial class PostResponse(HttpResponseMessage response)
             HttpStatusCode.UnprocessableEntity => new UnprocessableEntity(response),
             _ => new Failure(response)
         };
-
-
 }
 

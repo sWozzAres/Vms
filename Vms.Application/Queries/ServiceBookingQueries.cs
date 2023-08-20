@@ -2,9 +2,9 @@
 
 namespace Vms.Application.Queries;
 
-public class ServiceBookingQueries(VmsDbContext context, 
+public class ServiceBookingQueries(VmsDbContext context,
     IUserProvider userProvider,
-    ITimeService timeService) 
+    ITimeService timeService)
 {
     public async Task<ActivityLogDto?> GetActivity(Guid id, Guid activityId,
         CancellationToken cancellationToken)

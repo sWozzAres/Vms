@@ -1,9 +1,9 @@
 ﻿namespace Vms.Application.Commands.VehicleUseCase;
 
 public class EditVehicle(
-    VmsDbContext dbContext, 
+    VmsDbContext dbContext,
     IActivityLogger<VmsDbContext> activityLog,
-    ITaskLogger<VmsDbContext> taskLogger, 
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<EditVehicle> logger) : VehicleTaskBase(dbContext, activityLog)
 {
     VehicleRole? Vehicle;

@@ -75,7 +75,7 @@ public class AppController(ILogger<AppController> logger) : ControllerBase
         }
         else
         {
-            // update username / tenantid
+            // update username / tenantid / email
             if (user.UserName != userProvider.UserName)
             {
                 user.UserName = userProvider.UserName;

@@ -112,10 +112,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/assignsupplier")]
     public async Task<IActionResult> AssignSupplier(Guid id,
         [FromBody] TaskAssignSupplierCommand request,
-        [FromServices] AssignSupplier assignSupplierUseCase,
+        [FromServices] AssignSupplier command,
         CancellationToken cancellationToken)
     {
-        await assignSupplierUseCase.AssignAsync(id, request, cancellationToken);
+        await command.AssignAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -124,10 +124,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/unbooksupplier")]
     public async Task<IActionResult> UnbookSupplier(Guid id,
         [FromBody] TaskUnbookSupplierCommand request,
-        [FromServices] UnbookSupplier unbookSupplier,
+        [FromServices] UnbookSupplier command,
         CancellationToken cancellationToken)
     {
-        await unbookSupplier.UnbookAsync(id, request, cancellationToken);
+        await command.UnbookAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -136,10 +136,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/booksupplier")]
     public async Task<IActionResult> BookSupplier(Guid id,
         [FromBody] TaskBookSupplierCommand request,
-        [FromServices] BookSupplier bookSupplier,
+        [FromServices] BookSupplier command,
         CancellationToken cancellationToken)
     {
-        await bookSupplier.BookAsync(id, request, cancellationToken);
+        await command.BookAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -148,10 +148,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/checkworkstatus")]
     public async Task<IActionResult> CheckWorkStatus(Guid id,
         [FromBody] TaskCheckWorkStatusCommand request,
-        [FromServices] CheckWorkStatus checkWorkStatus,
+        [FromServices] CheckWorkStatus command,
         CancellationToken cancellationToken)
     {
-        await checkWorkStatus.CheckAsync(id, request, cancellationToken);
+        await command.CheckAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -160,10 +160,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/confirmbooked")]
     public async Task<IActionResult> ConfirmBooked(Guid id,
         [FromBody] TaskConfirmBookedCommand request,
-        [FromServices] ConfirmBooked confirmBooked,
+        [FromServices] ConfirmBooked command,
         CancellationToken cancellationToken)
     {
-        await confirmBooked.ConfirmAsync(id, request, cancellationToken);
+        await command.ConfirmAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -171,10 +171,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/notifycustomer")]
     public async Task<IActionResult> NotifyCustomer(Guid id,
         [FromBody] TaskNotifyCustomerCommand request,
-        [FromServices] NotifyCustomer notifyCustomer,
+        [FromServices] NotifyCustomer command,
         CancellationToken cancellationToken)
     {
-        await notifyCustomer.NotifyAsync(id, request, cancellationToken);
+        await command.NotifyAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -182,10 +182,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/notifycustomerdelay")]
     public async Task<IActionResult> NotifyCustomerDelay(Guid id,
         [FromBody] TaskNotifyCustomerDelayCommand request,
-        [FromServices] NotifyCustomerDelay notifyCustomerDelay,
+        [FromServices] NotifyCustomerDelay command,
         CancellationToken cancellationToken)
     {
-        await notifyCustomerDelay.NotifyAsync(id, request, cancellationToken);
+        await command.NotifyAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -194,10 +194,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/checkarrival")]
     public async Task<IActionResult> CheckArrival(Guid id,
         [FromBody] TaskCheckArrivalCommand request,
-        [FromServices] CheckArrival checkArrival,
+        [FromServices] CheckArrival command,
         CancellationToken cancellationToken)
     {
-        await checkArrival.CheckAsync(id, request, cancellationToken);
+        await command.CheckAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -206,10 +206,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/chasedriver")]
     public async Task<IActionResult> ChaseDriver(Guid id,
         [FromBody] TaskChaseDriverCommand request,
-        [FromServices] ChaseDriver chaseDriver,
+        [FromServices] ChaseDriver command,
         CancellationToken cancellationToken)
     {
-        await chaseDriver.ChaseAsync(id, request, cancellationToken);
+        await command.ChaseAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -218,10 +218,10 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/rebookdriver")]
     public async Task<IActionResult> RebookDriver(Guid id,
         [FromBody] TaskRebookDriverCommand request,
-        [FromServices] RebookDriver rebookDriver,
+        [FromServices] RebookDriver command,
         CancellationToken cancellationToken)
     {
-        await rebookDriver.RebookAsync(id, request, cancellationToken);
+        await command.RebookAsync(id, request, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Ok();
     }
@@ -230,9 +230,9 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [HttpGet]
     [Route("{id}/activity")]
     public async Task<IActionResult> GetActivities(Guid id,
-        [FromServices] DocumentQueries documentQueries,
+        [FromServices] DocumentQueries queries,
         CancellationToken cancellationToken)
-    => Ok(await documentQueries.GetActivities(id, cancellationToken));
+    => Ok(await queries.GetActivities(id, cancellationToken));
 
     [HttpPost]
     [Route("{id}/activity")]
@@ -262,7 +262,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     public async Task<IActionResult> CreateServiceBooking(
         [FromBody] CreateServiceBookingCommand request,
         //[FromServices] IAutomaticallyAssignSupplierUseCase assignSupplierUseCase,
-        [FromServices] CreateServiceBooking createServiceBooking,
+        [FromServices] CreateServiceBooking command,
         CancellationToken cancellationToken)
     {
         //ModelState.AddModelError("ServiceLevel", "An error");
@@ -279,7 +279,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         {
             using var transaction = _context.Database.BeginTransaction();
 
-            var serviceBooking = await createServiceBooking //new CreateServiceBooking(_context, assignSupplierUseCase)
+            var serviceBooking = await command //new CreateServiceBooking(_context, assignSupplierUseCase)
                     .CreateAsync(request, cancellationToken);
 
             await _context.SaveChangesAsync(cancellationToken);
@@ -306,7 +306,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     [Route("{id}/edit")]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromBody] ServiceBookingDto request,
-        [FromServices] EditServiceBooking edit,
+        [FromServices] EditServiceBooking command,
         CancellationToken cancellationToken)
     {
         if (request.Id != id)
@@ -314,7 +314,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
             return BadRequest();
         }
 
-        if (await edit.EditAsync(id, request, cancellationToken))
+        if (await command.EditAsync(id, request, cancellationToken))
             await _context.SaveChangesAsync(cancellationToken);
 
         return Ok();
@@ -391,6 +391,7 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
         }
 
         await recentViewLogger.LogAsync(serviceBooking.Id);
+
         await context.SaveChangesAsync(cancellationToken);
 
         return Ok(serviceBooking);
@@ -410,10 +411,6 @@ public class ServiceBookingController(ILogger<ServiceBookingController> logger, 
     }
 }
 
-public record ServiceBookingFull(Guid Id, Guid VehicleId, string CompanyCode, string Vrm, string Make, string Model,
-        DateOnly? PreferredDate1, DateOnly? PreferredDate2, DateOnly? PreferredDate3, ServiceBookingDtoStatus Status,
-        ServiceLevel ServiceLevel, Supplier? Supplier, MotEvent? MotEvent, Follower? Follower);
-
 public static partial class DomainExtensions
 {
     public static ServiceBookingDto ToDto(this ServiceBooking serviceBooking)
@@ -428,11 +425,4 @@ public static partial class DomainExtensions
             PreferredDate3 = serviceBooking.PreferredDate3,
         };
     }
-
-    public static MotEventShortDto ToShortDto(this MotEvent motEvent) => new(motEvent.Id, motEvent.Due);
-
-    public static SupplierShortDto ToSupplierShortDto(this Supplier supplier)
-        => new(supplier.Code, supplier.Name);
-
-
 }

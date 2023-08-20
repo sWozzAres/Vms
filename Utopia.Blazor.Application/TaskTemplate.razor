@@ -1,6 +1,6 @@
 ﻿@inject HttpClient Http
 @implements IAsyncDisposable
-@typeparam TModel where TModel : new()
+@typeparam TModel where TModel : notnull, new()
 
 <section class="task-form">
     <h1>@Title</h1>
@@ -113,7 +113,7 @@
         ArgumentNullException.ThrowIfNull(ChildContent);
         if (!OnCompleted.HasDelegate) throw new ArgumentNullException(nameof(OnCompleted));
 
-        editContext = new(Model!);
+        editContext = new(Model);
         messageStore = new(editContext);
     }
 

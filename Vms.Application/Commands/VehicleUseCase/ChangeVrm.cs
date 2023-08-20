@@ -20,7 +20,7 @@ public class ChangeVrm(
 
     class VehicleRole(Vehicle self, ChangeVrm ctx) : VehicleRoleBase<ChangeVrm>(self, ctx)
     {
-        public void ChangeVrm() 
+        public void ChangeVrm()
             => Self.Vrm = Ctx.Command.NewVrm;
     }
 }

@@ -72,9 +72,9 @@ namespace Vms.Domain.ServiceBookingProcess
 
             if (motEvent is not null)
                 AddMotEvent(motEvent);
-            
+
             CreatedUserId = createdUserId;
-            Status = ServiceBookingStatus.None; 
+            Status = ServiceBookingStatus.None;
             Ref = GenerateRandomRef();
         }
         public void AddMotEvent(MotEvent motEvent)
@@ -104,7 +104,7 @@ namespace Vms.Domain.ServiceBookingProcess
         /// <summary>
         /// Generates a random 10 digit number.
         /// </summary>
-        private static string GenerateRandomRef()
+        static string GenerateRandomRef()
         {
             var r = (uint)new Random().NextInt64(1111111111, uint.MaxValue);
             return r.ToString()[..3] + "-" + r.ToString()[3..6] + "-" + r.ToString()[6..10];

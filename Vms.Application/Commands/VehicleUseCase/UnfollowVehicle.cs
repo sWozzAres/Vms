@@ -6,8 +6,8 @@ public interface IUnfollowVehicle
 }
 
 public class UnfollowVehicle(
-    VmsDbContext dbContext, 
-    IUserProvider userProvider, 
+    VmsDbContext dbContext,
+    IUserProvider userProvider,
     IActivityLogger<VmsDbContext> activityLog) : VehicleTaskBase(dbContext, activityLog)
 {
     readonly IUserProvider UserProvider = userProvider;
