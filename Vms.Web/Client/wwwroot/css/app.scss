@@ -82,6 +82,14 @@
     border-radius: var(--border-radius);
 }
 
+.page-message {
+    display: grid;
+    place-content: center;
+
+    p {
+        font-size: 200%;
+    }
+}
 
 
 a {

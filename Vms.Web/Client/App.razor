@@ -7,6 +7,11 @@
     ">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Vms.Web.Client.Shared.MainLayout)">
+                <Authorizing>
+                    <div class="page page-message">
+                        <p>Authorizing...</p>
+                    </div>
+                </Authorizing>
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)
                     {
@@ -23,7 +28,9 @@
         <NotFound>
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(Vms.Web.Client.Shared.MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
+                <section class="page page-message">
+                    <p role="alert">Sorry, there's nothing at this address.</p>
+                </section>
             </LayoutView>
         </NotFound>
     </Router>

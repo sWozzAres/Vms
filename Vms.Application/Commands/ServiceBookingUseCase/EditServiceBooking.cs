@@ -11,12 +11,13 @@ public class EditServiceBooking(
 {
     readonly ITimeService TimeService = timeService;
     ServiceBookingRole? ServiceBooking;
-    readonly ServiceBookingDto Command = null!;
+    ServiceBookingDto Command = null!;
 
     public async Task<bool> EditAsync(Guid serviceBookingId, ServiceBookingDto command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Editing service booking: {servicebookingid}, command: {@servicebookingdto}.", serviceBookingId, command);
-
+        
+        Command = command;
         ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         var isModified = await ServiceBooking.ModifyDocument();

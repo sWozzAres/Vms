@@ -2,10 +2,38 @@
 @inject ILogger<Authentication> Logger
 @inject HttpClient Http
 @inject HubConnection HubConnection
-
-<RemoteAuthenticatorView @ref="authenticator" Action="@Action" OnLogInSucceeded="LoginSucceeded" />
-
-@code{
+<div class="page page-message">
+    <RemoteAuthenticatorView @ref="authenticator" Action="@Action" OnLogInSucceeded="LoginSucceeded">
+        <CompletingLoggingIn>
+            <p>Completing Logging In</p>
+        </CompletingLoggingIn>
+        <CompletingLogOut>
+            <p>Completing Log Out</p>
+        </CompletingLogOut>
+        <LoggingIn>
+            <p>Logging In</p>
+        </LoggingIn>
+        <LogInFailed>
+            <p>Login failed. Reason: @context</p>
+        </LogInFailed>
+        <LogOut>
+            <p>Logout from the application</p>
+        </LogOut>
+        <LogOutFailed>
+            <p>Logout failed. Reason: @context</p>
+        </LogOutFailed>
+        <LogOutSucceeded>
+            <p>Logout succeeded</p>
+        </LogOutSucceeded>
+        <Registering>
+            <p>Registering</p>
+        </Registering>
+        <UserProfile>
+            <p>User Profile is loaded....</p>
+        </UserProfile>
+    </RemoteAuthenticatorView>
+</div>
+@code {
     [Parameter] public string? Action { get; set; }
     RemoteAuthenticatorView authenticator = null!;
 

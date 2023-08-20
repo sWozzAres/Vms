@@ -847,6 +847,14 @@ dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector 
   border-radius: var(--border-radius);
 }
 
+.page-message {
+  display: grid;
+  place-content: center;
+}
+.page-message p {
+  font-size: 200%;
+}
+
 a {
   color: var(--a-normal-text);
   text-decoration: none;

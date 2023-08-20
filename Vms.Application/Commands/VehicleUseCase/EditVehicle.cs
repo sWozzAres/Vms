@@ -52,18 +52,19 @@ public class EditVehicle(
             }
 
             DateOnly motDue = Ctx.Command.MotDue ?? throw new VmsDomainException("Mot Due cannot be null.");
-            Ctx.SummaryText.AppendLine($"* MOT Due: {Ctx.Command.MotDue}");
 
             var me = await Ctx.DbContext.MotEvents
                 .FirstOrDefaultAsync(m => m.VehicleId == Self.Id && m.IsCurrent, Ctx.CancellationToken);
             if (me is null)
             {
+                Ctx.SummaryText.AppendLine($"* MOT Due: {Ctx.Command.MotDue}");
                 me = new(Self.CompanyCode, Self.Id, motDue, true);
                 Ctx.DbContext.MotEvents.Add(me);
                 isModified = true;
             }
             else if (me.Due != Ctx.Command.MotDue)
             {
+                Ctx.SummaryText.AppendLine($"* MOT Due: {Ctx.Command.MotDue}");
                 me.Due = motDue;
                 isModified = true;
             }

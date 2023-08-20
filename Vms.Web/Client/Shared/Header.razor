@@ -116,13 +116,10 @@
 
     IDisposable? registration;
 
-    int selectedArea;
-
     void SelectArea(int area)
     {
         Logger.LogInformation("Requesting area change {area}", area);
-        if (AppLayout.SelectArea((AppArea)area))
-            selectedArea = area;
+        _ = AppLayout.SelectArea((AppArea)area);
     }
 
     void GoHome() => NavigationManager.NavigateTo("/");
