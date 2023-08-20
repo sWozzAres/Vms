@@ -5,8 +5,8 @@
 @inject HubConnection HubConnection
 
 <header id="header">
-@*     <div id="header-area">
-        <DropdownButton OnSelectCallback="async (value) => selectedArea = value" class="mydropdown2">
+    <div id="header-area">
+        <DropdownButton OnSelectCallback="SelectArea" class="mydropdown2">
             <ButtonContent>
                 <div class="holder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -15,33 +15,25 @@
                 </div>
             </ButtonContent>
             <ChildContent>
-                <DropdownItem Value="1">
+                <DropdownItem Value="(int)AppArea.Vms">
                     <div class="holder">
                         <svg viewBox="0 0 448 512" fill="red">
                             <use xlink:href="icons/solid.svg#user" />
                         </svg>
-                        User
+                        Vms
                     </div>
                 </DropdownItem>
-                <DropdownItem Value="2">
+                <DropdownItem Value="(int)AppArea.Catalog">
                     <div class="holder">
                         <svg viewBox="0 0 448 512" fill="green">
                             <use xlink:href="icons/solid.svg#user" />
                         </svg>
-                        User
-                    </div>
-                </DropdownItem>
-                <DropdownItem Value="3">
-                    <div class="holder">
-                        <svg viewBox="0 0 448 512">
-                            <use xlink:href="icons/solid.svg#user" />
-                        </svg>
-                        User
+                        Catalog
                     </div>
                 </DropdownItem>
             </ChildContent>
         </DropdownButton>
-    </div> *@
+    </div>
     <div id="header-logo" @onclick="GoHome">
         <div class="svg-size-xxlarge svg-car-side svgcss bg-cornflowerblue"></div>
         @* <span class="title">VMS</span> *@
@@ -117,11 +109,21 @@
     string notificationButtonClassName => string.Join("", "notification-btn", hasNotification ? " hasnotifications" : "");
     string notificationIconClassName => string.Join("", "svg-size-large svg-bell svgcss", hasNotification ? " bg-red" : "");
 
-    //int selectedArea = 1;
+    [CascadingParameter(Name = "AppLayout")]
+    public MainLayout AppLayout { get; set; } = null!;
 
     bool contentVisible = false;
 
     IDisposable? registration;
+
+    int selectedArea;
+
+    void SelectArea(int area)
+    {
+        Logger.LogInformation("Requesting area change {area}", area);
+        if (AppLayout.SelectArea((AppArea)area))
+            selectedArea = area;
+    }
 
     void GoHome() => NavigationManager.NavigateTo("/");
 
@@ -147,6 +149,8 @@
     }
     protected override void OnInitialized()
     {
+        ArgumentNullException.ThrowIfNull(AppLayout);
+
         NavigationManager.LocationChanged += LocationChanged;
         HubConnection.On("ReceiveNotification", () =>
           {

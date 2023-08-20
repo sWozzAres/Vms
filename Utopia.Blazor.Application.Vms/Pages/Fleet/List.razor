@@ -1,31 +1,35 @@
-﻿@page "/fleet/list"
+﻿@page "/vms/fleet/list"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 
 <PageTitle>Fleets</PageTitle>
-
-<ListTemplate TGridItem="FleetListDto" Options="listOptions" ApiUrl="/api/fleet" Key="ListPage_Fleet" Title="Fleets">
-    <IconContent>
-        <div class="svg-large svg-fleet">
-            <img alt="Fleet" src="icons/fleet.svg" />
-        </div>
-    </IconContent>
-    <Buttons>
-        <button @onclick="() => isCreating = true">New</button>
-    </Buttons>
-    <GridColumns>
-        <TemplateColumn Title="Code">
-            <a href="/fleet/view/@context!.CompanyCode/@context!.Code">@context.Code</a>
-        </TemplateColumn>
-        <PropertyColumn Property="p=>p!.Name" />
-    </GridColumns>
-</ListTemplate>
-
-
-@if (isCreating)
-{
-@*    <Create OnClose="() => isCreating = false" />  *@
-}
+<ErrorBoundary>
+    <ChildContent>
+        <ListTemplate TGridItem="FleetListDto" Options="listOptions" ApiUrl="/api/fleet" Key="ListPage_Fleet" Title="Fleets">
+            <IconContent>
+                <div class="svg-large svg-fleet">
+                    <img alt="Fleet" src="icons/fleet.svg" />
+                </div>
+            </IconContent>
+            <Buttons>
+                <button @onclick="() => isCreating = true">New</button>
+            </Buttons>
+            <GridColumns>
+                <TemplateColumn Title="Code">
+                    <a href="/fleet/view/@context!.CompanyCode/@context!.Code">@context.Code</a>
+                </TemplateColumn>
+                <PropertyColumn Property="p=>p!.Name" />
+            </GridColumns>
+        </ListTemplate>
+        @if (isCreating)
+        {
+            @*    <Create OnClose="() => isCreating = false" />  *@
+        }
+    </ChildContent>
+    <ErrorContent>
+        <RetryLoad OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
     List<SelectOption<int?>> listOptions = new()

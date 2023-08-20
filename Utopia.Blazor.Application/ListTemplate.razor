@@ -101,7 +101,7 @@
         ArgumentNullException.ThrowIfNull(GridColumns);
         ArgumentNullException.ThrowIfNull(Key);
         ArgumentNullException.ThrowIfNull(Title);
-
+        
         // load page configuration from local storage
         pageConfig = await LocalStorage.GetItemAsync<ListPageConfig>(Key) ?? new();
 

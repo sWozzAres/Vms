@@ -1,25 +1,35 @@
 ﻿@inherits LayoutComponentBase
-@inject HubConnection HubConnection
 @inject ILogger<MainLayout> Logger
+@attribute [Authorize]
 
-<Header />
-<div class="content stick">
-    <NavMenu />
-    <main class="main stick">
-        @Body
-    </main>
-</div>
+<CascadingValue Name="AppLayout" Value="this">
+    <Header />
+    <div class="content stick">
+        @if (SelectedArea == AppArea.Vms)
+        {
+            <VmsNavMenu />
+        }
+        else if (SelectedArea == AppArea.Catalog)
+        {
+            <Catalog.Blazor.Shared.CatalogNavMenu />
+        }
+        else
+        {
+            <div>Unknown Area</div>
+        }
+        <main class="main stick">
+            @Body
+        </main>
+    </div>
+</CascadingValue>
 
 @code {
-    protected override async Task OnInitializedAsync() 
+    public AppArea SelectedArea { get; set; }
+    public bool SelectArea(AppArea area) 
     {
-        try
-        {
-            await HubConnection.StartAsync();
-        }
-        catch(Exception ex)
-        {
-            Logger.LogError(ex, "Failed to start the signalR connection.");
-        }
+        Logger.LogInformation("Selecting area {area}", area);
+        SelectedArea = area;
+        StateHasChanged();
+        return true;
     }
 }

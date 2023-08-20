@@ -1,31 +1,36 @@
-﻿@page "/company/list"
+﻿@page "/vms/company/list"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 
 <PageTitle>Companies</PageTitle>
 
-<ListTemplate TGridItem="CompanyListDto" Options="listOptions" ApiUrl="/api/company" Key="ListPage_Company" Title="Companies">
-    <IconContent>
-        <div class="svg-large svg-company">
-            <img alt="Company" src="icons/company.svg" />
-        </div>
-    </IconContent>
-    <Buttons>
-        <button @onclick="() => isCreating = true">New</button>
-    </Buttons>
-    <GridColumns>
-        <TemplateColumn Title="Code">
-            <a href="/company/view/@context!.Code">@context.Code</a>
-        </TemplateColumn>
-        <PropertyColumn Property="p=>p!.Name" />
-    </GridColumns>
-</ListTemplate>
-
-
-@if (isCreating)
-{
-@*    <Create OnClose="() => isCreating = false" />  *@
-}
+<ErrorBoundary>
+    <ChildContent>
+        <ListTemplate TGridItem="CompanyListDto" Options="listOptions" ApiUrl="/api/company" Key="ListPage_Company" Title="Companies">
+            <IconContent>
+                <div class="svg-large svg-company">
+                    <img alt="Company" src="icons/company.svg" />
+                </div>
+            </IconContent>
+            <Buttons>
+                <button @onclick="() => isCreating = true">New</button>
+            </Buttons>
+            <GridColumns>
+                <TemplateColumn Title="Code">
+                    <a href="/company/view/@context!.Code">@context.Code</a>
+                </TemplateColumn>
+                <PropertyColumn Property="p=>p!.Name" />
+            </GridColumns>
+        </ListTemplate>
+        @if (isCreating)
+        {
+            @*    <Create OnClose="() => isCreating = false" />  *@
+        }
+    </ChildContent>
+    <ErrorContent>
+        <RetryLoad OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
     List<SelectOption<int?>> listOptions = new()

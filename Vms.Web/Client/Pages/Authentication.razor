@@ -1,6 +1,8 @@
 ﻿@page "/authentication/{action}"
 @inject ILogger<Authentication> Logger
 @inject HttpClient Http
+@inject HubConnection HubConnection
+
 <RemoteAuthenticatorView @ref="authenticator" Action="@Action" OnLogInSucceeded="LoginSucceeded" />
 
 @code{
@@ -10,6 +12,13 @@
     async Task LoginSucceeded()
     {
         Logger.LogInformation("Login succeeded.");
+
+        await StartSignalR();
+        await RegisterLogin();
+    }
+
+    async Task RegisterLogin()
+    {
         try
         {
             var response = PostResponse.Create(await Http.PostAsJsonAsync($"api/app/register", new { }));
@@ -22,6 +31,18 @@
         {
             Logger.LogWarning(ex, "Failed to register login.");
             //TODO logout
+        }
+    }
+
+    async Task StartSignalR()
+    {
+        try
+        {
+            await HubConnection.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to start the signalR connection.");
         }
     }
 }

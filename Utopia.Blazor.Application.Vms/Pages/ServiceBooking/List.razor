@@ -1,32 +1,39 @@
-﻿@page "/servicebooking/list"
+﻿@page "/vms/servicebooking/list"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 
 <PageTitle>Service Bookings</PageTitle>
 
-<ListTemplate TGridItem="ServiceBookingListDto" Options="listOptions" ApiUrl="/api/servicebooking" Key="ListPage_ServiceBooking" Title="Service Bookings">
-    <IconContent>
-        <div class="svg-large svg-servicebooking">
-            <img alt="Service Booking" src="icons/servicebooking.svg" />
-        </div>
-    </IconContent>
-    <Buttons>
-        <button>New</button>
-        <button>Import</button>
-        <button>Add to Campaign</button>
-    </Buttons>
-    <GridColumns>
-        <TemplateColumn Title="Ref">
-            <a href="/servicebooking/view/@context!.Id">@context.Ref</a>
-        </TemplateColumn>
-        <PropertyColumn Property="x=>x.Vrm" Title="Vrm" />
-        <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g" />
-        <PropertyColumn Property="x=>x.StatusText" Title="Status" />
-        <TemplateColumn Title="Worker">
-            @context.WorkerName
-        </TemplateColumn>
-    </GridColumns>
-</ListTemplate>
+<ErrorBoundary>
+    <ChildContent>
+        <ListTemplate TGridItem="ServiceBookingListDto" Options="listOptions" ApiUrl="/api/servicebooking" Key="ListPage_ServiceBooking" Title="Service Bookings">
+            <IconContent>
+                <div class="svg-large svg-servicebooking">
+                    <img alt="Service Booking" src="icons/servicebooking.svg" />
+                </div>
+            </IconContent>
+            <Buttons>
+                <button>New</button>
+                <button>Import</button>
+                <button>Add to Campaign</button>
+            </Buttons>
+            <GridColumns>
+                <TemplateColumn Title="Ref">
+                    <a href="/servicebooking/view/@context!.Id">@context.Ref</a>
+                </TemplateColumn>
+                <PropertyColumn Property="x=>x.Vrm" Title="Vrm" />
+                <PropertyColumn Property="x=>x.RescheduleTime" Title="Due" Format="g" />
+                <PropertyColumn Property="x=>x.StatusText" Title="Status" />
+                <TemplateColumn Title="Worker">
+                    @context.WorkerName
+                </TemplateColumn>
+            </GridColumns>
+        </ListTemplate>
+    </ChildContent>
+    <ErrorContent>
+        <RetryLoad OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
     List<SelectOption<int?>> listOptions = new()

@@ -1,0 +1,10 @@
+.site-nav {
+    padding: 0.5em;
+    border-right: 1px solid var(--border-color);
+}
+
+    .site-nav div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }

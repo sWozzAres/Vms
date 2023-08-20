@@ -2,6 +2,10 @@
     display: grid;
     place-content: center;
     background: #ffffff;
+    padding: 5em;
+    margin: 1em;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
 }
 
 .retry-load p

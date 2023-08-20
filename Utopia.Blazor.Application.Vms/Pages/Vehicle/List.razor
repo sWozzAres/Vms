@@ -1,54 +1,60 @@
-﻿@page "/vehicle/list"
+﻿@page "/vms/vehicle/list"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 
 <PageTitle>Vehicles</PageTitle>
-<div class="mylist">
-    <ListTemplate TGridItem="VehicleListDto" Options="listOptions" ApiUrl="/api/vehicle" Key="ListPage_Vehicle" Title="Vehicles">
-        <IconContent>
-            <div class="svg-large svg-vehicle">
-                <img alt="Vehicle" src="icons/vehicle.svg" />
-            </div>
-        </IconContent>
-        <Buttons>
-            <button @onclick="() => isCreating = true">New</button>
-        </Buttons>
-        <GridColumns>
-            <PropertyColumn Property="x=>x!.CompanyCode" Title="Company" />
-            <TemplateColumn Title="Vrm">
-                <a href="/vehicle/view/@context!.Id">@context.Vrm</a>
-            </TemplateColumn>
-            <PropertyColumn Property="p=>p!.Make" />
-            <PropertyColumn Property="p=>p!.Model" />
-            <PropertyColumn Property="p=>p!.MotDue" Title="Mot" />
-            <PropertyColumn Property="p=>p!.CustomerName" Title="Customer" Class="col-customer">
-                <HeaderTemplate>
-                    <div class="col-title">
-                        <div class="col-title-text col-customer">
-                            Customer
-                        </div>
+<ErrorBoundary>
+    <ChildContent>
+        <div class="mylist">
+            <ListTemplate TGridItem="VehicleListDto" Options="listOptions" ApiUrl="/api/vehicle" Key="ListPage_Vehicle" Title="Vehicles">
+                <IconContent>
+                    <div class="svg-large svg-vehicle">
+                        <img alt="Vehicle" src="icons/vehicle.svg" />
                     </div>
-                </HeaderTemplate>
+                </IconContent>
+                <Buttons>
+                    <button @onclick="() => isCreating = true">New</button>
+                </Buttons>
+                <GridColumns>
+                    <PropertyColumn Property="x=>x!.CompanyCode" Title="Company" />
+                    <TemplateColumn Title="Vrm">
+                        <a href="/vehicle/view/@context!.Id">@context.Vrm</a>
+                    </TemplateColumn>
+                    <PropertyColumn Property="p=>p!.Make" />
+                    <PropertyColumn Property="p=>p!.Model" />
+                    <PropertyColumn Property="p=>p!.MotDue" Title="Mot" />
+                    <PropertyColumn Property="p=>p!.CustomerName" Title="Customer" Class="col-customer">
+                        <HeaderTemplate>
+                            <div class="col-title">
+                                <div class="col-title-text col-customer">
+                                    Customer
+                                </div>
+                            </div>
+                        </HeaderTemplate>
 
-            </PropertyColumn>
-            <PropertyColumn Property="p=>p!.FleetName" Title="Fleet" Class="col-fleet">
-                <HeaderTemplate>
-                    <div class="col-title">
-                        <div class="col-title-text col-fleet">
-                            Fleet
-                        </div>
-                    </div>
-                </HeaderTemplate>
-            </PropertyColumn>
-        </GridColumns>
-    </ListTemplate>
-</div>
+                    </PropertyColumn>
+                    <PropertyColumn Property="p=>p!.FleetName" Title="Fleet" Class="col-fleet">
+                        <HeaderTemplate>
+                            <div class="col-title">
+                                <div class="col-title-text col-fleet">
+                                    Fleet
+                                </div>
+                            </div>
+                        </HeaderTemplate>
+                    </PropertyColumn>
+                </GridColumns>
+            </ListTemplate>
+        </div>
 
-@if (isCreating)
-{
-    <Create OnClose="() => isCreating = false" />
-}
-
+        @if (isCreating)
+        {
+            <Create OnClose="() => isCreating = false" />
+        }
+    </ChildContent>
+    <ErrorContent>
+        <RetryLoad OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+    </ErrorContent>
+</ErrorBoundary>
 @code {
     List<SelectOption<int?>> listOptions = new()
     {

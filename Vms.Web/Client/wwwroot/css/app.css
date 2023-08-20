@@ -840,6 +840,11 @@ dialog.list-selector .dialog-container .dialog-content th, dialog.list-selector 
 
 .page {
   padding: 1em;
+  min-height: calc(100vh - var(--header-height) - 1em);
+  background-color: white;
+  margin: 0.5em;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
 }
 
 a {

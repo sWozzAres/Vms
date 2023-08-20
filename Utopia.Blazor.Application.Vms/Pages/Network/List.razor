@@ -1,31 +1,36 @@
-﻿@page "/network/list"
+﻿@page "/vms/network/list"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 
 <PageTitle>Networks</PageTitle>
 
-<ListTemplate TGridItem="NetworkListDto" Options="listOptions" ApiUrl="/api/network" Key="ListPage_Network" Title="Networks">
-    <IconContent>
-        <div class="svg-large svg-network">
-            <img alt="Network" src="icons/network.svg" />
-        </div>
-    </IconContent>
-    <Buttons>
-        <button @onclick="() => isCreating = true">New</button>
-    </Buttons>
-    <GridColumns>
-        <TemplateColumn Title="Code">
-            <a href="/network/view/@context!.CompanyCode/@context!.Code">@context.Code</a>
-        </TemplateColumn>
-        <PropertyColumn Property="p=>p!.Name"/>
-    </GridColumns>
-</ListTemplate>
-
-
-@if (isCreating)
-{
-@*    <Create OnClose="() => isCreating = false" />  *@
-}
+<ErrorBoundary>
+    <ChildContent>
+        <ListTemplate TGridItem="NetworkListDto" Options="listOptions" ApiUrl="/api/network" Key="ListPage_Network" Title="Networks">
+            <IconContent>
+                <div class="svg-large svg-network">
+                    <img alt="Network" src="icons/network.svg" />
+                </div>
+            </IconContent>
+            <Buttons>
+                <button @onclick="() => isCreating = true">New</button>
+            </Buttons>
+            <GridColumns>
+                <TemplateColumn Title="Code">
+                    <a href="/network/view/@context!.CompanyCode/@context!.Code">@context.Code</a>
+                </TemplateColumn>
+                <PropertyColumn Property="p=>p!.Name" />
+            </GridColumns>
+        </ListTemplate>
+        @if (isCreating)
+        {
+            @*    <Create OnClose="() => isCreating = false" />  *@
+        }
+    </ChildContent>
+    <ErrorContent>
+        <RetryLoad OnRetry="() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true)" />
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
     List<SelectOption<int?>> listOptions = new()
