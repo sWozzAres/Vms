@@ -20,8 +20,7 @@ public class EditVehicle(
         Command = command;
         Vehicle = new(await Load(vehicleId, cancellationToken), this);
 
-        var isModified = await Vehicle.ModifyAsync();
-
+        var isModified = await Vehicle.Modify();
         if (isModified)
         {
             await LogActivity();
@@ -32,7 +31,7 @@ public class EditVehicle(
     }
     public class VehicleRole(Vehicle self, EditVehicle ctx) : VehicleRoleBase<EditVehicle>(self, ctx)
     {
-        public async Task<bool> ModifyAsync()
+        public async Task<bool> Modify()
         {
             Ctx.SummaryText.AppendLine("# Edit");
 
@@ -51,7 +50,7 @@ public class EditVehicle(
             if (Self.Make != Ctx.Command.Make || Self.Model != Ctx.Command.Model)
             {
                 if (Self.Make != Ctx.Command.Make)
-                    Ctx.SummaryText.AppendLine($"Make: {Ctx.Command.Make}");
+                    Ctx.SummaryText.AppendLine($"* Make: {Ctx.Command.Make}");
                 if (Self.Model != Ctx.Command.Model)
                     Ctx.SummaryText.AppendLine($"* Model: {Ctx.Command.Model}");
                 Self.SetMakeModel(Ctx.Command.Make!, Ctx.Command.Model!);
@@ -89,43 +88,11 @@ public class EditVehicle(
                 isModified = true;
             }
 
-            bool addressModified = false;
-            if (Self.Address.Street != Ctx.Command.Address.Street)
-            {
-                Ctx.SummaryText.AppendLine($"* Street: {Ctx.Command.Address.Street}");
-                addressModified = true;
-            }
-            if (Self.Address.Locality != Ctx.Command.Address.Locality)
-            {
-                Ctx.SummaryText.AppendLine($"* Locality: {Ctx.Command.Address.Locality}");
-                addressModified = true;
-            }
-            if (Self.Address.Town != Ctx.Command.Address.Town)
-            {
-                Ctx.SummaryText.AppendLine($"* Town: {Ctx.Command.Address.Town}");
-                addressModified = true;
-            }
-            if (Self.Address.Postcode != Ctx.Command.Address.Postcode)
-            {
-                Ctx.SummaryText.AppendLine($"* Postcode: {Ctx.Command.Address.Postcode}");
-                addressModified = true;
-            }
-            if (Self.Address.Location.Coordinate.Y != Ctx.Command.Address.Location.Latitude)
-            {
-                Ctx.SummaryText.AppendLine($"* Latitude: {Ctx.Command.Address.Location.Latitude}");
-                addressModified = true;
-            }
-            if (Self.Address.Location.Coordinate.X != Ctx.Command.Address.Location.Longitude)
-            {
-                Ctx.SummaryText.AppendLine($"* Longitude: {Ctx.Command.Address.Location.Longitude}");
-                addressModified = true;
-            }
-            if (addressModified)
+            if (Self.Address.AddModificationSummary(ctx.Command.Address, Ctx.SummaryText))
             {
                 Self.SetAddress(Ctx.Command.Address.Street, Ctx.Command.Address.Locality, 
                     Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
                     Ctx.Command.Address.Location.Latitude, Ctx.Command.Address.Location.Longitude);
-
                 isModified = true;
             }
 

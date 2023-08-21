@@ -56,7 +56,7 @@ namespace Scrum.Api.Domain
         /// to relevant stakeholders when Done.
         /// </summary>
         [StringLength(4096)]
-        public string Description { get; set; } = null!;
+        public string ValueDescription { get; set; } = null!;
 
         /// <summary>
         /// Number of days of work estimated by the Development Team for completion.
@@ -92,6 +92,8 @@ namespace Scrum.Api.Domain
 
         public Guid? ProductIncrementId { get; set; }
         public ProductIncrement? ProductIncrement { get; private set; } = null!;
+
+        public ICollection<ProductBacklogItem> DependsOn { get; } = new List<ProductBacklogItem>();
 
         public ICollection<SprintBacklogItem> SprintBacklogItems { get; } = new List<SprintBacklogItem>();
     }

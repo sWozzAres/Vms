@@ -39,8 +39,8 @@ public static class IServiceCollectionExtensions
         // supplier
         services.AddTransient<IFollowSupplier, FollowSupplier>();
         services.AddTransient<IUnfollowSupplier, UnfollowSupplier>();
-        services.AddTransient<IAddNoteSupplier, AddNoteSupplier>();
-        services.AddTransient<IEditSupplier, EditSupplier>();
+        services.AddTransient<AddNoteSupplier>();
+        services.AddTransient<EditSupplier>();
         services.AddTransient<ICreateSupplier, CreateSupplier>();
 
         // vehicle

@@ -57,5 +57,4 @@ public class CreateSupplier(VmsDbContext dbContext, ISearchManager searchManager
     }
 }
 
-
 public record CreateSupplierRequest(string Code, string Name, AddressDto Address, bool IsIndependant);

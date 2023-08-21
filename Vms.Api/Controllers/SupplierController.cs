@@ -21,7 +21,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
     [Route("{id}/activity")]
     public async Task<IActionResult> PostNote(Guid id,
         [FromBody] AddNoteDto request,
-        [FromServices] IAddNoteSupplier addNote,
+        [FromServices] AddNoteSupplier addNote,
         CancellationToken cancellationToken)
     {
         var entry = await addNote.AddAsync(id, request, cancellationToken);
@@ -92,7 +92,7 @@ public class SupplierController(VmsDbContext context) : ControllerBase
     [Route("{code}/edit")]
     public async Task<IActionResult> Edit([FromRoute] string code,
         [FromBody] SupplierDto request,
-        [FromServices] IEditSupplier edit,
+        [FromServices] EditSupplier edit,
         CancellationToken cancellationToken)
     {
         if (request.Code != code)
@@ -100,8 +100,8 @@ public class SupplierController(VmsDbContext context) : ControllerBase
             return BadRequest();
         }
 
-        await edit.EditAsync(code, request, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        if (await edit.EditAsync(code, request, cancellationToken))
+            await context.SaveChangesAsync(cancellationToken);
 
         return Ok();
     }

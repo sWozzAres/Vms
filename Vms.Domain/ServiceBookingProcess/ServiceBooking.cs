@@ -115,6 +115,9 @@ namespace Vms.Domain.ServiceBookingProcess
             Driver.EmailAddress = driver.EmailAddress;
             Driver.MobileNumber = driver.MobileNumber;
         }
+        /// <summary>
+        /// Determines if the service booking process is ready to start.
+        /// </summary>
         public bool IsReady
             => (PreferredDate1 is not null || PreferredDate2 is not null || PreferredDate3 is not null) && ServiceLevel != ServiceLevel.None;
 

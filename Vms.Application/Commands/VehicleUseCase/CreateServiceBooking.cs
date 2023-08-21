@@ -60,11 +60,11 @@ public class CreateServiceBooking(VmsDbContext dbContext,
             // load the mot event 
             var motEvent = ctx.Command.MotId is null ? null
                  : await ctx.DbContext.MotEvents.FindAsync(new object[] { ctx.Command.MotId }, ctx.CancellationToken)
-                    ?? throw new VmsDomainException("Failed to find Mot Event.");
+                    ?? throw new VmsDomainException("Failed to find the Mot Event.");
 
             var self = new ServiceBooking(
-                vehicle.Entity.CompanyCode,
-                vehicle.Entity.Id,
+                vehicle.CompanyCode,
+                vehicle.Id,
                 ctx.Command.PreferredDate1,
                 ctx.Command.PreferredDate2,
                 ctx.Command.PreferredDate3,
@@ -79,9 +79,8 @@ public class CreateServiceBooking(VmsDbContext dbContext,
             if (self.IsReady)
                 self.ChangeStatus(ServiceBookingStatus.Assign, ctx.TimeService.Now);
 
-            SummarizeInActivityLog();
+            SummarizeCreationInActivityLog();
 
-            // auto assign
             if (ctx.Command.AutoAssign)
                 await AutoAssign();
 
@@ -102,7 +101,7 @@ public class CreateServiceBooking(VmsDbContext dbContext,
                 }
             }
 
-            void SummarizeInActivityLog()
+            void SummarizeCreationInActivityLog()
             {
                 ctx.SummaryText.AppendLine($"* Service Level: {self.ServiceLevel.ToDisplayString()}");
                 if (self.PreferredDate1.HasValue)
@@ -126,7 +125,8 @@ public class CreateServiceBooking(VmsDbContext dbContext,
 
     class VehicleRole(Vehicle self, CreateServiceBooking ctx)
     {
-        public Vehicle Entity => self;
+        public string CompanyCode => self.CompanyCode;
+        public Guid Id => self.Id;
         public async Task<ServiceBooking> CreateServiceBooking()
             => await new ServiceBookingRole(ctx).Create(this);
 

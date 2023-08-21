@@ -21,7 +21,6 @@ namespace Scrum.Api.Domain
         /// <summary>
         /// Certain SBIs depend on the completion of others.
         /// </summary>
-        public Guid? DependsOnId { get; set; }
-        public SprintBacklogItem? DependsOn { get; private set; } = null!;
+        public ICollection<SprintBacklogItem> DependsOn { get; } = new List<SprintBacklogItem>();
     }
 }

@@ -82,9 +82,8 @@ namespace Vms.Domain.Core
             Model = model;
         }
         public void SetAddress(string street, string locality, string town, string postcode, double latitude, double longitude)
-        {
-            Address = new Address(street, locality, town, postcode, new Point(longitude, latitude) { SRID = 4326 });
-        }
+            => Address = new Address(street, locality, town, postcode, new Point(longitude, latitude) { SRID = 4326 });
+        
     }
 
     public class VehicleVrm

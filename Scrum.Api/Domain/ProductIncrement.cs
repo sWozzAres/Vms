@@ -7,7 +7,7 @@ public enum BacklogStatus
 {
     None = 0,
     /// <summary>
-    /// Ff it is a Refined Product Backlog.
+    /// If it is a Refined Product Backlog.
     /// </summary>
     Ready = 1,
     /// <summary>
@@ -38,7 +38,7 @@ public class ProductIncrement
     /// 1. A short statement of the value the Scrum Team intends to create during the Sprint.
     /// 2. Is more important even than the sum of the individual PBIs.
     /// 3. Creates coherence in the PBIs, helping to create a valuable Regular Product Increment.
-    /// 4. What the Scrum Team aspires to acheive by the end of the Sprint.
+    /// 4. What the Scrum Team aspires to achieve by the end of the Sprint.
     /// 5. At the end of the Sprint, the team should check the intended value described in the 
     ///     Sprint Goal against reality.
     /// 6, The core of the Regular Product Increment.

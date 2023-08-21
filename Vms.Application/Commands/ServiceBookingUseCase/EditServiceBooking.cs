@@ -15,9 +15,10 @@ public class EditServiceBooking(
 
     public async Task<bool> EditAsync(Guid serviceBookingId, ServiceBookingDto command, CancellationToken cancellationToken)
     {
+        Command = command; 
+        
         logger.LogInformation("Editing service booking: {servicebookingid}, command: {@servicebookingdto}.", serviceBookingId, command);
-
-        Command = command;
+        
         ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         var isModified = await ServiceBooking.ModifyDocument();
