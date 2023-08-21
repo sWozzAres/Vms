@@ -1,11 +1,15 @@
-﻿namespace Vms.Application.Commands.VehicleUseCase;
+﻿using Vms.Domain.Core;
+
+namespace Vms.Application.Commands.VehicleUseCase;
 
 public class EditVehicle(
     VmsDbContext dbContext,
     IActivityLogger<VmsDbContext> activityLog,
     ITaskLogger<VmsDbContext> taskLogger,
-    ILogger<EditVehicle> logger) : VehicleTaskBase(dbContext, activityLog)
+    ILogger<EditVehicle> logger,
+    ISearchManager searchManager) : VehicleTaskBase(dbContext, activityLog)
 {
+    readonly ISearchManager SearchManager = searchManager;
     VehicleRole? Vehicle;
     VehicleDto Command = null!;
 
@@ -38,6 +42,9 @@ public class EditVehicle(
             {
                 Ctx.SummaryText.AppendLine($"* Vrm: {Ctx.Command.Vrm}");
                 Self.Vrm = Ctx.Command.Vrm;
+                
+                await Ctx.SearchManager.UpdateOrAdd(Self.CompanyCode, Self.Id.ToString(), EntityKind.Vehicle, Self.Vrm, Self.Vrm, Ctx.CancellationToken);
+
                 isModified = true;
             }
 
@@ -115,8 +122,9 @@ public class EditVehicle(
             }
             if (addressModified)
             {
-                Self.Address = new Address(Ctx.Command.Address.Street, Ctx.Command.Address.Locality, Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
-                    new Point(Ctx.Command.Address.Location.Longitude, Ctx.Command.Address.Location.Latitude) { SRID = 4326 });
+                Self.SetAddress(Ctx.Command.Address.Street, Ctx.Command.Address.Locality, 
+                    Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
+                    Ctx.Command.Address.Location.Latitude, Ctx.Command.Address.Location.Longitude);
 
                 isModified = true;
             }

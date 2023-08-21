@@ -3,7 +3,7 @@
 public interface ISearchManager
 {
     void Add(string? companyCode, string entityKey, EntityKind entityKind, string name, string content);
-    Task Update(string entityKey, EntityKind entityKind, string name, string content, CancellationToken cancellationToken);
+    Task UpdateOrAdd(string? companyCode, string entityKey, EntityKind entityKind, string name, string content, CancellationToken cancellationToken);
 }
 
 public class SearchManager(VmsDbContext context, ILogger<SearchManager> logger) : ISearchManager
@@ -15,10 +15,14 @@ public class SearchManager(VmsDbContext context, ILogger<SearchManager> logger) 
         var entityTag = new EntityTag(companyCode, entityKey, entityKind, name, content);
         context.EntityTags.Add(entityTag);
     }
-    public async Task Update(string entityKey, EntityKind entityKind, string name, string content,
+    public async Task UpdateOrAdd(string? companyCode, string entityKey, EntityKind entityKind, string name, string content,
         CancellationToken cancellationToken)
     {
-        var tag = await context.EntityTags.FindAsync(new object[] { entityKey, entityKind }, cancellationToken);
-        tag?.Update(name, content);
+        var tag = await context.EntityTags
+            .SingleOrDefaultAsync(t=>t.EntityKey == entityKey && t.EntityKind == entityKind, cancellationToken);
+        if (tag is not null)
+            tag.Update(name, content);
+        else
+            Add(companyCode, entityKey, entityKind, name, content); 
     }
 }

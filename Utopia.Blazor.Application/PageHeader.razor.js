@@ -1,8 +1,8 @@
 export function init() {
-	console.info('PageHeader init');
+	//console.info('PageHeader init');
 
 	var observer = new IntersectionObserver(function (entries) {
-		console.info('intersect');
+		//console.info('intersect');
 
 		// no intersection with screen
 		if (entries[0].intersectionRatio === 0)

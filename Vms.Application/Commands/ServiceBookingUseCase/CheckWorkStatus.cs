@@ -17,7 +17,7 @@ public class CheckWorkStatus(
     {
         logger.LogInformation("Checking work status for service booking: {servicebookingid}, command: {@taskcheckworkstatuscommand}.", serviceBookingId, command);
 
-        Command = command;
+        Command = command;    
         ServiceBooking = new(await Load(serviceBookingId, cancellationToken), this);
 
         SummaryText.AppendLine("# Check Work Status");

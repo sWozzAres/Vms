@@ -37,20 +37,20 @@ public class TestDatabaseFixture : IAsyncLifetime
             .AddScoped<IUserProvider, UserProvider>()
             .AddScoped<INotifyFollowers, NotifyFollowers>()
             .AddScoped<ITimeService, CurrentTime>()
-            .AddDbContext<VmsDbContext>(options =>
-            {
-                options.EnableSensitiveDataLogging();
+            //.AddDbContext<VmsDbContext>(options =>
+            //{
+            //    options.EnableSensitiveDataLogging();
 
-                options.UseSqlServer(ConnectionString, sqlOptions =>
-                {
-                    sqlOptions.UseNetTopologySuite();
-                    sqlOptions.UseDateOnlyTimeOnly();
-                    sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                    //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    sqlOptions.EnableRetryOnFailure();
-                });
-            })
-            .AddVmsApplication()
+            //    options.UseSqlServer(ConnectionString, sqlOptions =>
+            //    {
+            //        sqlOptions.UseNetTopologySuite();
+            //        sqlOptions.UseDateOnlyTimeOnly();
+            //        sqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+            //        //sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+            //        sqlOptions.EnableRetryOnFailure();
+            //    });
+            //})
+            .AddVmsApplication(ConnectionString)
             .BuildServiceProvider();
 
         DbContext = ServiceProvider.GetRequiredService<VmsDbContext>();

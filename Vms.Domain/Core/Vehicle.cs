@@ -20,7 +20,7 @@ namespace Vms.Domain.Core
 
         public DateOnly DateFirstRegistered { get; set; }
 
-        public Address Address { get; set; } = null!;
+        public Address Address { get; private set; } = null!;
 
         public string? CustomerCode { get; private set; }
         public Customer? Customer { get; private set; }
@@ -80,6 +80,10 @@ namespace Vms.Domain.Core
         {
             Make = make;
             Model = model;
+        }
+        public void SetAddress(string street, string locality, string town, string postcode, double latitude, double longitude)
+        {
+            Address = new Address(street, locality, town, postcode, new Point(longitude, latitude) { SRID = 4326 });
         }
     }
 
