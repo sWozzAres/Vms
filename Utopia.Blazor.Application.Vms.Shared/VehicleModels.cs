@@ -117,7 +117,7 @@ public partial class VehicleDto : ICopyable<VehicleDto>
     [StringLength(18)]
     public string? ChassisNumber { get; set; }
     public DateOnly DateFirstRegistered { get; set; }
-    [Required]
+
     [DateOnlyRange(2000, 1, 1, 2050, 1, 1, true)]
     public DateOnly? MotDue { get; set; }
     [ValidateComplexType]

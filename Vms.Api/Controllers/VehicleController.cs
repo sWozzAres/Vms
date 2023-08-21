@@ -234,18 +234,18 @@ public class VehicleController(VmsDbContext context) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateVehicle(
         [FromBody] VehicleDto vehicleDto,
-        [FromServices] CreateVehicle createVehicle,
+        [FromServices] CreateVehicle command,
         CancellationToken cancellationToken)
     {
-        if (vehicleDto.MotDue == null)
-        {
-            ModelState.AddModelError("MotDue", "The MOT Due field is required.");
-            return UnprocessableEntity(ModelState);
-        }
+        //if (vehicleDto.MotDue == null)
+        //{
+        //    ModelState.AddModelError("MotDue", "The MOT Due field is required.");
+        //    return UnprocessableEntity(ModelState);
+        //}
 
         var request = new CreateVehicleRequest(vehicleDto.CompanyCode!, vehicleDto.Vrm,
             vehicleDto.Make!, vehicleDto.Model!,
-            vehicleDto.DateFirstRegistered, vehicleDto.MotDue.Value, vehicleDto.ChassisNumber,
+            vehicleDto.DateFirstRegistered, vehicleDto.MotDue, vehicleDto.ChassisNumber,
             new Address(vehicleDto.Address.Street,
                   vehicleDto.Address.Locality,
                   vehicleDto.Address.Town,
@@ -254,11 +254,11 @@ public class VehicleController(VmsDbContext context) : ControllerBase
             null, null);
 
 
-        var vehicle = await createVehicle.CreateAsync(request, cancellationToken);
+        var vehicle = await command.CreateAsync(request, cancellationToken);
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle.ToDto());
+        return CreatedAtAction(nameof(GetVehicle), new { id = vehicle.Id }, vehicle.ToDto());
     }
 
     #region CRUD
@@ -280,60 +280,4 @@ public class VehicleController(VmsDbContext context) : ControllerBase
         return Ok();
     }
     #endregion
-
-    //[HttpPut]
-    //[Route("{id}")]
-    //[ActionName("Put")]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //[ProducesResponseType(StatusCodes.Status404NotFound)]
-    ////[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    //[ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
-    //[ProducesResponseType(StatusCodes.Status204NoContent)]
-    //[ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
-    //public async Task<IActionResult> Put([FromRoute] Guid id,
-    //    [FromBody] VehicleDto request,
-    //    CancellationToken cancellationToken)
-    //{
-    //    if (request.Id != id)
-    //    {
-    //        return BadRequest();
-    //    }
-
-    //    logger.LogDebug("Put vehicle, id {id}.", id);
-
-    //    var vehicle = await context.Vehicles
-    //        .Include(v => v.MotEvents.Where(e => e.IsCurrent))
-    //        .SingleOrDefaultAsync(v => v.Id == id, cancellationToken);
-    //    //.FindAsync(id, cancellationToken);
-    //    if (vehicle is null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    vehicle.Vrm = request.Vrm;
-    //    vehicle.UpdateModel(request.Make!, request.Model!);
-    //    //vehicle.Mot.Due = request.MotDue;
-
-    //    var mot = vehicle.MotEvents.FirstOrDefault();
-    //    if (mot is not null)
-    //    {
-    //        if (request.MotDue.HasValue)
-    //            mot.Due = request.MotDue.Value;
-    //        else
-    //            context.MotEvents.Remove(mot);
-    //    }
-    //    else
-    //    {
-    //        if (request.MotDue.HasValue)
-    //            //vehicle.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
-    //            context.MotEvents.Add(new(vehicle.CompanyCode, vehicle.Id, request.MotDue.Value, true));
-    //    }
-
-    //    vehicle.Address = new Address(request.Address.Street, request.Address.Locality, request.Address.Town, request.Address.Postcode,
-    //        new Point(request.Address.Location.Longitude, request.Address.Location.Latitude) { SRID = 4326 });
-
-    //    await context.SaveChangesAsync(cancellationToken);
-
-    //    return Ok(vehicle.ToDto());
-    //}
 }

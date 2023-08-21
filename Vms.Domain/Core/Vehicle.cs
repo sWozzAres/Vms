@@ -37,7 +37,7 @@ namespace Vms.Domain.Core
 
         private Vehicle() { }
         private Vehicle(string companyCode, string vrm, string make, string model,
-            DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation)
+            DateOnly dateFirstRegistered, DateOnly? motDue, Address homeLocation)
         {
             CompanyCode = companyCode;
             Id = Guid.NewGuid();
@@ -45,14 +45,16 @@ namespace Vms.Domain.Core
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
 
-            MotEvents.Add(new(CompanyCode, Id, motDue, true));
+            MotEvents.Add(new(CompanyCode, Id, 
+                motDue ?? dateFirstRegistered.AddYears(3), 
+                true));
 
             VehicleVrm = new VehicleVrm(vrm);
 
             Address = new(homeLocation);
         }
         public static Vehicle Create(string companyCode, string vrm, string make, string model,
-            DateOnly dateFirstRegistered, DateOnly motDue, Address homeLocation,
+            DateOnly dateFirstRegistered, DateOnly? motDue, Address homeLocation,
             string? customerCode = null, string? fleetCode = null)
         {
             var vehicle = new Vehicle(companyCode, vrm, make, model, dateFirstRegistered, motDue,
