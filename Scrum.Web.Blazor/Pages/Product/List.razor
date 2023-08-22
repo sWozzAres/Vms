@@ -21,7 +21,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var product in products)
+            @foreach (var product in products.OrderBy(p=>p.Name))
             {
                 <tr>
                     <td><a href="/product/view/@product.Id">@product.Name</a></td>

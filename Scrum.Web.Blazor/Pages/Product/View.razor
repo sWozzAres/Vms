@@ -1,94 +1,40 @@
 ﻿@page "/product/view/{Id:guid}"
-@using Scrum.Web.Blazor.Services;
-@using System.Text.Json;
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-@if (Model is not null)
+@if (product is not null)
 {
-    <PageTitle>@Model.Name</PageTitle>
+    <PageTitle>@product.Name</PageTitle>
 
     <h1>Product</h1>
-    <h2>@Model.Name</h2>
+    <h2>@product.Name</h2>
 
-    <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit" class="row g-3">
-        <DataAnnotationsValidator />
-        <fieldset disabled="@FormIsDisabled">
-            <div class="col-12">
-                <label for="name" class="form-label">Name</label>
-                <InputText id="name" class="form-control" @bind-Value="Model.Name" />
-                <ValidationMessage For="@(() => Model.Name)" />
-            </div>
-        </fieldset>
-
+    <EditFormTemplate @ref="form" OnLoad="Load" OnSave="SaveAsync">
         <div class="col-12">
-            <button type="button" class="btn btn-secondary" @onclick="ToggleEditing">@(isDisabled ? "Edit" : "Cancel")</button>
-            <button type="submit" class="btn btn-primary" disabled="@FormIsDisabled" @onclick="() => messageStore.Clear()">Save Changes</button>
+            <label for="name" class="form-label">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="form.Model.Name" />
+            <ValidationMessage For="@(() => form.Model.Name)" />
         </div>
-        <ValidationSummary />
-    </EditForm>
+    </EditFormTemplate>
 }
 
 @code {
     [Parameter, EditorRequired] public Guid Id { get; set; }
 
-    public UpdateProductRequest? Model { get; set; }
-    string originalModel = null!;
+    EditFormTemplate<UpdateProductRequest> form = null!;
+    ProductFullDto product = null!;
 
-    EditContext editContext { get; set; } = null!;
-    ValidationMessageStore messageStore = null!;
+    async Task<HttpResponseMessage> SaveAsync(UpdateProductRequest model)
+        => await Http.PostAsJsonAsync($"/api/product/{Id}", model);
 
-    bool isDisabled = true;
-    bool isPosting = false;
-    bool FormIsDisabled => isDisabled || isPosting;
-
-    void ToggleEditing()
-    {
-        isDisabled = !isDisabled;
-        if (isDisabled)
-        {
-            // restore form
-            Model = JsonSerializer.Deserialize<UpdateProductRequest>(originalModel)
-                ?? throw new InvalidOperationException("Failed to deserialize model data.");
-
-            editContext = new EditContext(Model);
-            messageStore = new ValidationMessageStore(editContext);
-        }
-    }
-    async Task ValidSubmit()
-    {
-        isPosting = true;
-        try
-        {
-            await Task.Delay(2000);
-
-            var response = PostResponse.Create(await Http.PostAsJsonAsync($"/api/product/{Id}", Model));
-            if (response is PostResponse.Success)
-            {
-                isDisabled = true;
-            }
-            else
-            {
-                response.HandleResponseFailure(editContext, messageStore);
-            }
-        }
-        finally
-        {
-            isPosting = false;
-        }
-    }
+    UpdateProductRequest Load()
+        => new(product.Name);
 
     protected override async Task OnInitializedAsync()
     {
         ArgumentNullException.ThrowIfNull(Id);
 
-        var product = await Http.GetFromJsonAsync<ProductFullDto>($"/api/product/{Id}")
+        product = await Http.GetFromJsonAsync<ProductFullDto>($"/api/product/{Id}")
             ?? throw new InvalidOperationException("Failed to load.");
-
-        Model = new(product.Name);
-        editContext = new EditContext(Model);
-        messageStore = new ValidationMessageStore(editContext);
-
-        originalModel = JsonSerializer.Serialize<UpdateProductRequest>(Model);
     }
 }

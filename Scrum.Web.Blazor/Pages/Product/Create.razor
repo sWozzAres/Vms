@@ -7,43 +7,23 @@
 
 <h1>Create Product</h1>
 
-<EditForm EditContext="editContext" OnValidSubmit="ValidSubmit" class="row g-3">
-    <DataAnnotationsValidator />
-    
+<CreateFormTemplate @ref="form" OnLoad="Load" OnSave="SaveAsync" OnCreated="@(() => Navigation.NavigateTo("/product/list"))">
     <div class="col-12">
         <label for="name" class="form-label">Name</label>
-        <InputText id="name" class="form-control" @bind-Value="Model.Name" />
-        <ValidationMessage For="@(() => Model.Name)" />
+        <InputText id="name" class="form-control" @bind-Value="form.Model.Name" />
+        <ValidationMessage For="@(() => form.Model.Name)" />
     </div>
-    
-    <div class="col-12">
-        <button type="submit" class="btn btn-primary" @onclick="() => messageStore.Clear()">Create</button>
-    </div>
-    <ValidationSummary />
-</EditForm>
+</CreateFormTemplate>
 
 @code {
-    public CreateProductRequest Model { get; set; } = new();
+    CreateFormTemplate<CreateProductRequest> form = null!;
 
     EditContext editContext { get; set; } = null!;
     ValidationMessageStore messageStore = null!;
 
-    async Task ValidSubmit()
-    {
-        var response = PostResponse.Create(await Http.PostAsJsonAsync("/api/product", Model));
-        if (response is PostResponse.Created)
-        {
-            Navigation.NavigateTo("/product/list");
-        }
-        else
-        {
-            response.HandleResponseFailure(editContext, messageStore);
-        }
-    }
+    async Task<HttpResponseMessage> SaveAsync(CreateProductRequest model)
+       => await Http.PostAsJsonAsync("/api/product", model);
 
-    protected override void OnInitialized()
-    {
-        editContext = new EditContext(Model);
-        messageStore = new ValidationMessageStore(editContext);
-    }
+    CreateProductRequest Load()
+        => new();
 }

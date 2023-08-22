@@ -1,0 +1,69 @@
+﻿@typeparam TModel where TModel: class
+
+@if (Model is not null)
+{
+    <EditForm EditContext="editContext" OnValidSubmit="ValidSubmit" class="row g-3">
+        <DataAnnotationsValidator />
+        <fieldset disabled="@FormIsDisabled">
+            @ChildContent
+        </fieldset>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary" @onclick="() => messageStore.Clear()">Create</button>
+        </div>
+        <ValidationSummary />
+    </EditForm>
+}
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    public delegate TModel LoadModel();
+    [Parameter, EditorRequired] public LoadModel OnLoad { get; set; } = null!;
+    public delegate Task<HttpResponseMessage> SaveModel(TModel model);
+    [Parameter, EditorRequired] public SaveModel OnSave { get; set; } = null!;
+    [Parameter] public EventCallback OnCreated{ get; set; }
+
+    public TModel Model = null!;
+
+    EditContext editContext { get; set; } = null!;
+    ValidationMessageStore messageStore = null!;
+
+    bool isPosting = false;
+    bool FormIsDisabled => isPosting;
+
+    async Task ValidSubmit()
+    {
+        isPosting = true;
+        try
+        {
+            //var response = PostResponse.Create(await Http.PostAsJsonAsync($"/api/product/{Id}", Model));
+            var response = PostResponse.Create(await OnSave(Model));
+            if (response is PostResponse.Created)
+            {
+                //Navigation.NavigateTo("/product/list");
+                if (OnCreated.HasDelegate)
+                    await OnCreated.InvokeAsync();
+            }
+            else
+            {
+                response.HandleResponseFailure(editContext, messageStore);
+            }
+        }
+        finally
+        {
+            isPosting = false;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(ChildContent);
+        ArgumentNullException.ThrowIfNull(OnSave);
+        ArgumentNullException.ThrowIfNull(OnLoad);
+
+        Model = OnLoad();
+
+        editContext = new EditContext(Model);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+}
