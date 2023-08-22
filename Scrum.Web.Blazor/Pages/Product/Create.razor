@@ -1,0 +1,49 @@
+﻿@page "/product/create"
+@using Scrum.Web.Blazor.Services;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Create Product</PageTitle>
+
+<h1>Create Product</h1>
+
+<EditForm EditContext="editContext" OnValidSubmit="ValidSubmit" class="row g-3">
+    <DataAnnotationsValidator />
+    
+    <div class="col-12">
+        <label for="name" class="form-label">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="Model.Name" />
+        <ValidationMessage For="@(() => Model.Name)" />
+    </div>
+    
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary" @onclick="() => messageStore.Clear()">Create</button>
+    </div>
+    <ValidationSummary />
+</EditForm>
+
+@code {
+    public CreateProductRequest Model { get; set; } = new();
+
+    EditContext editContext { get; set; } = null!;
+    ValidationMessageStore messageStore = null!;
+
+    async Task ValidSubmit()
+    {
+        var response = PostResponse.Create(await Http.PostAsJsonAsync("/api/product", Model));
+        if (response is PostResponse.Created)
+        {
+            Navigation.NavigateTo("/product/list");
+        }
+        else
+        {
+            response.HandleResponseFailure(editContext, messageStore);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Model);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+}

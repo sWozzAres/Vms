@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Scrum.Api.Application.Commands;
 using Scrum.Api.Application.Queries;
 using Scrum.Api.Domain.Configuration;
+using Scrum.Api.Exceptions;
 
 namespace Scrum.Api.Controllers;
 
@@ -27,7 +28,7 @@ public class ProductController(ScrumDbContext dbContext) : ControllerBase
         catch(DbUpdateException dbe) 
             when (dbe.InnerException is SqlException se && se.Message.Contains(ProductEntityTypeConfiguration.IX_Product_Name))
         {
-            throw new InvalidOperationException($"A product with the name '{request.Name}' already exists.");
+            throw new ScrumDomainException($"A product with the name '{request.Name}' already exists.");
         }
 
         return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, new { id = product.Id });
@@ -58,7 +59,7 @@ public class ProductController(ScrumDbContext dbContext) : ControllerBase
             catch (DbUpdateException dbe)
                 when (dbe.InnerException is SqlException se && se.Message.Contains(ProductEntityTypeConfiguration.IX_Product_Name))
             {
-                throw new InvalidOperationException($"A product with the name '{request.Name}' already exists.");
+                throw new ScrumDomainException($"A product with the name '{request.Name}' already exists.");
             }
         }
 

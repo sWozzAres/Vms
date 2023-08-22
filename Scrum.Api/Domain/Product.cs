@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Scrum.Api.Domain
 {
-
     /// <summary>
     /// 1. An administrative unit that the Product Owner defines, owns, and manages.
     /// 2. Supports one or more ​Value Stream​s: one for the end users, and one for the Scrum Team...

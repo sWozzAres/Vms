@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using Scrum.Api.Exceptions;
 
 namespace Scrum.Web.Api.Server;
 
@@ -11,16 +12,16 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         {
             await next(context);
         }
-        //catch (VmsDomainException ex)
-        //{
-        //    logger.LogError(ex, "VmsDomainException handler");
-        //    context.Response.Clear();
-        //    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        //    context.Response.ContentType = "application/json";
-        //    await context.Response.WriteAsync(JsonSerializer.Serialize(
-        //        new { title = "There was a problem processing the request.", status = 400, detail = ex.Message }
-        //    ));
-        //}
+        catch (ScrumDomainException ex)
+        {
+            logger.LogError(ex, "ScrumDomainException handler");
+            context.Response.Clear();
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsync(JsonSerializer.Serialize(
+                new { title = "There was a problem processing the request.", status = 400, detail = ex.Message }
+            ));
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Exception handler");

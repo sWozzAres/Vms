@@ -2,14 +2,18 @@
 
 namespace Scrum.Shared;
 
-public class CreateProductRequest(string name)
+public class CreateProductRequest
 {
     [StringLength(64)]
-    public string Name { get; set; } = name;
+    public string Name { get; set; } = null!;
 }
 
 public record ProductFullDto(Guid Id, string Name);
 
 public record ProductListDto(Guid Id, string Name);
 
-public record UpdateProductRequest(string Name);
+public class UpdateProductRequest(string name)
+{
+    [StringLength(64)]
+    public string Name { get; set; } = name;
+}

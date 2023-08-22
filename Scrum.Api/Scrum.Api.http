@@ -26,3 +26,7 @@ Content-Type: application/json
 GET {{Scrum.Api_HostAddress}}/api/product
 
 ###
+
+GET {{Scrum.Api_HostAddress}}/api/product
+
+###

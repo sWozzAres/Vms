@@ -11,7 +11,19 @@ namespace Scrum.Web.Api
     {
         public static void Main(string[] args)
         {
+            const string CorsPolicy = "CorsPolicy";
+
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: CorsPolicy,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("https://localhost:7289");
+                                      policy.AllowAnyHeader();
+                                  });
+            });
 
             // Add services to the container.
             builder.Services.AddScrumApplication(
@@ -32,12 +44,16 @@ namespace Scrum.Web.Api
                     .SeedAsync(env)
                     .Wait();
             });
-            
+
             // Configure the HTTP request pipeline.
+
+            
+
             app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
+            app.UseCors(CorsPolicy);
             app.UseAuthorization();
 
 

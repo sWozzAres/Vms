@@ -15,8 +15,6 @@ public class UpdateProduct(
 
         Product.Name = request.Name;
         
-        logger.LogInformation("State {state}.", DbContext.Entry(Product).State);
-
         return DbContext.Entry(Product).State == EntityState.Modified;
     }
 }
