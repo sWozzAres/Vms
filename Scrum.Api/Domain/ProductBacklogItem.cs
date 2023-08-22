@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -104,7 +103,7 @@ namespace Scrum.Api.Domain.Configuration
     {
         public void Configure(EntityTypeBuilder<ProductBacklogItem> builder)
         {
-            
+
         }
     }
 }

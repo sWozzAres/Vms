@@ -18,6 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Scrum.Shared\Scrum.Shared.csproj" />
 		<ProjectReference Include="..\Utopia.Api\Utopia.Api.csproj" />
 		<ProjectReference Include="..\Utopia.Shared\Utopia.Shared.csproj" />
 	</ItemGroup>

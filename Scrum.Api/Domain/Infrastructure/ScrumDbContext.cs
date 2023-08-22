@@ -5,7 +5,7 @@ namespace Scrum.Api.Domain.Infrastructure;
 
 public class ScrumDbContext : DbContext
 {
-    public DbSet<Product> Products => Set<Product>(); 
+    public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductIncrement> ProductIncrements => Set<ProductIncrement>();
     public DbSet<ProductBacklogItem> ProductBacklogItems => Set<ProductBacklogItem>();
     public DbSet<SprintBacklogItem> SprintBacklogItems => Set<SprintBacklogItem>();

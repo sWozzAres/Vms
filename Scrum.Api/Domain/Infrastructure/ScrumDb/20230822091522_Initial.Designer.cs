@@ -12,7 +12,7 @@ using Scrum.Api.Domain.Infrastructure;
 namespace Scrum.Api.Domain.Infrastructure.ScrumDb
 {
     [DbContext(typeof(ScrumDbContext))]
-    [Migration("20230821135903_Initial")]
+    [Migration("20230822091522_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -31,6 +31,11 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<Guid>("Owner")
                         .HasColumnType("uniqueidentifier");
 
@@ -48,11 +53,6 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
                     b.Property<DateOnly>("DeliveryDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(4096)
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("EstimatedDays")
                         .HasColumnType("int");
 
@@ -67,6 +67,9 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ProductBacklogItemId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -83,7 +86,14 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
                     b.Property<int?>("Value")
                         .HasColumnType("int");
 
+                    b.Property<string>("ValueDescription")
+                        .IsRequired()
+                        .HasMaxLength(4096)
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductBacklogItemId");
 
                     b.HasIndex("ProductId");
 
@@ -122,9 +132,6 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DependsOnId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -135,17 +142,24 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
                     b.Property<Guid>("ProductBacklogItemId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("SprintBacklogItemId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("DependsOnId");
-
                     b.HasIndex("ProductBacklogItemId");
+
+                    b.HasIndex("SprintBacklogItemId");
 
                     b.ToTable("SprintBacklogItems");
                 });
 
             modelBuilder.Entity("Scrum.Api.Domain.ProductBacklogItem", b =>
                 {
+                    b.HasOne("Scrum.Api.Domain.ProductBacklogItem", null)
+                        .WithMany("DependsOn")
+                        .HasForeignKey("ProductBacklogItemId");
+
                     b.HasOne("Scrum.Api.Domain.Product", "Product")
                         .WithMany("BacklogItems")
                         .HasForeignKey("ProductId")
@@ -163,17 +177,15 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
 
             modelBuilder.Entity("Scrum.Api.Domain.SprintBacklogItem", b =>
                 {
-                    b.HasOne("Scrum.Api.Domain.SprintBacklogItem", "DependsOn")
-                        .WithMany()
-                        .HasForeignKey("DependsOnId");
-
                     b.HasOne("Scrum.Api.Domain.ProductBacklogItem", "ProductBacklogItem")
                         .WithMany("SprintBacklogItems")
                         .HasForeignKey("ProductBacklogItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DependsOn");
+                    b.HasOne("Scrum.Api.Domain.SprintBacklogItem", null)
+                        .WithMany("DependsOn")
+                        .HasForeignKey("SprintBacklogItemId");
 
                     b.Navigation("ProductBacklogItem");
                 });
@@ -185,12 +197,19 @@ namespace Scrum.Api.Domain.Infrastructure.ScrumDb
 
             modelBuilder.Entity("Scrum.Api.Domain.ProductBacklogItem", b =>
                 {
+                    b.Navigation("DependsOn");
+
                     b.Navigation("SprintBacklogItems");
                 });
 
             modelBuilder.Entity("Scrum.Api.Domain.ProductIncrement", b =>
                 {
                     b.Navigation("BacklogItems");
+                });
+
+            modelBuilder.Entity("Scrum.Api.Domain.SprintBacklogItem", b =>
+                {
+                    b.Navigation("DependsOn");
                 });
 #pragma warning restore 612, 618
         }
