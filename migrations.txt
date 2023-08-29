@@ -7,7 +7,7 @@ remove-migration -Context VmsDbContext -Project Vms.Domain.Infrastructure -Start
 add-migration -Name Initial4 -o Domain\Infrastructure\CatalogDb -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 update-database -Context CatalogDbContext -Project Catalog.Api -StartupProject Catalog.Api
 
-add-migration -Name Initial -o Domain\Infrastructure\ScrumDb -Context ScrumDbContext -Project Scrum.Api -StartupProject Scrum.Api
+add-migration -Name Initial2 -o Domain\Infrastructure\ScrumDb -Context ScrumDbContext -Project Scrum.Api -StartupProject Scrum.Api
 update-database -Context ScrumDbContext -Project Scrum.Api -StartupProject Scrum.Api
 
 dotnet ef migrations add Grants -o Migrations\PersistedGrantDb -c PersistedGrantDbContext

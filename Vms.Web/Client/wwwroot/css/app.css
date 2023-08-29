@@ -1,4 +1,8 @@
-﻿:root {
+﻿@font-face {
+  font-family: "Nunito";
+  src: url("../fonts/nunito/static/Nunito-Regular.ttf");
+}
+:root {
   --a-active-text: #c00;
   --a-hover-bg: rgba(75%, 75%, 75%, .25);
   --a-normal-text: #004eff;
@@ -68,7 +72,8 @@
 }
 
 html, body {
-  font-family: "Inter", sans-serif;
+  /*font-family: 'Inter', sans-serif;*/
+  font-family: "Nunito", sans-serif;
   /*font-family: 'Roboto', sans-serif;
   font-family: 'Work Sans', sans-serif;*/
   background-color: var(--bg);
@@ -76,8 +81,8 @@ html, body {
   font-weight: 400;
   color: var(--color);
   /* @media (prefers-color-scheme: dark) {
-       color: white;
-   }*/
+      color: white;
+  }*/
 }
 
 body {
