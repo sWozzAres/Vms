@@ -1,6 +1,4 @@
-﻿using Vms.Domain.Core;
-
-namespace Vms.Application.Commands.VehicleUseCase;
+﻿namespace Vms.Application.Commands.VehicleUseCase;
 
 public class EditVehicle(
     VmsDbContext dbContext,
@@ -41,7 +39,7 @@ public class EditVehicle(
             {
                 Ctx.SummaryText.AppendLine($"* Vrm: {Ctx.Command.Vrm}");
                 Self.Vrm = Ctx.Command.Vrm;
-                
+
                 await Ctx.SearchManager.UpdateOrAdd(Self.CompanyCode, Self.Id.ToString(), EntityKind.Vehicle, Self.Vrm, Self.Vrm, Ctx.CancellationToken);
 
                 isModified = true;
@@ -90,7 +88,7 @@ public class EditVehicle(
 
             if (Self.Address.AddModificationSummary(ctx.Command.Address, Ctx.SummaryText))
             {
-                Self.SetAddress(Ctx.Command.Address.Street, Ctx.Command.Address.Locality, 
+                Self.SetAddress(Ctx.Command.Address.Street, Ctx.Command.Address.Locality,
                     Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
                     Ctx.Command.Address.Location.Latitude, Ctx.Command.Address.Location.Longitude);
                 isModified = true;

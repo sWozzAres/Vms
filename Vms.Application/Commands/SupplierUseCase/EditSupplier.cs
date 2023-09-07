@@ -3,9 +3,9 @@
 namespace Vms.Application.Commands.SupplierUseCase;
 
 public class EditSupplier(
-    VmsDbContext dbContext, 
+    VmsDbContext dbContext,
     IActivityLogger<VmsDbContext> activityLog,
-    ITaskLogger<VmsDbContext> taskLogger, 
+    ITaskLogger<VmsDbContext> taskLogger,
     ILogger<EditSupplier> logger) : SupplierTaskBase(dbContext, activityLog)
 {
     SupplierDto Command = null!;

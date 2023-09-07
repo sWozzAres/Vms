@@ -8,7 +8,7 @@ public interface IRecentViewLogger<TContext> where TContext : ISystemContext
 }
 
 public class RecentViewLogger<TContext>(
-    TContext context, 
+    TContext context,
     IUserProvider userProvider,
     ITimeService timeService) : IRecentViewLogger<TContext> where TContext : ISystemContext
 {

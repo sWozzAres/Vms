@@ -2,7 +2,7 @@
 
 public static partial class DomainExtensions
 {
-    public static FleetShortDto ToShortDto(this Fleet fleet) 
+    public static FleetShortDto ToShortDto(this Fleet fleet)
         => new(fleet.CompanyCode, fleet.Code, fleet.Name);
 
     public static SupplierDto ToDto(this Supplier supplier)

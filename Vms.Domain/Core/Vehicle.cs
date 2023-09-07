@@ -45,8 +45,8 @@ namespace Vms.Domain.Core
             Model = model;
             DateFirstRegistered = dateFirstRegistered;
 
-            MotEvents.Add(new(CompanyCode, Id, 
-                motDue ?? dateFirstRegistered.AddYears(3), 
+            MotEvents.Add(new(CompanyCode, Id,
+                motDue ?? dateFirstRegistered.AddYears(3),
                 true));
 
             VehicleVrm = new VehicleVrm(vrm);
@@ -85,7 +85,7 @@ namespace Vms.Domain.Core
         }
         public void SetAddress(string street, string locality, string town, string postcode, double latitude, double longitude)
             => Address = new Address(street, locality, town, postcode, new Point(longitude, latitude) { SRID = 4326 });
-        
+
     }
 
     public class VehicleVrm

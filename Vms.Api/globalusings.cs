@@ -5,7 +5,6 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Data.SqlClient;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
-global using Utopia.Api.Domain.System;
 global using Utopia.Api.Services;
 global using Utopia.Blazor.Application.Shared;
 global using Utopia.Blazor.Application.Vms.Shared;

@@ -52,7 +52,7 @@ builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services.AddSingleton<INotifyFollowers, NotifyFollowersViaSignalR>();
 
 builder.Services.AddVmsApplication(
-    builder.Configuration.GetConnectionString("VmsDbConnection") 
+    builder.Configuration.GetConnectionString("VmsDbConnection")
         ?? throw new InvalidOperationException("Failed to load connection string VmsDbConnection."));
 
 builder.Services.AddCatalogApplication(

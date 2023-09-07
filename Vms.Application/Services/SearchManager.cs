@@ -19,10 +19,10 @@ public class SearchManager(VmsDbContext context, ILogger<SearchManager> logger) 
         CancellationToken cancellationToken)
     {
         var tag = await context.EntityTags
-            .SingleOrDefaultAsync(t=>t.EntityKey == entityKey && t.EntityKind == entityKind, cancellationToken);
+            .SingleOrDefaultAsync(t => t.EntityKey == entityKey && t.EntityKind == entityKind, cancellationToken);
         if (tag is not null)
             tag.Update(name, content);
         else
-            Add(companyCode, entityKey, entityKind, name, content); 
+            Add(companyCode, entityKey, entityKind, name, content);
     }
 }

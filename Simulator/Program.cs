@@ -1,13 +1,10 @@
-﻿using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Simulator.Services;
 using Utopia.Api.Application.Services;
 using Utopia.Api.Services;
 using Vms.Api.Extensions;
-using Vms.Domain.Infrastructure;
 
 namespace Simulator
 {

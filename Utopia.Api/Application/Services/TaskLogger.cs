@@ -8,7 +8,7 @@ public interface ITaskLogger<TContext> where TContext : ISystemContext
 }
 
 public class TaskLogger<TContext>(
-    TContext dbContext, 
+    TContext dbContext,
     IUserProvider userProvider,
     ITimeService timeService) : ITaskLogger<TContext> where TContext : ISystemContext
 {

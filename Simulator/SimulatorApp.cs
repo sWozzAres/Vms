@@ -147,7 +147,7 @@ namespace Simulator
             await ConfigureDatabaseAsync();
 
             TimeService.SetTime(new DateTime(2020, 1, 1));
-            
+
             await CreateBookings();
         }
 
