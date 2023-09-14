@@ -36,29 +36,29 @@ public class EditSupplier(
         {
             bool isModified = false;
 
-            if (self.Code != ctx.Command.Code)
+            if (Self.Code != Ctx.Command.Code)
             {
-                Ctx.SummaryText.AppendLine($"* Code: {ctx.Command.Code}");
-                self.Code = ctx.Command.Code;
+                Ctx.SummaryText.AppendLine($"* Code: {Ctx.Command.Code}");
+                Self.Code = Ctx.Command.Code;
                 isModified = true;
             }
-            if (self.Name != ctx.Command.Name)
+            if (Self.Name != Ctx.Command.Name)
             {
-                Ctx.SummaryText.AppendLine($"* Name: {ctx.Command.Name}");
-                self.Name = ctx.Command.Name;
+                Ctx.SummaryText.AppendLine($"* Name: {Ctx.Command.Name}");
+                Self.Name = Ctx.Command.Name;
                 isModified = true;
             }
-            if (self.IsIndependent != ctx.Command.IsIndependent)
+            if (Self.IsIndependent != Ctx.Command.IsIndependent)
             {
-                Ctx.SummaryText.AppendLine($"* Is Independant: {ctx.Command.IsIndependent.YesNo()}");
-                self.IsIndependent = ctx.Command.IsIndependent;
+                Ctx.SummaryText.AppendLine($"* Is Independant: {Ctx.Command.IsIndependent.YesNo()}");
+                Self.IsIndependent = Ctx.Command.IsIndependent;
                 isModified = true;
             }
 
-            if (Self.Address.AddModificationSummary(ctx.Command.Address, Ctx.SummaryText))
+            if (Self.Address.AddModificationSummary(Ctx.Command.Address, Ctx.SummaryText))
             {
-                self.SetAddress(ctx.Command.Address.Street, ctx.Command.Address.Locality, ctx.Command.Address.Town, ctx.Command.Address.Postcode,
-                    ctx.Command.Address.Location.Latitude, ctx.Command.Address.Location.Longitude);
+                Self.SetAddress(Ctx.Command.Address.Street, Ctx.Command.Address.Locality, Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
+                    Ctx.Command.Address.Location.Latitude, Ctx.Command.Address.Location.Longitude);
                 isModified = true;
             }
 

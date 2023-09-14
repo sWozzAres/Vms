@@ -86,7 +86,7 @@ public class EditVehicle(
                 isModified = true;
             }
 
-            if (Self.Address.AddModificationSummary(ctx.Command.Address, Ctx.SummaryText))
+            if (Self.Address.AddModificationSummary(Ctx.Command.Address, Ctx.SummaryText))
             {
                 Self.SetAddress(Ctx.Command.Address.Street, Ctx.Command.Address.Locality,
                     Ctx.Command.Address.Town, Ctx.Command.Address.Postcode,
